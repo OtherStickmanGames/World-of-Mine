@@ -1,28 +1,48 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Netcode;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine;
 using System;
 
 public class UI : MonoBehaviour
 {
-    [SerializeField] Button btnHost;
-    [SerializeField] Button btnClient;
+    [SerializeField] InventotyView inventotyView;
+    [SerializeField] QuickInventoryView quickInventoryView;
+    [SerializeField] Button btnSwitchCamera;
+
+    public static UnityEvent onInventoryOpen = new UnityEvent();
+    public static UnityEvent onInventoryClose = new UnityEvent();
+
+    Player mine;
+
 
     private void Awake()
     {
-        btnHost.onClick.AddListener(Host_Clicked);
-        btnClient.onClick.AddListener(Client_Clicked);
+        PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
     }
 
-    private void Client_Clicked()
+    private void PlayerMine_Spawned(Player player)
     {
-        NetworkManager.Singleton.StartClient();
+        mine = player;
+
+        InitInventoryView(player);
     }
 
-    private void Host_Clicked()
+    private void InitInventoryView(Player player)
     {
-        NetworkManager.Singleton.StartHost();
+        inventotyView.Init(player.inventory);
+        quickInventoryView.Init(player.inventory);
+
+        onInventoryOpen.AddListener(player.inventory.Open);
+        onInventoryClose.AddListener(player.inventory.Close);
+    }
+
+    public static void ClearParent(Transform parent)
+    {
+        foreach (Transform item in parent)
+        {
+            Destroy(item.gameObject);
+        }
     }
 }

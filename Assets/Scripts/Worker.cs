@@ -10,7 +10,7 @@ public class Worker : MonoBehaviour
     [SerializeField] Transform destionationIndicator;
     [SerializeField] Transform mineDirIndicator;
     [SerializeField] NavMeshAgent meshAgentPrefab;
-    [SerializeField] Player player;
+    [SerializeField] Character player;
     [SerializeField] float verticalSpeed = 5;
     [SerializeField] float moveSpeed = 2f;
 

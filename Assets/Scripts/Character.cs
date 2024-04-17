@@ -6,7 +6,7 @@ using static ITEMS;
 using static BLOCKS;
 using StarterAssets;
 
-public class Player : MonoBehaviour
+public class Character : MonoBehaviour
 {
     [SerializeField] TextAsset tower;
     [SerializeField] Transform towerPos;
@@ -14,7 +14,7 @@ public class Player : MonoBehaviour
     [SerializeField] Transform topDownTarget;
     //[SerializeField] ThirdPersonController thirdPersonController;
 
-    public static UnityEvent<Player> onSpawn = new UnityEvent<Player>();
+    public static UnityEvent<Character> onSpawn = new UnityEvent<Character>();
 
     public Transform SpineItemHolder => spineItemHolder;
 

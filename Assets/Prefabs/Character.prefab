@@ -912,6 +912,9 @@ MonoBehaviour:
   mineTimer: 0
   CurrentPathStatus: 0
   agentVelocity: {x: 0, y: 0, z: 0}
+  hasPath: 0
+  isPathStale: 0
+  corners: []
 --- !u!114 &4833302565098187609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -950,7 +953,7 @@ MonoBehaviour:
   GroundedRadius: 0.28
   GroundLayers:
     serializedVersion: 2
-    m_Bits: 129
+    m_Bits: 1
   TopClamp: 85
   BottomClamp: -50
   CameraAngleOverride: 0
@@ -1000,7 +1003,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pushLayers:
     serializedVersion: 2
-    m_Bits: 193
+    m_Bits: 1
   canPush: 0
   strength: 1.1
 --- !u!1001 &3677739064001128701

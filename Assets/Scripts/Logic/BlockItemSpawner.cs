@@ -38,7 +38,7 @@ public class BlockItemSpawner : IUpdateble
         removable.Clear();
     }
 
-    void CheckDistanceToPlayer(Player player, SpawnedBlockData data)
+    void CheckDistanceToPlayer(Character player, SpawnedBlockData data)
     {
         if (data.lifetime > 1f)
         {
@@ -64,7 +64,7 @@ public class BlockItemSpawner : IUpdateble
         }
     }
 
-    void TakeBlock(Player player, SpawnedBlockData block)
+    void TakeBlock(Character player, SpawnedBlockData block)
     {
         var item = new Item()
         {

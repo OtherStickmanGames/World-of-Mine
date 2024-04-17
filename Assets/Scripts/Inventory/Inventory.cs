@@ -19,9 +19,9 @@ public class Inventory
     public Item CurrentSelectedItem { get; set; }
     public bool IsOpen { get; private set; }
 
-    Player player;
+    Character player;
 
-    public Inventory(Player owner)
+    public Inventory(Character owner)
     {
         player = owner;
     }

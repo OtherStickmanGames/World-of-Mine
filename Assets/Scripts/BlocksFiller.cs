@@ -5,7 +5,7 @@ using static BLOCKS;
 
 public class BlocksFiller : MonoBehaviour
 {
-    [SerializeField] Player player;
+    [SerializeField] Character player;
     [SerializeField] BlockName[] blocksNames;
 
     private void Update()

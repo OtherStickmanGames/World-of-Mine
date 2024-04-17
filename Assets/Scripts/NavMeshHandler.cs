@@ -12,12 +12,12 @@ public class NavMeshHandler : MonoBehaviour
     [SerializeField] NavMeshSurface navMeshSurface;
 
     WorldGenerator worldGenerator;
-    Player player;
+    Character player;
 
     private void Start()
     {
         worldGenerator = FindObjectOfType<WorldGenerator>();
-        player = FindObjectOfType<Player>();
+        player = FindObjectOfType<Character>();
         WorldGenerator.onBlockPick.AddListener(Block_Picked);
     }
 

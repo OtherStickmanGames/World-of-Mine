@@ -11,9 +11,9 @@ public class HUD : MonoBehaviour
     [SerializeField] EquipmentView equipmentView;
     [SerializeField] TMP_InputField inputField;
 
-    Player player;
+    Character player;
 
-    public void Init(Player owner)
+    public void Init(Character owner)
     {
         player = owner;
 

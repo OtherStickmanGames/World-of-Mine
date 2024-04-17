@@ -30,7 +30,7 @@ public class WorldGenerator : MonoBehaviour
     readonly List<Vector2> uvs = new();
 
     [SerializeField]
-    List<Player> players = new();
+    List<Character> players = new();
 
     public static WorldGenerator Inst { get; set; }
     public static UnityEvent onReady = new UnityEvent();
@@ -56,7 +56,7 @@ public class WorldGenerator : MonoBehaviour
         onReady?.Invoke();
     }
 
-    private void PlayerAny_Spawned(Player player)
+    private void PlayerAny_Spawned(Character player)
     {
         players.Add(player);
     }

@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 public class EventsHolder
 {
-    public class PlayerSpawned : UnityEvent<Player> { }
+    public class PlayerSpawned : UnityEvent<Character> { }
 
     public static PlayerSpawned playerSpawnedMine = new();
 
@@ -18,7 +18,7 @@ public class EventsHolder
 
     //-----------------------------------------------------------------------
 
-    public class PlayerSpawnedAny : UnityEvent<Player> { }
+    public class PlayerSpawnedAny : UnityEvent<Character> { }
 
     public static PlayerSpawnedAny onPlayerSpawnAny = new();
 
@@ -48,7 +48,7 @@ public class EventsHolder
 
     //-----------------------------------------------------------------------
 
-    public class PlayerAnniged : UnityEvent<Player> { }
+    public class PlayerAnniged : UnityEvent<Character> { }
 
     public static PlayerAnniged playerAnniged = new ();
 
@@ -60,7 +60,7 @@ public class EventsHolder
 
     ////-----------------------------------------------------------------------
 
-    public class ItemPicked : UnityEvent<Player, SpawnedBlockData> { }
+    public class ItemPicked : UnityEvent<Character, SpawnedBlockData> { }
 
     public static ItemPicked onItemTaked = new();
 

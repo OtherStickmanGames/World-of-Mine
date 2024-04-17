@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] public Transform workersParent;
     [SerializeField] bool autoSpawn;
     [SerializeField] int countWorkers = 50;
-    public List<Player> players = new();
+    public List<Character> players = new();
 
     [Header("Глобальные Настройки Рабочих")]
     public float JumpTopThresold = 0.8f;
@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
         FindPathSystem.Instance.onPathComplete += FindPathBetweenBlocks_Completed;
-        Player.onSpawn.AddListener(PlayerAny_Spawned);
+        Character.onSpawn.AddListener(PlayerAny_Spawned);
     }
 
     private IEnumerator Start()
@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void PlayerAny_Spawned(Player player)
+    private void PlayerAny_Spawned(Character player)
     {
         players.Add(player);
     }

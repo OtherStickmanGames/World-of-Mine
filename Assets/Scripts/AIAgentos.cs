@@ -6,13 +6,13 @@ using UnityEngine.AI;
 public class AIAgentos : MonoBehaviour
 {
     NavMeshAgent m_Agent;
-    Player player;
+    Character player;
     RaycastHit m_HitInfo = new RaycastHit();
 
     void Start()
     {
         m_Agent = GetComponent<NavMeshAgent>();
-        player = FindObjectOfType<Player>();
+        player = FindObjectOfType<Character>();
     }
 
     private void Update()

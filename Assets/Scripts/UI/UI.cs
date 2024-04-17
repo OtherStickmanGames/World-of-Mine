@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine;
@@ -7,6 +8,8 @@ using System;
 
 public class UI : MonoBehaviour
 {
+    [SerializeField] Button btnHost;
+    [SerializeField] Button btnClient;
     [SerializeField] InventotyView inventotyView;
     [SerializeField] QuickInventoryView quickInventoryView;
     [SerializeField] Button btnSwitchCamera;
@@ -14,25 +17,39 @@ public class UI : MonoBehaviour
     public static UnityEvent onInventoryOpen = new UnityEvent();
     public static UnityEvent onInventoryClose = new UnityEvent();
 
-    Player mine;
+    Character mine;
 
 
     private void Awake()
     {
+        btnClient.onClick.AddListener(BtnClient_Clicked);
+        btnHost.onClick.AddListener(BtnHost_Clicked);
+
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
     }
 
-    private void PlayerMine_Spawned(Player player)
+    private void BtnHost_Clicked()
+    {
+        NetworkManager.Singleton.StartHost();
+    }
+
+    private void BtnClient_Clicked()
+    {
+        NetworkManager.Singleton.StartClient();
+
+    }
+
+    private void PlayerMine_Spawned(Character player)
     {
         mine = player;
 
         InitInventoryView(player);
     }
 
-    private void InitInventoryView(Player player)
+    private void InitInventoryView(Character player)
     {
-        inventotyView.Init(player.inventory);
-        quickInventoryView.Init(player.inventory);
+        //inventotyView.Init(player.inventory);
+        //quickInventoryView.Init(player.inventory);
 
         onInventoryOpen.AddListener(player.inventory.Open);
         onInventoryClose.AddListener(player.inventory.Close);

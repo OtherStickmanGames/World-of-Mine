@@ -112,7 +112,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4050704144213722128}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd3a3dbc85a102848b6dd707ce668643, type: 3}
+  m_Script: {fileID: 11500000, guid: 305fe1a8fc00f4540b1b924c13f40f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tower: {fileID: 4900000, guid: e86b192b6b8a137479a0eee2a5e1d524, type: 3}
@@ -135,7 +135,7 @@ MonoBehaviour:
     type: 3}
   layerMask:
     serializedVersion: 2
-    m_Bits: 147
+    m_Bits: 19
   allowDigging: 1
 --- !u!143 &4254776806189264067
 CharacterController:
@@ -201,7 +201,7 @@ MonoBehaviour:
   GroundedRadius: 0.28
   GroundLayers:
     serializedVersion: 2
-    m_Bits: 129
+    m_Bits: 1
   CinemachineCameraTarget: {fileID: 3265513956380805458}
   TopClamp: 70
   BottomClamp: -30
@@ -357,7 +357,7 @@ MonoBehaviour:
   m_Effectors:
   - m_Transform: {fileID: 6596344799583694658}
     m_Style:
-      shape: {fileID: 4300000, guid: e050c2b16fe384bd994474655a4b4968, type: 2}
+      shape: {fileID: 0}
       color: {r: 0.71411914, g: 0.8490566, b: 0.59674263, a: 0.5}
       size: 0.16
       position: {x: 0, y: 0, z: 0}
@@ -365,7 +365,7 @@ MonoBehaviour:
     m_Visible: 1
   - m_Transform: {fileID: 8909048788059815311}
     m_Style:
-      shape: {fileID: 4300000, guid: c6793350c150f456688e39a81f97364a, type: 2}
+      shape: {fileID: 0}
       color: {r: 1, g: 0, b: 0, a: 0.5}
       size: 0.1
       position: {x: 0, y: 0, z: 0}

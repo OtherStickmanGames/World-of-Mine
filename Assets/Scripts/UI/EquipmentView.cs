@@ -9,9 +9,9 @@ public class EquipmentView : MonoBehaviour
     [SerializeField] Transform parent;
     [SerializeField] List<EquipmentSlotData> slotsData;
 
-    Player owner;
+    Character owner;
 
-    public void Init(Player owner)
+    public void Init(Character owner)
     {
         this.owner = owner;
 

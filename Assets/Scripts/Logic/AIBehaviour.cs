@@ -18,7 +18,7 @@ public class AIBehaviour : MonoBehaviour
     public float delay = 3f;
 
     MoveComponent moveComponent;
-    [SerializeField] Player target;
+    [SerializeField] Character target;
 
     [SerializeField] List<Vector3> path = new();
     [SerializeField] Dictionary<Vector3, PathPoint> explored = new();
@@ -39,7 +39,7 @@ public class AIBehaviour : MonoBehaviour
     private void Start()
     {
         moveComponent = GetComponent<MoveComponent>();
-        target = FindObjectsOfType<Player>().ToList().Find(p => p.GetComponent<ThirdPersonController>());
+        target = FindObjectsOfType<Character>().ToList().Find(p => p.GetComponent<ThirdPersonController>());
     }
 
     private void Update()
@@ -432,7 +432,7 @@ public class AIBehaviour : MonoBehaviour
 
         if (Physics.Raycast(posOrigin, dir, out var hit))
         {
-            var p = hit.collider.GetComponent<Player>();
+            var p = hit.collider.GetComponent<Character>();
             if(p && p == target)
             {
                 return false;

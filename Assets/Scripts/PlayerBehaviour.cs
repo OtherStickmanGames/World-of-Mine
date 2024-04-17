@@ -12,16 +12,16 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] LayerMask layerMask;
     [SerializeField] bool allowDigging;
 
-    public static UnityEvent<Player> onMineSpawn = new UnityEvent<Player>();
+    public static UnityEvent<Character> onMineSpawn = new UnityEvent<Character>();
 
     Transform blockHighlight;
-    Player player;
+    Character player;
 
     private void Start()
     {
         blockHighlight = Instantiate(blockHighlightPrefab, Vector3.zero, Quaternion.identity);
 
-        player = GetComponent<Player>();
+        player = GetComponent<Character>();
 
         onMineSpawn?.Invoke(player);
         EventsHolder.playerSpawnedMine?.Invoke(player);

@@ -1,32 +1,61 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using StarterAssets;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using static WorldGenerator;
 
-
+[DefaultExecutionOrder(108)]
 public class PlayerBehaviour : MonoBehaviour
 {
     [SerializeField] Transform blockHighlightPrefab;
     [SerializeField] LayerMask layerMask;
     [SerializeField] bool allowDigging;
 
-    public static UnityEvent<Character> onMineSpawn = new UnityEvent<Character>();
+    public bool IsOwner { get; set; } = true;
 
+    //public static UnityEvent<Character> onMineSpawn = new UnityEvent<Character>();
+    public static UnityEvent<MonoBehaviour> onMineSpawn = new UnityEvent<MonoBehaviour>();
+
+    ThirdPersonController thirdPersonController;
     Transform blockHighlight;
     Character player;
+
+    float deltaTime;
 
     private void Start()
     {
         blockHighlight = Instantiate(blockHighlightPrefab, Vector3.zero, Quaternion.identity);
 
         player = GetComponent<Character>();
+        thirdPersonController = GetComponent<ThirdPersonController>();
 
-        onMineSpawn?.Invoke(player);
-        EventsHolder.playerSpawnedMine?.Invoke(player);
+        if (IsOwner)
+        {
+            onMineSpawn?.Invoke(this);
+            EventsHolder.playerSpawnedMine?.Invoke(player);
 
-        FindPathSystem.Instance.onPathComplete += FindPath_Completed;
+            var sai = FindObjectOfType<StarterAssetsInputs>();
+            var pi = FindObjectOfType<PlayerInput>();
+            thirdPersonController.SetInput(sai, pi);
+
+            var userDataPosition = UserData.Owner.position;
+            //print($"{UserData.Owner.userName} ### {UserData.Owner.position}");
+            if (userDataPosition == Vector3.zero)
+            {
+                transform.position += Vector3.one + Vector3.up * 180;
+            }
+            else
+            {
+                Inst.GetChunk(userDataPosition.ToGlobalRoundBlockPos());
+                transform.position = userDataPosition + (Vector3.up * 3);
+            }
+        }
+        
+
+        //FindPathSystem.Instance.onPathComplete += FindPath_Completed;
     }
 
     private void FindPath_Completed(FindPathSystem.PathDataResult data)
@@ -42,6 +71,10 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void Update()
     {
+        deltaTime = Time.deltaTime;
+
+        SavePlayerPosition();
+
         if (allowDigging)
         {
             BlockRaycast();
@@ -318,5 +351,19 @@ public class PlayerBehaviour : MonoBehaviour
             return false;
         else
             return true;
+    }
+
+    float savePositionTimer;
+    void SavePlayerPosition()
+    {
+        savePositionTimer += deltaTime;
+
+        if (savePositionTimer < 1)
+            return;
+
+        savePositionTimer = 0;
+
+        UserData.Owner.position = transform.position;
+        UserData.Owner.SaveData();
     }
 }

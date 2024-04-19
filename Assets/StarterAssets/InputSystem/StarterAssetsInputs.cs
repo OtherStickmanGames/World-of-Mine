@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -28,7 +29,8 @@ namespace StarterAssets
 
 		public void OnLook(InputValue value)
 		{
-			if(cursorInputForLook)
+
+			if (cursorInputForLook)
 			{
 				LookInput(value.Get<Vector2>());
 			}
@@ -41,6 +43,7 @@ namespace StarterAssets
 
 		public void OnSprint(InputValue value)
 		{
+		
 			SprintInput(value.isPressed);
 		}
 #endif
@@ -48,30 +51,47 @@ namespace StarterAssets
 
 		public void MoveInput(Vector2 newMoveDirection)
 		{
+			
 			move = newMoveDirection;
 		} 
 
 		public void LookInput(Vector2 newLookDirection)
 		{
+			
 			look = newLookDirection;
 		}
 
 		public void JumpInput(bool newJumpState)
 		{
+			
 			jump = newJumpState;
 		}
 
 		public void SprintInput(bool newSprintState)
 		{
+
 			sprint = newSprintState;
 		}
 		
 		private void OnApplicationFocus(bool hasFocus)
 		{
-			SetCursorState(cursorLocked);
+			//SetCursorState(cursorLocked);
 		}
 
-		private void SetCursorState(bool newState)
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+				SetCursorState(false);
+			}
+
+			if (Input.GetKeyDown(KeyCode.F))
+			{
+				SetCursorState(true);
+			}
+		}
+
+        private void SetCursorState(bool newState)
 		{
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
 		}

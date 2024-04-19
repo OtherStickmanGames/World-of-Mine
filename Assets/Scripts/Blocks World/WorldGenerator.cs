@@ -79,15 +79,38 @@ public class WorldGenerator : MonoBehaviour
 
         foreach (var player in players)
         {
-            var pos = player.transform.position;
+            if (!player)
+            {
+                continue;// TO DO
+            }
 
-            var primary = GetChunk(pos + (Vector3.down * 18), out var key);
+            var pos = player.transform.position.ToGlobalRoundBlockPos();
+
+            var primary = GetChunk(pos + (Vector3.down * (size + 3)), out var key);
             if (primary == null)
             {
                 key *= size;
                 CreateChunck(key.x, key.y, key.z);
-                continue;
+                //continue;
             }
+
+            primary = GetChunk(pos + (Vector3.down * (size / 2)), out key);
+            if (primary == null)
+            {
+                key *= size;
+                CreateChunck(key.x, key.y, key.z);
+                //continue;
+            }
+
+            primary = GetChunk(pos, out key);
+            if (primary == null)
+            {
+                key *= size;
+                CreateChunck(key.x, key.y, key.z);
+                //continue;
+            }
+
+
 
             //primary = GetChunk(pos + (Vector3.forward * (size/2)), out key);
             //if (primary == null)
@@ -224,7 +247,16 @@ public class WorldGenerator : MonoBehaviour
     Vector3 checkPosUp1, checkPosUp2, blockGlobalPos, linkPos;
     void CreateLinks(ChunckComponent chunck)
     {
-        var camPos = CameraStack.Instance.Main.transform.position;
+        Vector3 camPos;
+        if (CameraStack.Instance)
+        {
+            camPos = CameraStack.Instance.Main.transform.position;
+        }
+        else
+        {
+            camPos = Camera.main.transform.position;
+        }
+        
         if (Vector3.Distance(camPos, chunck.pos) > size * 10)
         {
             deferredCreateLinksChuncks.Add(chunck);

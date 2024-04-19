@@ -10,7 +10,7 @@ namespace StarterAssets
 {
     [RequireComponent(typeof(CharacterController))]
 #if ENABLE_INPUT_SYSTEM 
-    [RequireComponent(typeof(PlayerInput))]
+    //[RequireComponent(typeof(PlayerInput))]
 #endif
     public class ThirdPersonController : MonoBehaviour
     {
@@ -125,6 +125,8 @@ namespace StarterAssets
             }
         }
 
+        public bool IsOwner { get; set; } = true;
+
 
         private void Awake()
         {
@@ -154,12 +156,19 @@ namespace StarterAssets
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
+        }
 
-            
+        public void SetInput(StarterAssetsInputs inputs, PlayerInput playerInput)
+        {
+            _input = inputs;
+            _playerInput = playerInput;
         }
 
         private void Update()
         {
+            if (!IsOwner)
+                return;
+
             JumpAndGravity();
             GroundedCheck();
             Move();
@@ -167,6 +176,9 @@ namespace StarterAssets
 
         private void LateUpdate()
         {
+            if (!IsOwner)
+                return;
+
             CameraRotation();
         }
 

@@ -13,6 +13,7 @@ public class UI : MonoBehaviour
     [SerializeField] InventotyView inventotyView;
     [SerializeField] QuickInventoryView quickInventoryView;
     [SerializeField] Button btnSwitchCamera;
+    [SerializeField] UserView userView;
 
     public static UnityEvent onInventoryOpen = new UnityEvent();
     public static UnityEvent onInventoryClose = new UnityEvent();
@@ -28,6 +29,11 @@ public class UI : MonoBehaviour
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
     }
 
+    private void Start()
+    {
+        userView.Init();
+    }
+
     private void BtnHost_Clicked()
     {
         NetworkManager.Singleton.StartHost();
@@ -39,11 +45,11 @@ public class UI : MonoBehaviour
 
     }
 
-    private void PlayerMine_Spawned(Character player)
+    private void PlayerMine_Spawned(MonoBehaviour player)
     {
-        mine = player;
+        //mine = player;
 
-        InitInventoryView(player);
+        //InitInventoryView(player);
     }
 
     private void InitInventoryView(Character player)

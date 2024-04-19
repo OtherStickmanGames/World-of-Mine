@@ -1,0 +1,34 @@
+{
+    "name": "Ebos",
+    "maps": [
+        {
+            "name": "EbosCard",
+            "id": "cb6cf4ab-d43c-46a2-8e0b-2c6eac3c8260",
+            "actions": [
+                {
+                    "name": "MOvo",
+                    "type": "Button",
+                    "id": "e7ca6038-68b6-48a6-99ee-876597acd191",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "89ba0b42-b21a-458a-b111-a26b201462cd",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MOvo",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

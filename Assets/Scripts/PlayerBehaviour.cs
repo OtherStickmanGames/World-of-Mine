@@ -50,7 +50,7 @@ public class PlayerBehaviour : MonoBehaviour
             else
             {
                 Inst.GetChunk(userDataPosition.ToGlobalRoundBlockPos());
-                transform.position = userDataPosition + (Vector3.up * 3);
+                transform.position = userDataPosition + (Vector3.up * 5);
             }
         }
         
@@ -71,6 +71,9 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void Update()
     {
+        if (!IsOwner)
+            return;
+
         deltaTime = Time.deltaTime;
 
         SavePlayerPosition();

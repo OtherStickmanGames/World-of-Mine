@@ -663,6 +663,7 @@ public class WorldGenerator : MonoBehaviour
 
     public void PickBlock(Vector3 pos, byte ID)
     {
+        //print("ебать копать, реально копать");
         var blockData = new BlockData { pos = pos, ID = ID };
         onBlockPick?.Invoke(blockData);
     }

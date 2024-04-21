@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.AI.Navigation;
 using UnityEngine;
+using Newtonsoft;
+using Newtonsoft.Json;
 
 public class ChunckComponent
 {
@@ -40,5 +42,44 @@ public class ChunckComponent
         //collider.sharedMesh = mesh;
 
         return blockID;
+    }
+}
+
+[JsonObject]
+public class ChunckData
+{
+    //public Vector3 pos;
+    //[JsonProperty]
+    //public List<List<byte>> blocks;
+    [JsonProperty]
+    public byte[,,] blocks;
+
+    public ChunckData(ChunckComponent chunck)
+    {
+        blocks = chunck.blocks;
+        //blocks = new List<List<byte>>();
+
+        //for (int x = 0; x < WorldGenerator.size; x++)
+        //{
+        //    for (int y = 0; y < WorldGenerator.size; y++)
+        //    {
+        //        if (x < blocks.Count)
+        //        {
+        //            if (y < blocks[x].Count)
+        //            {
+
+        //            }
+        //            else
+        //            {
+        //                blocks[x].Add(chunck.blocks[x, y, 0]);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            blocks.Add(new List<byte>());
+        //            blocks[x].Add(chunck.blocks[x, y, 0]);
+        //        }
+        //    }
+        //}
     }
 }

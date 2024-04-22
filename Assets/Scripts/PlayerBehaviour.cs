@@ -119,7 +119,7 @@ public class PlayerBehaviour : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.U))
         {
-            transform.position += Vector3.up * 300;
+            transform.position += Vector3.up * 80;
         }
     }
 

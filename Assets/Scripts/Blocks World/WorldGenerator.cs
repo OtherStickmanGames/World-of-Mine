@@ -745,11 +745,13 @@ public class WorldGenerator : MonoBehaviour
         int posY = (int)chunck.renderer.transform.position.y;
         int posZ = (int)chunck.renderer.transform.position.z;
 
+        CreateNeedAdjacentsChuncks(chunck);
+
         vertices.Clear();
         triangulos.Clear();
         uvs.Clear();
 
-        Mesh mesh = new();
+        Mesh mesh = chunck.meshFilter.mesh;//new();
         mesh.Clear();
 
         for (int x = 0; x < size; x++)
@@ -814,12 +816,35 @@ public class WorldGenerator : MonoBehaviour
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
-        mesh.OptimizeReorderVertexBuffer();
+        //mesh.OptimizeReorderVertexBuffer();
         mesh.Optimize();
 
         StartCoroutine(DelayableUpdateNavMesh(chunck));
 
         return mesh;
+    }
+
+    void CreateNeedAdjacentsChuncks(ChunckComponent chunck)
+    {
+        int posX = (int)chunck.renderer.transform.position.x;
+        int posY = (int)chunck.renderer.transform.position.y;
+        int posZ = (int)chunck.renderer.transform.position.z;
+
+        for (int x = 0; x < size; x+=size-1)
+        {
+            for (int y = 0; y < size; y+=size-1)
+            {
+                for (int z = 0; z < size; z+=size-1)
+                {
+                    GetChunk(new Vector3(x + posX, y + posY, z + 1 + posZ));
+                    GetChunk(new Vector3(x + posX, y + posY, z - 1 + posZ));
+                    GetChunk(new Vector3(x + 1 + posX, y + posY, z + posZ));
+                    GetChunk(new Vector3(x - 1 + posX, y + posY, z + posZ));
+                    GetChunk(new Vector3(x + posX, y + posY + 1, z + posZ));
+                    GetChunk(new Vector3(x + posX, y + posY - 1, z + posZ));
+                }
+            }
+        }
     }
 
     void DictionaryInits()

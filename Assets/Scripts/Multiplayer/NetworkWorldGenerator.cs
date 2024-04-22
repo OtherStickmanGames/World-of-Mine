@@ -33,10 +33,9 @@ public class NetworkWorldGenerator : NetworkBehaviour
     {
         if (NetworkManager.IsConnectedClient)
         {
-
             if (IsClient)
             {
-                SendChangedBlocksServerRpc();
+                SendChangedBlocksServerRpc(chunckWithBlocks.pos);
             }
         }
         else
@@ -46,9 +45,23 @@ public class NetworkWorldGenerator : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SendChangedBlocksServerRpc(ServerRpcParams serverRpcParams = default)
+    private void SendChangedBlocksServerRpc(Vector3 chunckPos, ServerRpcParams serverRpcParams = default)
     {
-        //print(serverRpcParams.Receive.SenderClientId);
+        var userName = NetworkUserManager.Instance.users[serverRpcParams.Receive.SenderClientId];
+        var chunckDataFileName = GetChunckDataFileName(chunckPos);
+        var path = $"{chuncksDirectory}{serverDirectory}{chunckDataFileName}.json";
+        if (File.Exists(path))
+        {
+            var json = File.ReadAllText(path);
+            var chunckData = JsonConvert.DeserializeObject<ChunckData>(json);
+            var userChunckData = chunckData.usersChangedBlocks.Find(u => u.userName == userName);
+            if (userChunckData != null)
+            {
+                Vector3[] positions = userChunckData.changedBlocks.Select(b => b.Pos).ToArray();
+                byte[] blockIDs = userChunckData.changedBlocks.Select(b => b.blockId).ToArray();
+                ReceiveChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
+            }
+        }
     }
 
     private void Chunck_Inited(ChunckComponent emptyChunck)
@@ -71,8 +84,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
         worldGenerator = WorldGenerator.Inst;
 
         yield return null;
-        worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos());
-        worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos() + (Vector3.down * WorldGenerator.size));
+        offlineBlocksSeted.Add(worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos()));
+        offlineBlocksSeted.Add(worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos() + (Vector3.down * WorldGenerator.size)));
 
     }
 
@@ -109,7 +122,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
             else
             {
                 Vector3[] positions = userChunckData.changedBlocks.Select(b => b.Pos).ToArray();
-                ReceiveChunckBlocksDataClientRpc(positions, GetTargetClientParams(serverRpcParams));
+                byte[] blockIDs = userChunckData.changedBlocks.Select(b => b.blockId).ToArray();
+                ReceivePendingChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
             }
         }
         else
@@ -121,11 +135,46 @@ public class NetworkWorldGenerator : NetworkBehaviour
     }
 
     [ClientRpc(RequireOwnership = false)]
-    private void ReceiveChunckBlocksDataClientRpc(Vector3[] positions, ClientRpcParams clientRpcParams = default)
+    private void ReceivePendingChunckBlocksDataClientRpc(Vector3[] positions, byte[] blockIDs, Vector3 chunckPos, ClientRpcParams clientRpcParams = default)
     {
-        foreach (var item in positions)
+        UpdateChunckMesh(positions, blockIDs, chunckPos);
+
+        waitHandlingChunck = false;
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ReceiveChunckBlocksDataClientRpc(Vector3[] positions, byte[] blockIDs, Vector3 chunckPos, ClientRpcParams clientRpcParams = default)
+    {
+        UpdateChunckMesh(positions, blockIDs, chunckPos);
+    }
+
+    // Выполняется на клиенте
+    private void UpdateChunckMesh(Vector3[] positions, byte[] blockIDs, Vector3 chunckPos)
+    {
+        //Debug.Break();
+
+        StartCoroutine(Async());
+
+        IEnumerator Async()
         {
-            print(item);
+            yield return null;
+
+            var length = positions.Length;
+            var chunck = worldGenerator.GetChunk(chunckPos);
+            //print($"{chunckPos} ### {chunck.pos} ### {chunck.renderer.transform}");
+
+            //yield return null;
+
+            for (int i = 0; i < length; i++)
+            {
+                var pos = positions[i];
+                var blockId = blockIDs[i];
+
+                worldGenerator.SetBlock(pos, chunck, blockId);
+            }
+
+            worldGenerator.UpdateChunckMesh(chunck);
+            chunck.renderer.gameObject.name = chunck.renderer.gameObject.name.Insert(0, $"{chunckPos} ^^^ ");
         }
     }
 
@@ -154,7 +203,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
         else
         {
-            print("отправляем запрос");
+            //print("отправили запрос добычи блока");
             BlockMinedServerRpc(data.pos, data.ID);
             //SaveChangeChunckClientRpc();
         }

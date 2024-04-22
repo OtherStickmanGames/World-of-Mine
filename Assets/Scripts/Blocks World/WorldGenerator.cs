@@ -63,13 +63,7 @@ public class WorldGenerator : MonoBehaviour
 
     private void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.R))
-        //{
-        //    UnityEngine.SceneManagement.SceneManager.LoadScene(0);            
-        //}
-
         
-
         DynamicCreateChunck();
     }
 
@@ -147,23 +141,27 @@ public class WorldGenerator : MonoBehaviour
         triangulos?.Clear();
         uvs?.Clear();
 
-        var chunck = new ChunckComponent();
-        chunck.blocks = new byte[size, size, size];
-        
-        for (int x = 0; x < size; x++)
+        var chunck = new ChunckComponent(posX, posY, posZ);
+
+        if (!chunck.blocksLoaded)
         {
-            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
             {
-                for (int z = 0; z < size; z++)
+                for (int y = 0; y < size; y++)
                 {
-                    chunck.blocks[x, y, z] = procedural.GetBlockID(x + posX, y + posY, z + posZ);//GeneratedBlockID(x + posX, y + posY, z + posZ);
-                    if(chunck.blocks[x, y, z] == DIRT && procedural.GetBlockID(x + posX, y + posY + 1, z + posZ) == 0)
+                    for (int z = 0; z < size; z++)
                     {
-                        chunck.blocks[x, y, z] = 1;
+                        chunck.blocks[x, y, z] = procedural.GetBlockID(x + posX, y + posY, z + posZ);//GeneratedBlockID(x + posX, y + posY, z + posZ);
+                        if (chunck.blocks[x, y, z] == DIRT && procedural.GetBlockID(x + posX, y + posY + 1, z + posZ) == 0)
+                        {
+                            chunck.blocks[x, y, z] = 1;
+                        }
                     }
                 }
             }
         }
+
+        ChunckComponent.onBlocksSeted?.Invoke(chunck);
 
         var mesh = GenerateMesh(chunck, posX, posY, posZ);
 
@@ -180,7 +178,6 @@ public class WorldGenerator : MonoBehaviour
         chunck.renderer = renderer;
         chunck.meshFilter = meshFilter;
         chunck.collider = collider;
-        chunck.pos = chunckGO.transform.position;
 
         //chunck.navMeshModifier = chunckGO.AddComponent<NavMeshModifier>();
         chunck.meshSurface = chunckGO.AddComponent<NavMeshSurface>();

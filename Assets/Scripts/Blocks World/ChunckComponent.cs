@@ -4,6 +4,7 @@ using Unity.AI.Navigation;
 using UnityEngine;
 using Newtonsoft;
 using Newtonsoft.Json;
+using UnityEngine.Events;
 
 public class ChunckComponent
 {
@@ -19,6 +20,22 @@ public class ChunckComponent
 
     public Dictionary<Vector3, NavMeshLink> links = new Dictionary<Vector3, NavMeshLink>();
 
+    public bool blocksLoaded;
+
+    public static UnityEvent<ChunckComponent> onChunckInit = new UnityEvent<ChunckComponent>();
+    /// <summary>
+    /// Chunck With Blocks
+    /// </summary>
+    public static UnityEvent<ChunckComponent> onBlocksSeted = new UnityEvent<ChunckComponent>();
+
+    public ChunckComponent(int posX, int posY, int posZ)
+    {
+        var size = WorldGenerator.size;
+        blocks = new byte[size, size, size];
+        pos = new Vector3(posX, posY, posZ);
+
+        onChunckInit?.Invoke(this);
+    }
 
     /// <summary>
     /// Не забываем перед вызовом сделать +1 по оси X
@@ -48,11 +65,15 @@ public class ChunckComponent
 [JsonObject]
 public class ChunckData
 {
+    //[JsonProperty]
     //public Vector3 pos;
     //[JsonProperty]
     //public List<List<byte>> blocks;
     [JsonProperty]
     public byte[,,] blocks;
+
+    [JsonConstructor]
+    private ChunckData() { }
 
     public ChunckData(ChunckComponent chunck)
     {

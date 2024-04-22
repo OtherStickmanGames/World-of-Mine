@@ -28,9 +28,6 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            print(IsOwner);
-        }
+        
     }
 }

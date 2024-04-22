@@ -3,12 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class NetworkUserManager : NetworkBehaviour
 {
-    public Dictionary<int, string> users = new Dictionary<int, string>();
+    public Dictionary<ulong, string> users = new Dictionary<ulong, string>();
+
+    [field:SerializeField]
+    public bool UserRegistred { get; private set; } = false;
 
     public static NetworkUserManager Instance;
+    public static UnityEvent onUserRegistred = new UnityEvent();
 
     private void Awake()
     {
@@ -32,6 +37,19 @@ public class NetworkUserManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendUserNameServerRpc(string userName, ServerRpcParams serverRpcParams = default)
     {
-        print($"{userName} ### {serverRpcParams.Receive.SenderClientId}");
+        users.Add(serverRpcParams.Receive.SenderClientId, userName);
+
+        ClientRpcParams rpcParams = default;
+        rpcParams.Send.TargetClientIds = new ulong[] { serverRpcParams.Receive.SenderClientId };
+
+        UserRegistredClientRpc(rpcParams);
+        //print($"{userName} ### {serverRpcParams.Receive.SenderClientId}");
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void UserRegistredClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        UserRegistred = true;
+        onUserRegistred?.Invoke();
     }
 }

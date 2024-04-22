@@ -116,6 +116,11 @@ public class PlayerBehaviour : MonoBehaviour
             //print(targetPos);
             FindPathSystem.Instance.Find(transform.position.ToGlobalBlockPos(), targetPos);
         }
+
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            transform.position += Vector3.up * 300;
+        }
     }
 
     Vector3 targetPos;

@@ -65,10 +65,10 @@ public class ChunckComponent
 [JsonObject]
 public class ChunckData
 {
-    //[JsonProperty]
-    //public Vector3 pos;
-    //[JsonProperty]
-    //public List<List<byte>> blocks;
+    [JsonProperty]
+    public List<JsonBlockData> changedBlocks;
+    [JsonProperty]
+    public List<UserChunckData> usersChangedBlocks;
     [JsonProperty]
     public byte[,,] blocks;
 
@@ -77,6 +77,8 @@ public class ChunckData
 
     public ChunckData(ChunckComponent chunck)
     {
+        changedBlocks = new List<JsonBlockData>();
+        usersChangedBlocks = new List<UserChunckData>();
         blocks = chunck.blocks;
         //blocks = new List<List<byte>>();
 
@@ -102,5 +104,58 @@ public class ChunckData
         //        }
         //    }
         //}
+    }
+
+    [JsonObject]
+    public class UserChunckData
+    {
+        [JsonProperty]
+        public string userName;
+        [JsonProperty]
+        public List<JsonBlockData> changedBlocks = new List<JsonBlockData>();
+
+        [JsonConstructor]
+        public UserChunckData() { }
+
+        
+    }
+
+    [JsonObject]
+    public class JsonBlockData
+    {
+        public float posX;
+        public float posY;
+        public float posZ;
+        public byte blockId;
+
+        [JsonIgnore]
+        Vector3 pos;
+
+        public JsonBlockData(Vector3 pos, byte blockId)
+        {
+            posX = pos.x;
+            posY = pos.y;
+            posZ = pos.z;
+            this.blockId = blockId;
+        }
+
+        [JsonIgnore]
+        public Vector3 Pos
+        {
+            get
+            {
+                if (pos == Vector3.zero)
+                {
+                    pos.x = posX;
+                    pos.y = posY;
+                    pos.z = posZ;
+                }
+
+                return pos;
+            }
+        }
+
+        [JsonConstructor]
+        public JsonBlockData() { }
     }
 }

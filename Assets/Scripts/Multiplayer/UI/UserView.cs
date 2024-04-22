@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Unity.Netcode;
 using UnityEngine;
 using TMPro;
 
@@ -13,6 +14,18 @@ public class UserView : MonoBehaviour
     {
         inputUserName.onValueChanged.AddListener(Name_Changed);
 
+        NetworkManager.Singleton.OnClientStarted += Client_Started;
+
+        LeanTween.delayedCall(0.1f, InitUserName);
+    }
+
+    private void Client_Started()
+    {
+        inputUserName.interactable = false;
+    }
+
+    private void InitUserName()
+    {
         var user = UserData.Owner;
 
         //Debug.Log(string.IsNullOrEmpty(user.userName));

@@ -31,7 +31,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
 
     private void ChunckBlocks_Seted(ChunckComponent chunckWithBlocks)
     {
-        if (NetworkManager.IsConnectedClient) {
+        if (NetworkManager.IsConnectedClient)
+        {
 
             if (IsClient)
             {
@@ -100,16 +101,39 @@ public class NetworkWorldGenerator : NetworkBehaviour
         {
             var json = File.ReadAllText(path);
             var chunckData = JsonConvert.DeserializeObject<ChunckData>(json);
-
+            var userChunckData = chunckData.usersChangedBlocks.Find(u => u.userName == userName);
+            if (userChunckData == null)
+            {
+                SendNoChunckServerData(serverRpcParams.Receive.SenderClientId);
+            }
+            else
+            {
+                Vector3[] positions = userChunckData.changedBlocks.Select(b => b.Pos).ToArray();
+                ReceiveChunckBlocksDataClientRpc(positions, GetTargetClientParams(serverRpcParams));
+            }
         }
         else
         {
-            ClientRpcParams clientRpcParams = default;
-            clientRpcParams.Send.TargetClientIds = new ulong[] { serverRpcParams.Receive.SenderClientId };
-            ReceiveNoServerChunckDataClientRpc(clientRpcParams);
+            SendNoChunckServerData(serverRpcParams.Receive.SenderClientId);
         }
 
         print("ёлы палы");
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ReceiveChunckBlocksDataClientRpc(Vector3[] positions, ClientRpcParams clientRpcParams = default)
+    {
+        foreach (var item in positions)
+        {
+            print(item);
+        }
+    }
+
+    private void SendNoChunckServerData(ulong clientID)
+    {
+        ClientRpcParams clientRpcParams = default;
+        clientRpcParams.Send.TargetClientIds = new ulong[] { clientID };
+        ReceiveNoServerChunckDataClientRpc(clientRpcParams);
     }
 
     [ClientRpc(RequireOwnership = false)]
@@ -256,6 +280,15 @@ public class NetworkWorldGenerator : NetworkBehaviour
     {
         pendingChuncks.AddRange(offlineBlocksSeted);
         offlineBlocksSeted.Clear();
+    }
+
+    private ClientRpcParams GetTargetClientParams(ServerRpcParams serverRpcParams)
+    {
+        ClientRpcParams clientRpcParams = default;
+        clientRpcParams.Send.TargetClientIds = new ulong[] { serverRpcParams.Receive.SenderClientId };
+        ReceiveNoServerChunckDataClientRpc(clientRpcParams);
+
+        return clientRpcParams;
     }
 
     private static JsonSerializerSettings settings = new JsonSerializerSettings

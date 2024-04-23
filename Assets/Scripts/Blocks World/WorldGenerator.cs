@@ -830,12 +830,20 @@ public class WorldGenerator : MonoBehaviour
         int posY = (int)chunck.renderer.transform.position.y;
         int posZ = (int)chunck.renderer.transform.position.z;
 
-        for (int x = 0; x < size; x+=size-1)
+        
+
+        for (int x = 0; x < size; x++)
         {
-            for (int y = 0; y < size; y+=size-1)
+            for (int y = 0; y < size; y++)
             {
-                for (int z = 0; z < size; z+=size-1)
+                for (int z = 0; z < size; z++)
                 {
+        //for (int x = 0; x < size; x+=size-1)
+        //{
+        //    for (int y = 0; y < size; y+=size-1)
+        //    {
+        //        for (int z = 0; z < size; z+=size-1)
+        //        {
                     GetChunk(new Vector3(x + posX, y + posY, z + 1 + posZ));
                     GetChunk(new Vector3(x + posX, y + posY, z - 1 + posZ));
                     GetChunk(new Vector3(x + 1 + posX, y + posY, z + posZ));

@@ -40,7 +40,11 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
         else
         {
-            offlineBlocksSeted.Add(chunckWithBlocks);
+            if (!offlineBlocksSeted.Contains(chunckWithBlocks))
+            {
+                //print(chunckWithBlocks.pos);
+                offlineBlocksSeted.Add(chunckWithBlocks);
+            }
         }
     }
 
@@ -84,9 +88,12 @@ public class NetworkWorldGenerator : NetworkBehaviour
         worldGenerator = WorldGenerator.Inst;
 
         yield return null;
-        offlineBlocksSeted.Add(worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos()));
-        offlineBlocksSeted.Add(worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos() + (Vector3.down * WorldGenerator.size)));
-
+        var chunck = worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos());
+        offlineBlocksSeted.Add(chunck);
+        //print(chunck.pos);
+        chunck = worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos() + (Vector3.down * WorldGenerator.size));
+        offlineBlocksSeted.Add(chunck);
+        //print(chunck.pos);
     }
 
     private void Update()
@@ -107,23 +114,23 @@ public class NetworkWorldGenerator : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendPendingChunckDataServerRpc(Vector3 chunckPos, ServerRpcParams serverRpcParams = default)
     {
-        var userName = NetworkUserManager.Instance.users[serverRpcParams.Receive.SenderClientId];
+        //var userName = NetworkUserManager.Instance.users[serverRpcParams.Receive.SenderClientId];
         var chunckDataFileName = GetChunckDataFileName(chunckPos);
         var path = $"{chuncksDirectory}{serverDirectory}{chunckDataFileName}.json";
         if (File.Exists(path))
         {
             var json = File.ReadAllText(path);
             var chunckData = JsonConvert.DeserializeObject<ChunckData>(json);
-            var userChunckData = chunckData.usersChangedBlocks.Find(u => u.userName == userName);
-            if (userChunckData == null)
+            var changedBlocks = chunckData.changedBlocks;
+            if(changedBlocks.Count > 0)
             {
-                SendNoChunckServerData(serverRpcParams.Receive.SenderClientId);
+                Vector3[] positions = changedBlocks.Select(b => b.Pos).ToArray();
+                byte[] blockIDs = changedBlocks.Select(b => b.blockId).ToArray();
+                ReceivePendingChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
             }
             else
             {
-                Vector3[] positions = userChunckData.changedBlocks.Select(b => b.Pos).ToArray();
-                byte[] blockIDs = userChunckData.changedBlocks.Select(b => b.blockId).ToArray();
-                ReceivePendingChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
+                SendNoChunckServerData(serverRpcParams.Receive.SenderClientId);
             }
         }
         else
@@ -139,6 +146,10 @@ public class NetworkWorldGenerator : NetworkBehaviour
     {
         UpdateChunckMesh(positions, blockIDs, chunckPos);
 
+        if (pendingChuncks.Count > 0)
+        {
+            pendingChuncks.RemoveAt(0);
+        }
         waitHandlingChunck = false;
     }
 
@@ -335,7 +346,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
     {
         ClientRpcParams clientRpcParams = default;
         clientRpcParams.Send.TargetClientIds = new ulong[] { serverRpcParams.Receive.SenderClientId };
-        ReceiveNoServerChunckDataClientRpc(clientRpcParams);
 
         return clientRpcParams;
     }

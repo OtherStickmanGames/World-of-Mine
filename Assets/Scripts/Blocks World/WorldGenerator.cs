@@ -741,11 +741,12 @@ public class WorldGenerator : MonoBehaviour
 
     internal Mesh UpdateMesh(ChunckComponent chunck)
     {
-        int posX = (int)chunck.renderer.transform.position.x;
-        int posY = (int)chunck.renderer.transform.position.y;
-        int posZ = (int)chunck.renderer.transform.position.z;
-
-        CreateNeedAdjacentsChuncks(chunck);
+        var frontChunck  = GetChunk(chunck.pos + (Vector3.forward * size));
+        var backChunck   = GetChunk(chunck.pos + (Vector3.back * size));
+        var rightChunck  = GetChunk(chunck.pos + (Vector3.right * size));
+        var leftChunck   = GetChunk(chunck.pos + (Vector3.left * size));
+        var topChunck    = GetChunk(chunck.pos + (Vector3.up * size));
+        var bottomChunck = GetChunk(chunck.pos + (Vector3.down * size));
 
         vertices.Clear();
         triangulos.Clear();
@@ -764,13 +765,12 @@ public class WorldGenerator : MonoBehaviour
                     {
                         BlockUVS b = BlockUVS.GetBlock(chunck.blocks[x, y, z]); //new(0, 15, 3, 15, 2, 15);
 
-                        var frontCheck = (z + 1 >= size && GetChunk(new Vector3(x + posX, y + posY, z + 1 + posZ)).blocks[x, y, 0] == 0);
-                        var backCheck = (z - 1 < 0 && GetChunk(new Vector3(x + posX, y + posY, z - 1 + posZ)).blocks[x, y, size - 1] == 0);
-                        var rightCheck = (x + 1 >= size && GetChunk(new Vector3(x + 1 + posX, y + posY, z + posZ)).blocks[0, y, z] == 0);
-                        var leftCheck = (x - 1 < 0 && GetChunk(new Vector3(x - 1 + posX, y + posY, z + posZ)).blocks[size - 1, y, z] == 0);
-                        var topCheck = (y + 1 >= size && GetChunk(new Vector3(x + posX, y + posY + 1, z + posZ)).blocks[x, 0, z] == 0);
-                        var bottomCheck = (y - 1 < 0 && GetChunk(new Vector3(x + posX, y + posY - 1, z + posZ)).blocks[x, size - 1, z] == 0);
-
+                        var frontCheck = (z + 1 >= size && frontChunck.blocks[x, y, 0] == 0);
+                        var backCheck = (z - 1 < 0 && backChunck.blocks[x, y, size - 1] == 0);
+                        var rightCheck = (x + 1 >= size && rightChunck.blocks[0, y, z] == 0);
+                        var leftCheck = (x - 1 < 0 && leftChunck.blocks[size - 1, y, z] == 0);
+                        var topCheck = (y + 1 >= size && topChunck.blocks[x, 0, z] == 0);
+                        var bottomCheck = (y - 1 < 0 && bottomChunck.blocks[x, size - 1, z] == 0);
 
                         if ((!(z + 1 >= size) && chunck.blocks[x, y, z + 1] == 0) || frontCheck)
                         {
@@ -816,7 +816,7 @@ public class WorldGenerator : MonoBehaviour
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
-        //mesh.OptimizeReorderVertexBuffer();
+        mesh.OptimizeReorderVertexBuffer();
         mesh.Optimize();
 
         StartCoroutine(DelayableUpdateNavMesh(chunck));
@@ -824,36 +824,6 @@ public class WorldGenerator : MonoBehaviour
         return mesh;
     }
 
-    void CreateNeedAdjacentsChuncks(ChunckComponent chunck)
-    {
-        int posX = (int)chunck.renderer.transform.position.x;
-        int posY = (int)chunck.renderer.transform.position.y;
-        int posZ = (int)chunck.renderer.transform.position.z;
-
-        
-
-        for (int x = 0; x < size; x++)
-        {
-            for (int y = 0; y < size; y++)
-            {
-                for (int z = 0; z < size; z++)
-                {
-        //for (int x = 0; x < size; x+=size-1)
-        //{
-        //    for (int y = 0; y < size; y+=size-1)
-        //    {
-        //        for (int z = 0; z < size; z+=size-1)
-        //        {
-                    GetChunk(new Vector3(x + posX, y + posY, z + 1 + posZ));
-                    GetChunk(new Vector3(x + posX, y + posY, z - 1 + posZ));
-                    GetChunk(new Vector3(x + 1 + posX, y + posY, z + posZ));
-                    GetChunk(new Vector3(x - 1 + posX, y + posY, z + posZ));
-                    GetChunk(new Vector3(x + posX, y + posY + 1, z + posZ));
-                    GetChunk(new Vector3(x + posX, y + posY - 1, z + posZ));
-                }
-            }
-        }
-    }
 
     void DictionaryInits()
     {

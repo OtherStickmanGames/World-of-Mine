@@ -10,6 +10,7 @@ using UnityEngine.InputSystem;
 [DefaultExecutionOrder(108)]
 public class PlayerBehaviour : MonoBehaviour
 {
+    [SerializeField] public Transform cameraTaret;
     [SerializeField] Transform blockHighlightPrefab;
     [SerializeField] LayerMask layerMask;
     [SerializeField] bool allowDigging;

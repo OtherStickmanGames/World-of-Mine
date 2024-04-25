@@ -15,6 +15,7 @@ public class QuickInventoryView : MonoBehaviour
     {
         inventory.onTakeQuick += Item_Taked;
         inventory.onUpdateItem += Item_Updated;
+        inventory.onItemSets += Items_Seted;
 
         foreach (var slot in slots)
         {
@@ -27,6 +28,7 @@ public class QuickInventoryView : MonoBehaviour
 
         slots[0].Select();
     }
+
 
     public InventorySlot GetActiveSlot()
     {
@@ -57,6 +59,14 @@ public class QuickInventoryView : MonoBehaviour
     {
         var slot = slots.Find(s => s.Item == null);
         slot.SetItem(item);
+    }
+
+    private void Items_Seted(Inventory inventory)
+    {
+        foreach (var item in inventory.quick)
+        {
+            Item_Taked(item);
+        }
     }
 
     private void Update()

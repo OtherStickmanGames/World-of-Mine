@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-    [SerializeField] TextAsset tower;
-    [SerializeField] Transform towerPos;
     [SerializeField] Transform spineItemHolder;
     [SerializeField] Transform topDownTarget;
     //[SerializeField] ThirdPersonController thirdPersonController;
@@ -31,11 +29,6 @@ public class Character : MonoBehaviour
         onSpawn?.Invoke(this);
 
         inventory.Close();
-
-        //var jetpack = GameManager.Inst.ItemsData.Find(i => i.ID == JETPACK);
-        //var item = jetpack.CreateItem();
-        //inventory.AddItem(item);
-
     }
 
 
@@ -53,20 +46,6 @@ public class Character : MonoBehaviour
                 inventory.Open();
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            var pos = towerPos.position;//transform.position + (transform.forward * 3) + Vector3.up;
-            BuildGenerator.Build(tower, pos, true);
-        }
-
-        
-
-        //if (Input.GetKeyDown(KeyCode.T))
-        //{
-        //    var blockData = FindBlockSystem.Instance.GetNearBlockByUpPlane(transform.position);
-        //    WorldGenerator.Inst.SetBlockAndUpdateChunck(blockData.pos, 8);
-        //}
     }
 
     

@@ -6,8 +6,6 @@ using Cinemachine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] CinemachineVirtualCamera cam;
-    [SerializeField] string camRootName;
     [SerializeField] Worker workerPrefab;
     [SerializeField] public Transform workersParent;
     [SerializeField] bool autoSpawn;
@@ -42,7 +40,7 @@ public class GameManager : MonoBehaviour
 
     private void PlayerOwner_Spawned(MonoBehaviour owner)
     {
-        cam.Follow = owner.transform.Find(camRootName);
+        
     }
 
     private IEnumerator Start()

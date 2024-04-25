@@ -19,6 +19,7 @@ public class Inventory
     public Action<Item> onTakeQuick;
     public Action<Item> onTakeMain;
     public Action<Item> onTakeItem;
+    public Action<Inventory> onItemSets;
     public Item CurrentSelectedItem { get; set; }
     public bool IsOpen { get; private set; }
 
@@ -143,6 +144,11 @@ public class Inventory
         var item = new Item() { id = blockID };
         return AvailableSpace(item);
     }
+
+    public void InvokeItemSets()
+    {
+        onItemSets?.Invoke(this);
+    }
 }
 
 [JsonObject]
@@ -171,7 +177,9 @@ public class JsonInventory
         inventory.main = main.Select(i => i.GetItem()).ToList();
 
         inventory.quickSize = quickSize;
-        inventory.mainSize = mainSize;  
+        inventory.mainSize = mainSize;
+
+        inventory.InvokeItemSets();
     }
 }
 

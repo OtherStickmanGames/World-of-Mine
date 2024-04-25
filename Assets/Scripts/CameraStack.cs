@@ -27,6 +27,8 @@ public class CameraStack : MonoBehaviour
     int activePriority = 10;
     int deactivePriority = 8;
 
+    PlayerBehaviour player;
+
     private void Start()
     {
         Init();
@@ -37,13 +39,39 @@ public class CameraStack : MonoBehaviour
         Instance = this;
 
         Main = Camera.main;
+
+        PlayerBehaviour.onMineSpawn.AddListener(OwnerPlayer_Spawned);
+    }
+
+    private void OwnerPlayer_Spawned(MonoBehaviour owner)
+    {
+        player = owner.GetComponent<PlayerBehaviour>();
+
+        if (thirdPersonCamera)
+        {
+            thirdPersonCamera.Follow = player.cameraTaret;
+        }
+        if (firstPersonCamera)
+        {
+            firstPersonCamera.Follow = player.cameraTaret;
+        }
     }
 
     public void SwitchToThirdPerson()
     {
-        topDownCamera.Priority = 8;
-        freeTopDownCamera.Priority = 8;
-        firstPersonCamera.Priority = 8;
+        if (topDownCamera)
+        {
+            topDownCamera.Priority = deactivePriority;
+        }
+        if (freeTopDownCamera)
+        {
+            freeTopDownCamera.Priority = deactivePriority;
+        }
+        if (firstPersonCamera)
+        {
+            firstPersonCamera.Priority = deactivePriority;
+        }
+        
         thirdPersonCamera.Priority = 10;
         Main = Camera.main;
         CurrentType = CameraType.Third;
@@ -92,13 +120,20 @@ public class CameraStack : MonoBehaviour
         if (Input.mouseScrollDelta.y == 0)
             return;
 
-        var topDownComponent = topDownCamera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
-        topDownComponent.CameraDistance -= Input.mouseScrollDelta.y;
-        topDownComponent.CameraDistance = Mathf.Clamp(topDownComponent.CameraDistance, 1, 18);
+        if (topDownCamera)
+        {
+            var topDownComponent = topDownCamera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
+            topDownComponent.CameraDistance -= Input.mouseScrollDelta.y;
+            topDownComponent.CameraDistance = Mathf.Clamp(topDownComponent.CameraDistance, 1, 18);
+        }
 
-        var component = freeTopDownCamera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
-        component.CameraDistance -= Input.mouseScrollDelta.y;
-        component.CameraDistance = Mathf.Clamp(component.CameraDistance, 1, 15);
+        if (freeTopDownCamera)
+        {
+            var component = freeTopDownCamera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
+            component.CameraDistance -= Input.mouseScrollDelta.y;
+            component.CameraDistance = Mathf.Clamp(component.CameraDistance, 1, 15);
+
+        }
     }
 
     private void Update()
@@ -109,7 +144,7 @@ public class CameraStack : MonoBehaviour
 
     private void TopDownTargetMovenment()
     {
-        if(freeTopDownCamera.Priority == deactivePriority)
+        if(!freeTopDownCamera || freeTopDownCamera.Priority == deactivePriority)
         {
             return;
         }

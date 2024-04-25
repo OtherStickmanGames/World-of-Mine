@@ -5,7 +5,6 @@ using StarterAssets;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using static WorldGenerator;
 
 [DefaultExecutionOrder(108)]
 public class PlayerBehaviour : MonoBehaviour
@@ -13,6 +12,8 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] Transform blockHighlightPrefab;
     [SerializeField] LayerMask layerMask;
     [SerializeField] bool allowDigging;
+
+    [SerializeField] int sizeMainInventory = 0;
 
     public bool IsOwner { get; set; } = true;
 
@@ -49,13 +50,20 @@ public class PlayerBehaviour : MonoBehaviour
             }
             else
             {
-                Inst.GetChunk(userDataPosition.ToGlobalRoundBlockPos());
+                WorldGenerator.Inst.GetChunk(userDataPosition.ToGlobalRoundBlockPos());
                 transform.position = userDataPosition + (Vector3.up * 5);
             }
+
+            InitSizeMainInventory();
         }
         
 
         //FindPathSystem.Instance.onPathComplete += FindPath_Completed;
+    }
+
+    void InitSizeMainInventory()
+    {
+        player.inventory.mainSize = sizeMainInventory;
     }
 
     private void FindPath_Completed(FindPathSystem.PathDataResult data)
@@ -104,7 +112,7 @@ public class PlayerBehaviour : MonoBehaviour
         {
             var pos = transform.position + Vector3.right + Vector3.up + transform.forward;
             pos = pos.ToGlobalBlockPos();
-            Inst.SetBlockAndUpdateChunck(pos, 8);
+            WorldGenerator.Inst.SetBlockAndUpdateChunck(pos, 8);
             targetPos = pos;
             print(pos);
             print(World.Instance.towerPos.position.ToGlobalBlockPos());
@@ -144,78 +152,11 @@ public class PlayerBehaviour : MonoBehaviour
 
             if (Input.GetMouseButtonDown(0))
             {
-                Inst.MineBlock(blockPosition + Vector3.right);
-
-                //var generator = WorldGenerator.Inst;
-                //var fixedPos = blockPosition + Vector3.right;
-
-                //var chunck = generator.GetChunk(fixedPos);
-                //var pos = chunck.renderer.transform.position;
-
-                //int xBlock = (int)(blockPosition.x - pos.x) + 1;
-                //int yBlock = (int)(blockPosition.y - pos.y);
-                //int zBlock = (int)(blockPosition.z - pos.z);
-
-                //byte blockID = chunck.blocks[xBlock, yBlock, zBlock];
-                //chunck.blocks[xBlock, yBlock, zBlock] = 0;
-
-                //var mesh = generator.UpdateMesh(chunck);//, (int)pos.x, (int)pos.y, (int)pos.z);
-                //chunck.meshFilter.mesh = mesh;
-                //chunck.collider.sharedMesh = mesh;
-
-                //for (int p = 0; p < 6; p++)
-                //{
-                //    var blockPos = new Vector3(xBlock, yBlock, zBlock);
-
-                //    Vector3 checkingBlockPos = blockPos + World.faceChecks[p];
-
-                    
-                //    if (!IsBlockChunk((int)checkingBlockPos.x, (int)checkingBlockPos.y, (int)checkingBlockPos.z))
-                //    {
-                //        var otherChunck = generator.GetChunk(checkingBlockPos + pos);
-
-                //        var otherMesh = generator.UpdateMesh(otherChunck);
-                //        otherChunck.meshFilter.mesh = otherMesh;
-                //        otherChunck.collider.sharedMesh = otherMesh;
-                //    }
-                //}
-
-                
-                //WorldGenerator.Inst.PickBlock(blockPosition, blockID);                //WorldHit(ref chunck, ref hitComponent);
-                //===============================================================
-
-
-                //entityBlockHit = godcraft.EcsWorld.NewEntity();
-
-                //var pool = godcraft.EcsWorld.GetPool<ChunckHitEvent>();
-                //pool.Add(characterEntity);
-                //ref var component = ref pool.Get(characterEntity);
-                //component.collider = hit.collider;
-                //component.position = blockPosition;
-                //component.blockId = 0;
-
-                //onChunkHit?.Invoke(new Entity { id = characterEntity }, component);
-
-                //isHit = true;
+                WorldGenerator.Inst.MineBlock(blockPosition + Vector3.right);
             }
 
             PlaceBlock(blockPosition + hit.normal);
 
-            //if (Input.GetMouseButtonUp(0) && isHit)
-            //{
-            //    isHit = false;
-
-            //    var pool = godcraft.EcsWorld.GetPool<ChunckHitEvent>();
-            //    var filter = godcraft.EcsWorld.Filter<ChunckHitEvent>().End();
-            //    foreach (var entity in filter)
-            //    {
-            //        if (entity == characterEntity)
-            //        {
-            //            pool.Del(characterEntity);
-            //        }
-            //    }
-
-            //}
 
             //if (Input.GetMouseButtonDown(1))
             //{
@@ -355,6 +296,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     bool IsBlockChunk(int x, int y, int z)
     {
+        var size = WorldGenerator.size;
         if (x < 0 || x > size - 1 || y < 0 || y > size - 1 || z < 0 || z > size - 1)
             return false;
         else
@@ -373,5 +315,10 @@ public class PlayerBehaviour : MonoBehaviour
 
         UserData.Owner.position = transform.position;
         UserData.Owner.SaveData();
+    }
+
+    void SaveInventory()
+    {
+
     }
 }

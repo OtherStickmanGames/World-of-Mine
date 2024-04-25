@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using System;
+using Newtonsoft.Json;
 
 public class Inventory
 {
@@ -137,6 +139,24 @@ public class Inventory
     {
         var item = new Item() { id = blockID };
         return AvailableSpace(item);
+    }
+}
+
+[JsonObject]
+public class JsonInventory
+{
+    public List<JsonItem> quick;
+    public List<JsonItem> main;
+    public int quickSize = 8;
+    public int mainSize = 15;
+
+    public JsonInventory(Inventory inventory)
+    {
+        quick = inventory.quick.Select(i => new JsonItem(i)).ToList();
+        main = inventory.main.Select(i => new JsonItem(i)).ToList();
+
+        quickSize = inventory.quickSize;
+        mainSize = inventory.mainSize;
     }
 }
 

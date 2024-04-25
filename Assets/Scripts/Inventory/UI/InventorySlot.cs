@@ -99,7 +99,7 @@ public class InventorySlot : MonoBehaviour
         if (itemParent.childCount > 0)
             return;
 
-        if(Item.view == null)
+        if (Item.view == null)
         {
             Item.view = BlockItemSpawner.CreateBlockGameObject(Item.id);
         }

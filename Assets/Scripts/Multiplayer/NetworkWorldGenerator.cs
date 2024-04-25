@@ -137,8 +137,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
         {
             SendNoChunckServerData(serverRpcParams.Receive.SenderClientId);
         }
-
-        print("ёлы палы");
     }
 
     [ClientRpc(RequireOwnership = false)]

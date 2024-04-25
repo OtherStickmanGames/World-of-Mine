@@ -32,6 +32,8 @@ public class UI : MonoBehaviour
     private void Start()
     {
         userView.Init();
+
+        quickInventoryView.gameObject.SetActive(false);
     }
 
     private void BtnHost_Clicked()
@@ -47,15 +49,19 @@ public class UI : MonoBehaviour
 
     private void PlayerMine_Spawned(MonoBehaviour player)
     {
-        //mine = player;
+        mine = player.GetComponent<Character>();
+        quickInventoryView.gameObject.SetActive(true);
+        InitInventoryView(mine);
 
-        //InitInventoryView(player);
     }
 
     private void InitInventoryView(Character player)
     {
-        //inventotyView.Init(player.inventory);
-        //quickInventoryView.Init(player.inventory);
+        if (inventotyView)
+        {
+            inventotyView.Init(player.inventory);
+        }
+        quickInventoryView.Init(player.inventory);
 
         onInventoryOpen.AddListener(player.inventory.Open);
         onInventoryClose.AddListener(player.inventory.Close);

@@ -18,6 +18,7 @@ public class Inventory
     public Action<Item> onUpdateItem;
     public Action<Item> onTakeQuick;
     public Action<Item> onTakeMain;
+    public Action<Item> onTakeItem;
     public Item CurrentSelectedItem { get; set; }
     public bool IsOpen { get; private set; }
 
@@ -57,6 +58,7 @@ public class Inventory
             {
                 quick.Add(item);
                 onTakeQuick?.Invoke(item);
+                onTakeItem?.Invoke(item);
             }
             else
             {
@@ -69,7 +71,8 @@ public class Inventory
                 else
                 {
                     main.Add(item);
-                    onTakeQuick?.Invoke(item);
+                    onTakeMain?.Invoke(item);
+                    onTakeItem?.Invoke(item);
                 }
             }
 
@@ -150,6 +153,9 @@ public class JsonInventory
     public int quickSize = 8;
     public int mainSize = 15;
 
+    [JsonConstructor]
+    private JsonInventory() { }
+
     public JsonInventory(Inventory inventory)
     {
         quick = inventory.quick.Select(i => new JsonItem(i)).ToList();
@@ -157,6 +163,15 @@ public class JsonInventory
 
         quickSize = inventory.quickSize;
         mainSize = inventory.mainSize;
+    }
+
+    public void SetInventoryData(Inventory inventory)
+    {
+        inventory.quick = quick.Select(i => i.GetItem()).ToList();
+        inventory.main = main.Select(i => i.GetItem()).ToList();
+
+        inventory.quickSize = quickSize;
+        inventory.mainSize = mainSize;  
     }
 }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using StarterAssets;
 using UnityEngine;
 using UnityEngine.Events;
@@ -54,17 +55,28 @@ public class PlayerBehaviour : MonoBehaviour
                 transform.position = userDataPosition + (Vector3.up * 5);
             }
 
+            player.inventory.onTakeItem += Item_TakedUpdated;
+            player.inventory.onUpdateItem += Item_TakedUpdated;
+
             InitSizeMainInventory();
+            LoadInventory();
         }
-        
+
 
         //FindPathSystem.Instance.onPathComplete += FindPath_Completed;
+    }
+
+    private void Item_TakedUpdated(Item item)
+    {
+        SaveInventory();
     }
 
     void InitSizeMainInventory()
     {
         player.inventory.mainSize = sizeMainInventory;
     }
+
+    
 
     private void FindPath_Completed(FindPathSystem.PathDataResult data)
     {
@@ -317,8 +329,21 @@ public class PlayerBehaviour : MonoBehaviour
         UserData.Owner.SaveData();
     }
 
+    void LoadInventory()
+    {
+        if (PlayerPrefs.HasKey("inventory"))
+        {
+            var json = PlayerPrefs.GetString("inventory");
+            var jsonInventory = JsonConvert.DeserializeObject<JsonInventory>(json);
+            jsonInventory.SetInventoryData(player.inventory);
+        }
+    }
+
     void SaveInventory()
     {
-
+        var jsonInventory = new JsonInventory(player.inventory);
+        var json = JsonConvert.SerializeObject(jsonInventory);
+        PlayerPrefs.SetString("inventory", json);
+        PlayerPrefs.Save();
     }
 }

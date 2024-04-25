@@ -2,9 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Events;
 using UnityEngine;
-using static ITEMS;
-using static BLOCKS;
-using StarterAssets;
+
 
 public class Character : MonoBehaviour
 {

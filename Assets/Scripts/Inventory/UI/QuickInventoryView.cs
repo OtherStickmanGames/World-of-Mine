@@ -100,6 +100,14 @@ public class QuickInventoryView : MonoBehaviour
         {
             setSelectedItem.Invoke(slots[5].Item);
         }
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            setSelectedItem.Invoke(slots[6].Item);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            setSelectedItem.Invoke(slots[7].Item);
+        }
     }
 
     

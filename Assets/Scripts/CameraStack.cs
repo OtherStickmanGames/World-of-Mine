@@ -81,10 +81,21 @@ public class CameraStack : MonoBehaviour
 
     public void SwitchToFirstPerson()
     {
-        topDownCamera.Priority = 8;
-        freeTopDownCamera.Priority = 8;
+        if (topDownCamera)
+        {
+            topDownCamera.Priority = deactivePriority;
+        }
+        if (freeTopDownCamera)
+        {
+            freeTopDownCamera.Priority = deactivePriority;
+        }
+        if (thirdPersonCamera)
+        {
+            thirdPersonCamera.Priority = deactivePriority;
+        }
+
         firstPersonCamera.Priority = 10;
-        thirdPersonCamera.Priority = 8;
+
         Main = Camera.main;
         CurrentType = CameraType.First;
 
@@ -93,9 +104,17 @@ public class CameraStack : MonoBehaviour
 
     public void SwitchToTopDown()
     {
+        if (freeTopDownCamera)
+        {
+            freeTopDownCamera.Priority = deactivePriority;
+        }
+        if (firstPersonCamera)
+        {
+            firstPersonCamera.Priority = deactivePriority;
+        }
         topDownCamera.Priority = 10;
-        freeTopDownCamera.Priority = 8;
-        firstPersonCamera.Priority = 8;
+        
+        
         thirdPersonCamera.Priority = 8;
         Main = Camera.main;
         CurrentType = CameraType.TopDown;

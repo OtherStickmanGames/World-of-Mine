@@ -6,6 +6,7 @@ using StarterAssets;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 [DefaultExecutionOrder(108)]
 public class PlayerBehaviour : MonoBehaviour
@@ -13,6 +14,7 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] public Transform cameraTaret;
     [SerializeField] Transform blockHighlightPrefab;
     [SerializeField] LayerMask layerMask;
+    [SerializeField] SkinnedMeshRenderer[] skinnedMeshRenderers;
     [SerializeField] bool allowDigging;
 
     [SerializeField] int sizeMainInventory = 0;
@@ -35,10 +37,14 @@ public class PlayerBehaviour : MonoBehaviour
         player = GetComponent<Character>();
         thirdPersonController = GetComponent<ThirdPersonController>();
 
+        defaultBottomClamp = thirdPersonController.BottomClamp;
+        defaultTopClamp = thirdPersonController.TopClamp;
+
         if (IsOwner)
         {
             onMineSpawn?.Invoke(this);
             EventsHolder.playerSpawnedMine?.Invoke(player);
+            CameraStack.onCameraSwitch.AddListener(Camera_Switched);
 
             var sai = FindObjectOfType<StarterAssetsInputs>();
             var pi = FindObjectOfType<PlayerInput>();
@@ -163,7 +169,7 @@ public class PlayerBehaviour : MonoBehaviour
             blockHighlight.position = blockPosition;
             //blockHighlight.forward = Vector3.forward;
 
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && !ClickOnUI())
             {
                 WorldGenerator.Inst.MineBlock(blockPosition + Vector3.right);
             }
@@ -256,7 +262,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     void PlaceBlock(Vector3 blockPosition)
     {
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1) && !ClickOnUI())
         {
             //print("kjdnsfjksdf");
             if (player.inventory.CurrentSelectedItem != null)
@@ -314,6 +320,48 @@ public class PlayerBehaviour : MonoBehaviour
             return false;
         else
             return true;
+    }
+
+    float defaultBottomClamp, defaultTopClamp;
+
+    private void Camera_Switched(CameraStack.CameraType cameraType)
+    {
+        if(cameraType == CameraStack.CameraType.First)
+        {
+            foreach (var item in skinnedMeshRenderers)
+            {
+                item.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+            }
+            thirdPersonController.BottomClamp = -50f;
+            thirdPersonController.TopClamp = 87f;
+        }
+        else
+        {
+            foreach (var item in skinnedMeshRenderers)
+            {
+                item.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+            }
+            thirdPersonController.BottomClamp = defaultBottomClamp;
+            thirdPersonController.TopClamp = defaultTopClamp;
+        }
+    }
+
+    bool ClickOnUI()
+    {
+        List<RaycastResult> results = new List<RaycastResult>();
+        PointerEventData pointer = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition,
+        };
+        EventSystem.current.RaycastAll(pointer, results);
+
+        foreach (var item in results)
+        {
+            if (item.gameObject.layer == 5)
+                return true;
+        }
+
+        return false;
     }
 
     float savePositionTimer;

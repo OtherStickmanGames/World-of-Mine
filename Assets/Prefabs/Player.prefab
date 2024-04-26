@@ -136,6 +136,13 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 129
+  skinnedMeshRenderers:
+  - {fileID: 6123072481545510861}
+  - {fileID: 8860610083190812956}
+  - {fileID: 803481587448206972}
+  - {fileID: 7137914818898058735}
+  - {fileID: 3363476117140728321}
+  - {fileID: 6989223560160897915}
   allowDigging: 1
   sizeMainInventory: 0
 --- !u!143 &4254776806189264067
@@ -1191,6 +1198,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 7806579355091725390}
   m_PrefabAsset: {fileID: 0}
+--- !u!137 &803481587448206972 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7453458142706874930, guid: 657a24a550f86f040bc1ae3cbf29c980,
+    type: 3}
+  m_PrefabInstance: {fileID: 7806579355091725390}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &888425544202918828 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -2305041616890824734, guid: 657a24a550f86f040bc1ae3cbf29c980,
@@ -1317,6 +1330,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 7806579355091725390}
   m_PrefabAsset: {fileID: 0}
+--- !u!137 &3363476117140728321 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -4396642182433536433, guid: 657a24a550f86f040bc1ae3cbf29c980,
+    type: 3}
+  m_PrefabInstance: {fileID: 7806579355091725390}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3391569706924668210 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4848067970944702844, guid: 657a24a550f86f040bc1ae3cbf29c980,
@@ -1410,6 +1429,12 @@ Transform:
 --- !u!4 &6013425193281625716 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4550167061540401722, guid: 657a24a550f86f040bc1ae3cbf29c980,
+    type: 3}
+  m_PrefabInstance: {fileID: 7806579355091725390}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &6123072481545510861 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -5138871654631427197, guid: 657a24a550f86f040bc1ae3cbf29c980,
     type: 3}
   m_PrefabInstance: {fileID: 7806579355091725390}
   m_PrefabAsset: {fileID: 0}
@@ -1580,6 +1605,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TransitionStateInfoList: []
   m_Animator: {fileID: 4412435983000359391}
+--- !u!137 &6989223560160897915 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -8311323551625017547, guid: 657a24a550f86f040bc1ae3cbf29c980,
+    type: 3}
+  m_PrefabInstance: {fileID: 7806579355091725390}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &7137914818898058735 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -8117600638758964831, guid: 657a24a550f86f040bc1ae3cbf29c980,
+    type: 3}
+  m_PrefabInstance: {fileID: 7806579355091725390}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7236445379590307152 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8630147904690138850, guid: 657a24a550f86f040bc1ae3cbf29c980,
@@ -1649,6 +1686,12 @@ Transform:
 --- !u!4 &8677193408073646441 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1458356908597751079, guid: 657a24a550f86f040bc1ae3cbf29c980,
+    type: 3}
+  m_PrefabInstance: {fileID: 7806579355091725390}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &8860610083190812956 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1630794972795428178, guid: 657a24a550f86f040bc1ae3cbf29c980,
     type: 3}
   m_PrefabInstance: {fileID: 7806579355091725390}
   m_PrefabAsset: {fileID: 0}

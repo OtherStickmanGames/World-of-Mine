@@ -15,6 +15,7 @@ public class QuickInventoryView : MonoBehaviour
     {
         inventory.onTakeQuick += Item_Taked;
         inventory.onUpdateItem += Item_Updated;
+        inventory.onItemSets += Items_Seted;
 
         foreach (var slot in slots)
         {
@@ -27,6 +28,7 @@ public class QuickInventoryView : MonoBehaviour
 
         slots[0].Select();
     }
+
 
     public InventorySlot GetActiveSlot()
     {
@@ -59,6 +61,14 @@ public class QuickInventoryView : MonoBehaviour
         slot.SetItem(item);
     }
 
+    private void Items_Seted(Inventory inventory)
+    {
+        foreach (var item in inventory.quick)
+        {
+            Item_Taked(item);
+        }
+    }
+
     private void Update()
     {
         HotKeyInput();
@@ -89,6 +99,14 @@ public class QuickInventoryView : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha6))
         {
             setSelectedItem.Invoke(slots[5].Item);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            setSelectedItem.Invoke(slots[6].Item);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            setSelectedItem.Invoke(slots[7].Item);
         }
     }
 

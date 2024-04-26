@@ -6,8 +6,6 @@ using Cinemachine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] CinemachineVirtualCamera cam;
-    [SerializeField] string camRootName;
     [SerializeField] Worker workerPrefab;
     [SerializeField] public Transform workersParent;
     [SerializeField] bool autoSpawn;
@@ -22,6 +20,8 @@ public class GameManager : MonoBehaviour
     public float maxDiffrentHeight = 10;
 
     public static GameManager Inst;
+
+    List<IUpdateble> updatables = new();
 
     private void Awake()
     {
@@ -40,11 +40,13 @@ public class GameManager : MonoBehaviour
 
     private void PlayerOwner_Spawned(MonoBehaviour owner)
     {
-        cam.Follow = owner.transform.Find(camRootName);
+        
     }
 
     private IEnumerator Start()
     {
+        updatables.Add(new BlockItemSpawner());
+
         if (autoSpawn)
         {
             for (int i = 0; i < countWorkers; i++)
@@ -55,15 +57,13 @@ public class GameManager : MonoBehaviour
                 worker.transform.SetParent(workersParent);
             }
         }
+
+        
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            var worker = Instantiate(workerPrefab);
-            worker.transform.SetParent(workersParent);
-        }
+        foreach (var item in updatables) item.Update();
     }
 
     private void PlayerAny_Spawned(Character player)

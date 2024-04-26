@@ -1,18 +1,23 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using StarterAssets;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using static WorldGenerator;
+using UnityEngine.EventSystems;
 
 [DefaultExecutionOrder(108)]
 public class PlayerBehaviour : MonoBehaviour
 {
+    [SerializeField] public Transform cameraTaret;
     [SerializeField] Transform blockHighlightPrefab;
     [SerializeField] LayerMask layerMask;
+    [SerializeField] SkinnedMeshRenderer[] skinnedMeshRenderers;
     [SerializeField] bool allowDigging;
+
+    [SerializeField] int sizeMainInventory = 0;
 
     public bool IsOwner { get; set; } = true;
 
@@ -32,10 +37,14 @@ public class PlayerBehaviour : MonoBehaviour
         player = GetComponent<Character>();
         thirdPersonController = GetComponent<ThirdPersonController>();
 
+        defaultBottomClamp = thirdPersonController.BottomClamp;
+        defaultTopClamp = thirdPersonController.TopClamp;
+
         if (IsOwner)
         {
             onMineSpawn?.Invoke(this);
             EventsHolder.playerSpawnedMine?.Invoke(player);
+            CameraStack.onCameraSwitch.AddListener(Camera_Switched);
 
             var sai = FindObjectOfType<StarterAssetsInputs>();
             var pi = FindObjectOfType<PlayerInput>();
@@ -49,14 +58,32 @@ public class PlayerBehaviour : MonoBehaviour
             }
             else
             {
-                Inst.GetChunk(userDataPosition.ToGlobalRoundBlockPos());
+                WorldGenerator.Inst.GetChunk(userDataPosition.ToGlobalRoundBlockPos());
                 transform.position = userDataPosition + (Vector3.up * 5);
             }
+
+            player.inventory.onTakeItem += Item_TakedUpdated;
+            player.inventory.onUpdateItem += Item_TakedUpdated;
+
+            InitSizeMainInventory();
+            LoadInventory();
         }
-        
+
 
         //FindPathSystem.Instance.onPathComplete += FindPath_Completed;
     }
+
+    private void Item_TakedUpdated(Item item)
+    {
+        SaveInventory();
+    }
+
+    void InitSizeMainInventory()
+    {
+        player.inventory.mainSize = sizeMainInventory;
+    }
+
+    
 
     private void FindPath_Completed(FindPathSystem.PathDataResult data)
     {
@@ -104,7 +131,7 @@ public class PlayerBehaviour : MonoBehaviour
         {
             var pos = transform.position + Vector3.right + Vector3.up + transform.forward;
             pos = pos.ToGlobalBlockPos();
-            Inst.SetBlockAndUpdateChunck(pos, 8);
+            WorldGenerator.Inst.SetBlockAndUpdateChunck(pos, 8);
             targetPos = pos;
             print(pos);
             print(World.Instance.towerPos.position.ToGlobalBlockPos());
@@ -142,80 +169,13 @@ public class PlayerBehaviour : MonoBehaviour
             blockHighlight.position = blockPosition;
             //blockHighlight.forward = Vector3.forward;
 
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && !ClickOnUI())
             {
-                Inst.MineBlock(blockPosition + Vector3.right);
-
-                //var generator = WorldGenerator.Inst;
-                //var fixedPos = blockPosition + Vector3.right;
-
-                //var chunck = generator.GetChunk(fixedPos);
-                //var pos = chunck.renderer.transform.position;
-
-                //int xBlock = (int)(blockPosition.x - pos.x) + 1;
-                //int yBlock = (int)(blockPosition.y - pos.y);
-                //int zBlock = (int)(blockPosition.z - pos.z);
-
-                //byte blockID = chunck.blocks[xBlock, yBlock, zBlock];
-                //chunck.blocks[xBlock, yBlock, zBlock] = 0;
-
-                //var mesh = generator.UpdateMesh(chunck);//, (int)pos.x, (int)pos.y, (int)pos.z);
-                //chunck.meshFilter.mesh = mesh;
-                //chunck.collider.sharedMesh = mesh;
-
-                //for (int p = 0; p < 6; p++)
-                //{
-                //    var blockPos = new Vector3(xBlock, yBlock, zBlock);
-
-                //    Vector3 checkingBlockPos = blockPos + World.faceChecks[p];
-
-                    
-                //    if (!IsBlockChunk((int)checkingBlockPos.x, (int)checkingBlockPos.y, (int)checkingBlockPos.z))
-                //    {
-                //        var otherChunck = generator.GetChunk(checkingBlockPos + pos);
-
-                //        var otherMesh = generator.UpdateMesh(otherChunck);
-                //        otherChunck.meshFilter.mesh = otherMesh;
-                //        otherChunck.collider.sharedMesh = otherMesh;
-                //    }
-                //}
-
-                
-                //WorldGenerator.Inst.PickBlock(blockPosition, blockID);                //WorldHit(ref chunck, ref hitComponent);
-                //===============================================================
-
-
-                //entityBlockHit = godcraft.EcsWorld.NewEntity();
-
-                //var pool = godcraft.EcsWorld.GetPool<ChunckHitEvent>();
-                //pool.Add(characterEntity);
-                //ref var component = ref pool.Get(characterEntity);
-                //component.collider = hit.collider;
-                //component.position = blockPosition;
-                //component.blockId = 0;
-
-                //onChunkHit?.Invoke(new Entity { id = characterEntity }, component);
-
-                //isHit = true;
+                WorldGenerator.Inst.MineBlock(blockPosition + Vector3.right);
             }
 
             PlaceBlock(blockPosition + hit.normal);
 
-            //if (Input.GetMouseButtonUp(0) && isHit)
-            //{
-            //    isHit = false;
-
-            //    var pool = godcraft.EcsWorld.GetPool<ChunckHitEvent>();
-            //    var filter = godcraft.EcsWorld.Filter<ChunckHitEvent>().End();
-            //    foreach (var entity in filter)
-            //    {
-            //        if (entity == characterEntity)
-            //        {
-            //            pool.Del(characterEntity);
-            //        }
-            //    }
-
-            //}
 
             //if (Input.GetMouseButtonDown(1))
             //{
@@ -302,7 +262,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     void PlaceBlock(Vector3 blockPosition)
     {
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1) && !ClickOnUI())
         {
             //print("kjdnsfjksdf");
             if (player.inventory.CurrentSelectedItem != null)
@@ -355,10 +315,53 @@ public class PlayerBehaviour : MonoBehaviour
 
     bool IsBlockChunk(int x, int y, int z)
     {
+        var size = WorldGenerator.size;
         if (x < 0 || x > size - 1 || y < 0 || y > size - 1 || z < 0 || z > size - 1)
             return false;
         else
             return true;
+    }
+
+    float defaultBottomClamp, defaultTopClamp;
+
+    private void Camera_Switched(CameraStack.CameraType cameraType)
+    {
+        if(cameraType == CameraStack.CameraType.First)
+        {
+            foreach (var item in skinnedMeshRenderers)
+            {
+                item.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+            }
+            thirdPersonController.BottomClamp = -50f;
+            thirdPersonController.TopClamp = 87f;
+        }
+        else
+        {
+            foreach (var item in skinnedMeshRenderers)
+            {
+                item.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+            }
+            thirdPersonController.BottomClamp = defaultBottomClamp;
+            thirdPersonController.TopClamp = defaultTopClamp;
+        }
+    }
+
+    bool ClickOnUI()
+    {
+        List<RaycastResult> results = new List<RaycastResult>();
+        PointerEventData pointer = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition,
+        };
+        EventSystem.current.RaycastAll(pointer, results);
+
+        foreach (var item in results)
+        {
+            if (item.gameObject.layer == 5)
+                return true;
+        }
+
+        return false;
     }
 
     float savePositionTimer;
@@ -373,5 +376,23 @@ public class PlayerBehaviour : MonoBehaviour
 
         UserData.Owner.position = transform.position;
         UserData.Owner.SaveData();
+    }
+
+    void LoadInventory()
+    {
+        if (PlayerPrefs.HasKey("inventory"))
+        {
+            var json = PlayerPrefs.GetString("inventory");
+            var jsonInventory = JsonConvert.DeserializeObject<JsonInventory>(json);
+            jsonInventory.SetInventoryData(player.inventory);
+        }
+    }
+
+    void SaveInventory()
+    {
+        var jsonInventory = new JsonInventory(player.inventory);
+        var json = JsonConvert.SerializeObject(jsonInventory);
+        PlayerPrefs.SetString("inventory", json);
+        PlayerPrefs.Save();
     }
 }

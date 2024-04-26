@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using System;
+using Newtonsoft.Json;
 
 public class Inventory
 {
@@ -16,6 +18,8 @@ public class Inventory
     public Action<Item> onUpdateItem;
     public Action<Item> onTakeQuick;
     public Action<Item> onTakeMain;
+    public Action<Item> onTakeItem;
+    public Action<Inventory> onItemSets;
     public Item CurrentSelectedItem { get; set; }
     public bool IsOpen { get; private set; }
 
@@ -55,6 +59,7 @@ public class Inventory
             {
                 quick.Add(item);
                 onTakeQuick?.Invoke(item);
+                onTakeItem?.Invoke(item);
             }
             else
             {
@@ -67,7 +72,8 @@ public class Inventory
                 else
                 {
                     main.Add(item);
-                    onTakeQuick?.Invoke(item);
+                    onTakeMain?.Invoke(item);
+                    onTakeItem?.Invoke(item);
                 }
             }
 
@@ -137,6 +143,43 @@ public class Inventory
     {
         var item = new Item() { id = blockID };
         return AvailableSpace(item);
+    }
+
+    public void InvokeItemSets()
+    {
+        onItemSets?.Invoke(this);
+    }
+}
+
+[JsonObject]
+public class JsonInventory
+{
+    public List<JsonItem> quick;
+    public List<JsonItem> main;
+    public int quickSize = 8;
+    public int mainSize = 15;
+
+    [JsonConstructor]
+    private JsonInventory() { }
+
+    public JsonInventory(Inventory inventory)
+    {
+        quick = inventory.quick.Select(i => new JsonItem(i)).ToList();
+        main = inventory.main.Select(i => new JsonItem(i)).ToList();
+
+        quickSize = inventory.quickSize;
+        mainSize = inventory.mainSize;
+    }
+
+    public void SetInventoryData(Inventory inventory)
+    {
+        inventory.quick = quick.Select(i => i.GetItem()).ToList();
+        inventory.main = main.Select(i => i.GetItem()).ToList();
+
+        inventory.quickSize = quickSize;
+        inventory.mainSize = mainSize;
+
+        inventory.InvokeItemSets();
     }
 }
 

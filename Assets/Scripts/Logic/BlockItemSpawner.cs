@@ -44,7 +44,10 @@ public class BlockItemSpawner : IUpdateble
         {
             if (!data.view)
                 return;
-            
+
+            if (!player)
+                return;
+
             var dist = Vector3.Distance(player.transform.position, data.view.transform.position);
 
             if (dist < 5 && player.inventory.AvailableSpace(data.ID))

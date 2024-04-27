@@ -5,6 +5,8 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine;
 using System;
+using StarterAssets;
+using TMPro;
 
 public class UI : MonoBehaviour
 {
@@ -16,6 +18,13 @@ public class UI : MonoBehaviour
     [SerializeField] Button btnSwitchCamera;
     [SerializeField] UserView userView;
     [SerializeField] GameObject mobileInput;
+    [SerializeField] FixedTouchField touchField;
+    [SerializeField] RectTransform touch1;
+    [SerializeField] RectTransform touch2;
+    [SerializeField] TMP_Text txtEbala;
+
+    [Header("Output")]
+    public StarterAssetsInputs starterAssetsInputs;
 
     [SerializeField] Button btnReset;
 
@@ -67,7 +76,52 @@ public class UI : MonoBehaviour
 
         quickInventoryView.gameObject.SetActive(false);
         mobileInput.SetActive(false);
-        
+
+
+#if UNITY_SERVER
+        NetworkManager.Singleton.StartServer();
+#endif
+
+    }
+
+    Vector2 lookDirection;
+    Vector2 currentVelocity;
+    public float smoothTime = 1f;
+    public float sensitivity = 3f;
+    private void Update()
+    {
+        if (Application.isMobilePlatform || testMobileInput)
+        {
+            lookDirection = Vector2.SmoothDamp(lookDirection, touchField.TouchDist * sensitivity, ref currentVelocity, Time.deltaTime * smoothTime);
+            VirtualLookInput(lookDirection);
+        }
+
+        //TouchUpdate();
+    }
+
+    void TouchUpdate()
+    {
+        touch1.position = Vector3.down * 100;
+        touch2.position = Vector3.down * 100;
+        var mospos = Input.mousePosition;
+
+        var offsetX = Screen.width / 2;
+        var offsetY = Screen.height / 2;
+        //touch1.position = new Vector3(mospos.x - offsetX, mospos.y - offsetY, 300);
+
+        if (Input.touches.Length > 0)
+        {
+            touch1.position = Input.touches[0].position - new Vector2(offsetX, offsetY);
+            touch1.position += (Vector3.forward * 300);
+
+            if (Input.touches.Length > 1)
+            {
+                touch2.position = Input.touches[1].position - new Vector2(offsetX, offsetY);
+                touch2.position += (Vector3.forward * 300);
+            }
+        }
+
+        txtEbala.text = $"{touch1.position}";
     }
 
     private void BtnHost_Clicked()
@@ -91,6 +145,10 @@ public class UI : MonoBehaviour
         {
             mobileInput.SetActive(true);
         }
+        else
+        {
+            touchField.gameObject.SetActive(false);
+        }
 
         this.player = player.transform;
     }
@@ -106,6 +164,8 @@ public class UI : MonoBehaviour
         onInventoryOpen.AddListener(player.inventory.Open);
         onInventoryClose.AddListener(player.inventory.Close);
     }
+
+   
 
     private void LateUpdate()
     {
@@ -124,5 +184,10 @@ public class UI : MonoBehaviour
         {
             Destroy(item.gameObject);
         }
+    }
+
+    public void VirtualLookInput(Vector2 virtualLookDirection)
+    {
+        starterAssetsInputs.LookInput(virtualLookDirection);
     }
 }

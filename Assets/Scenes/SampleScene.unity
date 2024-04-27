@@ -1838,7 +1838,7 @@ MonoBehaviour:
     EnableNetworkLogs: 1
     OldPrefabList: []
   RunInBackground: 1
-  LogLevel: 0
+  LogLevel: 1
 --- !u!1 &653725230
 GameObject:
   m_ObjectHideFlags: 0
@@ -2030,7 +2030,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de4ff8a70e8ce374c9e520b47aa119b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testMobileInput: 1
+  testMobileInput: 0
   btnHost: {fileID: 937977064}
   btnClient: {fileID: 1403220914}
   inventotyView: {fileID: 0}

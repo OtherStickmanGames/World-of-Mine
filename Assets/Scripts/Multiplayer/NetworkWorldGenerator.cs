@@ -58,13 +58,23 @@ public class NetworkWorldGenerator : NetworkBehaviour
         {
             var json = File.ReadAllText(path);
             var chunckData = JsonConvert.DeserializeObject<ChunckData>(json);
-            var userChunckData = chunckData.usersChangedBlocks.Find(u => u.userName == userName);
-            if (userChunckData != null)
+            var changedBlocks = chunckData.changedBlocks;
+            if (changedBlocks.Count > 0)
             {
-                Vector3[] positions = userChunckData.changedBlocks.Select(b => b.Pos).ToArray();
-                byte[] blockIDs = userChunckData.changedBlocks.Select(b => b.blockId).ToArray();
-                ReceiveChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
+                Vector3[] positions = changedBlocks.Select(b => b.Pos).ToArray();
+                byte[] blockIDs = changedBlocks.Select(b => b.blockId).ToArray();
+                ReceivePendingChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
             }
+
+            //var json = File.ReadAllText(path);
+            //var chunckData = JsonConvert.DeserializeObject<ChunckData>(json);
+            //var userChunckData = chunckData.usersChangedBlocks.Find(u => u.userName == userName);
+            //if (userChunckData != null)
+            //{
+            //    Vector3[] positions = userChunckData.changedBlocks.Select(b => b.Pos).ToArray();
+            //    byte[] blockIDs = userChunckData.changedBlocks.Select(b => b.blockId).ToArray();
+            //    ReceiveChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
+            //}
         }
     }
 
@@ -222,8 +232,11 @@ public class NetworkWorldGenerator : NetworkBehaviour
     private void BlockMinedServerRpc(Vector3 blockPos, byte blockID, ServerRpcParams serverRpcParams = default)
     {
         //print($"Пришел блок {blockID} в {blockPos}");
+#if !UNITY_SERVER
         ChangeChunck(blockPos);
+#endif
         SaveChangeChunck(blockPos, 0, serverRpcParams);
+        ReceiveMinedBlockClientRpc(blockPos, serverRpcParams.Receive.SenderClientId);
     }
 
     private void SaveChangeChunck(Vector3 blockPos, byte blockID, ServerRpcParams serverRpcParams)
@@ -269,9 +282,12 @@ public class NetworkWorldGenerator : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void SaveChangeChunckClientRpc()
+    private void ReceiveMinedBlockClientRpc(Vector3 blockPos, ulong mineClientId)
     {
-
+        if (mineClientId == NetworkManager.LocalClient.ClientId)
+            return;
+        // TO DO Доделать, чтобы не отправлять эти данные тому кто добыл блок
+        worldGenerator.SetBlockAndUpdateChunck(blockPos, 0);
     }
 
     private ChunckData GetChunckData(string path, ChunckComponent chunck)

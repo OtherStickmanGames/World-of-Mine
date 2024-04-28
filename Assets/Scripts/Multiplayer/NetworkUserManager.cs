@@ -43,7 +43,7 @@ public class NetworkUserManager : NetworkBehaviour
         rpcParams.Send.TargetClientIds = new ulong[] { serverRpcParams.Receive.SenderClientId };
 
         UserRegistredClientRpc(rpcParams);
-        //print($"{userName} ### {serverRpcParams.Receive.SenderClientId}");
+        Debug.Log($"{userName} Client ID {serverRpcParams.Receive.SenderClientId}");
     }
 
     [ClientRpc(RequireOwnership = false)]

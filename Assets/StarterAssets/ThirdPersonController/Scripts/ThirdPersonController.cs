@@ -125,6 +125,7 @@ namespace StarterAssets
             }
         }
 
+        public float CurrentSpeed => _speed;
         public bool IsOwner { get; set; } = true;
 
 

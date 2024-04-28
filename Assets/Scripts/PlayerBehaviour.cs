@@ -169,7 +169,7 @@ public class PlayerBehaviour : MonoBehaviour
             blockHighlight.position = blockPosition;
             //blockHighlight.forward = Vector3.forward;
 
-            if (Input.GetMouseButtonDown(0) && !ClickOnUI())
+            if (Input.GetMouseButtonDown(0) && !GameManager.Inst.ClickOnUI())
             {
                 WorldGenerator.Inst.MineBlock(blockPosition + Vector3.right);
             }
@@ -262,7 +262,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     void PlaceBlock(Vector3 blockPosition)
     {
-        if (Input.GetMouseButtonDown(1) && !ClickOnUI())
+        if (Input.GetMouseButtonDown(1) && !GameManager.Inst.ClickOnUI())
         {
             //print("kjdnsfjksdf");
             if (player.inventory.CurrentSelectedItem != null)
@@ -332,7 +332,7 @@ public class PlayerBehaviour : MonoBehaviour
             {
                 item.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
             }
-            thirdPersonController.BottomClamp = -50f;
+            thirdPersonController.BottomClamp = -80f;
             thirdPersonController.TopClamp = 87f;
         }
         else
@@ -346,23 +346,7 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    bool ClickOnUI()
-    {
-        List<RaycastResult> results = new List<RaycastResult>();
-        PointerEventData pointer = new PointerEventData(EventSystem.current)
-        {
-            position = Input.mousePosition,
-        };
-        EventSystem.current.RaycastAll(pointer, results);
-
-        foreach (var item in results)
-        {
-            if (item.gameObject.layer == 5)
-                return true;
-        }
-
-        return false;
-    }
+    
 
     float savePositionTimer;
     void SavePlayerPosition()

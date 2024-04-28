@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Cinemachine;
+using UnityEngine.EventSystems;
 
 public class GameManager : MonoBehaviour
 {
@@ -94,5 +94,23 @@ public class GameManager : MonoBehaviour
         {
             World.Instance.notMineable.AddRange(data.explored);
         }
+    }
+
+    public bool ClickOnUI()
+    {
+        List<RaycastResult> results = new List<RaycastResult>();
+        PointerEventData pointer = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition,
+        };
+        EventSystem.current.RaycastAll(pointer, results);
+
+        foreach (var item in results)
+        {
+            if (item.gameObject.layer == 5)
+                return true;
+        }
+
+        return false;
     }
 }

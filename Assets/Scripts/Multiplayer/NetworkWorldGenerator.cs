@@ -24,6 +24,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
     private void Awake()
     {
         WorldGenerator.onBlockPick.AddListener(Block_Mined);
+        WorldGenerator.onBlockPlace.AddListener(Block_Placed);
         ChunckComponent.onChunckInit.AddListener(Chunck_Inited);
         ChunckComponent.onBlocksSeted.AddListener(ChunckBlocks_Seted);
         NetworkUserManager.onUserRegistred.AddListener(UserOnServer_Registred);
@@ -214,6 +215,34 @@ public class NetworkWorldGenerator : NetworkBehaviour
         waitHandlingChunck = false;
     }
 
+    private void Block_Placed(BlockData blockData)
+    {
+        if (IsClient)
+        {
+            SendBlockPlacedServerRpc(blockData.pos, blockData.ID);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SendBlockPlacedServerRpc(Vector3 blockPos, byte blockId, ServerRpcParams serverRpcParams = default)
+    {
+#if !UNITY_SERVER
+        ChangeChunck(blockPos, blockId);
+#endif
+        SaveChangeChunck(blockPos, blockId, serverRpcParams);
+        ReceiveBlockPlacedClientRpc(blockPos, blockId, serverRpcParams.Receive.SenderClientId);
+    }
+
+    [ClientRpc]
+    private void ReceiveBlockPlacedClientRpc(Vector3 blockPos, byte blockID, ulong mineClientId)
+    {
+        if (mineClientId == NetworkManager.LocalClient.ClientId)
+            return;
+        // TO DO Доделать, чтобы не отправлять эти данные тому кто добыл блок
+
+        worldGenerator.SetBlockAndUpdateChunck(blockPos, blockID);
+    }
+
     private void Block_Mined(BlockData data)
     {
         if (IsServer)
@@ -233,7 +262,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
     {
         //print($"Пришел блок {blockID} в {blockPos}");
 #if !UNITY_SERVER
-        ChangeChunck(blockPos);
+        ChangeChunck(blockPos, 0);
 #endif
         SaveChangeChunck(blockPos, 0, serverRpcParams);
         ReceiveMinedBlockClientRpc(blockPos, serverRpcParams.Receive.SenderClientId);
@@ -320,9 +349,9 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
     }
 
-    private void ChangeChunck(Vector3 blockPos)
+    private void ChangeChunck(Vector3 blockPos, byte blockId)
     {
-        worldGenerator.SetBlockAndUpdateChunck(blockPos, 0);
+        worldGenerator.SetBlockAndUpdateChunck(blockPos, blockId);
     }
 
     void CheckDirectory(string subDirectory)
@@ -332,12 +361,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
         {
             Directory.CreateDirectory(path);
         }
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void PlayerSpawnedServerRpc(string userName)
-    {
-        print(userName);
     }
 
     string GetChunckName(ChunckComponent chunck)

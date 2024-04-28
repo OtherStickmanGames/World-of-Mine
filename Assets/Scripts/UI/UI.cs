@@ -17,8 +17,9 @@ public class UI : MonoBehaviour
     [SerializeField] QuickInventoryView quickInventoryView;
     [SerializeField] Button btnSwitchCamera;
     [SerializeField] UserView userView;
-    [SerializeField] GameObject mobileInput;
+    [SerializeField] GameObject mobileController;
     [SerializeField] FixedTouchField touchField;
+    [SerializeField] MobileInput mobileInput;
     [SerializeField] RectTransform touch1;
     [SerializeField] RectTransform touch2;
     [SerializeField] TMP_Text txtEbala;
@@ -75,7 +76,8 @@ public class UI : MonoBehaviour
         userView.Init();
 
         quickInventoryView.gameObject.SetActive(false);
-        mobileInput.SetActive(false);
+        mobileController.SetActive(false);
+        mobileInput.gameObject.SetActive(false);
 
 
 #if UNITY_SERVER
@@ -137,13 +139,17 @@ public class UI : MonoBehaviour
 
     private void PlayerMine_Spawned(MonoBehaviour player)
     {
+        mobileInput.gameObject.SetActive(true);
+        mobileInput.Init(player as PlayerBehaviour);
+
         mine = player.GetComponent<Character>();
         quickInventoryView.gameObject.SetActive(true);
         InitInventoryView(mine);
 
         if (Application.isMobilePlatform || testMobileInput)
         {
-            mobileInput.SetActive(true);
+            mobileController.SetActive(true);
+            touchField.gameObject.SetActive(true);
         }
         else
         {

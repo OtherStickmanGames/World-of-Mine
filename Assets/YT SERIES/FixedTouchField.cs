@@ -64,6 +64,7 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         else
         {
             TouchDist = new Vector2();
+            PointerOld = new Vector2();
         }
     }
 

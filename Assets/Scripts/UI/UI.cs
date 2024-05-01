@@ -23,6 +23,7 @@ public class UI : MonoBehaviour
     [SerializeField] RectTransform touch1;
     [SerializeField] RectTransform touch2;
     [SerializeField] TMP_Text txtEbala;
+    
 
     [Header("Output")]
     public StarterAssetsInputs starterAssetsInputs;

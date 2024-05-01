@@ -25,7 +25,7 @@ public class PlayerBehaviour : MonoBehaviour
     public static UnityEvent<MonoBehaviour> onMineSpawn = new UnityEvent<MonoBehaviour>();
 
     ThirdPersonController thirdPersonController;
-    Transform blockHighlight;
+    public Transform blockHighlight;
     Character player;
 
     float deltaTime;
@@ -105,7 +105,7 @@ public class PlayerBehaviour : MonoBehaviour
 
         SavePlayerPosition();
 
-        if (allowDigging)
+        if (allowDigging && !Application.isMobilePlatform)
         {
             BlockRaycast();
         }

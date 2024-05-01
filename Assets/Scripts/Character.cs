@@ -8,10 +8,12 @@ public class Character : MonoBehaviour
 {
     [SerializeField] Transform spineItemHolder;
     [SerializeField] Transform topDownTarget;
+    [SerializeField] float mineDistance = 7f;
     //[SerializeField] ThirdPersonController thirdPersonController;
 
     public static UnityEvent<Character> onSpawn = new UnityEvent<Character>();
 
+    public float MineDistance => mineDistance;
     public Transform SpineItemHolder => spineItemHolder;
 
     public Inventory inventory;

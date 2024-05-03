@@ -20,7 +20,7 @@ public class QuickInventoryView : MonoBehaviour
         foreach (var slot in slots)
         {
             slot.Init();
-            slot.onClick.AddListener(Slot_Clicked);
+            slot.onClick.AddListener((s) => Slot_Clicked(s, inventory));
             inventory.onRemoveItem += slot.RemoveItem;
         }
 
@@ -35,11 +35,13 @@ public class QuickInventoryView : MonoBehaviour
         return slots[Selected];
     }
 
-    private void Slot_Clicked(InventorySlot slot)
+    private void Slot_Clicked(InventorySlot slot, Inventory inventory)
     {
         DeselectAllSlots();
 
         slot.Select();
+
+        inventory.CurrentSelectedItem = slot.Item;
 
         Selected = slot.transform.GetSiblingIndex();
     }

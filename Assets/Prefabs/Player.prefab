@@ -118,6 +118,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spineItemHolder: {fileID: 7140929753848448738}
   topDownTarget: {fileID: 6962146638199020974}
+  mineDistance: 7
 --- !u!114 &2745348367226650020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145,6 +146,7 @@ MonoBehaviour:
   - {fileID: 6989223560160897915}
   allowDigging: 1
   sizeMainInventory: 0
+  blockHighlight: {fileID: 0}
 --- !u!143 &4254776806189264067
 CharacterController:
   m_ObjectHideFlags: 0
@@ -183,7 +185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26e54e5a728a9234ab24fcf1460ed8a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveSpeed: 3
+  MoveSpeed: 5
   SprintSpeed: 8
   RotationSmoothTime: 0.12
   SpeedChangeRate: 10
@@ -246,7 +248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3157316712
+  GlobalObjectIdHash: 4199573652
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1

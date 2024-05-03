@@ -293,7 +293,6 @@ public class PlayerBehaviour : MonoBehaviour
                     Vector3 checkingBlockPos = blockPos + World.faceChecks[p];
                     var blockInOtherChunckPos = checkingBlockPos + pos;
 
-
                     if (!IsBlockChunk((int)checkingBlockPos.x, (int)checkingBlockPos.y, (int)checkingBlockPos.z))
                     {
                         var otherChunck = generator.GetChunk(checkingBlockPos + pos);
@@ -301,8 +300,6 @@ public class PlayerBehaviour : MonoBehaviour
                         var otherMesh = generator.UpdateMesh(otherChunck);
                         otherChunck.meshFilter.mesh = otherMesh;
                         otherChunck.collider.sharedMesh = otherMesh;
-
-
                     }
                 }
 

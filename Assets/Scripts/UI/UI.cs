@@ -7,6 +7,7 @@ using UnityEngine;
 using System;
 using StarterAssets;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class UI : MonoBehaviour
 {
@@ -196,5 +197,48 @@ public class UI : MonoBehaviour
     public void VirtualLookInput(Vector2 virtualLookDirection)
     {
         starterAssetsInputs.LookInput(virtualLookDirection);
+    }
+
+    static List<RaycastResult> results = new List<RaycastResult>();
+    static PointerEventData pointer;
+    public static bool ClickOnUI()
+    {
+        if (pointer == null)
+        {
+            pointer = new PointerEventData(EventSystem.current);
+        }
+        pointer.position = Input.mousePosition;
+
+        EventSystem.current.RaycastAll(pointer, results);
+
+        foreach (var item in results)
+        {
+            if (item.gameObject.layer == 5)
+                return true;
+        }
+
+        return false;
+    }
+
+    public static bool ClickOnUI(List<GameObject> exclude)
+    {
+        if (pointer == null)
+        {
+            pointer = new PointerEventData(EventSystem.current);
+        }
+        pointer.position = Input.mousePosition;
+
+        EventSystem.current.RaycastAll(pointer, results);
+
+        foreach (var item in results)
+        {
+            if (exclude.Find(go => go == item.gameObject))
+                continue;
+
+            if (item.gameObject.layer == 5)
+                return true;
+        }
+
+        return false;
     }
 }

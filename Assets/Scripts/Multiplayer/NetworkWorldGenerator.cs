@@ -18,6 +18,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
 
     List<ChunckComponent> offlineBlocksSeted = new List<ChunckComponent>();
     List<ChunckComponent> pendingChuncks = new List<ChunckComponent>();
+    ChunckComponent currentPendingChunck;
 
     bool waitHandlingChunck;
 
@@ -112,10 +113,11 @@ public class NetworkWorldGenerator : NetworkBehaviour
         if (IsClient)
         {
             if (!waitHandlingChunck && pendingChuncks.Count > 0)
-            {
-                var chunck = pendingChuncks.First();
-
-                SendPendingChunckDataServerRpc(chunck.pos);
+            {// -16.00, 16.00, -16
+                //print(pendingChuncks.Find(c => c.pos == new Vector3(-16, 16, -16)) != null);
+                currentPendingChunck = pendingChuncks.First();
+                //print(currentPendingChunck.pos);
+                SendPendingChunckDataServerRpc(currentPendingChunck.pos);
 
                 waitHandlingChunck = true;
             }
@@ -157,7 +159,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
 
         if (pendingChuncks.Count > 0)
         {
-            pendingChuncks.RemoveAt(0);
+            pendingChuncks.Remove(currentPendingChunck);
         }
         waitHandlingChunck = false;
     }
@@ -210,7 +212,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
     {
         if (pendingChuncks.Count > 0)
         {
-            pendingChuncks.RemoveAt(0);
+            pendingChuncks.Remove(currentPendingChunck);
         }
         waitHandlingChunck = false;
     }

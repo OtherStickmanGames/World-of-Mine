@@ -22,6 +22,7 @@ public class MobileInput : MonoBehaviour
     Vector3 mineIconPos;
     Vector2 oldTouchPos;
     Vector3 blockPosition;
+    float scaleFactor;
     float touchTimer;
     float mineTimer;
     bool touchDown;
@@ -41,6 +42,8 @@ public class MobileInput : MonoBehaviour
 
     private void Update()
     {
+        scaleFactor = (float)1080 / (float)Screen.height;
+
         MineInputHandler();
     }
 
@@ -58,7 +61,7 @@ public class MobileInput : MonoBehaviour
         {
             if (Input.touches.Length == 1)
             {
-                txtDebuga.text = $"Mos Pos {Input.mousePosition}\nTach Poso {Input.touches[0].position}";
+                //txtDebuga.text = $"Mos Pos {Input.mousePosition}\nTach Poso {Input.touches[0].position}";
 
                 //var offsetX = Screen.width / 2;
                 //var offsetY = Screen.height / 2;
@@ -68,7 +71,7 @@ public class MobileInput : MonoBehaviour
                 //var localPos = TouchTest.localPosition;
                 //localPos.z = 0;
                 //TouchTest.localPosition = localPos;
-                var scaleFactor = (float)1080 / (float)Screen.height;
+                
                 TouchTest.anchoredPosition = Input.touches[0].position * scaleFactor;
             }
             var exclude = new List<GameObject>() { lookTouch.gameObject };
@@ -86,7 +89,7 @@ public class MobileInput : MonoBehaviour
                 var dir = touch.position - oldTouchPos;
                 // ≈сли нет движени€ больше 0,5 сек, то активируем майнинг
                 lastBlockRaycast = IsBlockRaycast(out raycastHit);
-                if (dir.magnitude < 0.3f && lastBlockRaycast)
+                if (dir.magnitude < 0.5f * scaleFactor && lastBlockRaycast)
                 {
                     touchTimer += Time.deltaTime;
 

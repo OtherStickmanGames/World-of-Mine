@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
         Application.targetFrameRate = 60;
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
-        UserData.Owner.LoadData();
+        //UserData.Owner.LoadData();
 
         PlayerBehaviour.onMineSpawn.AddListener(PlayerOwner_Spawned);
 

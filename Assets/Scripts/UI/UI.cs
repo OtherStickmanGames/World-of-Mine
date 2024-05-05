@@ -51,6 +51,24 @@ public class UI : MonoBehaviour
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
     }
 
+    
+
+    private void Start()
+    {
+        userView.Init();
+
+        quickInventoryView.gameObject.SetActive(false);
+        mobileController.SetActive(false);
+        mobileInput.gameObject.SetActive(false);
+
+
+#if UNITY_SERVER
+        NetworkManager.Singleton.StartServer();
+#endif
+
+        txtEbala.text = $"{UserData.Owner.position}";
+    }
+
     private void BtnReset_Clicked()
     {
         needResetPlayerPosition = true;
@@ -71,21 +89,6 @@ public class UI : MonoBehaviour
         {
             CameraStack.Instance.SwitchToTopDown();
         }
-    }
-
-    private void Start()
-    {
-        userView.Init();
-
-        quickInventoryView.gameObject.SetActive(false);
-        mobileController.SetActive(false);
-        mobileInput.gameObject.SetActive(false);
-
-
-#if UNITY_SERVER
-        NetworkManager.Singleton.StartServer();
-#endif
-
     }
 
     Vector2 lookDirection;

@@ -83,27 +83,28 @@ public class Inventory
     public void Remove(Item item)
     {
         item.count--;
+        //onUpdateItem?.Invoke(item);
+
+        if (item.count == 0)
+        {
+            onRemoveItem?.Invoke(item);
+
+            if (item == CurrentSelectedItem)
+            {
+                CurrentSelectedItem = null;
+            }
+
+            if (quick.Contains(item))
+            {
+                quick.Remove(item);
+            }
+            else
+            {
+                main.Remove(item);
+            }
+        }
+
         onUpdateItem?.Invoke(item);
-        
-        if (item.count > 0)
-            return;
-
-        onRemoveItem?.Invoke(item);
-
-        if (item == CurrentSelectedItem)
-        {
-            CurrentSelectedItem = null;
-        }
-        
-        if (quick.Contains(item))
-        {
-            quick.Remove(item);
-        }
-        else
-        {
-            main.Remove(item);
-        }
-        
     }
 
     Item ExistMatchInQuick(Item item)

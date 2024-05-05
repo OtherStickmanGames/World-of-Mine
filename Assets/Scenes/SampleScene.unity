@@ -804,7 +804,7 @@ MonoBehaviour:
   mineIcon: {fileID: 1669497413}
   lookTouch: {fileID: 653725232}
   innerMineIcon: {fileID: 735919285}
-  mineTime: 1.5
+  mineTime: 0.7
   TouchTest: {fileID: 598927500}
   txtDebuga: {fileID: 1974414733}
 --- !u!1 &330585543
@@ -2005,7 +2005,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.7, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -180.20825}
+  m_AnchoredPosition: {x: 0, y: -180.20827}
   m_SizeDelta: {x: 0, y: -360.4165}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &653725232
@@ -2161,7 +2161,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de4ff8a70e8ce374c9e520b47aa119b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testMobileInput: 1
+  testMobileInput: 0
   btnHost: {fileID: 937977064}
   btnClient: {fileID: 1403220914}
   inventotyView: {fileID: 0}
@@ -2847,12 +2847,17 @@ PrefabInstance:
     - target: {fileID: 8762286023885395323, guid: 9c489a8547f4d9e4387da15a4ff82c81,
         type: 3}
       propertyPath: m_Lens.FieldOfView
-      value: 53
+      value: 55
       objectReference: {fileID: 0}
     - target: {fileID: 8762286024517199034, guid: 9c489a8547f4d9e4387da15a4ff82c81,
         type: 3}
       propertyPath: ShoulderOffset.y
       value: 0.38
+      objectReference: {fileID: 0}
+    - target: {fileID: 8762286024517199034, guid: 9c489a8547f4d9e4387da15a4ff82c81,
+        type: 3}
+      propertyPath: ShoulderOffset.z
+      value: -0.3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

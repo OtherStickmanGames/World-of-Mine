@@ -12,7 +12,18 @@ public class UserData
   
     public Vector3 position;
 
-    string userDataPath = $"{Application.dataPath}/Data/UserData.json";
+    static string userDataPath = $"{DataPath}/Data/UserData.json";
+
+    static string DataPath
+    {
+        get
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            return Application.persistentDataPath;
+#endif
+            return Application.dataPath;
+        }
+    }
 
     public static UserData Owner
     {
@@ -20,7 +31,15 @@ public class UserData
         {
             if (owner == null)
             {
-                owner = new();
+                if (File.Exists(userDataPath))
+                {
+                    var json = File.ReadAllText(userDataPath);
+                    owner = JsonUtility.FromJson<UserData>(json);
+                }
+                else
+                {
+                    owner = new();
+                }
             }
 
             return owner;
@@ -50,7 +69,7 @@ public class UserData
 
     public void SaveData()
     {
-        Directory.CreateDirectory($"{Application.dataPath}/Data/");
+        Directory.CreateDirectory($"{DataPath}/Data/");
         var json = JsonUtility.ToJson(this);
         File.WriteAllText(userDataPath, json);
 #if UNITY_EDITOR

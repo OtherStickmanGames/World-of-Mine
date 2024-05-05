@@ -45,11 +45,5 @@ public class UserView : MonoBehaviour
         UserData.Owner.SaveData();
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            UserData.Owner.LoadData();
-        }
-    }
+    
 }

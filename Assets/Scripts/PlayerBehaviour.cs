@@ -148,6 +148,8 @@ public class PlayerBehaviour : MonoBehaviour
         {
             transform.position += Vector3.up * 80;
         }
+
+        
     }
 
     Vector3 targetPos;
@@ -343,7 +345,26 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    
+    private void LateUpdate()
+    {
+        CheckPosition();
+    }
+
+    void CheckPosition()
+    {
+        var blockablePos = transform.position + Vector3.up + Vector3.right;
+        var blockID = WorldGenerator.Inst.GetBlockID(blockablePos);
+        if (blockID > 0)
+        {
+            transform.position += Vector3.up;
+        }
+        if (transform.position.y < -888)
+        {
+            var pos = transform.position;
+            pos.y = 300;
+            transform.position = pos;
+        }
+    }
 
     float savePositionTimer;
     void SavePlayerPosition()

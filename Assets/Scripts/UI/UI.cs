@@ -44,6 +44,7 @@ public class UI : MonoBehaviour
         btnClient.onClick.AddListener(BtnClient_Clicked);
         btnHost.onClick.AddListener(BtnHost_Clicked);
 
+        btnSwitchCamera.gameObject.SetActive(false);
         btnSwitchCamera.onClick.AddListener(BtnSwitchCamera_Clicked);
 
         btnReset.onClick.AddListener(BtnReset_Clicked);
@@ -99,7 +100,8 @@ public class UI : MonoBehaviour
     {
         if (Application.isMobilePlatform || testMobileInput)
         {
-            lookDirection = Vector2.SmoothDamp(lookDirection, touchField.TouchDist * sensitivity, ref currentVelocity, Time.deltaTime * smoothTime);
+            var value = touchField.TouchDist * sensitivity * ScaleFactor;
+            lookDirection = Vector2.SmoothDamp(lookDirection, value, ref currentVelocity, Time.deltaTime * smoothTime);
             VirtualLookInput(lookDirection);
         }
 
@@ -146,6 +148,9 @@ public class UI : MonoBehaviour
     {
         mobileInput.gameObject.SetActive(true);
         mobileInput.Init(player as PlayerBehaviour);
+
+        btnClient.gameObject.SetActive(false);
+        btnSwitchCamera.gameObject.SetActive(true);
 
         mine = player.GetComponent<Character>();
         quickInventoryView.gameObject.SetActive(true);
@@ -244,4 +249,6 @@ public class UI : MonoBehaviour
 
         return false;
     }
+
+    public static float ScaleFactor => (float)1080 / (float) Screen.height;
 }

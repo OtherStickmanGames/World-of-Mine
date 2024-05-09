@@ -31,7 +31,7 @@ public class UserView : MonoBehaviour
         //Debug.Log(string.IsNullOrEmpty(user.userName));
         if (string.IsNullOrEmpty(user.userName))
         {
-            inputUserName.text = $"‘–¿≈–Œ  {Random.Range(0, 9)}{Random.Range(0, 9)}{Random.Range(0, 9)}";
+            inputUserName.text = $"PLAYROCK {Random.Range(0, 9)}{Random.Range(0, 9)}{Random.Range(0, 9)}";
         }
         else
         {

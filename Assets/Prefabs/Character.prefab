@@ -874,13 +874,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 8233447453695231668}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd3a3dbc85a102848b6dd707ce668643, type: 3}
+  m_Script: {fileID: 11500000, guid: 305fe1a8fc00f4540b1b924c13f40f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tower: {fileID: 4900000, guid: e86b192b6b8a137479a0eee2a5e1d524, type: 3}
-  towerPos: {fileID: 0}
-  spineItemHolder: {fileID: 6108185520373403551}
-  topDownTarget: {fileID: 2780416175988524611}
+  spineItemHolder: {fileID: 0}
+  topDownTarget: {fileID: 0}
+  mineDistance: 7
 --- !u!114 &3663973216469614453
 MonoBehaviour:
   m_ObjectHideFlags: 0

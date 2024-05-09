@@ -89,7 +89,7 @@ public class MobileInput : MonoBehaviour
                 var dir = touch.position - oldTouchPos;
                 // ≈сли нет движени€ больше 0,5 сек, то активируем майнинг
                 lastBlockRaycast = IsBlockRaycast(out raycastHit);
-                if (dir.magnitude < 0.5f * scaleFactor && lastBlockRaycast)
+                if (dir.magnitude < 0.88f * scaleFactor && lastBlockRaycast)
                 {
                     touchTimer += Time.deltaTime;
 

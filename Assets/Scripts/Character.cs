@@ -25,6 +25,7 @@ public class Character : MonoBehaviour
 
     private void Start()
     {
+        WorldGenerator.Inst.AddPlayer(transform);
         EventsHolder.onPlayerSpawnAny?.Invoke(this);
         CameraStack.onCameraSwitch.AddListener(Camera_Switched);
 

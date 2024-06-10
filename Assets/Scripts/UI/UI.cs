@@ -14,7 +14,7 @@ public class UI : MonoBehaviour
     [SerializeField] bool testMobileInput;
     [SerializeField] Button btnHost;
     [SerializeField] Button btnClient;
-    [SerializeField] InventotyView inventotyView;
+    [SerializeField] InventotyView inventoryView;
     [SerializeField] QuickInventoryView quickInventoryView;
     [SerializeField] Button btnSwitchCamera;
     [SerializeField] UserView userView;
@@ -171,9 +171,9 @@ public class UI : MonoBehaviour
 
     private void InitInventoryView(Character player)
     {
-        if (inventotyView)
+        if (inventoryView)
         {
-            inventotyView.Init(player.inventory);
+            inventoryView.Init(player.inventory);
         }
         quickInventoryView.Init(player.inventory);
 

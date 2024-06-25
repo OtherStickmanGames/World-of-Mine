@@ -31,26 +31,28 @@ public class TutorialUI : MonoBehaviour
 
     [SerializeField] GameObject lookZoneTutorial;
     [SerializeField] GameObject moveZoneTutorial;
+    [SerializeField] GameObject jumpZoneTutorial;
 
     Character mine;
     Transform player;
     Vector2 lookDirection;
     Vector2 currentVelocity;
     Vector3 oldCameraRotation;
+    Vector3 oldCharacterPosition;
 
     string debugStr;
-    float sumCameraRotation;
+    float sumCameraRotation, sumCharacterMove;
 
-    bool touchZoneComplete, lookZoneComplete, moveZoneComplete;
+    bool touchZoneComplete, lookZoneComplete, moveZoneComplete, jumpZoneComplete;
 
     bool needResetPlayerPosition;
 
     private void Awake()
     {
-       
         btnSwitchCamera.gameObject.SetActive(false);
         lookZoneTutorial.SetActive(false);
         moveZoneTutorial.SetActive(false);
+        jumpZoneTutorial.SetActive(false);
         btnSwitchCamera.onClick.AddListener(BtnSwitchCamera_Clicked);
 
 
@@ -64,7 +66,7 @@ public class TutorialUI : MonoBehaviour
         mobileInput.gameObject.SetActive(false);
     }
 
-    
+
     private void Update()
     {
         debugStr = string.Empty;
@@ -165,12 +167,12 @@ public class TutorialUI : MonoBehaviour
             print(sumCameraRotation);
             debugStr += $" {sumCameraRotation}";
 
-            if(sumCameraRotation > 3000)
+            if (sumCameraRotation > 1800)
             {
                 lookZoneComplete = true;
                 lookZoneTutorial.SetActive(false);
 
-                LeanTween.delayedCall(1, () => 
+                LeanTween.delayedCall(1, () =>
                 {
                     mobileController.SetActive(true);
                     moveZoneTutorial.SetActive(true);
@@ -178,7 +180,28 @@ public class TutorialUI : MonoBehaviour
             }
         }
 
-        if(!moveZoneComplete && lookZoneComplete)
+        if (!moveZoneComplete && lookZoneComplete)
+        {
+            var charPos = mine.transform.position;
+            var posDir = charPos - oldCharacterPosition;
+            sumCharacterMove += posDir.magnitude;
+            oldCharacterPosition = charPos;
+
+            debugStr += $"  Pos {sumCharacterMove}";
+
+            if (sumCharacterMove > 18)
+            {
+                moveZoneComplete = true;
+                moveZoneTutorial.SetActive(false);
+
+                LeanTween.delayedCall(1, () =>
+                {
+                    jumpZoneTutorial.SetActive(true);
+                });
+            }
+        }
+
+        if (!jumpZoneComplete && moveZoneComplete)
         {
 
         }

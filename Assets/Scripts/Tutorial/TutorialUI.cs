@@ -16,6 +16,7 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] Button btnSwitchCamera;
     [SerializeField] FixedTouchField touchField;
     [SerializeField] MobileInput mobileInput;
+    [SerializeField] InteractableStateTracker btnJump;
     [SerializeField] float smoothTime = 1f;
     [SerializeField] float sensitivity = 3f;
 
@@ -24,15 +25,18 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] GameObject mobileController;
 
     [Header("Tutorial")]
+    [SerializeField] Canvas canvasTutorial;
     [SerializeField] GameObject touchZonesTutorial;
-    [SerializeField] TouchTracker leftZone, rightZone;
+    [SerializeField] InteractableStateTracker leftZone, rightZone;
 
     [Space(8)]
 
     [SerializeField] GameObject lookZoneTutorial;
     [SerializeField] GameObject moveZoneTutorial;
     [SerializeField] GameObject jumpZoneTutorial;
+    [SerializeField] GameObject placeBlockTutorial;
 
+    Canvas canvasMine;
     Character mine;
     Transform player;
     Vector2 lookDirection;
@@ -49,15 +53,18 @@ public class TutorialUI : MonoBehaviour
 
     private void Awake()
     {
+        canvasMine = GetComponent<Canvas>();
+
         btnSwitchCamera.gameObject.SetActive(false);
         lookZoneTutorial.SetActive(false);
         moveZoneTutorial.SetActive(false);
         jumpZoneTutorial.SetActive(false);
+        placeBlockTutorial.SetActive(false);
         btnSwitchCamera.onClick.AddListener(BtnSwitchCamera_Clicked);
-
 
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
     }
+
 
     private void Start()
     {
@@ -182,6 +189,14 @@ public class TutorialUI : MonoBehaviour
 
         if (!moveZoneComplete && lookZoneComplete)
         {
+            if (mine.transform.position != Vector3.zero)
+            {
+                if(oldCharacterPosition == Vector3.zero)
+                {
+                    oldCharacterPosition = mine.transform.position;
+                }
+            }
+
             var charPos = mine.transform.position;
             var posDir = charPos - oldCharacterPosition;
             sumCharacterMove += posDir.magnitude;
@@ -203,7 +218,21 @@ public class TutorialUI : MonoBehaviour
 
         if (!jumpZoneComplete && moveZoneComplete)
         {
+            if (btnJump.Pressed)
+            {
+                jumpZoneComplete = true;
 
+                jumpZoneTutorial.SetActive(false);
+
+                LeanTween.delayedCall(1, () =>
+                {
+                    placeBlockTutorial.SetActive(true);
+
+                    canvasMine.sortingOrder = canvasTutorial.sortingOrder + 1;
+                });
+            }
+
+            
         }
 
     }

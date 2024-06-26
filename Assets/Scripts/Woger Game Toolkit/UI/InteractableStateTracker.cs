@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class TouchTracker : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler
+public class InteractableStateTracker : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler
 {
     public bool Pressed;
     public float touchTime;

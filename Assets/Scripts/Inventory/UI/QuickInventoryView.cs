@@ -76,39 +76,46 @@ public class QuickInventoryView : MonoBehaviour
         HotKeyInput();
     }
 
+    public void SelectSlot(int idx)
+    {
+        DeselectAllSlots();
+        slots[idx].Select();
+        setSelectedItem.Invoke(slots[idx].Item);
+    }
+
     private void HotKeyInput()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            setSelectedItem.Invoke(slots[0].Item);
+            SelectSlot(0);
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            setSelectedItem.Invoke(slots[1].Item);
+            SelectSlot(1);
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            setSelectedItem.Invoke(slots[2].Item);
+            SelectSlot(2);
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            setSelectedItem.Invoke(slots[3].Item);
+            SelectSlot(3);
         }
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            setSelectedItem.Invoke(slots[4].Item);
+            SelectSlot(4);
         }
         if (Input.GetKeyDown(KeyCode.Alpha6))
         {
-            setSelectedItem.Invoke(slots[5].Item);
+            SelectSlot(5);
         }
         if (Input.GetKeyDown(KeyCode.Alpha7))
         {
-            setSelectedItem.Invoke(slots[6].Item);
+            SelectSlot(6);
         }
         if (Input.GetKeyDown(KeyCode.Alpha8))
         {
-            setSelectedItem.Invoke(slots[7].Item);
+            SelectSlot(7);
         }
     }
 

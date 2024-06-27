@@ -34,7 +34,7 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] GameObject lookZoneTutorial;
     [SerializeField] GameObject moveZoneTutorial;
     [SerializeField] GameObject jumpZoneTutorial;
-    [SerializeField] GameObject placeBlockTutorial;
+    [SerializeField] GameObject selectSlotTutorial;
 
     Canvas canvasMine;
     Character mine;
@@ -48,6 +48,7 @@ public class TutorialUI : MonoBehaviour
     float sumCameraRotation, sumCharacterMove;
 
     bool touchZoneComplete, lookZoneComplete, moveZoneComplete, jumpZoneComplete;
+    bool selectSlotComplete;
 
     bool needResetPlayerPosition;
 
@@ -59,7 +60,7 @@ public class TutorialUI : MonoBehaviour
         lookZoneTutorial.SetActive(false);
         moveZoneTutorial.SetActive(false);
         jumpZoneTutorial.SetActive(false);
-        placeBlockTutorial.SetActive(false);
+        selectSlotTutorial.SetActive(false);
         btnSwitchCamera.onClick.AddListener(BtnSwitchCamera_Clicked);
 
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
@@ -191,7 +192,7 @@ public class TutorialUI : MonoBehaviour
         {
             if (mine.transform.position != Vector3.zero)
             {
-                if(oldCharacterPosition == Vector3.zero)
+                if (oldCharacterPosition == Vector3.zero)
                 {
                     oldCharacterPosition = mine.transform.position;
                 }
@@ -226,14 +227,30 @@ public class TutorialUI : MonoBehaviour
 
                 LeanTween.delayedCall(1, () =>
                 {
-                    placeBlockTutorial.SetActive(true);
+                    selectSlotTutorial.SetActive(true);
 
                     canvasMine.sortingOrder = canvasTutorial.sortingOrder + 1;
+
+                    var item = new Item() { id = 1 };
+                    item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
+                    item.count = 8;
+                    mine.inventory.TakeItem(item);
+
+                    quickInventoryView.SelectSlot(7);
                 });
             }
-
-            
         }
 
+        if (!selectSlotComplete && jumpZoneComplete)
+        {
+            if (quickInventoryView.Selected == 0)
+            {
+                debugStr += $"≈бать ты машина";
+
+                selectSlotComplete = true;
+
+                selectSlotTutorial.SetActive(false);
+            }
+        }
     }
 }

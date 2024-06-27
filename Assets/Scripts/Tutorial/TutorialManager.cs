@@ -8,11 +8,15 @@ public class TutorialManager : MonoBehaviour
 
     private IEnumerator Start()
     {
+        PlayerPrefs.DeleteKey("inventory");
+
         yield return new WaitForSeconds(0.1f);
 
         var player = Instantiate(playerPrefab);
         Destroy(player.GetComponent<NetworkPlayer>());
 
         WorldGenerator.Inst.AddPlayer(player.transform);
+
+
     }
 }

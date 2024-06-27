@@ -395,7 +395,6 @@ public class PlayerBehaviour : MonoBehaviour
     void SaveInventory()
     {
         var jsonInventory = new JsonInventory(player.inventory);
-        //print(jsonInventory.quick[0].count);
         var json = JsonConvert.SerializeObject(jsonInventory);
         PlayerPrefs.SetString("inventory", json);
         PlayerPrefs.Save();

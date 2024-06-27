@@ -10,6 +10,7 @@ public class InventorySlot : MonoBehaviour
 {
     [SerializeField] Transform holder;
     [SerializeField] Image itemIcon;
+    [SerializeField] Image selectOutline;
     [SerializeField] Button button;
     [SerializeField] TMP_Text txtCount;
     [SerializeField] Color selectColor;
@@ -26,7 +27,7 @@ public class InventorySlot : MonoBehaviour
 
     public void Init()
     {
-        //normalColor = shape.settings.outlineColor;
+        Deselect();
 
         UpdateView();
 
@@ -42,12 +43,12 @@ public class InventorySlot : MonoBehaviour
 
     public void Select()
     {
-        //shape.settings.outlineColor = selectColor;
+        selectOutline.gameObject.SetActive(true);
     }
 
     public void Deselect()
     {
-        //shape.settings.outlineColor = normalColor;
+        selectOutline.gameObject.SetActive(false);
     }
 
     public void SetItem(Item item)

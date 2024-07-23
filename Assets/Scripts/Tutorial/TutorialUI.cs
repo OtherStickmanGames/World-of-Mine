@@ -35,22 +35,26 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] GameObject moveZoneTutorial;
     [SerializeField] GameObject jumpZoneTutorial;
     [SerializeField] GameObject selectSlotTutorial;
+    [SerializeField] Transform highlightBlockTutorial;
 
     Canvas canvasMine;
     Character mine;
-    Transform player;
+    PlayerBehaviour playerBehaviour;
     Vector2 lookDirection;
     Vector2 currentVelocity;
     Vector3 oldCameraRotation;
     Vector3 oldCharacterPosition;
+    Vector3 lookToPlaceBlock;
+    Vector3 startPos = new (-220, 30, 53);
 
     string debugStr;
     float sumCameraRotation, sumCharacterMove;
 
     bool touchZoneComplete, lookZoneComplete, moveZoneComplete, jumpZoneComplete;
     bool selectSlotComplete;
+    bool placeBlockComplete;
 
-    bool needResetPlayerPosition;
+    bool needCameraLookToPlaceBlock;
 
     private void Awake()
     {
@@ -117,6 +121,7 @@ public class TutorialUI : MonoBehaviour
     {
         mobileInput.gameObject.SetActive(true);
         mobileInput.Init(player as PlayerBehaviour);
+        playerBehaviour = player as PlayerBehaviour;
 
         btnSwitchCamera.gameObject.SetActive(true);
 
@@ -134,7 +139,7 @@ public class TutorialUI : MonoBehaviour
             touchField.gameObject.SetActive(false);
         }
 
-        this.player = player.transform;
+        LeanTween.delayedCall(0.1f, () => mine.transform.position = startPos);
     }
 
     private void InitInventoryView(Character player)
@@ -221,8 +226,9 @@ public class TutorialUI : MonoBehaviour
         {
             if (btnJump.Pressed)
             {
-                jumpZoneComplete = true;
+                quickInventoryView.SelectSlot(7);
 
+                jumpZoneComplete = true;
                 jumpZoneTutorial.SetActive(false);
 
                 LeanTween.delayedCall(1, () =>
@@ -236,7 +242,6 @@ public class TutorialUI : MonoBehaviour
                     item.count = 8;
                     mine.inventory.TakeItem(item);
 
-                    quickInventoryView.SelectSlot(7);
                 });
             }
         }
@@ -251,6 +256,31 @@ public class TutorialUI : MonoBehaviour
 
                 selectSlotTutorial.SetActive(false);
             }
+        }
+
+        if (!placeBlockComplete && selectSlotComplete)
+        {
+            var placeBlockPos = startPos + (Vector3.right * 3);
+
+            highlightBlockTutorial.transform.position = placeBlockPos;
+
+            var camRootLookDir = placeBlockPos - playerBehaviour.cameraTaret.position;
+
+            var diffRotation = playerBehaviour.cameraTaret.rotation.eulerAngles - Quaternion.LookRotation(camRootLookDir).eulerAngles;
+
+            needCameraLookToPlaceBlock = true;
+        }
+    }
+
+    private void LateUpdate()
+    {
+
+        if (needCameraLookToPlaceBlock)
+        {
+            var placeBlockPos = startPos + (Vector3.right * 3);
+            var camRootLookDir = placeBlockPos - playerBehaviour.cameraTaret.position;
+            playerBehaviour.cameraTaret.rotation = Quaternion.LookRotation(camRootLookDir);
+
         }
     }
 }

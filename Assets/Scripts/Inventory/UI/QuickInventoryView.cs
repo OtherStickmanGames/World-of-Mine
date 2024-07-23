@@ -78,6 +78,7 @@ public class QuickInventoryView : MonoBehaviour
 
     public void SelectSlot(int idx)
     {
+        Selected = idx;
         DeselectAllSlots();
         slots[idx].Select();
         setSelectedItem.Invoke(slots[idx].Item);

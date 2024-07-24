@@ -184,7 +184,7 @@ public class TutorialUI : MonoBehaviour
             var rotationDir = cameraRotation - oldCameraRotation;
             sumCameraRotation += rotationDir.magnitude;
             oldCameraRotation = cameraRotation;
-            print(sumCameraRotation);
+            //print(sumCameraRotation);
             debugStr += $" {sumCameraRotation}";
 
             if (sumCameraRotation > 888)
@@ -287,13 +287,26 @@ public class TutorialUI : MonoBehaviour
                 var offset = new Vector3(0.5f, 2, 0.5f);
 
                 placeBlockPointer.position = placeBlockPos + offset;
+                tutorialPersonCamera.Priority = 18;
 
                 placeBlockTutorInited = true;
             }
 
-            tutorialPersonCamera.Priority = 18;
+            var checkingPos = placeBlockPos + Vector3.right + Vector3.up;
 
             needCameraLookToPlaceBlock = true;
+
+            debugStr += $"Блокос {WorldGenerator.Inst.GetBlockID(checkingPos)}";
+
+            if (WorldGenerator.Inst.GetBlockID(checkingPos) > 0)
+            {
+                placeBlockComplete = true;
+                needCameraLookToPlaceBlock = false;
+                tutorialPersonCamera.Priority = 5;
+                thirdPersonController.AllowCameraRotation = true;
+            }
+
+
         }
     }
 

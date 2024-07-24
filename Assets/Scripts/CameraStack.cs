@@ -38,8 +38,6 @@ public class CameraStack : MonoBehaviour
     {
         Instance = this;
 
-        Main = Camera.main;
-
         PlayerBehaviour.onMineSpawn.AddListener(OwnerPlayer_Spawned);
     }
 
@@ -49,11 +47,11 @@ public class CameraStack : MonoBehaviour
 
         if (thirdPersonCamera)
         {
-            thirdPersonCamera.Follow = player.cameraTaret;
+            thirdPersonCamera.Follow = player.cameraTarget;
         }
         if (firstPersonCamera)
         {
-            firstPersonCamera.Follow = player.cameraTaret;
+            firstPersonCamera.Follow = player.cameraTarget;
         }
     }
 
@@ -73,7 +71,7 @@ public class CameraStack : MonoBehaviour
         }
         
         thirdPersonCamera.Priority = 10;
-        Main = Camera.main;
+        
         CurrentType = CameraType.Third;
 
         onCameraSwitch?.Invoke(CurrentType);
@@ -96,7 +94,6 @@ public class CameraStack : MonoBehaviour
 
         firstPersonCamera.Priority = 10;
 
-        Main = Camera.main;
         CurrentType = CameraType.First;
 
         onCameraSwitch?.Invoke(CurrentType);
@@ -116,7 +113,6 @@ public class CameraStack : MonoBehaviour
         
         
         thirdPersonCamera.Priority = 8;
-        Main = Camera.main;
         CurrentType = CameraType.TopDown;
 
         onCameraSwitch?.Invoke(CurrentType);
@@ -128,7 +124,7 @@ public class CameraStack : MonoBehaviour
         freeTopDownCamera.Priority = 10;
         firstPersonCamera.Priority = 8;
         thirdPersonCamera.Priority = 8;
-        Main = Camera.main;
+
         CurrentType = CameraType.FreeTopDown;
 
         onCameraSwitch?.Invoke(CurrentType);
@@ -192,6 +188,18 @@ public class CameraStack : MonoBehaviour
                 break;
             }
         }
+    }
+
+    public void SetShoulderOffset(Vector3 offset)
+    {
+        var component = thirdPersonCamera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
+        component.ShoulderOffset = offset;
+    }
+
+    public Vector3 GetShoulderOffset()
+    {
+        var component = thirdPersonCamera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
+        return component.ShoulderOffset;
     }
 
     public enum CameraType

@@ -127,6 +127,7 @@ namespace StarterAssets
 
         public float CurrentSpeed => _speed;
         public bool IsOwner { get; set; } = true;
+        public bool AllowCameraRotation { get; set; } = true;
 
 
         private void Awake()
@@ -177,7 +178,7 @@ namespace StarterAssets
 
         private void LateUpdate()
         {
-            if (!IsOwner || !_input)
+            if (!IsOwner || !_input || !AllowCameraRotation)
                 return;
 
             CameraRotation();

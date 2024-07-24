@@ -8,9 +8,11 @@ using System;
 using StarterAssets;
 using TMPro;
 using UnityEngine.EventSystems;
+using Cinemachine;
 
 public class TutorialUI : MonoBehaviour
 {
+    [SerializeField] bool testMobileInput;
     [SerializeField] TMP_Text debugTexto;
     [SerializeField] QuickInventoryView quickInventoryView;
     [SerializeField] Button btnSwitchCamera;
@@ -36,10 +38,13 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] GameObject jumpZoneTutorial;
     [SerializeField] GameObject selectSlotTutorial;
     [SerializeField] Transform highlightBlockTutorial;
+    [SerializeField] CinemachineVirtualCamera tutorialPersonCamera;
+    [SerializeField] Transform placeBlockPointer;
 
     Canvas canvasMine;
     Character mine;
     PlayerBehaviour playerBehaviour;
+    ThirdPersonController thirdPersonController;
     Vector2 lookDirection;
     Vector2 currentVelocity;
     Vector3 oldCameraRotation;
@@ -53,6 +58,7 @@ public class TutorialUI : MonoBehaviour
     bool touchZoneComplete, lookZoneComplete, moveZoneComplete, jumpZoneComplete;
     bool selectSlotComplete;
     bool placeBlockComplete;
+    bool placeBlockTutorInited;
 
     bool needCameraLookToPlaceBlock;
 
@@ -83,7 +89,7 @@ public class TutorialUI : MonoBehaviour
     {
         debugStr = string.Empty;
 
-        if (Application.isMobilePlatform)
+        if (Application.isMobilePlatform || testMobileInput)
         {
             var value = touchField.TouchDist * sensitivity * UI.ScaleFactor;
             lookDirection = Vector2.SmoothDamp(lookDirection, value, ref currentVelocity, Time.deltaTime * smoothTime);
@@ -122,6 +128,7 @@ public class TutorialUI : MonoBehaviour
         mobileInput.gameObject.SetActive(true);
         mobileInput.Init(player as PlayerBehaviour);
         playerBehaviour = player as PlayerBehaviour;
+        thirdPersonController = player.GetComponent<ThirdPersonController>();
 
         btnSwitchCamera.gameObject.SetActive(true);
 
@@ -180,7 +187,7 @@ public class TutorialUI : MonoBehaviour
             print(sumCameraRotation);
             debugStr += $" {sumCameraRotation}";
 
-            if (sumCameraRotation > 1800)
+            if (sumCameraRotation > 888)
             {
                 lookZoneComplete = true;
                 lookZoneTutorial.SetActive(false);
@@ -210,7 +217,7 @@ public class TutorialUI : MonoBehaviour
 
             debugStr += $"  Pos {sumCharacterMove}";
 
-            if (sumCharacterMove > 18)
+            if (sumCharacterMove > 8)
             {
                 moveZoneComplete = true;
                 moveZoneTutorial.SetActive(false);
@@ -260,13 +267,31 @@ public class TutorialUI : MonoBehaviour
 
         if (!placeBlockComplete && selectSlotComplete)
         {
-            var placeBlockPos = startPos + (Vector3.right * 3);
+            var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * 10);
 
-            highlightBlockTutorial.transform.position = placeBlockPos;
+            highlightBlockTutorial.position = placeBlockPos;
 
-            var camRootLookDir = placeBlockPos - playerBehaviour.cameraTaret.position;
+            var camRootLookDir = placeBlockPos - playerBehaviour.cameraTarget.position;
 
-            var diffRotation = playerBehaviour.cameraTaret.rotation.eulerAngles - Quaternion.LookRotation(camRootLookDir).eulerAngles;
+            var diffRotation = playerBehaviour.cameraTarget.rotation.eulerAngles - Quaternion.LookRotation(camRootLookDir).eulerAngles;
+
+            thirdPersonController.AllowCameraRotation = false;
+
+            if (!tutorialPersonCamera.Follow)
+            {
+                tutorialPersonCamera.Follow = playerBehaviour.cameraTarget;
+            }
+
+            if (!placeBlockTutorInited)
+            {
+                var offset = new Vector3(0.5f, 2, 0.5f);
+
+                placeBlockPointer.position = placeBlockPos + offset;
+
+                placeBlockTutorInited = true;
+            }
+
+            tutorialPersonCamera.Priority = 18;
 
             needCameraLookToPlaceBlock = true;
         }
@@ -277,9 +302,9 @@ public class TutorialUI : MonoBehaviour
 
         if (needCameraLookToPlaceBlock)
         {
-            var placeBlockPos = startPos + (Vector3.right * 3);
-            var camRootLookDir = placeBlockPos - playerBehaviour.cameraTaret.position;
-            playerBehaviour.cameraTaret.rotation = Quaternion.LookRotation(camRootLookDir);
+            var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * 10);
+            var camRootLookDir = placeBlockPos - playerBehaviour.cameraTarget.position;
+            playerBehaviour.cameraTarget.rotation = Quaternion.LookRotation(camRootLookDir);
 
         }
     }

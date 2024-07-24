@@ -11,7 +11,7 @@ using UnityEngine.EventSystems;
 [DefaultExecutionOrder(108)]
 public class PlayerBehaviour : MonoBehaviour
 {
-    [SerializeField] public Transform cameraTaret;
+    [SerializeField] public Transform cameraTarget;
     [SerializeField] Transform blockHighlightPrefab;
     [SerializeField] LayerMask layerMask;
     [SerializeField] SkinnedMeshRenderer[] skinnedMeshRenderers;

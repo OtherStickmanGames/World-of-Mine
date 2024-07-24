@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61fedf8980a48ef41bcc7cd3d5b36a52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraTaret: {fileID: 1520134795128795183}
+  cameraTarget: {fileID: 1520134795128795183}
   blockHighlightPrefab: {fileID: 7384113964129042231, guid: cb1feb4c4284c274e938bba84bdd8502,
     type: 3}
   layerMask:
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4199573652
+  GlobalObjectIdHash: 3957585397
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1

@@ -58,6 +58,8 @@ public class TutorialUI : MonoBehaviour
     bool touchZoneComplete, lookZoneComplete, moveZoneComplete, jumpZoneComplete;
     bool selectSlotComplete;
     bool placeBlockComplete;
+    bool mineBlockComplete;
+
     bool placeBlockTutorInited;
 
     bool needCameraLookToPlaceBlock;

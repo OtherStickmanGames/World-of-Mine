@@ -2840,6 +2840,9 @@ MonoBehaviour:
   rectTransform: {fileID: 0}
   Pressed: 0
   touchTime: 0
+  onPointerUp:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1082134532
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4356,6 +4359,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 690583769}
     m_Modifications:
+    - target: {fileID: 1671302444254034474, guid: d0d0db5958451a14a95f5a5b74d283d2,
+        type: 3}
+      propertyPath: zoomValue
+      value: 0.199
+      objectReference: {fileID: 0}
     - target: {fileID: 2278878574387007484, guid: d0d0db5958451a14a95f5a5b74d283d2,
         type: 3}
       propertyPath: m_Pivot.x

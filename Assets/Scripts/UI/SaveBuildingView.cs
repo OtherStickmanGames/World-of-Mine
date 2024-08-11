@@ -9,6 +9,9 @@ public class SaveBuildingView : MonoBehaviour
     [SerializeField] Button btnSaveBuilding;
     [SerializeField] Button btnAccept;
     [SerializeField] RectTransform selectionBox;
+    [SerializeField] GameObject selectingArea;
+    [SerializeField] InteractableStateTracker btnZoomPlus;
+    [SerializeField] InteractableStateTracker btnZoomMinus;
 
     [Space]
 
@@ -22,6 +25,10 @@ public class SaveBuildingView : MonoBehaviour
     [SerializeField] InteractableStateTracker cropHandleLeftTop;
     [SerializeField] InteractableStateTracker cropHandleRightBottom;
 
+    [Space]
+
+    [SerializeField] float zoomValue = 0.1f;
+
 
     public SelectionMode CurSelectionMode { get; set; }
 
@@ -33,9 +40,49 @@ public class SaveBuildingView : MonoBehaviour
     {
         selectionBox.gameObject.SetActive(false);
         btnAccept.gameObject.SetActive(false);
+        selectingArea.SetActive(false);
 
         btnSaveBuilding.onClick.AddListener(SaveBuilding_Clicked);
         btnAccept.onClick.AddListener(Accept_Clicked);
+
+        cropHandleLeftTop.onPointerUp.AddListener(CropHandle_Uped);
+        cropHandleRightBottom.onPointerUp.AddListener(CropHandle_Uped);
+
+        CameraStack.onCameraSwitch.AddListener(Camera_Switched);
+    }
+
+    private void Camera_Switched(CameraStack.CameraType camType)
+    {
+        if (camType == CameraStack.CameraType.SaveBuilding)
+        {
+            if (CurSelectionMode == SelectionMode.Vertical)
+            {
+                StartCoroutine(Delay());
+            }
+        }
+
+        IEnumerator Delay()
+        {
+            yield return null;
+
+            var uiPos = Camera.main.WorldToScreenPoint(BuildingManager.Singleton.horizontalLeftTop);
+            cropHandleLeftTop.SetPos(uiPos * UI.ScaleFactor);
+            uiPos = Camera.main.WorldToScreenPoint(BuildingManager.Singleton.horizontalRightBottom);
+            cropHandleRightBottom.SetPos(uiPos * UI.ScaleFactor);
+
+            UpdateSelectionBackgroud();
+        }
+    }
+
+    private void CropHandle_Uped()
+    {
+        var scaleFactor = UI.ScaleFactor;
+        var startPos = Camera.main.ScreenToWorldPoint(cropHandleLeftTop.GetPos() / scaleFactor);
+        var endPos = Camera.main.ScreenToWorldPoint(cropHandleRightBottom.GetPos() / scaleFactor);
+
+        BuildingManager.Singleton.SelectionHorizontal(startPos, endPos);
+
+        btnAccept.gameObject.SetActive(true);
     }
 
     private void SaveBuilding_Clicked()
@@ -43,6 +90,9 @@ public class SaveBuildingView : MonoBehaviour
         BuildingManager.Singleton.StartSelection();
 
         allowSelectBlocks = true;
+        selectingArea.SetActive(true);
+
+        UpdateSelectionBackgroud();
     }
 
     private void Accept_Clicked()
@@ -55,129 +105,87 @@ public class SaveBuildingView : MonoBehaviour
     {
         if (allowSelectBlocks)
         {
-            var mousePos = Input.mousePosition;
-            var scaleFactor = UI.ScaleFactor;
-
             if (cropHandleLeftTop.Pressed)
             {
-                cropHandleLeftTop.SetPos(mousePos * UI.ScaleFactor);
-
-                var size = leftPlane.sizeDelta;
-                size.x = mousePos.x * scaleFactor;
-                leftPlane.sizeDelta = size;
-
-                var width = Screen.width - (mousePos.x + (rightPlane.sizeDelta.x / scaleFactor));
-                size = topPlane.sizeDelta;
-                size.x = width;
-                size.y = Screen.height - mousePos.y;
-                topPlane.sizeDelta = size * scaleFactor;
-
-                size = bottomPlane.sizeDelta;
-                size.x = width * scaleFactor;
-                bottomPlane.sizeDelta = size;
-
-                var planePos = topPlane.anchoredPosition;
-                planePos.x = mousePos.x;
-                topPlane.anchoredPosition = planePos * scaleFactor;
-
-                planePos = bottomPlane.anchoredPosition;
-                planePos.x = mousePos.x;
-                bottomPlane.anchoredPosition = planePos * scaleFactor;
+                UpdateLeftCropHandle(Input.mousePosition);
             }
 
             if (cropHandleRightBottom.Pressed)
             {
-                cropHandleRightBottom.SetPos(mousePos * UI.ScaleFactor);
-
-                var size = rightPlane.sizeDelta;
-                size.x = Screen.width - mousePos.x;
-                rightPlane.sizeDelta = size * scaleFactor;
-
-                //var width = Screen.width - (mousePos.x + (rightPlane.sizeDelta.x / scaleFactor));
-                //size = topPlane.sizeDelta;
-                //size.x = width;
-                //size.y = Screen.height - mousePos.y;
-                //topPlane.sizeDelta = size * scaleFactor;
-
-                //size = bottomPlane.sizeDelta;
-                //size.x = width * scaleFactor;
-                //bottomPlane.sizeDelta = size;
-
-                //var planePos = topPlane.anchoredPosition;
-                //planePos.x = mousePos.x;
-                //topPlane.anchoredPosition = planePos * scaleFactor;
-
-                //planePos = bottomPlane.anchoredPosition;
-                //planePos.x = mousePos.x;
-                //bottomPlane.anchoredPosition = planePos * scaleFactor;
+                UpdateRightCropHandle(Input.mousePosition);
             }
         }
 
-        //if (allowSelectBlocks && !UI.ClickOnUI())
-        //{
-        //    if (Input.GetMouseButtonDown(0))
-        //    {
-        //        selectionBoxDisplayed = true;
-        //        selectionBox.gameObject.SetActive(true);
-        //        btnAccept.gameObject.SetActive(false);
-        //        startPressPos = Input.mousePosition;
-        //        selectionBox.anchoredPosition = startPressPos * UI.ScaleFactor;
-        //    }
+        UpdateZoomButtons();
+    }
 
-        //    if (selectionBoxDisplayed)
-        //    {
-        //        var scaleFactor = UI.ScaleFactor;
-        //        var mousePos = Input.mousePosition;
+    void UpdateZoomButtons()
+    {
+        if (btnZoomMinus.Pressed)
+        {
+            CameraStack.Instance.SaveBuildingCameraZoom(zoomValue * 1.05f);
+        }
+        if (btnZoomPlus.Pressed)
+        {
+            CameraStack.Instance.SaveBuildingCameraZoom(-zoomValue);
+        }
+    }
 
-        //        var minX = Mathf.Min(mousePos.x, startPressPos.x);
-        //        var maxX = Mathf.Max(mousePos.x, startPressPos.x);
-        //        var maxY = Mathf.Max(mousePos.y, startPressPos.y);
-        //        var minY = Mathf.Min(mousePos.y, startPressPos.y);
+    void UpdateRightCropHandle(Vector2 mousePos)
+    {
+        var scaleFactor = UI.ScaleFactor;
 
-        //        //var size = leftPlane.sizeDelta;
+        cropHandleRightBottom.SetPos(mousePos * UI.ScaleFactor);
 
+        var size = rightPlane.sizeDelta;
+        size.x = Screen.width - mousePos.x;
+        rightPlane.sizeDelta = size * scaleFactor;
 
-        //        //size = rightPlane.sizeDelta;
-        //        //size.x = Screen.width - maxX;
-        //        //rightPlane.sizeDelta = size * scaleFactor;
+        var width = Screen.width - ((Screen.width - mousePos.x) + (leftPlane.sizeDelta.x / scaleFactor));
+        size = topPlane.sizeDelta;
+        size.x = width * scaleFactor;
+        topPlane.sizeDelta = size;
 
-        //        //size = topPlane.sizeDelta;
-        //        //size.x = maxX - minX;
-        //        //size.y = Screen.height - maxY;
-        //        //topPlane.sizeDelta = size * scaleFactor;
+        size = bottomPlane.sizeDelta;
+        size.y = mousePos.y;
+        size.x = width;
+        bottomPlane.sizeDelta = size * scaleFactor;
+    }
 
-        //        //size = bottomPlane.sizeDelta;
-        //        //size.x = maxX - minX;
-        //        //size.y = minY;
-        //        //bottomPlane.sizeDelta = size * scaleFactor;
+    void UpdateLeftCropHandle(Vector2 mousePos)
+    {
+        var scaleFactor = UI.ScaleFactor;
 
-        //        //var planePos = topPlane.anchoredPosition;
-        //        //planePos.x = minX;
-        //        //topPlane.anchoredPosition = planePos * scaleFactor;
+        cropHandleLeftTop.SetPos(mousePos * UI.ScaleFactor);
 
-        //        //planePos = bottomPlane.anchoredPosition;
-        //        //planePos.x = minX;
-        //        //bottomPlane.anchoredPosition = planePos * scaleFactor;
+        var size = leftPlane.sizeDelta;
+        size.x = mousePos.x * scaleFactor;
+        leftPlane.sizeDelta = size;
 
-        //        var boxSize = Input.mousePosition - startPressPos;
-        //        boxSize.y *= -1;
-        //        selectionBox.sizeDelta = boxSize * UI.ScaleFactor;
+        var width = Screen.width - (mousePos.x + (rightPlane.sizeDelta.x / scaleFactor));
+        size = topPlane.sizeDelta;
+        size.x = width;
+        size.y = Screen.height - mousePos.y;
+        topPlane.sizeDelta = size * scaleFactor;
 
-                
-        //    }
+        size = bottomPlane.sizeDelta;
+        size.x = width * scaleFactor;
+        bottomPlane.sizeDelta = size;
 
-        //    if (Input.GetMouseButtonUp(0))
-        //    {
-        //        selectionBoxDisplayed = false;
-        //        selectionBox.gameObject.SetActive(false);
-        //        var startPos = Camera.main.ScreenToWorldPoint(startPressPos);
-        //        var endPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        var planePos = topPlane.anchoredPosition;
+        planePos.x = mousePos.x;
+        topPlane.anchoredPosition = planePos * scaleFactor;
 
-        //        BuildingManager.Singleton.SelectionHorizontal(startPos, endPos);
+        planePos = bottomPlane.anchoredPosition;
+        planePos.x = mousePos.x;
+        bottomPlane.anchoredPosition = planePos * scaleFactor;
+    }
 
-        //        btnAccept.gameObject.SetActive(true);
-        //    }
-        //}
+    void UpdateSelectionBackgroud()
+    {
+        var scaleFactor = UI.ScaleFactor;
+        UpdateLeftCropHandle(cropHandleLeftTop.GetPos() / scaleFactor);
+        UpdateRightCropHandle(cropHandleRightBottom.GetPos() / scaleFactor);
     }
 }
 

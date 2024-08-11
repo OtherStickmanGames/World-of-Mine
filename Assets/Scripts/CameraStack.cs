@@ -228,7 +228,12 @@ public class CameraStack : MonoBehaviour
             var originTime = cinemachineBrain.m_DefaultBlend.m_Time;
             cinemachineBrain.m_DefaultBlend.m_Time = blendDuration;
 
-            LeanTween.delayedCall(blendDuration, () => cinemachineBrain.m_DefaultBlend.m_Time = originTime);
+            LeanTween.delayedCall(blendDuration, 
+                () =>
+                {
+                    cinemachineBrain.m_DefaultBlend.m_Time = originTime;
+                    onCameraSwitch?.Invoke(CameraType.SaveBuilding);
+                });
 
             saveBuildingCamera.Priority = activePriority;
             saveBuildingCamera.transform.position = camPos; 
@@ -236,9 +241,26 @@ public class CameraStack : MonoBehaviour
         }
         if (selectionMode == SelectionMode.Vertical)
         {
-            LeanTween.move(saveBuildingCamera.gameObject, camPos, 1f);
-            LeanTween.rotate(saveBuildingCamera.gameObject, Vector3.zero, 1f);
+            LeanTween.move(saveBuildingCamera.gameObject, camPos, 0.5f)
+                .setEaseInOutQuad()
+                .setOnComplete(Rotate);
+
+            void Rotate()
+            {
+                LeanTween.rotate(saveBuildingCamera.gameObject, Vector3.zero, 1f)
+                    .setEaseInOutQuad()
+                    .setOnComplete(() => onCameraSwitch?.Invoke(CameraType.SaveBuilding));
+            }
         }
+    }
+
+    public void SaveBuildingCameraZoom(float value)
+    {
+        var curZoom = saveBuildingCamera.m_Lens.OrthographicSize;
+        var tarZoom = saveBuildingCamera.m_Lens.OrthographicSize + value;
+        var velocity = 0f;
+        var result = Mathf.SmoothDamp(curZoom, tarZoom, ref velocity, Time.deltaTime);
+        saveBuildingCamera.m_Lens.OrthographicSize = result;
     }
 
     public void SetPriorityAllCams(int priority)

@@ -121,6 +121,12 @@ public class BuildingManager : MonoBehaviour
         horizontalRightBottom.y = minY - 1.8f;
         horizontalRightBottom.x++;
 
+        var zoomByHeight = height / 1.18f;
+        var zoomByWidth = width / 3.9f;
+        var zoom = Mathf.Max(zoomByWidth, zoomByHeight);
+        print($"{zoomByHeight} ### {zoomByWidth}");
+        zoom = Mathf.Clamp(zoom, 3.5f, 888);
+        CameraStack.Instance.SaveBuildingCamSetZoom(zoom);
         CameraStack.Instance.SaveBuilding(SelectionMode.Vertical, camPos);
     }
 }

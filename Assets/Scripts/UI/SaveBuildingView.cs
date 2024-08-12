@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class SaveBuildingView : MonoBehaviour
@@ -10,6 +11,7 @@ public class SaveBuildingView : MonoBehaviour
     [SerializeField] Button btnAccept;
     [SerializeField] RectTransform selectionBox;
     [SerializeField] GameObject selectingArea;
+    [SerializeField] Joystick moveCamJoystick;
     [SerializeField] InteractableStateTracker btnZoomPlus;
     [SerializeField] InteractableStateTracker btnZoomMinus;
 
@@ -29,6 +31,7 @@ public class SaveBuildingView : MonoBehaviour
 
     [SerializeField] float zoomValue = 0.1f;
 
+    public static UnityEvent onSaveBuildingClick = new UnityEvent();
 
     public SelectionMode CurSelectionMode { get; set; }
 
@@ -93,12 +96,15 @@ public class SaveBuildingView : MonoBehaviour
         selectingArea.SetActive(true);
 
         UpdateSelectionBackgroud();
+
+        onSaveBuildingClick?.Invoke();
     }
 
     private void Accept_Clicked()
     {
         CurSelectionMode = SelectionMode.Vertical;
         BuildingManager.Singleton.SwitchSelection();
+        moveCamJoystick.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -117,17 +123,29 @@ public class SaveBuildingView : MonoBehaviour
         }
 
         UpdateZoomButtons();
+        CameraMove();
+    }
+
+    private void CameraMove()
+    {
+        var joystickDir = moveCamJoystick.Direction;
+        if (joystickDir != Vector2.zero)
+        {
+            var dir = new Vector3(joystickDir.x, 0, joystickDir.y);
+            dir *= 5;
+            CameraStack.Instance.SaveBuildingCamMove(dir);
+        }
     }
 
     void UpdateZoomButtons()
     {
         if (btnZoomMinus.Pressed)
         {
-            CameraStack.Instance.SaveBuildingCameraZoom(zoomValue * 1.05f);
+            CameraStack.Instance.SaveBuildingCameraChangeZoom(zoomValue * 1.05f);
         }
         if (btnZoomPlus.Pressed)
         {
-            CameraStack.Instance.SaveBuildingCameraZoom(-zoomValue);
+            CameraStack.Instance.SaveBuildingCameraChangeZoom(-zoomValue);
         }
     }
 

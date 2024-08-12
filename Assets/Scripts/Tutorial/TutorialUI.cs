@@ -69,10 +69,8 @@ public class TutorialUI : MonoBehaviour
     bool selectSlotComplete;
     bool placeBlockComplete;
     bool mineBlockComplete;
-
     bool placeBlockTutorInited;
     bool mineBlockTutorialInited;
-
     bool needCameraLookToPlaceBlock;
 
     AnimationCurve resolutionFactorCurve;
@@ -105,8 +103,14 @@ public class TutorialUI : MonoBehaviour
         resolutionFactorCurve = new();
         resolutionFactorCurve.AddKey(new(720, 15));
         resolutionFactorCurve.AddKey(new(1080, 1));
+
+        SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
     }
 
+    private void SaveBuilding_Clicked()
+    {
+        mobileController.SetActive(false);
+    }
 
     private void Update()
     {

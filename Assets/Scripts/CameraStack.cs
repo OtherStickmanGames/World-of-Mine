@@ -254,13 +254,27 @@ public class CameraStack : MonoBehaviour
         }
     }
 
-    public void SaveBuildingCameraZoom(float value)
+    public void SaveBuildingCameraChangeZoom(float value)
     {
         var curZoom = saveBuildingCamera.m_Lens.OrthographicSize;
         var tarZoom = saveBuildingCamera.m_Lens.OrthographicSize + value;
         var velocity = 0f;
         var result = Mathf.SmoothDamp(curZoom, tarZoom, ref velocity, Time.deltaTime);
         saveBuildingCamera.m_Lens.OrthographicSize = result;
+    }
+
+    public void SaveBuildingCamSetZoom(float value)
+    {
+        var curZoom = saveBuildingCamera.m_Lens.OrthographicSize;
+        LeanTween.value(gameObject, z =>
+        {
+            saveBuildingCamera.m_Lens.OrthographicSize = z;
+        }, curZoom, value, 0.5f).setEaseInOutQuad();
+    }
+
+    public void SaveBuildingCamMove(Vector3 dir)
+    {
+        saveBuildingCamera.transform.position += dir * Time.deltaTime;
     }
 
     public void SetPriorityAllCams(int priority)

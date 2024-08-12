@@ -41,6 +41,52 @@ public class BuildingManager : MonoBehaviour
 
     }
 
+    public void SelectionVertical(Vector3 startPos, Vector3 endPos)
+    {
+        StartCoroutine(Async());
+
+        IEnumerator Async()
+        {
+            yield return null;
+
+            ClearHighlights();
+
+            startPos = startPos.ToGlobalBlockPos();
+            endPos = endPos.ToGlobalBlockPos();
+
+            int minX = Mathf.FloorToInt(Mathf.Min(startPos.x, endPos.x));
+            int maxX = Mathf.FloorToInt(Mathf.Max(startPos.x, endPos.x));
+            int minY = Mathf.FloorToInt(Mathf.Min(startPos.y, endPos.y));
+            int maxY = Mathf.FloorToInt(Mathf.Max(startPos.y, endPos.y));
+            int minZ = Mathf.FloorToInt(Mathf.Min(horizontalLeftTop.z, horizontalRightBottom.z));
+            int maxZ = Mathf.FloorToInt(Mathf.Max(horizontalLeftTop.z, horizontalRightBottom.z));
+
+            Vector3 pos;
+            for (int x = minX + 1; x < maxX; x++)
+            {
+                for (int y = minY + 1; y < maxY; y++)
+                {
+                    for (int z = minZ + 1; z < maxZ; z++)
+                    {
+                        pos.x = x;
+                        pos.y = y;
+                        pos.z = z;
+
+                        if (WorldGenerator.Inst.GetBlockID(pos + Vector3.right) == 0)
+                        {
+                            continue;
+                        }
+
+                        var highlight = Instantiate(highlightBlockPrefab, pos, Quaternion.identity);
+                        highlights.Add(highlight);
+                    }
+                }
+
+                yield return null;
+            }
+        }
+    }
+
     public void SelectionHorizontal(Vector3 startPos, Vector3 endPos)
     {
         StartCoroutine(Async());
@@ -124,7 +170,6 @@ public class BuildingManager : MonoBehaviour
         var zoomByHeight = height / 1.18f;
         var zoomByWidth = width / 3.9f;
         var zoom = Mathf.Max(zoomByWidth, zoomByHeight);
-        print($"{zoomByHeight} ### {zoomByWidth}");
         zoom = Mathf.Clamp(zoom, 3.5f, 888);
         CameraStack.Instance.SaveBuildingCamSetZoom(zoom);
         CameraStack.Instance.SaveBuilding(SelectionMode.Vertical, camPos);

@@ -83,7 +83,14 @@ public class SaveBuildingView : MonoBehaviour
         var startPos = Camera.main.ScreenToWorldPoint(cropHandleLeftTop.GetPos() / scaleFactor);
         var endPos = Camera.main.ScreenToWorldPoint(cropHandleRightBottom.GetPos() / scaleFactor);
 
-        BuildingManager.Singleton.SelectionHorizontal(startPos, endPos);
+        if (CurSelectionMode == SelectionMode.Horizontal)
+        {
+            BuildingManager.Singleton.SelectionHorizontal(startPos, endPos);
+        }
+        if (CurSelectionMode == SelectionMode.Vertical)
+        {
+            BuildingManager.Singleton.SelectionVertical(startPos, endPos);
+        }
 
         btnAccept.gameObject.SetActive(true);
     }

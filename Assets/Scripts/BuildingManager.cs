@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using static ChunckData;
 
 public class BuildingManager : MonoBehaviour
 {
+    [SerializeField] Material mat;
     [SerializeField] Transform highlightBlockPrefab;
 
     public Vector3 horizontalLeftTop;
@@ -13,6 +15,7 @@ public class BuildingManager : MonoBehaviour
     public static BuildingManager Singleton;
 
     List<Transform> highlights = new List<Transform>();
+    List<BlockData> blocksData = new List<BlockData>();
     PlayerBehaviour playerBehaviour;
     bool selectionStarted;
 
@@ -51,6 +54,8 @@ public class BuildingManager : MonoBehaviour
 
             ClearHighlights();
 
+            blocksData.Clear();
+
             startPos = startPos.ToGlobalBlockPos();
             endPos = endPos.ToGlobalBlockPos();
 
@@ -72,10 +77,18 @@ public class BuildingManager : MonoBehaviour
                         pos.y = y;
                         pos.z = z;
 
-                        if (WorldGenerator.Inst.GetBlockID(pos + Vector3.right) == 0)
+                        var blockID = WorldGenerator.Inst.GetBlockID(pos + Vector3.right);
+                        if (blockID == 0)
                         {
                             continue;
                         }
+
+                        BlockData blockData = new BlockData
+                        {
+                            pos = pos,
+                            ID = blockID
+                        };
+                        blocksData.Add(blockData);
 
                         var highlight = Instantiate(highlightBlockPrefab, pos, Quaternion.identity);
                         highlights.Add(highlight);
@@ -130,6 +143,23 @@ public class BuildingManager : MonoBehaviour
 
     }
 
+    internal void BuildPreview()
+    {
+        MeshGenerator.NormalizeBlocksPositions(blocksData);
+        print(blocksData.Min(b => b.pos.x));
+        print(blocksData.Min(b => b.pos.y));
+        print(blocksData.Min(b => b.pos.z));
+
+        var mesh = MeshGenerator.Single.GenerateMesh(blocksData);
+        var chunckGO = new GameObject($"TESTO MESH");
+        var renderer = chunckGO.AddComponent<MeshRenderer>();
+        var meshFilter = chunckGO.AddComponent<MeshFilter>();
+        var collider = chunckGO.AddComponent<MeshCollider>();
+        renderer.material = mat;
+        meshFilter.mesh = mesh;
+        collider.sharedMesh = mesh;
+    }
+
     public void ClearHighlights()
     {
         foreach (var item in highlights)
@@ -148,13 +178,13 @@ public class BuildingManager : MonoBehaviour
         CameraStack.Instance.SaveBuilding(SelectionMode.Horizontal, camPos);
     }
 
-    public void SwitchSelection()
+    public void SwitchSelectionAxis()
     {
         Vector3 camPos;
         var width = horizontalRightBottom.x - horizontalLeftTop.x;
 
         var heights = highlights.Select(h => h.position.y).ToList();
-        heights.Add(playerBehaviour.transform.position.y);
+        //heights.Add(playerBehaviour.transform.position.y);
         var minY = heights.Min();
         var maxY = heights.Max();
         var height = maxY - minY;
@@ -167,7 +197,7 @@ public class BuildingManager : MonoBehaviour
         horizontalRightBottom.y = minY - 1.8f;
         horizontalRightBottom.x++;
 
-        var zoomByHeight = height / 1.18f;
+        var zoomByHeight = height / 1.1f;
         var zoomByWidth = width / 3.9f;
         var zoom = Mathf.Max(zoomByWidth, zoomByHeight);
         zoom = Mathf.Clamp(zoom, 3.5f, 888);

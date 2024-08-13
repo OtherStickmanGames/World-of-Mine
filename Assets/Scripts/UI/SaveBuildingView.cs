@@ -109,9 +109,19 @@ public class SaveBuildingView : MonoBehaviour
 
     private void Accept_Clicked()
     {
-        CurSelectionMode = SelectionMode.Vertical;
-        BuildingManager.Singleton.SwitchSelection();
-        moveCamJoystick.gameObject.SetActive(false);
+        switch (CurSelectionMode)
+        {
+            case SelectionMode.Horizontal:
+                CurSelectionMode = SelectionMode.Vertical;
+                BuildingManager.Singleton.SwitchSelectionAxis();
+                moveCamJoystick.gameObject.SetActive(false);
+                break;
+
+            case SelectionMode.Vertical:
+                BuildingManager.Singleton.BuildPreview();
+                break;
+        }
+        
     }
 
     private void Update()

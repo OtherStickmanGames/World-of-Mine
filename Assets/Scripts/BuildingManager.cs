@@ -11,6 +11,8 @@ public class BuildingManager : MonoBehaviour
 
     public Vector3 horizontalLeftTop;
     public Vector3 horizontalRightBottom;
+    public Vector3 verticalLeftTop;
+    public Vector3 verticalRightBottom;
 
     public static BuildingManager Singleton;
 
@@ -143,21 +145,30 @@ public class BuildingManager : MonoBehaviour
 
     }
 
-    internal void BuildPreview()
+    internal BuildPreviewData BuildPreview()
     {
+        ClearHighlights();
+
         MeshGenerator.NormalizeBlocksPositions(blocksData);
-        print(blocksData.Min(b => b.pos.x));
-        print(blocksData.Min(b => b.pos.y));
-        print(blocksData.Min(b => b.pos.z));
 
         var mesh = MeshGenerator.Single.GenerateMesh(blocksData);
-        var chunckGO = new GameObject($"TESTO MESH");
-        var renderer = chunckGO.AddComponent<MeshRenderer>();
-        var meshFilter = chunckGO.AddComponent<MeshFilter>();
-        var collider = chunckGO.AddComponent<MeshCollider>();
+        var building = new GameObject($"TESTO MESH");
+        var renderer = building.AddComponent<MeshRenderer>();
+        var meshFilter = building.AddComponent<MeshFilter>();
+        var collider = building.AddComponent<MeshCollider>();
         renderer.material = mat;
         meshFilter.mesh = mesh;
         collider.sharedMesh = mesh;
+
+        BuildPreviewData data = new BuildPreviewData
+        {
+            view = building,
+            width = blocksData.Max(b => b.pos.x) + 1,
+            height = blocksData.Max(b => b.pos.y) + 1,
+            length = blocksData.Max(b => b.pos.z) + 1
+        };
+
+        return data;
     }
 
     public void ClearHighlights()
@@ -189,16 +200,17 @@ public class BuildingManager : MonoBehaviour
         var maxY = heights.Max();
         var height = maxY - minY;
 
-        camPos.x = horizontalLeftTop.x + (width / 2);
+        camPos.x = horizontalLeftTop.x + (width / 2) + 1;
         camPos.z = horizontalRightBottom.z - 1;
         camPos.y = minY + (height / 2);
 
         horizontalLeftTop.y = maxY + 1.8f;
-        horizontalRightBottom.y = minY - 1.8f;
-        horizontalRightBottom.x++;
+        horizontalLeftTop.x += 0.3f;
+        horizontalRightBottom.y = minY - 1f;
+        horizontalRightBottom.x += 0.7f;
 
-        var zoomByHeight = height / 1.1f;
-        var zoomByWidth = width / 3.9f;
+        var zoomByHeight = height / 1.0f;
+        var zoomByWidth = width / 3.0f;
         var zoom = Mathf.Max(zoomByWidth, zoomByHeight);
         zoom = Mathf.Clamp(zoom, 3.5f, 888);
         CameraStack.Instance.SaveBuildingCamSetZoom(zoom);
@@ -206,4 +218,22 @@ public class BuildingManager : MonoBehaviour
     }
 }
 
+
+public class BuildPreviewData
+{
+    public GameObject view;
+    public float width;
+    public float length;
+    public float height;
+
+    public void ShiftPosition()
+    {
+        Vector3 localPos;
+        localPos.x = -((width / 2) - 1) * view.transform.localScale.x;
+        localPos.y = -(height / 2) * view.transform.localScale.y;
+        localPos.z = -(length / 2) * view.transform.localScale.z;
+
+        view.transform.localPosition = localPos;
+    }
+}
 

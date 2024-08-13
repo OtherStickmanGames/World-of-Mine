@@ -5,7 +5,7 @@ using System.Linq;
 
 public class MeshGenerator : MonoBehaviour
 {
-    public float TextureOffset = 1f / 16f;
+    float TextureOffset = 1f / 16f;
 
     Dictionary<BlockSide, List<Vector3>> blockVerticesSet;
     Dictionary<BlockSide, List<int>> blockTrianglesSet;
@@ -65,47 +65,56 @@ public class MeshGenerator : MonoBehaviour
         Mesh mesh = new();
         mesh.Clear();
 
-        var maxX = normalizedBlocksData.Max(b => b.pos.x);
-        var maxY = normalizedBlocksData.Max(b => b.pos.y);
-        var maxZ = normalizedBlocksData.Max(b => b.pos.z);
+        var maxX = Mathf.FloorToInt(normalizedBlocksData.Max(b => b.pos.x));
+        var maxY = Mathf.FloorToInt(normalizedBlocksData.Max(b => b.pos.y));
+        var maxZ = Mathf.FloorToInt(normalizedBlocksData.Max(b => b.pos.z));
 
-        Vector3Int pos;
+        var dictionaryBlocks = normalizedBlocksData.ToDictionary
+        (
+            b => new Vector3Int
+            (
+                Mathf.FloorToInt(b.pos.x),
+                Mathf.FloorToInt(b.pos.y),
+                Mathf.FloorToInt(b.pos.z)
+            ),
+            b => b.ID
+        );
+
+        Vector3Int pos = Vector3Int.zero;
+        BlockUVS b;
+
         foreach (var blockData in normalizedBlocksData)
         {
-            BlockUVS b = BlockUVS.GetBlock(blockData.ID);
+            b = BlockUVS.GetBlock(blockData.ID);
 
-            pos = new Vector3Int
-            (
-                Mathf.FloorToInt(blockData.pos.x),
-                Mathf.FloorToInt(blockData.pos.y),
-                Mathf.FloorToInt(blockData.pos.z)
-            );
+            pos.x = Mathf.FloorToInt(blockData.pos.x);
+            pos.y = Mathf.FloorToInt(blockData.pos.y);
+            pos.z = Mathf.FloorToInt(blockData.pos.z);
 
-            if (pos.z >= maxZ || !normalizedBlocksData.Any(b => b.pos == pos + Vector3.forward))
+            if (pos.z >= maxZ || !dictionaryBlocks.ContainsKey(pos + Vector3Int.forward))
             {
                 CreateBlockSide(BlockSide.Front, pos.x, pos.y, pos.z, b);
             }
-            if (pos.z == 0 || !normalizedBlocksData.Any(b => b.pos == pos + Vector3.back))
+            if (pos.z == 0 || !dictionaryBlocks.ContainsKey(pos + Vector3Int.back))
             {
                 CreateBlockSide(BlockSide.Back, pos.x, pos.y, pos.z, b);
             }
-            if (pos.x >= maxX || !normalizedBlocksData.Any(b => b.pos == pos + Vector3.right))
+            if (pos.x >= maxX || !dictionaryBlocks.ContainsKey(pos + Vector3Int.right))
             {
                 CreateBlockSide(BlockSide.Right, pos.x, pos.y, pos.z, b);
             }
-            if (pos.x == 0 || !normalizedBlocksData.Any(b => b.pos == pos + Vector3.left))
+            if (pos.x == 0 || !dictionaryBlocks.ContainsKey(pos + Vector3Int.left))
             {
                 CreateBlockSide(BlockSide.Left, pos.x, pos.y, pos.z, b);
             }
-            if (pos.y >= maxY || !normalizedBlocksData.Any(b => b.pos == pos + Vector3.up))
+            if (pos.y >= maxY || !dictionaryBlocks.ContainsKey(pos + Vector3Int.up))
             {
                 CreateBlockSide(BlockSide.Top, pos.x, pos.y, pos.z, b);
             }
-            if (pos.y == 0 || !normalizedBlocksData.Any(b => b.pos == pos + Vector3.down))
+            if (pos.y == 0 || !dictionaryBlocks.ContainsKey(pos + Vector3Int.down))
             {
                 CreateBlockSide(BlockSide.Bottom, pos.x, pos.y, pos.z, b);
             }
-
         }
 
         mesh.vertices = vertices.ToArray();
@@ -173,11 +182,11 @@ public class MeshGenerator : MonoBehaviour
         blockVerticesSet.Add(BlockSide.Top, null);
         blockVerticesSet.Add(BlockSide.Bottom, null);
 
-        blockVerticesSet[BlockSide.Front] = verticesFront;//.ToNativeArray(Allocator.Persistent);
-        blockVerticesSet[BlockSide.Back] = verticesBack;//.ToNativeArray(Allocator.Persistent);
-        blockVerticesSet[BlockSide.Right] = verticesRight;//.ToNativeArray(Allocator.Persistent);
-        blockVerticesSet[BlockSide.Left] = verticesLeft;//.ToNativeArray(Allocator.Persistent);
-        blockVerticesSet[BlockSide.Top] = verticesTop;//.ToNativeArray(Allocator.Persistent);
+        blockVerticesSet[BlockSide.Front]  = verticesFront;//.ToNativeArray(Allocator.Persistent);
+        blockVerticesSet[BlockSide.Back]   = verticesBack;//.ToNativeArray(Allocator.Persistent);
+        blockVerticesSet[BlockSide.Right]  = verticesRight;//.ToNativeArray(Allocator.Persistent);
+        blockVerticesSet[BlockSide.Left]   = verticesLeft;//.ToNativeArray(Allocator.Persistent);
+        blockVerticesSet[BlockSide.Top]    = verticesTop;//.ToNativeArray(Allocator.Persistent);
         blockVerticesSet[BlockSide.Bottom] = verticesBottom;
     }
 
@@ -198,6 +207,7 @@ public class MeshGenerator : MonoBehaviour
         blockTrianglesSet.Add(BlockSide.Bottom, trianglesBottom);
     }
 
+    Vector3 vertexPos;
     void CreateBlockSide(BlockSide side, int x, int y, int z, BlockUVS b)
     {
         List<Vector3> vrtx = blockVerticesSet[side];
@@ -212,10 +222,25 @@ public class MeshGenerator : MonoBehaviour
         triangulos.Add(trngls[4] - offset + vertices.Count);
         triangulos.Add(trngls[5] - offset + vertices.Count);
 
-        vertices.Add(new Vector3(x + vrtx[0].x, y + vrtx[0].y, z + vrtx[0].z)); // 1
-        vertices.Add(new Vector3(x + vrtx[1].x, y + vrtx[1].y, z + vrtx[1].z)); // 2
-        vertices.Add(new Vector3(x + vrtx[2].x, y + vrtx[2].y, z + vrtx[2].z)); // 3
-        vertices.Add(new Vector3(x + vrtx[3].x, y + vrtx[3].y, z + vrtx[3].z)); // 4
+        vertexPos.x = x + vrtx[0].x;
+        vertexPos.y = y + vrtx[0].y;
+        vertexPos.z = z + vrtx[0].z;
+        vertices.Add(vertexPos); // 1
+
+        vertexPos.x = x + vrtx[1].x;
+        vertexPos.y = y + vrtx[1].y;
+        vertexPos.z = z + vrtx[1].z;
+        vertices.Add(vertexPos); // 2
+
+        vertexPos.x = x + vrtx[2].x;
+        vertexPos.y = y + vrtx[2].y;
+        vertexPos.z = z + vrtx[2].z;
+        vertices.Add(vertexPos); // 3
+
+        vertexPos.x = x + vrtx[3].x;
+        vertexPos.y = y + vrtx[3].y;
+        vertexPos.z = z + vrtx[3].z;
+        vertices.Add(vertexPos); // 4
 
         AddUVS(side, b);
     }

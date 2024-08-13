@@ -31,6 +31,20 @@ public class SaveBuildingView : MonoBehaviour
 
     [SerializeField] float zoomValue = 0.1f;
 
+    [Space]
+
+    [SerializeField] Transform meshHolder;
+    [SerializeField] GameObject panelPreview;
+    [SerializeField] FixedTouchField buildingPreviewLook;
+
+    public bool IsCurrentDeviceMouse;
+    public float sensitivityMouseY = 1.5f;
+    public float CameraAngleOverrideX = 0.0f;
+    public float CameraAngleOverrideY = 0.0f;
+    public float rotateSensitibity = 5;
+
+
+
     public static UnityEvent onSaveBuildingClick = new UnityEvent();
 
     public SelectionMode CurSelectionMode { get; set; }
@@ -44,6 +58,7 @@ public class SaveBuildingView : MonoBehaviour
         selectionBox.gameObject.SetActive(false);
         btnAccept.gameObject.SetActive(false);
         selectingArea.SetActive(false);
+        panelPreview.SetActive(false);
 
         btnSaveBuilding.onClick.AddListener(SaveBuilding_Clicked);
         btnAccept.onClick.AddListener(Accept_Clicked);
@@ -74,6 +89,7 @@ public class SaveBuildingView : MonoBehaviour
             cropHandleRightBottom.SetPos(uiPos * UI.ScaleFactor);
 
             UpdateSelectionBackgroud();
+            CropHandle_Uped();
         }
     }
 
@@ -118,14 +134,35 @@ public class SaveBuildingView : MonoBehaviour
                 break;
 
             case SelectionMode.Vertical:
-                BuildingManager.Singleton.BuildPreview();
+                selectingArea.SetActive(false);
+                panelPreview.SetActive(true);
+
+                var building = BuildingManager.Singleton.BuildPreview();
+                building.view.layer = LayerMask.NameToLayer("UI");
+                building.view.transform.SetParent(meshHolder);
+                var scaleX = (Screen.width * UI.ScaleFactor)  / (building.width * 1.3f);
+                var scaleY = (Screen.height * UI.ScaleFactor) / (building.height * 1.3f);
+                var scaleZ = (Screen.width * UI.ScaleFactor)  / (building.length * 1.3f);
+                building.view.transform.localScale = Vector3.one * Mathf.Min(scaleX, scaleY, scaleZ);
+                building.ShiftPosition();
                 break;
         }
         
     }
 
+    
+    private void LateUpdate()
+    {
+        BuildingPreviewRotate();
+        
+        
+        
+    }
+
     private void Update()
     {
+        
+
         if (allowSelectBlocks)
         {
             if (cropHandleLeftTop.Pressed)
@@ -221,6 +258,58 @@ public class SaveBuildingView : MonoBehaviour
         var scaleFactor = UI.ScaleFactor;
         UpdateLeftCropHandle(cropHandleLeftTop.GetPos() / scaleFactor);
         UpdateRightCropHandle(cropHandleRightBottom.GetPos() / scaleFactor);
+    }
+
+    float _cinemachineTargetYaw;
+    float _cinemachineTargetPitch;
+    Vector2 prevMp, lookDirection, currentVelocity;
+    void BuildingPreviewRotate()
+    {
+        if (panelPreview.activeSelf)
+        {
+            var look = buildingPreviewLook.TouchDist;
+            if (!Application.isMobilePlatform)
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    prevMp = Input.mousePosition;
+                }
+                if (Input.GetMouseButton(0))
+                {
+                    look = (Vector2)Input.mousePosition - prevMp;
+                    look.x *= -1;
+                    prevMp = (Vector2)Input.mousePosition;
+                }
+            }
+
+            look *= rotateSensitibity;
+            lookDirection = Vector2.SmoothDamp(lookDirection, look, ref currentVelocity, Time.deltaTime * 1.38f);
+
+            if (lookDirection.sqrMagnitude >= 0.01f)
+            {
+                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+
+                _cinemachineTargetYaw += lookDirection.x * deltaTimeMultiplier;
+                _cinemachineTargetPitch += lookDirection.y * deltaTimeMultiplier * sensitivityMouseY;
+            }
+
+            _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
+            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, -90, 90);
+
+            meshHolder.transform.rotation = Quaternion.Euler
+            (
+                _cinemachineTargetPitch + CameraAngleOverrideX,
+                _cinemachineTargetYaw + CameraAngleOverrideY,
+                0.0f
+            );
+        }
+    }
+
+    private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
+    {
+        if (lfAngle < -360f) lfAngle += 360f;
+        if (lfAngle > 360f) lfAngle -= 360f;
+        return Mathf.Clamp(lfAngle, lfMin, lfMax);
     }
 }
 

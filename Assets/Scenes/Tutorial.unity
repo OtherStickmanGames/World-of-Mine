@@ -1741,11 +1741,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f73f8d9fb0af8d54abac5f320e5a6bc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mat: {fileID: 2100000, guid: e3d60ae9373cd8c41b4a6d983e3a70fc, type: 2}
+  mat: {fileID: 2100000, guid: 406ff5dd1fec116449b24a2eaa289b0e, type: 2}
   highlightBlockPrefab: {fileID: 6330522588899669440, guid: aa99ab6ec71258c4bb92d2ad85cda9e8,
     type: 3}
   horizontalLeftTop: {x: 0, y: 0, z: 0}
   horizontalRightBottom: {x: 0, y: 0, z: 0}
+  verticalLeftTop: {x: 0, y: 0, z: 0}
+  verticalRightBottom: {x: 0, y: 0, z: 0}
 --- !u!114 &534747637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1758,7 +1760,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f55b66a6b228b0f4399aea697fd0913f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TextureOffset: 0.0625
 --- !u!1 &552805674
 GameObject:
   m_ObjectHideFlags: 0
@@ -2353,7 +2354,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 1092828628}
-  m_PlaneDistance: 100
+  m_PlaneDistance: 300
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -3060,7 +3061,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 10000
   field of view: 60
   orthographic: 1
   orthographic size: 256
@@ -4376,6 +4377,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 690583769}
     m_Modifications:
+    - target: {fileID: 1671302444254034474, guid: d0d0db5958451a14a95f5a5b74d283d2,
+        type: 3}
+      propertyPath: rotateSensitibity
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 2278878574387007484, guid: d0d0db5958451a14a95f5a5b74d283d2,
         type: 3}
       propertyPath: m_Pivot.x
@@ -4475,6 +4481,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3081191855259682161, guid: d0d0db5958451a14a95f5a5b74d283d2,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0.8784314
+      objectReference: {fileID: 0}
+    - target: {fileID: 3081191855259682161, guid: d0d0db5958451a14a95f5a5b74d283d2,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 0.13
+      objectReference: {fileID: 0}
+    - target: {fileID: 3081191855259682161, guid: d0d0db5958451a14a95f5a5b74d283d2,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0.08016666
+      objectReference: {fileID: 0}
+    - target: {fileID: 3081191855259682161, guid: d0d0db5958451a14a95f5a5b74d283d2,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 0.039
       objectReference: {fileID: 0}
     - target: {fileID: 4182910086650423371, guid: d0d0db5958451a14a95f5a5b74d283d2,
         type: 3}

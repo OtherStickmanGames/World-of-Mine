@@ -85,12 +85,13 @@ public class SaveBuildingView : MonoBehaviour
 
     private void SavedOk_Clicked()
     {
-        
+        panelPreview.SetActive(false);
+        CameraStack.Instance.SwitchToThirdPerson(); ;
     }
 
     private void Building_Saved()
     {
-        
+        buildingSavedNotify.SetActive(true);
     }
 
     private void CountBuildings_Received(int countBuildings)
@@ -194,6 +195,8 @@ public class SaveBuildingView : MonoBehaviour
     {
         selectingArea.SetActive(false);
         panelPreview.SetActive(true);
+
+        allowSelectBlocks = false;
 
         var building = BuildingManager.Singleton.BuildPreview();
         building.view.layer = LayerMask.NameToLayer("UI");

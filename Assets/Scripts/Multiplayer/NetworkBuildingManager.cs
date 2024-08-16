@@ -65,6 +65,10 @@ public class NetworkBuildingManager : NetworkBehaviour
         Debug.Log($"Building will be saved by {data.blocksData.userName}");
     }
 
+    /// <summary>
+    /// Просто сoобщаем клиенту, что сохранили постройку
+    /// </summary>
+    /// <param name="clientRpcParams"></param>
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveSaveBuildingSuccesClientRpc(ClientRpcParams clientRpcParams = default)
     {

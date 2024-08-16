@@ -109,6 +109,8 @@ public class BuildingManager : MonoBehaviour
 
     internal void Building_Saved()
     {
+        playerBehaviour.allowDigging = true;
+
         onBuildSave?.Invoke();
     }
 

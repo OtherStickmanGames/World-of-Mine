@@ -1,8 +1,11 @@
-using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using static ChunckData;
+using Newtonsoft.Json;
+using System;
 #if UNITY_STANDALONE || UNITY_EDITOR
 using System.IO;
 #endif
@@ -19,6 +22,42 @@ public class NetworkBuildingManager : NetworkBehaviour
         buildingManager = GetComponent<BuildingManager>();
 
         buildingManager.onInputNameShow.AddListener(InputBuildingName_Showed);
+        buildingManager.onSaveBuilding.AddListener(SaveBuilding_Clicked);
+    }
+
+    private void SaveBuilding_Clicked(List<BlockData> blocksData)
+    {
+        Vector3[] positions = blocksData.Select(b => b.pos).ToArray();
+        byte[] blockIDs = blocksData.Select(b => b.ID).ToArray();
+
+        SaveBuildingServerRpc(positions, blockIDs);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SaveBuildingServerRpc(Vector3[] positions, byte[] blockIDs, ServerRpcParams serverRpcParams = default )
+    {
+        UserChunckData buildData = new UserChunckData()
+        {
+            changedBlocks = new List<JsonBlockData>()
+        };
+
+        var length = positions.Length;
+        for (int i = 0; i < length; i++)
+        {
+            var jsonBlockData = new JsonBlockData(positions[i], blockIDs[i]);
+            buildData.changedBlocks.Add(jsonBlockData);
+        }
+
+        buildData.userName = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
+        SaveBuildingData data = new SaveBuildingData()
+        {
+            blocksData = buildData,
+            createDate = DateTime.Now
+        };
+
+        var json = JsonConvert.SerializeObject(data);
+        print(json);
+        
     }
 
     private void InputBuildingName_Showed()
@@ -34,10 +73,6 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void GetCountSavedBuildingsServerRpc(ServerRpcParams serverRpcParams = default)
     {
-        var clientID = serverRpcParams.Receive.SenderClientId;
-
-        var username = NetworkUserManager.Instance.GetUserName(clientID);
-
         if (!Directory.Exists(buildingsDirectory))
         {
             Directory.CreateDirectory(buildingsDirectory);
@@ -46,13 +81,12 @@ public class NetworkBuildingManager : NetworkBehaviour
         var countBuildings = Directory.GetFiles(buildingsDirectory).Length;
 
         SendCountBuildingsClientRpc(countBuildings, GetTargetClientParams(serverRpcParams));
-        print("Вроде отправил");
     }
 
     [ClientRpc(RequireOwnership = false)]
     private void SendCountBuildingsClientRpc(int count, ClientRpcParams clientRpcParams = default)
     {
-        print(count);
+        buildingManager.CountBuildings_Received(count);
     }
 
     private ClientRpcParams GetTargetClientParams(ServerRpcParams serverRpcParams)
@@ -62,4 +96,12 @@ public class NetworkBuildingManager : NetworkBehaviour
 
         return clientRpcParams;
     }
+}
+
+
+[JsonObject]
+public struct SaveBuildingData
+{
+    public UserChunckData blocksData;
+    public DateTime createDate;
 }

@@ -15,6 +15,8 @@ public class BuildingManager : MonoBehaviour
     public Vector3 verticalRightBottom;
 
     public UnityEvent onInputNameShow;
+    public UnityEvent<int> onCountBuildingsReceive;
+    public UnityEvent<List<BlockData>> onSaveBuilding;
 
     public static BuildingManager Singleton;
 
@@ -173,6 +175,11 @@ public class BuildingManager : MonoBehaviour
         return data;
     }
 
+    internal void SaveBuilding()
+    {
+        onSaveBuilding?.Invoke(blocksData);
+    }
+
     public void ClearHighlights()
     {
         foreach (var item in highlights)
@@ -222,6 +229,11 @@ public class BuildingManager : MonoBehaviour
     public void InputNameBuilding_Showed()
     {
         onInputNameShow?.Invoke();
+    }
+
+    public void CountBuildings_Received(int count)
+    {
+        onCountBuildingsReceive?.Invoke(count);
     }
 }
 

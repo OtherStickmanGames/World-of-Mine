@@ -74,7 +74,14 @@ public class SaveBuildingView : MonoBehaviour
         cropHandleLeftTop.onPointerUp.AddListener(CropHandle_Uped);
         cropHandleRightBottom.onPointerUp.AddListener(CropHandle_Uped);
 
+        BuildingManager.Singleton.onCountBuildingsReceive.AddListener(CountBuildings_Received);
         CameraStack.onCameraSwitch.AddListener(Camera_Switched);
+    }
+
+    private void CountBuildings_Received(int countBuildings)
+    {
+        nameInput.text = $"Шедеврище - {countBuildings}";
+        btnAccept.gameObject.SetActive(true);
     }
 
     private void Camera_Switched(CameraStack.CameraType camType)
@@ -148,13 +155,21 @@ public class SaveBuildingView : MonoBehaviour
 
             case AcceptMode.Preview:
                 ShowInputBuildName();
+                CurSelectionMode = AcceptMode.Save;
+                break;
+
+            case AcceptMode.Save:
+                BuildingManager.Singleton.SaveBuilding();
                 break;
         }
     }
 
+
+
     private void ShowInputBuildName()
     {
         inputNameBuilding.SetActive(true);
+        btnAccept.gameObject.SetActive(false);
 
         BuildingManager.Singleton.InputNameBuilding_Showed();   
     }
@@ -169,7 +184,7 @@ public class SaveBuildingView : MonoBehaviour
         building.view.transform.SetParent(meshHolder);
         var widthScreenSpace = 1.38f;
         var scaleX = (Screen.width * UI.ScaleFactor) / (building.width * widthScreenSpace);
-        var scaleY = (Screen.height * UI.ScaleFactor) / (building.height * 1.3f);
+        var scaleY = (Screen.height * UI.ScaleFactor) / (building.height * 1.5f);
         var scaleZ = (Screen.width * UI.ScaleFactor) / (building.length * widthScreenSpace);
         building.view.transform.localScale = Vector3.one * Mathf.Min(scaleX, scaleY, scaleZ);
         building.ShiftPosition();
@@ -339,5 +354,6 @@ public enum AcceptMode
 {
     Horizontal,
     Vertical,
-    Preview
+    Preview,
+    Save
 }

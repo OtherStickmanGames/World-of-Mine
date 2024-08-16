@@ -1283,7 +1283,7 @@ MonoBehaviour:
   nameInput: {fileID: 6656697047618008625}
   IsCurrentDeviceMouse: 0
   sensitivityMouseY: 1.5
-  CameraAngleOverrideX: -30
+  CameraAngleOverrideX: -18
   CameraAngleOverrideY: 30
   rotateSensitibity: 7
 --- !u!1 &4335938410253832577
@@ -2710,7 +2710,7 @@ GameObject:
   - component: {fileID: 9211745145044464904}
   - component: {fileID: 953306946289094912}
   m_Layer: 5
-  m_Name: Inout Building Name
+  m_Name: Input Building Name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

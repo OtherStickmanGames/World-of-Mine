@@ -15,8 +15,9 @@ public class BuildingManager : MonoBehaviour
     public Vector3 verticalRightBottom;
 
     public UnityEvent onInputNameShow;
+    public UnityEvent onBuildSave;
     public UnityEvent<int> onCountBuildingsReceive;
-    public UnityEvent<List<BlockData>> onSaveBuilding;
+    public UnityEvent<List<BlockData>, string> onSaveBuilding;
 
     public static BuildingManager Singleton;
 
@@ -106,6 +107,11 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
+    internal void Building_Saved()
+    {
+        onBuildSave?.Invoke();
+    }
+
     public void SelectionHorizontal(Vector3 startPos, Vector3 endPos)
     {
         StartCoroutine(Async());
@@ -175,9 +181,9 @@ public class BuildingManager : MonoBehaviour
         return data;
     }
 
-    internal void SaveBuilding()
+    internal void SaveBuilding(string nameBuilding)
     {
-        onSaveBuilding?.Invoke(blocksData);
+        onSaveBuilding?.Invoke(blocksData, nameBuilding);
     }
 
     public void ClearHighlights()

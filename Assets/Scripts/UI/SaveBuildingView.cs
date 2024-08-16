@@ -42,6 +42,8 @@ public class SaveBuildingView : MonoBehaviour
 
     [SerializeField] GameObject inputNameBuilding;
     [SerializeField] TMP_InputField nameInput;
+    [SerializeField] GameObject buildingSavedNotify;
+    [SerializeField] Button btnSavedOk;
 
 
     public bool IsCurrentDeviceMouse;
@@ -67,15 +69,28 @@ public class SaveBuildingView : MonoBehaviour
         selectingArea.SetActive(false);
         panelPreview.SetActive(false);
         inputNameBuilding.SetActive(false);
+        buildingSavedNotify.SetActive(false);
 
         btnSaveBuilding.onClick.AddListener(SaveBuilding_Clicked);
         btnAccept.onClick.AddListener(Accept_Clicked);
+        btnSavedOk.onClick.AddListener(SavedOk_Clicked);
 
         cropHandleLeftTop.onPointerUp.AddListener(CropHandle_Uped);
         cropHandleRightBottom.onPointerUp.AddListener(CropHandle_Uped);
 
         BuildingManager.Singleton.onCountBuildingsReceive.AddListener(CountBuildings_Received);
+        BuildingManager.Singleton.onBuildSave.AddListener(Building_Saved);
         CameraStack.onCameraSwitch.AddListener(Camera_Switched);
+    }
+
+    private void SavedOk_Clicked()
+    {
+        
+    }
+
+    private void Building_Saved()
+    {
+        
     }
 
     private void CountBuildings_Received(int countBuildings)
@@ -159,7 +174,8 @@ public class SaveBuildingView : MonoBehaviour
                 break;
 
             case AcceptMode.Save:
-                BuildingManager.Singleton.SaveBuilding();
+                BuildingManager.Singleton.SaveBuilding(nameInput.text);
+                // TO DO доделать в случае неудачи сейва
                 break;
         }
     }

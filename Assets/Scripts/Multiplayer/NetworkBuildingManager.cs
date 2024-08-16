@@ -25,16 +25,16 @@ public class NetworkBuildingManager : NetworkBehaviour
         buildingManager.onSaveBuilding.AddListener(SaveBuilding_Clicked);
     }
 
-    private void SaveBuilding_Clicked(List<BlockData> blocksData)
+    private void SaveBuilding_Clicked(List<BlockData> blocksData, string nameBuilding)
     {
         Vector3[] positions = blocksData.Select(b => b.pos).ToArray();
         byte[] blockIDs = blocksData.Select(b => b.ID).ToArray();
 
-        SaveBuildingServerRpc(positions, blockIDs);
+        SaveBuildingServerRpc(positions, blockIDs, nameBuilding);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SaveBuildingServerRpc(Vector3[] positions, byte[] blockIDs, ServerRpcParams serverRpcParams = default )
+    private void SaveBuildingServerRpc(Vector3[] positions, byte[] blockIDs, string nameBuilding, ServerRpcParams serverRpcParams = default )
     {
         UserChunckData buildData = new UserChunckData()
         {
@@ -52,13 +52,24 @@ public class NetworkBuildingManager : NetworkBehaviour
         SaveBuildingData data = new SaveBuildingData()
         {
             blocksData = buildData,
-            createDate = DateTime.Now
+            createDate = DateTime.Now,
+            nameBuilding = nameBuilding
         };
 
         var json = JsonConvert.SerializeObject(data);
-        print(json);
+        var fileName = $"{nameBuilding.Trim()}_{Guid.NewGuid()}.json";
+        var path = $"{buildingsDirectory}{fileName}";
         
+        File.WriteAllText(path, json);
+        ReceiveSaveBuildingSuccesClientRpc(GetTargetClientParams(serverRpcParams));
+        Debug.Log($"Building will be saved by {data.blocksData.userName}");
     }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ReceiveSaveBuildingSuccesClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        BuildingManager.Singleton.Building_Saved();
+    }  
 
     private void InputBuildingName_Showed()
     {
@@ -104,4 +115,5 @@ public struct SaveBuildingData
 {
     public UserChunckData blocksData;
     public DateTime createDate;
+    public string nameBuilding;
 }

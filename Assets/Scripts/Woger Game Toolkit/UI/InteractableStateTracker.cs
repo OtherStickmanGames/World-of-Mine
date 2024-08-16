@@ -1,13 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public class InteractableStateTracker : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler
 {
+    public RectTransform rectTransform;
     public bool Pressed;
     public float touchTime;
 
+    public UnityEvent onPointerUp;
+
+    private void Awake()
+    {
+        rectTransform = transform as RectTransform;
+    }
 
     private void Update()
     {
@@ -30,11 +38,22 @@ public class InteractableStateTracker : MonoBehaviour, IPointerDownHandler, IPoi
     public void OnPointerUp(PointerEventData eventData)
     {
         Pressed = false;
+        onPointerUp?.Invoke();
     }
 
-  
+
     public void OnPointerMove(PointerEventData eventData)
     {
-        
+
+    }
+
+    public void SetPos(Vector2 value)
+    {
+        rectTransform.anchoredPosition = value;
+    }
+
+    public Vector2 GetPos()
+    {
+        return rectTransform.anchoredPosition;
     }
 }

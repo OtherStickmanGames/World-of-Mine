@@ -10,6 +10,7 @@ public class CameraStack : MonoBehaviour
     [SerializeField] CinemachineVirtualCamera firstPersonCamera;
     [SerializeField] CinemachineVirtualCamera freeTopDownCamera;
     [SerializeField] CinemachineVirtualCamera topDownCamera;
+    [SerializeField] CinemachineVirtualCamera saveBuildingCamera;
 
     [SerializeField] GameObject freeFlyCamera;
     [SerializeField] Transform freeTopDownCameraTarget;
@@ -17,9 +18,13 @@ public class CameraStack : MonoBehaviour
 
     public CameraType CurrentType { get; set; } = CameraType.Third;
     public Camera Main;
+    public List<CinemachineVirtualCamera> cameras;
 
     public static CameraStack Instance;
     public static UnityEvent<CameraType> onCameraSwitch = new UnityEvent<CameraType>();
+
+    CinemachineBrain cinemachineBrain;
+    PlayerBehaviour player;
 
     Vector3 targetDirection;
     Vector3 targetPos;
@@ -27,7 +32,6 @@ public class CameraStack : MonoBehaviour
     int activePriority = 10;
     int deactivePriority = 8;
 
-    PlayerBehaviour player;
 
     private void Start()
     {
@@ -37,6 +41,19 @@ public class CameraStack : MonoBehaviour
     public void Init()
     {
         Instance = this;
+
+        cameras = new List<CinemachineVirtualCamera>();
+
+        cinemachineBrain = FindObjectOfType<CinemachineBrain>();
+
+        AddCamera
+        (
+            thirdPersonCamera,
+            firstPersonCamera,
+            freeTopDownCamera,
+            topDownCamera,
+            saveBuildingCamera
+        );
 
         PlayerBehaviour.onMineSpawn.AddListener(OwnerPlayer_Spawned);
     }
@@ -120,10 +137,9 @@ public class CameraStack : MonoBehaviour
 
     public void SwitchToFreeTopDown()
     {
-        topDownCamera.Priority = 8;
+        SetPriorityAllCams(deactivePriority);
+
         freeTopDownCamera.Priority = 10;
-        firstPersonCamera.Priority = 8;
-        thirdPersonCamera.Priority = 8;
 
         CurrentType = CameraType.FreeTopDown;
 
@@ -202,6 +218,81 @@ public class CameraStack : MonoBehaviour
         return component.ShoulderOffset;
     }
 
+    public void SaveBuilding(AcceptMode selectionMode, Vector3 camPos)
+    {
+        if (selectionMode == AcceptMode.Horizontal)
+        {
+            SetPriorityAllCams(deactivePriority);
+
+            var blendDuration = 1f;
+            var originTime = cinemachineBrain.m_DefaultBlend.m_Time;
+            cinemachineBrain.m_DefaultBlend.m_Time = blendDuration;
+
+            LeanTween.delayedCall(blendDuration, 
+                () =>
+                {
+                    cinemachineBrain.m_DefaultBlend.m_Time = originTime;
+                    onCameraSwitch?.Invoke(CameraType.SaveBuilding);
+                });
+
+            saveBuildingCamera.Priority = activePriority;
+            saveBuildingCamera.transform.position = camPos; 
+            saveBuildingCamera.transform.rotation = Quaternion.Euler(90, 0, 0);
+        }
+        if (selectionMode == AcceptMode.Vertical)
+        {
+            LeanTween.move(saveBuildingCamera.gameObject, camPos, 0.5f)
+                .setEaseInOutQuad()
+                .setOnComplete(Rotate);
+
+            void Rotate()
+            {
+                LeanTween.rotate(saveBuildingCamera.gameObject, Vector3.zero, 1f)
+                    .setEaseInOutQuad()
+                    .setOnComplete(() => onCameraSwitch?.Invoke(CameraType.SaveBuilding));
+            }
+        }
+    }
+
+    public void SaveBuildingCameraChangeZoom(float value)
+    {
+        var curZoom = saveBuildingCamera.m_Lens.OrthographicSize;
+        var tarZoom = saveBuildingCamera.m_Lens.OrthographicSize + value;
+        var velocity = 0f;
+        var result = Mathf.SmoothDamp(curZoom, tarZoom, ref velocity, Time.deltaTime);
+        saveBuildingCamera.m_Lens.OrthographicSize = result;
+    }
+
+    public void SaveBuildingCamSetZoom(float value)
+    {
+        var curZoom = saveBuildingCamera.m_Lens.OrthographicSize;
+        LeanTween.value(gameObject, z =>
+        {
+            saveBuildingCamera.m_Lens.OrthographicSize = z;
+        }, curZoom, value, 0.5f).setEaseInOutQuad();
+    }
+
+    public void SaveBuildingCamMove(Vector3 dir)
+    {
+        saveBuildingCamera.transform.position += dir * Time.deltaTime;
+    }
+
+    public void SetPriorityAllCams(int priority)
+    {
+        foreach (var cam in cameras) cam.Priority = priority;
+    }
+
+    public void AddCamera(params CinemachineVirtualCamera[] cincaCamera)
+    {
+        foreach (var cam in cincaCamera)
+        {
+            if (!cam || cameras.Contains(cam))
+                continue;
+
+            cameras.Add(cam);
+        }
+    }
+
     public enum CameraType
     {
         Free,
@@ -209,5 +300,6 @@ public class CameraStack : MonoBehaviour
         First,
         TopDown,
         FreeTopDown,
+        SaveBuilding,
     }
 }

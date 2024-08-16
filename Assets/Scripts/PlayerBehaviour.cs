@@ -15,7 +15,7 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] Transform blockHighlightPrefab;
     [SerializeField] LayerMask layerMask;
     [SerializeField] SkinnedMeshRenderer[] skinnedMeshRenderers;
-    [SerializeField] bool allowDigging;
+    [SerializeField] public bool allowDigging;
 
     [SerializeField] int sizeMainInventory = 0;
 

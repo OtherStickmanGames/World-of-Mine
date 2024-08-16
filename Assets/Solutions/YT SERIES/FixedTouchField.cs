@@ -18,13 +18,15 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     [HideInInspector]
     public bool Pressed;
 
-    // Use this for initialization
+    AnimationCurve resolutionFactorCurve;
+
     void Start()
     {
-
+        resolutionFactorCurve = new();
+        resolutionFactorCurve.AddKey(new(720, 15));
+        resolutionFactorCurve.AddKey(new(1080, 1));
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Pressed)
@@ -40,7 +42,7 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
             if(Input.touches.Length > 0)
             {
-                TouchDist = pos - PointerOld;
+                TouchDist = pos - PointerOld;// * resolutionFactorCurve.Evaluate(Screen.height);
                 PointerOld = pos;
             }
 
@@ -63,8 +65,8 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         }
         else
         {
-            TouchDist = new Vector2();
-            PointerOld = new Vector2();
+            TouchDist  = Vector2.zero;
+            PointerOld = Vector2.zero;
         }
     }
 

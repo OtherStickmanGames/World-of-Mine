@@ -15,12 +15,14 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] bool testMobileInput;
     [SerializeField] TMP_Text debugTexto;
     [SerializeField] QuickInventoryView quickInventoryView;
+    [SerializeField] SaveBuildingView saveBuildingView;
     [SerializeField] Button btnSwitchCamera;
     [SerializeField] FixedTouchField touchField;
     [SerializeField] MobileInput mobileInput;
     [SerializeField] InteractableStateTracker btnJump;
     [SerializeField] float smoothTime = 1f;
     [SerializeField] float sensitivity = 3f;
+    [SerializeField] TMP_InputField resolutionFactorInput;
 
     [Header("Output")]
     [SerializeField] StarterAssetsInputs starterAssetsInputs;
@@ -37,9 +39,12 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] GameObject moveZoneTutorial;
     [SerializeField] GameObject jumpZoneTutorial;
     [SerializeField] GameObject selectSlotTutorial;
+    [SerializeField] GameObject placeBlockTutorial;
+    [SerializeField] GameObject mineBlockTutorial;
     [SerializeField] Transform highlightBlockTutorial;
     [SerializeField] CinemachineVirtualCamera tutorialPersonCamera;
     [SerializeField] Transform placeBlockPointer;
+    [SerializeField] RectTransform mineTooltipPointer;
 
     Canvas canvasMine;
     Character mine;
@@ -50,17 +55,26 @@ public class TutorialUI : MonoBehaviour
     Vector3 oldCameraRotation;
     Vector3 oldCharacterPosition;
     Vector3 lookToPlaceBlock;
-    Vector3 startPos = new (-220, 30, 53);
+    Vector3 startPos = new(-220, 30, 53);
 
     string debugStr;
-    float sumCameraRotation, sumCharacterMove;
+    float sumCameraRotation;
+    float sumCharacterMove;
+    float ResolutionFactor => float.Parse(resolutionFactorInput.text);
 
-    bool touchZoneComplete, lookZoneComplete, moveZoneComplete, jumpZoneComplete;
+    bool touchZoneComplete;
+    bool lookZoneComplete;
+    bool moveZoneComplete;
+    bool jumpZoneComplete;
     bool selectSlotComplete;
     bool placeBlockComplete;
+    bool mineBlockComplete;
     bool placeBlockTutorInited;
-
+    bool mineBlockTutorialInited;
     bool needCameraLookToPlaceBlock;
+
+    AnimationCurve resolutionFactorCurve;
+
 
     private void Awake()
     {
@@ -71,19 +85,34 @@ public class TutorialUI : MonoBehaviour
         moveZoneTutorial.SetActive(false);
         jumpZoneTutorial.SetActive(false);
         selectSlotTutorial.SetActive(false);
+        placeBlockTutorial.SetActive(false);
+        mineBlockTutorial.SetActive(false);
         btnSwitchCamera.onClick.AddListener(BtnSwitchCamera_Clicked);
 
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
+
+        canvasTutorial.gameObject.SetActive(true);
     }
 
 
     private void Start()
     {
         quickInventoryView.gameObject.SetActive(false);
+        saveBuildingView.Init();
         mobileController.SetActive(false);
         mobileInput.gameObject.SetActive(false);
+
+        resolutionFactorCurve = new();
+        resolutionFactorCurve.AddKey(new(720, 15));
+        resolutionFactorCurve.AddKey(new(1080, 1));
+
+        SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
     }
 
+    private void SaveBuilding_Clicked()
+    {
+        mobileController.SetActive(false);
+    }
 
     private void Update()
     {
@@ -91,14 +120,19 @@ public class TutorialUI : MonoBehaviour
 
         if (Application.isMobilePlatform || testMobileInput)
         {
-            var value = touchField.TouchDist * sensitivity * UI.ScaleFactor;
+            var value = touchField.TouchDist * sensitivity * ((float)1920 / (float)Screen.width) * resolutionFactorCurve.Evaluate(Screen.height);
             lookDirection = Vector2.SmoothDamp(lookDirection, value, ref currentVelocity, Time.deltaTime * smoothTime);
             VirtualLookInput(lookDirection);
         }
 
         TutorialLogic();
-
+        debugStr = $"{sensitivity * UI.ScaleFactor} ## {Screen.height} # {resolutionFactorCurve.Evaluate(Screen.height)}";
         debugTexto.text = debugStr;
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            canvasTutorial.gameObject.SetActive(false);
+        }
     }
 
     public void VirtualLookInput(Vector2 virtualLookDirection)
@@ -187,7 +221,7 @@ public class TutorialUI : MonoBehaviour
             //print(sumCameraRotation);
             debugStr += $" {sumCameraRotation}";
 
-            if (sumCameraRotation > 888)
+            if (sumCameraRotation > 1500)
             {
                 lookZoneComplete = true;
                 lookZoneTutorial.SetActive(false);
@@ -262,6 +296,11 @@ public class TutorialUI : MonoBehaviour
                 selectSlotComplete = true;
 
                 selectSlotTutorial.SetActive(false);
+
+                LeanTween.delayedCall(1, () =>
+                {
+                    placeBlockTutorial.SetActive(true);
+                });
             }
         }
 
@@ -270,6 +309,7 @@ public class TutorialUI : MonoBehaviour
             var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * 10);
 
             highlightBlockTutorial.position = placeBlockPos;
+            playerBehaviour.blockHighlight.position = Vector3.zero;
 
             var camRootLookDir = placeBlockPos - playerBehaviour.cameraTarget.position;
 
@@ -301,21 +341,71 @@ public class TutorialUI : MonoBehaviour
             if (WorldGenerator.Inst.GetBlockID(checkingPos) > 0)
             {
                 placeBlockComplete = true;
-                needCameraLookToPlaceBlock = false;
-                tutorialPersonCamera.Priority = 5;
-                thirdPersonController.AllowCameraRotation = true;
+
+                placeBlockTutorial.SetActive(false);
+
+                LeanTween.delayedCall(1, () =>
+                {
+                    mineBlockTutorial.SetActive(true);
+                });
+                
+                //needCameraLookToPlaceBlock = false;
+                //tutorialPersonCamera.Priority = 5;
+                //thirdPersonController.AllowCameraRotation = true;
             }
 
 
+        }
+
+        if (!mineBlockComplete && placeBlockComplete)
+        {
+            var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * 9);
+
+            highlightBlockTutorial.position = placeBlockPos;
+            playerBehaviour.blockHighlight.position = Vector3.zero;
+
+            if (!mineBlockTutorialInited)
+            {
+                var offset = new Vector3(0.5f, 2, 0.5f);
+
+                placeBlockPointer.position = placeBlockPos + offset;
+
+                mineBlockTutorialInited = true;
+            }
+
+            var screenPos = Camera.main.WorldToScreenPoint(placeBlockPos);
+            screenPos.x -= Screen.width / 2;
+            screenPos.y -= Screen.height / 2;
+            //mineTooltipPointer.transform.position = screenPos;
+            mineTooltipPointer.anchoredPosition = screenPos;
+            var localPos = mineTooltipPointer.transform.localPosition;
+            localPos.z = 0;
+            mineTooltipPointer.transform.localPosition = localPos;
+
+            var checkingPos = placeBlockPos + Vector3.right;
+
+            if (WorldGenerator.Inst.GetBlockID(checkingPos) == 0)
+            {
+                mineBlockTutorial.SetActive(false);
+
+                needCameraLookToPlaceBlock = false;
+                tutorialPersonCamera.Priority = 5;
+                thirdPersonController.AllowCameraRotation = true;
+
+                placeBlockPointer.gameObject.SetActive(false);
+                highlightBlockTutorial.gameObject.SetActive(false);
+
+                mineBlockComplete = true;
+            }
         }
     }
 
     private void LateUpdate()
     {
-
         if (needCameraLookToPlaceBlock)
         {
-            var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * 10);
+            var height = placeBlockComplete ? 9 : 10;
+            var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * height);
             var camRootLookDir = placeBlockPos - playerBehaviour.cameraTarget.position;
             playerBehaviour.cameraTarget.rotation = Quaternion.LookRotation(camRootLookDir);
 

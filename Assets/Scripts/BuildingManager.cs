@@ -162,8 +162,8 @@ public class BuildingManager : MonoBehaviour
 
         BuildPreviewData data = new BuildPreviewData
         {
-            view = building,
-            width = blocksData.Max(b => b.pos.x) + 1,
+            view   = building,
+            width  = blocksData.Max(b => b.pos.x) + 1,
             height = blocksData.Max(b => b.pos.y) + 1,
             length = blocksData.Max(b => b.pos.z) + 1
         };
@@ -225,6 +225,11 @@ public class BuildPreviewData
     public float width;
     public float length;
     public float height;
+
+    public void SetScale(Vector2 scale)
+    {
+
+    }
 
     public void ShiftPosition()
     {

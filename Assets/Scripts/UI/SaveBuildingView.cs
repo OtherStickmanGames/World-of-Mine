@@ -134,35 +134,37 @@ public class SaveBuildingView : MonoBehaviour
                 break;
 
             case SelectionMode.Vertical:
-                selectingArea.SetActive(false);
-                panelPreview.SetActive(true);
-
-                var building = BuildingManager.Singleton.BuildPreview();
-                building.view.layer = LayerMask.NameToLayer("UI");
-                building.view.transform.SetParent(meshHolder);
-                var scaleX = (Screen.width * UI.ScaleFactor)  / (building.width * 1.3f);
-                var scaleY = (Screen.height * UI.ScaleFactor) / (building.height * 1.3f);
-                var scaleZ = (Screen.width * UI.ScaleFactor)  / (building.length * 1.3f);
-                building.view.transform.localScale = Vector3.one * Mathf.Min(scaleX, scaleY, scaleZ);
-                building.ShiftPosition();
+                ShowBuildingPreview();
                 break;
         }
         
+    }
+
+    private void ShowBuildingPreview()
+    {
+        selectingArea.SetActive(false);
+        panelPreview.SetActive(true);
+
+        var building = BuildingManager.Singleton.BuildPreview();
+        building.view.layer = LayerMask.NameToLayer("UI");
+        building.view.transform.SetParent(meshHolder);
+        var scaleX = (Screen.width * UI.ScaleFactor) / (building.width * 1.3f);
+        var scaleY = (Screen.height * UI.ScaleFactor) / (building.height * 1.3f);
+        var scaleZ = (Screen.width * UI.ScaleFactor) / (building.length * 1.3f);
+        building.view.transform.localScale = Vector3.one * Mathf.Min(scaleX, scaleY, scaleZ);
+        building.ShiftPosition();
     }
 
     
     private void LateUpdate()
     {
         BuildingPreviewRotate();
-        
-        
-        
+                
     }
 
     private void Update()
     {
         
-
         if (allowSelectBlocks)
         {
             if (cropHandleLeftTop.Pressed)
@@ -276,13 +278,13 @@ public class SaveBuildingView : MonoBehaviour
                 }
                 if (Input.GetMouseButton(0))
                 {
-                    look = (Vector2)Input.mousePosition - prevMp;
-                    look.x *= -1;
+                    look   = (Vector2)Input.mousePosition - prevMp;
                     prevMp = (Vector2)Input.mousePosition;
                 }
             }
 
-            look *= rotateSensitibity;
+            look.x *= -1;
+            look   *= rotateSensitibity;
             lookDirection = Vector2.SmoothDamp(lookDirection, look, ref currentVelocity, Time.deltaTime * 1.38f);
 
             if (lookDirection.sqrMagnitude >= 0.01f)

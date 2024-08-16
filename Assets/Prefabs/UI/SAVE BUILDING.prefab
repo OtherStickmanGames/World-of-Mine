@@ -135,7 +135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.37753338, b: 0.809, a: 1}
+  m_Color: {r: 0.039, g: 0.08016666, b: 0.13, a: 0.8784314}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -800,7 +800,7 @@ MonoBehaviour:
   sensitivityMouseY: 1.5
   CameraAngleOverrideX: 0
   CameraAngleOverrideY: 0
-  rotateSensitibity: 5
+  rotateSensitibity: 7
 --- !u!1 &4335938410253832577
 GameObject:
   m_ObjectHideFlags: 0

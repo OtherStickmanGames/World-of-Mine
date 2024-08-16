@@ -16,6 +16,7 @@ public class UI : MonoBehaviour
     [SerializeField] Button btnClient;
     [SerializeField] InventotyView inventoryView;
     [SerializeField] QuickInventoryView quickInventoryView;
+    [SerializeField] SaveBuildingView saveBuildingView;
     [SerializeField] Button btnSwitchCamera;
     [SerializeField] UserView userView;
     [SerializeField] GameObject mobileController;
@@ -57,6 +58,7 @@ public class UI : MonoBehaviour
     private void Start()
     {
         userView.Init();
+        saveBuildingView.Init();
 
         quickInventoryView.gameObject.SetActive(false);
         mobileController.SetActive(false);
@@ -103,6 +105,11 @@ public class UI : MonoBehaviour
             var value = touchField.TouchDist * sensitivity * ScaleFactor;
             lookDirection = Vector2.SmoothDamp(lookDirection, value, ref currentVelocity, Time.deltaTime * smoothTime);
             VirtualLookInput(lookDirection);
+        }
+
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            NetworkManager.Singleton.StartServer();
         }
 
         //TouchUpdate();

@@ -23,6 +23,16 @@ public class NetworkUserManager : NetworkBehaviour
     private void Start()
     {
         NetworkManager.OnClientConnectedCallback += Client_Connected;
+        NetworkManager.OnClientDisconnectCallback += Client_Disconnected;
+    }
+
+    private void Client_Disconnected(ulong clientId)
+    {
+        if (NetworkManager.IsServer)
+        {
+            Debug.Log($"{users[clientId]}: Disconnected # Server Time:{DateTime.Now}");
+            users.Remove(clientId);
+        }
     }
 
     private void Client_Connected(ulong clientId)
@@ -43,7 +53,7 @@ public class NetworkUserManager : NetworkBehaviour
         rpcParams.Send.TargetClientIds = new ulong[] { serverRpcParams.Receive.SenderClientId };
 
         UserRegistredClientRpc(rpcParams);
-        Debug.Log($"{userName} Client ID {serverRpcParams.Receive.SenderClientId} # Server Time:{DateTime.Today}");
+        Debug.Log($"{userName} Client ID {serverRpcParams.Receive.SenderClientId} # Server Time:{DateTime.Now}");
     }
 
 
@@ -52,5 +62,10 @@ public class NetworkUserManager : NetworkBehaviour
     {
         UserRegistred = true;
         onUserRegistred?.Invoke();
+    }
+
+    public string GetUserName(ulong userId)
+    {
+        return users[userId];
     }
 }

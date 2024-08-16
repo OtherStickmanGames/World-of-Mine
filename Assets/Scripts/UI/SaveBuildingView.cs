@@ -167,9 +167,10 @@ public class SaveBuildingView : MonoBehaviour
         var building = BuildingManager.Singleton.BuildPreview();
         building.view.layer = LayerMask.NameToLayer("UI");
         building.view.transform.SetParent(meshHolder);
-        var scaleX = (Screen.width * UI.ScaleFactor) / (building.width * 1.3f);
+        var widthScreenSpace = 1.38f;
+        var scaleX = (Screen.width * UI.ScaleFactor) / (building.width * widthScreenSpace);
         var scaleY = (Screen.height * UI.ScaleFactor) / (building.height * 1.3f);
-        var scaleZ = (Screen.width * UI.ScaleFactor) / (building.length * 1.3f);
+        var scaleZ = (Screen.width * UI.ScaleFactor) / (building.length * widthScreenSpace);
         building.view.transform.localScale = Vector3.one * Mathf.Min(scaleX, scaleY, scaleZ);
         building.ShiftPosition();
     }

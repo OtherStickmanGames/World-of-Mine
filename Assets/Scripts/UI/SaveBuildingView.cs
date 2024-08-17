@@ -45,6 +45,7 @@ public class SaveBuildingView : MonoBehaviour
     [SerializeField] GameObject buildingSavedNotify;
     [SerializeField] Button btnSavedOk;
 
+    [Space]
 
     public bool IsCurrentDeviceMouse;
     public float sensitivityMouseY = 1.5f;
@@ -52,18 +53,15 @@ public class SaveBuildingView : MonoBehaviour
     public float CameraAngleOverrideY = 0.0f;
     public float rotateSensitibity = 5;
 
-
-
     public static UnityEvent onSaveBuildingClick = new UnityEvent();
 
     public AcceptMode CurSelectionMode { get; set; }
 
-    Vector3 startPressPos;
-    bool selectionBoxDisplayed;
     bool allowSelectBlocks;
 
     public void Init()
     {
+        gameObject.SetActive(true);
         selectionBox.gameObject.SetActive(false);
         btnAccept.gameObject.SetActive(false);
         selectingArea.SetActive(false);
@@ -201,7 +199,7 @@ public class SaveBuildingView : MonoBehaviour
         var building = BuildingManager.Singleton.BuildPreview();
         building.view.layer = LayerMask.NameToLayer("UI");
         building.view.transform.SetParent(meshHolder);
-        var widthScreenSpace = 1.38f;
+        var widthScreenSpace = 1.5f;
         var scaleX = (Screen.width * UI.ScaleFactor) / (building.width * widthScreenSpace);
         var scaleY = (Screen.height * UI.ScaleFactor) / (building.height * 1.5f);
         var scaleZ = (Screen.width * UI.ScaleFactor) / (building.length * widthScreenSpace);

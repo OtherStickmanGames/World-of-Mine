@@ -17,6 +17,7 @@ public class UI : MonoBehaviour
     [SerializeField] InventotyView inventoryView;
     [SerializeField] QuickInventoryView quickInventoryView;
     [SerializeField] SaveBuildingView saveBuildingView;
+    [SerializeField] ShowBuildingView showBuildingView;
     [SerializeField] Button btnSwitchCamera;
     [SerializeField] UserView userView;
     [SerializeField] GameObject mobileController;
@@ -59,6 +60,7 @@ public class UI : MonoBehaviour
     {
         userView.Init();
         saveBuildingView.Init();
+        showBuildingView.Init();
 
         quickInventoryView.gameObject.SetActive(false);
         mobileController.SetActive(false);

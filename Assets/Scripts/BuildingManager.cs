@@ -19,6 +19,8 @@ public class BuildingManager : MonoBehaviour
     public UnityEvent<int> onCountBuildingsReceive;
     public UnityEvent<List<BlockData>, string> onSaveBuilding;
 
+    public UnityEvent<int> onGetBuildings;
+
     public static BuildingManager Singleton;
 
     List<Transform> highlights = new List<Transform>();
@@ -242,6 +244,20 @@ public class BuildingManager : MonoBehaviour
     public void CountBuildings_Received(int count)
     {
         onCountBuildingsReceive?.Invoke(count);
+    }
+
+    //====================================================================
+    //============= Логика отображения списка построек ===================
+    //====================================================================
+
+    public void SendRequestGetBuildings(int page)
+    {
+        onGetBuildings?.Invoke(page);
+    }
+
+    public void CreateBuildingPreview(BuildingServerData buildingServerData)
+    {
+
     }
 }
 

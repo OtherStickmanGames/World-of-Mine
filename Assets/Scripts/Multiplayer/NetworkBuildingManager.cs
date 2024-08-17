@@ -23,7 +23,9 @@ public class NetworkBuildingManager : NetworkBehaviour
 
         buildingManager.onInputNameShow.AddListener(InputBuildingName_Showed);
         buildingManager.onSaveBuilding.AddListener(SaveBuilding_Clicked);
+        buildingManager.onGetBuildings.AddListener(GetBuildings_Requested);
     }
+
 
     private void SaveBuilding_Clicked(List<BlockData> blocksData, string nameBuilding)
     {
@@ -111,6 +113,47 @@ public class NetworkBuildingManager : NetworkBehaviour
 
         return clientRpcParams;
     }
+
+
+    /// <summary>
+    ///  лиент запрашивает список построек по страницам
+    /// </summary>
+    /// <param name="page"></param>
+    private void GetBuildings_Requested(int page)
+    {
+        GetBuildingsServerRpc(page);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void GetBuildingsServerRpc(int page, ServerRpcParams serverRpcParams = default)
+    {
+        if (!Directory.Exists(buildingsDirectory))
+        {
+            Directory.CreateDirectory(buildingsDirectory);
+        }
+
+        var files = Directory.GetFiles(buildingsDirectory).Where(f => f.Substring(f.Length - 4, 4) == "json").ToList();
+
+        BuildingServerData buildingData = new BuildingServerData();
+        foreach (var file in files)
+        {
+            var json = File.ReadAllText(file);
+            var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
+
+            buildingData.positions = data.blocksData.changedBlocks.Select(b => b.Pos).ToArray();
+            buildingData.blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray();
+            buildingData.nameBuilding = data.nameBuilding;
+            buildingData.authorName = data.blocksData.userName;
+
+            ReceiveBuildingDataClientRpc(buildingData, GetTargetClientParams(serverRpcParams));
+        }
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ReceiveBuildingDataClientRpc(BuildingServerData data, ClientRpcParams clientRpcParams = default)
+    {
+        BuildingManager.Singleton.CreateBuildingPreview(data);
+    }
 }
 
 
@@ -120,4 +163,21 @@ public struct SaveBuildingData
     public UserChunckData blocksData;
     public DateTime createDate;
     public string nameBuilding;
+}
+
+[Serializable]
+public struct BuildingServerData : INetworkSerializable
+{
+    public Vector3[] positions;
+    public byte[] blockIDs;
+    public string nameBuilding;
+    public string authorName;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref positions);
+        serializer.SerializeValue(ref blockIDs);
+        serializer.SerializeValue(ref nameBuilding);
+        serializer.SerializeValue(ref authorName);
+    }
 }

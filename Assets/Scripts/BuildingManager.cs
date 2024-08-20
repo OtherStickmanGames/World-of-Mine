@@ -18,6 +18,7 @@ public class BuildingManager : MonoBehaviour
     public UnityEvent onBuildSave;
     public UnityEvent<int> onCountBuildingsReceive;
     public UnityEvent<List<BlockData>, string> onSaveBuilding;
+    public UnityEvent<BuildPreviewData, BuildingServerData> onLoadedPreviewBuild;
 
     public UnityEvent<int> onGetBuildings;
 
@@ -166,7 +167,7 @@ public class BuildingManager : MonoBehaviour
         MeshGenerator.NormalizeBlocksPositions(blocksData);
 
         var mesh = MeshGenerator.Single.GenerateMesh(blocksData);
-        var building = new GameObject($"TESTO MESH");
+        var building = new GameObject($"BUILDING PREVIEW");
         var renderer = building.AddComponent<MeshRenderer>();
         var meshFilter = building.AddComponent<MeshFilter>();
         var collider = building.AddComponent<MeshCollider>();
@@ -184,6 +185,8 @@ public class BuildingManager : MonoBehaviour
 
         return data;
     }
+
+
 
     internal void SaveBuilding(string nameBuilding)
     {
@@ -257,7 +260,20 @@ public class BuildingManager : MonoBehaviour
 
     public void CreateBuildingPreview(BuildingServerData buildingServerData)
     {
+        var length = buildingServerData.blockIDs.Length;
+        for (int i = 0; i < length; i++)
+        {
+            var blockData = new BlockData()
+            {
+                pos = buildingServerData.positions[i],
+                ID = buildingServerData.blockIDs[i]
+            };
+            blocksData.Add(blockData);
+        }
 
+        var previewData = BuildPreview();
+
+        onLoadedPreviewBuild?.Invoke(previewData, buildingServerData);
     }
 }
 

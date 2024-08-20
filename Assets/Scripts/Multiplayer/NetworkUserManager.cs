@@ -22,7 +22,7 @@ public class NetworkUserManager : NetworkBehaviour
 
     private void Start()
     {
-        NetworkManager.OnClientConnectedCallback += Client_Connected;
+        NetworkManager.OnClientConnectedCallback  += Client_Connected;
         NetworkManager.OnClientDisconnectCallback += Client_Disconnected;
     }
 

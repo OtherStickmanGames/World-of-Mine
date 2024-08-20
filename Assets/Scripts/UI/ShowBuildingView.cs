@@ -13,6 +13,8 @@ public class ShowBuildingView : MonoBehaviour
     [SerializeField] Button btnNextPage;
     [SerializeField] Button btnPrevPage;
     [SerializeField] TMP_Text labelPage;
+    [SerializeField] Transform parent;
+    [SerializeField] BuildingPreviewItem previewItemPrefab;
 
     int page;
 
@@ -23,10 +25,22 @@ public class ShowBuildingView : MonoBehaviour
         btnNextPage.onClick.AddListener(NextPage_Clicked);
         btnPrevPage.onClick.AddListener(PrevPage_Clicked);
 
+        BuildingManager.Singleton.onLoadedPreviewBuild.AddListener(LoadedPreview_Builded);
+
         gameObject.SetActive(true);
         buildingsView.SetActive(false);
 
         UpdatePageBtnsView();
+    }
+
+    private void LoadedPreview_Builded(BuildPreviewData preview, BuildingServerData serverData)
+    {
+        var previewItem = Instantiate(previewItemPrefab, parent);
+        previewItem.Init(preview, serverData);
+
+        preview.view.layer = LayerMask.NameToLayer("UI");
+        preview.view.transform.SetParent(parent);
+
     }
 
     private void PrevPage_Clicked()

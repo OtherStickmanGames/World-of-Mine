@@ -260,6 +260,8 @@ public class BuildingManager : MonoBehaviour
 
     public void CreateBuildingPreview(BuildingServerData buildingServerData)
     {
+        blocksData.Clear();
+
         var length = buildingServerData.blockIDs.Length;
         for (int i = 0; i < length; i++)
         {

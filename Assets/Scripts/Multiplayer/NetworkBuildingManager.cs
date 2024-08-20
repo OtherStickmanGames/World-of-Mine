@@ -135,18 +135,27 @@ public class NetworkBuildingManager : NetworkBehaviour
         var files = Directory.GetFiles(buildingsDirectory).Where(f => f.Substring(f.Length - 4, 4) == "json").ToList();
 
         BuildingServerData buildingData = new BuildingServerData();
-        foreach (var file in files)
+
+        StartCoroutine(Async());
+
+        IEnumerator Async()
         {
-            var json = File.ReadAllText(file);
-            var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
+            foreach (var file in files)
+            {
+                var json = File.ReadAllText(file);
+                var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
 
-            buildingData.positions = data.blocksData.changedBlocks.Select(b => b.Pos).ToArray();
-            buildingData.blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray();
-            buildingData.nameBuilding = data.nameBuilding;
-            buildingData.authorName = data.blocksData.userName;
+                buildingData.positions = data.blocksData.changedBlocks.Select(b => b.Pos).ToArray();
+                buildingData.blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray();
+                buildingData.nameBuilding = data.nameBuilding;
+                buildingData.authorName = data.blocksData.userName;
 
-            ReceiveBuildingDataClientRpc(buildingData, GetTargetClientParams(serverRpcParams));
+                ReceiveBuildingDataClientRpc(buildingData, GetTargetClientParams(serverRpcParams));
+
+                yield return null;
+            }
         }
+        
     }
 
     [ClientRpc(RequireOwnership = false)]

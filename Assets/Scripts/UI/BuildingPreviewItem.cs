@@ -15,5 +15,18 @@ public class BuildingPreviewItem : MonoBehaviour
     public void Init(BuildPreviewData preview, BuildingServerData serverData)
     {
         title.SetText(serverData.nameBuilding);
+
+        preview.view.layer = LayerMask.NameToLayer("UI");
+        preview.view.transform.SetParent(parent);
+
+        var rectTransform = transform as RectTransform;
+        var size = rectTransform.sizeDelta;
+
+        var widthScreenSpace = 1.5f;
+        var scaleX = (size.x ) / (preview.width * widthScreenSpace);
+        var scaleY = (size.y ) / (preview.height * widthScreenSpace);
+        var scaleZ = (size.x ) / (preview.length * widthScreenSpace);
+        preview.view.transform.localScale = Vector3.one * Mathf.Min(scaleX, scaleY, scaleZ);
+        preview.ShiftPosition();
     }
 }

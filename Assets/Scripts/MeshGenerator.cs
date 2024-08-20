@@ -65,6 +65,10 @@ public class MeshGenerator : MonoBehaviour
         Mesh mesh = new();
         mesh.Clear();
 
+        triangulos.Clear();
+        vertices.Clear();
+        uvs.Clear();
+
         var maxX = Mathf.FloorToInt(normalizedBlocksData.Max(b => b.pos.x));
         var maxY = Mathf.FloorToInt(normalizedBlocksData.Max(b => b.pos.y));
         var maxZ = Mathf.FloorToInt(normalizedBlocksData.Max(b => b.pos.z));

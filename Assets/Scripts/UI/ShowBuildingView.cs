@@ -37,10 +37,6 @@ public class ShowBuildingView : MonoBehaviour
     {
         var previewItem = Instantiate(previewItemPrefab, parent);
         previewItem.Init(preview, serverData);
-
-        preview.view.layer = LayerMask.NameToLayer("UI");
-        preview.view.transform.SetParent(parent);
-
     }
 
     private void PrevPage_Clicked()

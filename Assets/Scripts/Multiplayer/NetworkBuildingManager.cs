@@ -6,7 +6,7 @@ using UnityEngine;
 using static ChunckData;
 using Newtonsoft.Json;
 using System;
-#if UNITY_STANDALONE || UNITY_EDITOR
+#if !UNITY_WEBGL
 using System.IO;
 #endif
 
@@ -134,17 +134,24 @@ public class NetworkBuildingManager : NetworkBehaviour
 
         var files = Directory.GetFiles(buildingsDirectory).Where(f => f.Substring(f.Length - 4, 4) == "json").ToList();
 
-        BuildingServerData buildingData = new BuildingServerData();
 
         StartCoroutine(Async());
 
         IEnumerator Async()
         {
+            List<SaveBuildingData> buildingsData = new List<SaveBuildingData>();
             foreach (var file in files)
             {
                 var json = File.ReadAllText(file);
                 var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
+                buildingsData.Add(data);
+            }
 
+            buildingsData = buildingsData.OrderBy(d => d.createDate).ToList();
+
+            foreach (var data in buildingsData)
+            {
+                BuildingServerData buildingData = new BuildingServerData();
                 buildingData.positions = data.blocksData.changedBlocks.Select(b => b.Pos).ToArray();
                 buildingData.blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray();
                 buildingData.nameBuilding = data.nameBuilding;

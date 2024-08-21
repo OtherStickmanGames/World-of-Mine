@@ -114,7 +114,7 @@ public class UI : MonoBehaviour
             NetworkManager.Singleton.StartServer();
         }
 
-        //TouchUpdate();
+        SetCurrentUIObject();
     }
 
     void TouchUpdate()
@@ -257,6 +257,40 @@ public class UI : MonoBehaviour
         }
 
         return false;
+    }
+
+    public static void PrintCurrentUI()
+    {
+        if (pointer == null)
+        {
+            pointer = new PointerEventData(EventSystem.current);
+        }
+        pointer.position = Input.mousePosition;
+
+        EventSystem.current.RaycastAll(pointer, results);
+
+        print(results[0].gameObject);
+    }
+
+    public static GameObject CurrentUIObject { get; private set; }
+    private static void SetCurrentUIObject()
+    {
+        if (pointer == null)
+        {
+            pointer = new PointerEventData(EventSystem.current);
+        }
+        pointer.position = Input.mousePosition;
+
+        EventSystem.current.RaycastAll(pointer, results);
+
+        if (results.Count > 0)
+        {
+            CurrentUIObject = results[0].gameObject;
+        }
+        else
+        {
+            CurrentUIObject = null;
+        }
     }
 
     public static float ScaleFactor => (float)1080 / (float) Screen.height;

@@ -15,7 +15,9 @@ public class ShowBuildingView : MonoBehaviour
     [SerializeField] TMP_Text labelPage;
     [SerializeField] Transform parent;
     [SerializeField] BuildingPreviewItem previewItemPrefab;
+    [SerializeField] ScrollRect scrollRect;
 
+    List<BuildingPreviewItem> buildingItems = new List<BuildingPreviewItem>();
     int page;
 
     public void Init()
@@ -37,6 +39,7 @@ public class ShowBuildingView : MonoBehaviour
     {
         var previewItem = Instantiate(previewItemPrefab, parent);
         previewItem.Init(preview, serverData);
+        buildingItems.Add(previewItem);
     }
 
     private void PrevPage_Clicked()
@@ -78,6 +81,19 @@ public class ShowBuildingView : MonoBehaviour
             LayoutRebuilder.ForceRebuildLayoutImmediate(labelPage.transform.parent as RectTransform);
             LayoutRebuilder.ForceRebuildLayoutImmediate(labelPage.transform as RectTransform);
 
+        }
+    }
+
+    private void Update()
+    {
+        var rotatingItem = buildingItems.Find(i => i.IsPreviewRotating);
+        if (rotatingItem != null && scrollRect.enabled)
+        {
+            scrollRect.enabled = false;
+        }
+        if (!scrollRect.enabled && rotatingItem == null)
+        {
+            scrollRect.enabled = true;
         }
     }
 }

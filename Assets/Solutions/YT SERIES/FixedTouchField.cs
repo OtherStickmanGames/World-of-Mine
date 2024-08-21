@@ -15,7 +15,7 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     public Vector2 PointerOld;
     [HideInInspector]
     protected int PointerId;
-    [HideInInspector]
+    //[HideInInspector]
     public bool Pressed;
 
     AnimationCurve resolutionFactorCurve;
@@ -81,6 +81,7 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     public void OnPointerUp(PointerEventData eventData)
     {
         Pressed = false;
+        UI.PrintCurrentUI();
     }
 
     public Vector2 olda;
@@ -89,14 +90,8 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         var offsetX = Screen.width / 2;
         var offsetY = Screen.height / 2;
         
-        //TouchDist = eventData.position - olda;
-        //olda = eventData.position;
-
-        //ebatos.text = $"{TouchDist}";
-
-        //if (invertY)
-        //{
-        //    TouchDist.y *= -1;
-        //}
+        
     }
+
+
 }

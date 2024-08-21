@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class InteractableStateTracker : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler
+public class InteractableStateTracker : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler, IDragHandler
 {
     public RectTransform rectTransform;
     public bool Pressed;
@@ -39,6 +39,7 @@ public class InteractableStateTracker : MonoBehaviour, IPointerDownHandler, IPoi
     {
         Pressed = false;
         onPointerUp?.Invoke();
+        UI.PrintCurrentUI();
     }
 
 
@@ -55,5 +56,10 @@ public class InteractableStateTracker : MonoBehaviour, IPointerDownHandler, IPoi
     public Vector2 GetPos()
     {
         return rectTransform.anchoredPosition;
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        
     }
 }

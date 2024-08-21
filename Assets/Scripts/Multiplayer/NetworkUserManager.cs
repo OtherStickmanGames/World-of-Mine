@@ -30,8 +30,15 @@ public class NetworkUserManager : NetworkBehaviour
     {
         if (NetworkManager.IsServer)
         {
-            Debug.Log($"{users[clientId]}: Disconnected # Server Time:{DateTime.Now}");
-            users.Remove(clientId);
+            if (users.ContainsKey(clientId))
+            {
+                Debug.Log($"{users[clientId]}: Disconnected # Server Time:{DateTime.Now}");
+                users.Remove(clientId);
+            }
+            else
+            {
+                Debug.Log("Надо поразбираться шо за шляпа с дисконектом без конекта");
+            }
         }
     }
 

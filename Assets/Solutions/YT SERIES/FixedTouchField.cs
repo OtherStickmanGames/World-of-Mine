@@ -81,7 +81,7 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     public void OnPointerUp(PointerEventData eventData)
     {
         Pressed = false;
-        UI.PrintCurrentUI();
+        //UI.PrintCurrentUI();
     }
 
     public Vector2 olda;

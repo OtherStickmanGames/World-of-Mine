@@ -37,9 +37,18 @@ public class ShowBuildingView : MonoBehaviour
 
     private void LoadedPreview_Builded(BuildPreviewData preview, BuildingServerData serverData)
     {
+        if (buildingItems.Find(i => i.Guid == serverData.guid))
+            return;
+
         var previewItem = Instantiate(previewItemPrefab, parent);
         previewItem.Init(preview, serverData);
+        previewItem.onLikeClick.AddListener(BuildingLike_Clicked);
         buildingItems.Add(previewItem);
+    }
+
+    private void BuildingLike_Clicked(BuildingPreviewItem buildingItem)
+    {
+        BuildingManager.Singleton.SetBuildingLike(buildingItem.Guid);
     }
 
     private void PrevPage_Clicked()

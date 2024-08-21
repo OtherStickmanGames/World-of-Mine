@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
+using UnityEngine.Events;
 
 public class BuildingPreviewItem : MonoBehaviour
 {
@@ -21,21 +22,37 @@ public class BuildingPreviewItem : MonoBehaviour
     public float rotateSensitibity = 5;
 
     public bool IsPreviewRotating { get; set; }
+    public string Guid { get; private set; }
+
+    public UnityEvent<BuildingPreviewItem> onLikeClick;
 
     public void Init(BuildPreviewData preview, BuildingServerData serverData)
     {
         title.SetText(serverData.nameBuilding);
+        txtNameCreator.SetText(serverData.authorName);
 
+        Guid = serverData.guid;
+        PrepareBuildingMesh(preview);
+
+        btnLike.onClick.AddListener(Like_Clicked);
+    }
+
+    private void Like_Clicked()
+    {
+        onLikeClick?.Invoke(this);
+    }
+
+    private void PrepareBuildingMesh(BuildPreviewData preview)
+    {
         preview.view.layer = LayerMask.NameToLayer("UI");
         preview.view.transform.SetParent(parent);
 
         var rectTransform = transform as RectTransform;
-        var size = rectTransform.sizeDelta;
-
-        var widthScreenSpace = 1.5f;
-        var scaleX = (size.x ) / (preview.width * widthScreenSpace);
-        var scaleY = (size.y ) / (preview.height * widthScreenSpace);
-        var scaleZ = (size.x ) / (preview.length * widthScreenSpace);
+        var size = rectTransform.sizeDelta - (Vector2.up * 100);
+        var widthScreenSpace = 1.58f;
+        var scaleX = size.x / (preview.width  * widthScreenSpace);
+        var scaleY = size.y / (preview.height * widthScreenSpace);
+        var scaleZ = size.x / (preview.length * widthScreenSpace);
         preview.view.transform.localScale = Vector3.one * Mathf.Min(scaleX, scaleY, scaleZ);
         preview.ShiftPosition();
     }
@@ -100,7 +117,7 @@ public class BuildingPreviewItem : MonoBehaviour
     private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
     {
         if (lfAngle < -360f) lfAngle += 360f;
-        if (lfAngle > 360f) lfAngle -= 360f;
+        if (lfAngle >  360f) lfAngle -= 360f;
         return Mathf.Clamp(lfAngle, lfMin, lfMax);
     }
 }

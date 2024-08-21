@@ -107,6 +107,13 @@ public class TutorialUI : MonoBehaviour
         resolutionFactorCurve.AddKey(new(1080, 1));
 
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
+        SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
+
+    }
+
+    private void Building_Saved()
+    {
+        mobileController.SetActive(true);
     }
 
     private void SaveBuilding_Clicked()

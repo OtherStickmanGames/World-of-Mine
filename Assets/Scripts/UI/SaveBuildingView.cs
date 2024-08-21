@@ -54,9 +54,11 @@ public class SaveBuildingView : MonoBehaviour
     public float rotateSensitibity = 5;
 
     public static UnityEvent onSaveBuildingClick = new UnityEvent();
+    public static UnityEvent onBuildingSave = new UnityEvent();
 
     public AcceptMode CurSelectionMode { get; set; }
 
+    BuildPreviewData buildPreviewData;
     bool allowSelectBlocks;
 
     public void Init()
@@ -84,7 +86,8 @@ public class SaveBuildingView : MonoBehaviour
     private void SavedOk_Clicked()
     {
         panelPreview.SetActive(false);
-        CameraStack.Instance.SwitchToThirdPerson(); ;
+        CameraStack.Instance.SwitchToThirdPerson();
+        Destroy(buildPreviewData.view);
     }
 
     private void Building_Saved()
@@ -94,7 +97,7 @@ public class SaveBuildingView : MonoBehaviour
 
     private void CountBuildings_Received(int countBuildings)
     {
-        nameInput.text = $"Шедеврище - {countBuildings}";
+        nameInput.text = $"Шедеврище - {countBuildings + 1}";
         btnAccept.gameObject.SetActive(true);
     }
 
@@ -142,10 +145,17 @@ public class SaveBuildingView : MonoBehaviour
 
     private void SaveBuilding_Clicked()
     {
+        CurSelectionMode = AcceptMode.Horizontal;
         BuildingManager.Singleton.StartSelection();
 
         allowSelectBlocks = true;
+        meshHolder.rotation = Quaternion.identity;
+
         selectingArea.SetActive(true);
+        inputNameBuilding.SetActive(false);
+        buildingSavedNotify.SetActive(false);
+        moveCamJoystick.gameObject.SetActive(true);
+
 
         UpdateSelectionBackgroud();
 
@@ -173,20 +183,25 @@ public class SaveBuildingView : MonoBehaviour
                 break;
 
             case AcceptMode.Save:
-                BuildingManager.Singleton.SaveBuilding(nameInput.text);
-                // TO DO доделать в случае неудачи сейва
+                SaveBuilding();
                 break;
         }
     }
 
-
+    private void SaveBuilding()
+    {
+        BuildingManager.Singleton.SaveBuilding(nameInput.text);
+        btnAccept.gameObject.SetActive(false);
+        // TO DO доделать в случае неудачи сейва
+    }
 
     private void ShowInputBuildName()
     {
         inputNameBuilding.SetActive(true);
         btnAccept.gameObject.SetActive(false);
 
-        BuildingManager.Singleton.InputNameBuilding_Showed();   
+        BuildingManager.Singleton.InputNameBuilding_Showed();
+        print("Ебала в менеджер");
     }
 
     private void ShowBuildingPreview()
@@ -205,6 +220,7 @@ public class SaveBuildingView : MonoBehaviour
         var scaleZ = (Screen.width * UI.ScaleFactor) / (building.length * widthScreenSpace);
         building.view.transform.localScale = Vector3.one * Mathf.Min(scaleX, scaleY, scaleZ);
         building.ShiftPosition();
+        buildPreviewData = building;
     }
 
     

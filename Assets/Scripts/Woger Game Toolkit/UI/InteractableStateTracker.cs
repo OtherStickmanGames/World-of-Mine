@@ -39,7 +39,7 @@ public class InteractableStateTracker : MonoBehaviour, IPointerDownHandler, IPoi
     {
         Pressed = false;
         onPointerUp?.Invoke();
-        UI.PrintCurrentUI();
+        //UI.PrintCurrentUI();
     }
 
 

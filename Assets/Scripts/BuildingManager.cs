@@ -19,6 +19,7 @@ public class BuildingManager : MonoBehaviour
     public UnityEvent<int> onCountBuildingsReceive;
     public UnityEvent<List<BlockData>, string> onSaveBuilding;
     public UnityEvent<BuildPreviewData, BuildingServerData> onLoadedPreviewBuild;
+    public UnityEvent<string> onBuildingLike;
 
     public UnityEvent<int> onGetBuildings;
 
@@ -252,6 +253,10 @@ public class BuildingManager : MonoBehaviour
     //====================================================================
     //============= Логика отображения списка построек ===================
     //====================================================================
+    public void SetBuildingLike(string guid)
+    {
+        onBuildingLike?.Invoke(guid);
+    }
 
     public void SendRequestGetBuildings(int page)
     {

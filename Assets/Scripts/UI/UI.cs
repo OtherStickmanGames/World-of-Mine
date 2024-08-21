@@ -12,7 +12,8 @@ using UnityEngine.EventSystems;
 public class UI : MonoBehaviour
 {
     [SerializeField] bool testMobileInput;
-    [SerializeField] Button btnHost;
+    [SerializeField] GameObject serverStatePanel;
+    [SerializeField] Button btnServer;
     [SerializeField] Button btnClient;
     [SerializeField] InventotyView inventoryView;
     [SerializeField] QuickInventoryView quickInventoryView;
@@ -38,13 +39,15 @@ public class UI : MonoBehaviour
 
     Character mine;
     Transform player;
+    AnimationCurve resolutionFactorCurve;
+
 
     bool needResetPlayerPosition;
 
     private void Awake()
     {
         btnClient.onClick.AddListener(BtnClient_Clicked);
-        btnHost.onClick.AddListener(BtnHost_Clicked);
+        btnServer.onClick.AddListener(BtnServer_Clicked);
 
         btnSwitchCamera.gameObject.SetActive(false);
         btnSwitchCamera.onClick.AddListener(BtnSwitchCamera_Clicked);
@@ -52,9 +55,25 @@ public class UI : MonoBehaviour
         btnReset.onClick.AddListener(BtnReset_Clicked);
 
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
+
+
+        serverStatePanel.SetActive(false);
+        NetworkManager.Singleton.OnServerStarted += SERVER_STARTED;
+#if !UNITY_STANDALONE
+        btnServer.gameObject.SetActive(false);
+
+#endif
     }
 
-    
+    private void SERVER_STARTED()
+    {
+        serverStatePanel.SetActive(true);
+    }
+
+    private void BtnServer_Clicked()
+    {
+        NetworkManager.Singleton.StartServer();
+    }
 
     private void Start()
     {
@@ -66,12 +85,27 @@ public class UI : MonoBehaviour
         mobileController.SetActive(false);
         mobileInput.gameObject.SetActive(false);
 
+        SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
+        SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
+
+        InitResolutionCurveFactor();
+
 
 #if UNITY_SERVER
         NetworkManager.Singleton.StartServer();
 #endif
 
         txtEbala.text = $"{UserData.Owner.position}";
+    }
+
+    private void Building_Saved()
+    {
+        mobileController.SetActive(true);
+    }
+
+    private void SaveBuilding_Clicked()
+    {
+        mobileController.SetActive(false);
     }
 
     private void BtnReset_Clicked()
@@ -104,7 +138,7 @@ public class UI : MonoBehaviour
     {
         if (Application.isMobilePlatform || testMobileInput)
         {
-            var value = touchField.TouchDist * sensitivity * ScaleFactor;
+            var value = touchField.TouchDist * sensitivity * resolutionFactorCurve.Evaluate(Screen.height);
             lookDirection = Vector2.SmoothDamp(lookDirection, value, ref currentVelocity, Time.deltaTime * smoothTime);
             VirtualLookInput(lookDirection);
         }
@@ -159,6 +193,8 @@ public class UI : MonoBehaviour
         mobileInput.Init(player as PlayerBehaviour);
 
         btnClient.gameObject.SetActive(false);
+        btnServer.gameObject.SetActive(false);
+
         btnSwitchCamera.gameObject.SetActive(true);
 
         mine = player.GetComponent<Character>();
@@ -190,7 +226,13 @@ public class UI : MonoBehaviour
         onInventoryClose.AddListener(player.inventory.Close);
     }
 
-   
+
+    private void InitResolutionCurveFactor()
+    {
+        resolutionFactorCurve = new();
+        resolutionFactorCurve.AddKey(new(720, 15));
+        resolutionFactorCurve.AddKey(new(1080, 1));
+    }
 
     private void LateUpdate()
     {

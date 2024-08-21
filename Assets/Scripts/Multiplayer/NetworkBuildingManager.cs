@@ -15,6 +15,7 @@ public class NetworkBuildingManager : NetworkBehaviour
 {
     public static string buildingsDirectory = $"{Application.dataPath}/Data/Buildings/";
 
+    List<BuildingServerData> buildingsServerData = new List<BuildingServerData>();
     BuildingManager buildingManager;
 
     private void Awake()
@@ -24,8 +25,16 @@ public class NetworkBuildingManager : NetworkBehaviour
         buildingManager.onInputNameShow.AddListener(InputBuildingName_Showed);
         buildingManager.onSaveBuilding.AddListener(SaveBuilding_Clicked);
         buildingManager.onGetBuildings.AddListener(GetBuildings_Requested);
+        buildingManager.onBuildingLike.AddListener(Building_Liked);
     }
 
+    private void Start()
+    {
+        if (IsServer)
+        {
+            UpdateBuildingsList();
+        }
+    }
 
     private void SaveBuilding_Clicked(List<BlockData> blocksData, string nameBuilding)
     {
@@ -50,21 +59,25 @@ public class NetworkBuildingManager : NetworkBehaviour
             buildData.changedBlocks.Add(jsonBlockData);
         }
 
+        var guid = Guid.NewGuid().ToString();
+
         buildData.userName = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
         SaveBuildingData data = new SaveBuildingData()
         {
             blocksData = buildData,
             createDate = DateTime.Now,
-            nameBuilding = nameBuilding
+            nameBuilding = nameBuilding,
+            guid = guid,
         };
 
         var json = JsonConvert.SerializeObject(data);
-        var fileName = $"{nameBuilding.Trim()}_{Guid.NewGuid()}.json";
+        var fileName = $"{nameBuilding.Trim()}_{guid}.json";
         var path = $"{buildingsDirectory}{fileName}";
         
         File.WriteAllText(path, json);
         ReceiveSaveBuildingSuccesClientRpc(GetTargetClientParams(serverRpcParams));
         Debug.Log($"Building will be saved by {data.blocksData.userName}");
+        UpdateBuildingsList();
     }
 
     /// <summary>
@@ -134,7 +147,6 @@ public class NetworkBuildingManager : NetworkBehaviour
 
         var files = Directory.GetFiles(buildingsDirectory).Where(f => f.Substring(f.Length - 4, 4) == "json").ToList();
 
-
         StartCoroutine(Async());
 
         IEnumerator Async()
@@ -151,11 +163,14 @@ public class NetworkBuildingManager : NetworkBehaviour
 
             foreach (var data in buildingsData)
             {
-                BuildingServerData buildingData = new BuildingServerData();
-                buildingData.positions = data.blocksData.changedBlocks.Select(b => b.Pos).ToArray();
-                buildingData.blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray();
-                buildingData.nameBuilding = data.nameBuilding;
-                buildingData.authorName = data.blocksData.userName;
+                BuildingServerData buildingData = new BuildingServerData
+                {
+                    positions = data.blocksData.changedBlocks.Select(b => b.Pos).ToArray(),
+                    blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray(),
+                    nameBuilding = data.nameBuilding,
+                    authorName = data.blocksData.userName,
+                    guid = data.guid
+                };
 
                 ReceiveBuildingDataClientRpc(buildingData, GetTargetClientParams(serverRpcParams));
 
@@ -165,10 +180,72 @@ public class NetworkBuildingManager : NetworkBehaviour
         
     }
 
+    private void UpdateBuildingsList()
+    {
+        if (!Directory.Exists(buildingsDirectory))
+        {
+            Directory.CreateDirectory(buildingsDirectory);
+        }
+
+        var files = Directory.GetFiles(buildingsDirectory).Where(f => f.Substring(f.Length - 4, 4) == "json").ToList();
+
+        StartCoroutine(Async());
+
+        IEnumerator Async()
+        {
+            List<SaveBuildingData> buildingsData = new List<SaveBuildingData>();
+            foreach (var file in files)
+            {
+                var json = File.ReadAllText(file);
+                var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
+                buildingsData.Add(data);
+            }
+
+            buildingsData = buildingsData.OrderBy(d => d.createDate).ToList();
+
+            List<BuildingServerData> buildings = new List<BuildingServerData>();
+            int idx = 0;
+            foreach (var data in buildingsData)
+            {
+                BuildingServerData buildingData = new BuildingServerData
+                {
+                    positions = data.blocksData.changedBlocks.Select(b => b.Pos).ToArray(),
+                    blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray(),
+                    nameBuilding = data.nameBuilding,
+                    authorName = data.blocksData.userName,
+                    guid = data.guid
+                };
+
+                buildings.Add(buildingData);
+                idx++;
+
+                if (idx % 38 == 0)
+                {
+                    yield return null;
+                }
+            }
+
+            buildingsServerData = buildings;
+        }
+    }
+
+
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveBuildingDataClientRpc(BuildingServerData data, ClientRpcParams clientRpcParams = default)
     {
         BuildingManager.Singleton.CreateBuildingPreview(data);
+    }
+
+    private void Building_Liked(string guid)
+    {
+        BuildingLikedServerRpc(guid);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void BuildingLikedServerRpc(string guid, ServerRpcParams serverRpcParams = default)
+    {
+        var building = buildingsServerData.Find(b => b.guid == guid);
+        
     }
 }
 
@@ -179,6 +256,7 @@ public struct SaveBuildingData
     public UserChunckData blocksData;
     public DateTime createDate;
     public string nameBuilding;
+    public string guid;
 }
 
 [Serializable]
@@ -188,6 +266,7 @@ public struct BuildingServerData : INetworkSerializable
     public byte[] blockIDs;
     public string nameBuilding;
     public string authorName;
+    public string guid;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -195,5 +274,6 @@ public struct BuildingServerData : INetworkSerializable
         serializer.SerializeValue(ref blockIDs);
         serializer.SerializeValue(ref nameBuilding);
         serializer.SerializeValue(ref authorName);
+        serializer.SerializeValue(ref guid);
     }
 }

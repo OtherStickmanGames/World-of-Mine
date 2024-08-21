@@ -26,14 +26,14 @@ public class NetworkBuildingManager : NetworkBehaviour
         buildingManager.onSaveBuilding.AddListener(SaveBuilding_Clicked);
         buildingManager.onGetBuildings.AddListener(GetBuildings_Requested);
         buildingManager.onBuildingLike.AddListener(Building_Liked);
+
+        NetworkManager.OnServerStarted += Server_Started;
+
     }
 
-    private void Start()
+    private void Server_Started()
     {
-        if (IsServer)
-        {
-            UpdateBuildingsList();
-        }
+        UpdateBuildingsList();
     }
 
     private void SaveBuilding_Clicked(List<BlockData> blocksData, string nameBuilding)
@@ -146,6 +146,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         }
 
         var files = Directory.GetFiles(buildingsDirectory).Where(f => f.Substring(f.Length - 4, 4) == "json").ToList();
+        var playername = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
 
         StartCoroutine(Async());
 
@@ -163,15 +164,19 @@ public class NetworkBuildingManager : NetworkBehaviour
 
             foreach (var data in buildingsData)
             {
+                var countLikes = data.playersLiked == null ? 0 : data.playersLiked.Count;
                 BuildingServerData buildingData = new BuildingServerData
                 {
                     positions = data.blocksData.changedBlocks.Select(b => b.Pos).ToArray(),
                     blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray(),
                     nameBuilding = data.nameBuilding,
                     authorName = data.blocksData.userName,
+                    countLikes = countLikes,
+                    liked = countLikes > 0 ? data.playersLiked.Contains(playername) : false,
                     guid = data.guid
                 };
 
+                //Debug.Log(buildingData.countLikes);
                 ReceiveBuildingDataClientRpc(buildingData, GetTargetClientParams(serverRpcParams));
 
                 yield return null;
@@ -213,6 +218,7 @@ public class NetworkBuildingManager : NetworkBehaviour
                     blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray(),
                     nameBuilding = data.nameBuilding,
                     authorName = data.blocksData.userName,
+                    countLikes = data.playersLiked == null ? 0 : data.playersLiked.Count,
                     guid = data.guid
                 };
 
@@ -226,6 +232,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             }
 
             buildingsServerData = buildings;
+            //Debug.Log($"{buildingsServerData.Count} -=-=-");
         }
     }
 
@@ -244,12 +251,39 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void BuildingLikedServerRpc(string guid, ServerRpcParams serverRpcParams = default)
     {
+        //Debug.Log(buildingsServerData.Count);
         var building = buildingsServerData.Find(b => b.guid == guid);
-        
+
+        var fileName = $"{building.nameBuilding}_{guid}.json";
+        var path = $"{buildingsDirectory}{fileName}";
+        var json = File.ReadAllText(path);
+        var savedData = JsonConvert.DeserializeObject<SaveBuildingData>(json);
+        var playername = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
+        // TO DO
+        if (savedData.playersLiked == null)
+        {
+            savedData.playersLiked = new List<string>();
+        }
+
+        if (savedData.playersLiked.Contains(playername))
+        {
+            savedData.playersLiked.Remove(playername);
+            Debug.Log($"{playername} DISLIKE !!! - {building.nameBuilding}");
+        }
+        else
+        {
+            savedData.playersLiked.Add(playername);
+            Debug.Log($"{playername} Liked building - {building.nameBuilding}");
+        }
+        json = JsonConvert.SerializeObject(savedData);
+        File.WriteAllText(path, json);
     }
+
 }
 
-
+/// <summary>
+/// Хранится в Жасоне
+/// </summary>
 [JsonObject]
 public struct SaveBuildingData
 {
@@ -257,8 +291,12 @@ public struct SaveBuildingData
     public DateTime createDate;
     public string nameBuilding;
     public string guid;
+    public List<string> playersLiked;
 }
 
+/// <summary>
+/// Данные передающиеся по сети
+/// </summary>
 [Serializable]
 public struct BuildingServerData : INetworkSerializable
 {
@@ -267,6 +305,8 @@ public struct BuildingServerData : INetworkSerializable
     public string nameBuilding;
     public string authorName;
     public string guid;
+    public int countLikes;
+    public bool liked;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -275,5 +315,7 @@ public struct BuildingServerData : INetworkSerializable
         serializer.SerializeValue(ref nameBuilding);
         serializer.SerializeValue(ref authorName);
         serializer.SerializeValue(ref guid);
+        serializer.SerializeValue(ref countLikes);
+        serializer.SerializeValue(ref liked);
     }
 }

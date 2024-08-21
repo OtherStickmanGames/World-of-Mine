@@ -60,10 +60,14 @@ MonoBehaviour:
   txtCountLikes: {fileID: 2101479403099056628}
   touchLook: {fileID: 6784766747713938295}
   btnLike: {fileID: 7264784277943590577}
+  iconLike: {fileID: 1637866770317415553}
   sensitivityMouseY: 1.5
   CameraAngleOverrideX: -18
   CameraAngleOverrideY: 30
   rotateSensitibity: 15
+  onLikeClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1330152555185485351
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,7 +514,7 @@ GameObject:
   - component: {fileID: 1058814639518247695}
   - component: {fileID: 1637866770317415553}
   m_Layer: 5
-  m_Name: Panel
+  m_Name: Icon Like
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

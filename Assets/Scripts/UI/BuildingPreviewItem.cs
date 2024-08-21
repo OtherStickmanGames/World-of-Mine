@@ -13,6 +13,7 @@ public class BuildingPreviewItem : MonoBehaviour
     [SerializeField] TMP_Text txtCountLikes;
     [SerializeField] FixedTouchField touchLook;
     [SerializeField] Button btnLike;
+    [SerializeField] Image iconLike;
 
     [Space]
 
@@ -26,20 +27,57 @@ public class BuildingPreviewItem : MonoBehaviour
 
     public UnityEvent<BuildingPreviewItem> onLikeClick;
 
+    Color unlikedColor;
+    bool liked;
+    int countLikes;
+
     public void Init(BuildPreviewData preview, BuildingServerData serverData)
     {
+        unlikedColor = iconLike.color;
+        countLikes = serverData.countLikes;
+        liked = serverData.liked;
+
         title.SetText(serverData.nameBuilding);
         txtNameCreator.SetText(serverData.authorName);
+        txtCountLikes.SetText($"{countLikes}");
 
         Guid = serverData.guid;
         PrepareBuildingMesh(preview);
 
         btnLike.onClick.AddListener(Like_Clicked);
+
+        UpdateBtnLikeView();
     }
 
     private void Like_Clicked()
     {
+        if (liked)
+        {
+            countLikes--;
+        }
+        else
+        {
+            countLikes++;
+        }
+        liked = !liked;
+
+        UpdateBtnLikeView();
+
         onLikeClick?.Invoke(this);
+    }
+
+    private void UpdateBtnLikeView()
+    {
+        if (liked)
+        {
+            iconLike.color = Color.white;
+        }
+        else
+        {
+            iconLike.color = unlikedColor;
+        }
+
+        txtCountLikes.SetText($"{countLikes}");
     }
 
     private void PrepareBuildingMesh(BuildPreviewData preview)

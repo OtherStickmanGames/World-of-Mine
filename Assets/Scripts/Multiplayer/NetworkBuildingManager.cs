@@ -135,6 +135,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     private void GetBuildings_Requested(int page)
     {
         GetBuildingsServerRpc(page);
+        //print("Отправил запрос на постройки");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -147,6 +148,7 @@ public class NetworkBuildingManager : NetworkBehaviour
 
         var files = Directory.GetFiles(buildingsDirectory).Where(f => f.Substring(f.Length - 4, 4) == "json").ToList();
         var playername = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
+        
 
         StartCoroutine(Async());
 
@@ -161,6 +163,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             }
 
             buildingsData = buildingsData.OrderBy(d => d.createDate).ToList();
+            //FindObjectOfType<UI>().txtPizdos.text += $" #{buildingsData.Count}";
 
             foreach (var data in buildingsData)
             {
@@ -176,9 +179,10 @@ public class NetworkBuildingManager : NetworkBehaviour
                     guid = data.guid
                 };
 
+                //FindObjectOfType<UI>().txtPizdos.text += $" #{buildingData.nameBuilding}";
                 //Debug.Log(buildingData.countLikes);
                 ReceiveBuildingDataClientRpc(buildingData, GetTargetClientParams(serverRpcParams));
-
+                //FindObjectOfType<UI>().txtPizdos.text += $" #{buildingData.nameBuilding}";
                 yield return null;
             }
         }
@@ -232,6 +236,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             }
 
             buildingsServerData = buildings;
+            //FindObjectOfType<UI>().txtPizdos.SetText($"{buildingsServerData.Count}");
             //Debug.Log($"{buildingsServerData.Count} -=-=-");
         }
     }
@@ -240,6 +245,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveBuildingDataClientRpc(BuildingServerData data, ClientRpcParams clientRpcParams = default)
     {
+        //Debug.Log(data.guid);
         BuildingManager.Singleton.CreateBuildingPreview(data);
     }
 

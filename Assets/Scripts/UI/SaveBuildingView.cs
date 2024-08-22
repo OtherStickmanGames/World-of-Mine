@@ -129,7 +129,7 @@ public class SaveBuildingView : MonoBehaviour
     {
         var scaleFactor = UI.ScaleFactor;
         var startPos = Camera.main.ScreenToWorldPoint(cropHandleLeftTop.GetPos() / scaleFactor);
-        var endPos = Camera.main.ScreenToWorldPoint(cropHandleRightBottom.GetPos() / scaleFactor);
+        var endPos   = Camera.main.ScreenToWorldPoint(cropHandleRightBottom.GetPos() / scaleFactor);
 
         if (CurSelectionMode == AcceptMode.Horizontal)
         {
@@ -156,6 +156,8 @@ public class SaveBuildingView : MonoBehaviour
         buildingSavedNotify.SetActive(false);
         moveCamJoystick.gameObject.SetActive(true);
 
+        cropHandleLeftTop.SetPos(new Vector2(480, 830));
+        cropHandleRightBottom.SetPos(new Vector2(1500, 200));
 
         UpdateSelectionBackgroud();
 
@@ -201,7 +203,7 @@ public class SaveBuildingView : MonoBehaviour
         btnAccept.gameObject.SetActive(false);
 
         BuildingManager.Singleton.InputNameBuilding_Showed();
-        print("Ебала в менеджер");
+        //print("Ебала в менеджер");
     }
 
     private void ShowBuildingPreview()

@@ -27,6 +27,7 @@ public class UI : MonoBehaviour
     [SerializeField] RectTransform touch1;
     [SerializeField] RectTransform touch2;
     [SerializeField] TMP_Text txtEbala;
+    [SerializeField] public TMP_Text txtPizdos;
     
 
     [Header("Output")]
@@ -40,7 +41,6 @@ public class UI : MonoBehaviour
     Character mine;
     Transform player;
     AnimationCurve resolutionFactorCurve;
-
 
     bool needResetPlayerPosition;
 

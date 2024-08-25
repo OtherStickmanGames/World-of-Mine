@@ -30,6 +30,7 @@ public class ShowBuildingView : MonoBehaviour
         btnPrevPage.onClick.AddListener(PrevPage_Clicked);
 
         BuildingManager.Singleton.onLoadedPreviewBuild.AddListener(LoadedPreview_Builded);
+        BuildingManager.Singleton.onBuildingListEnded.AddListener(BuildingList_Ended);
 
         gameObject.SetActive(true);
         buildingsView.SetActive(false);
@@ -38,16 +39,26 @@ public class ShowBuildingView : MonoBehaviour
         UpdatePageBtnsView();
     }
 
+    private void BuildingList_Ended()
+    {
+        btnNextPage.interactable = false;
+    }
+
     private void LoadedPreview_Builded(BuildPreviewData preview, BuildingServerData serverData)
     {
-        if (buildingItems.Find(i => i.Guid == serverData.guid))
-            return;
-
-        var previewItem = Instantiate(previewItemPrefab, parent);
-        previewItem.Init(preview, serverData);
-        previewItem.onLikeClick.AddListener(BuildingLike_Clicked);
-        previewItem.onBuildingClick.AddListener(Building_Clicked);
-        buildingItems.Add(previewItem);
+        var loadedItem = buildingItems.Find(i => i.Guid == serverData.guid);
+        if (loadedItem)
+        {
+            loadedItem.gameObject.SetActive(true);
+        }
+        else
+        {
+            var previewItem = Instantiate(previewItemPrefab, parent);
+            previewItem.Init(preview, serverData);
+            previewItem.onLikeClick.AddListener(BuildingLike_Clicked);
+            previewItem.onBuildingClick.AddListener(Building_Clicked);
+            buildingItems.Add(previewItem);
+        }
     }
 
     private void Building_Clicked(BuildingPreviewItem buildingItem)
@@ -64,12 +75,15 @@ public class ShowBuildingView : MonoBehaviour
     {
         page--;
         UpdatePageBtnsView();
+        LoadItems();
+        btnNextPage.interactable = true;
     }
 
     private void NextPage_Clicked()
     {
         page++;
         UpdatePageBtnsView();
+        LoadItems();
     }
 
     private void Close_Clicked()
@@ -84,8 +98,14 @@ public class ShowBuildingView : MonoBehaviour
         buildingsView.SetActive(true);
 
         BuildingManager.Singleton.InvokeBuildingListShow();
-        BuildingManager.Singleton.SendRequestGetBuildings(page);
+        LoadItems();
         InputLogic.Singleton.AvailableMouseScrollWorld = false;
+    }
+
+    private void LoadItems()
+    {
+        ClearItems();
+        BuildingManager.Singleton.SendRequestGetBuildings(page);
     }
 
     void UpdatePageBtnsView()
@@ -116,6 +136,14 @@ public class ShowBuildingView : MonoBehaviour
         if (!scrollRect.enabled && rotatingItem == null)
         {
             scrollRect.enabled = true;
+        }
+    }
+
+    private void ClearItems()
+    {
+        foreach (var item in buildingItems)
+        {
+            item.gameObject.SetActive(false);
         }
     }
 }

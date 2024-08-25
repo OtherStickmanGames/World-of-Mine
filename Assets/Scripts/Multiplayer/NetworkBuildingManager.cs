@@ -18,6 +18,8 @@ public class NetworkBuildingManager : NetworkBehaviour
     List<BuildingServerData> buildingsServerData = new List<BuildingServerData>();
     BuildingManager buildingManager;
 
+    int pageSize = 8;
+
     private void Awake()
     {
         buildingManager = GetComponent<BuildingManager>();
@@ -37,6 +39,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     private void Server_Started()
     {
         UpdateBuildingsList();
+        ShuffleBuildingList();
     }
 
     private void SaveBuilding_Clicked(List<BlockData> blocksData, string nameBuilding)
@@ -141,55 +144,34 @@ public class NetworkBuildingManager : NetworkBehaviour
         //print("Отправил запрос на постройки");
     }
 
+
+    /// <summary>
+    /// Сервер получает и отправляет список построек
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="serverRpcParams"></param>
     [ServerRpc(RequireOwnership = false)]
     private void GetBuildingsServerRpc(int page, ServerRpcParams serverRpcParams = default)
     {
-        if (!Directory.Exists(buildingsDirectory))
-        {
-            Directory.CreateDirectory(buildingsDirectory);
-        }
-
-        var files = Directory.GetFiles(buildingsDirectory).Where(f => f.Substring(f.Length - 4, 4) == "json").ToList();
-        var playername = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
-        
-
         StartCoroutine(Async());
 
         IEnumerator Async()
         {
-            List<SaveBuildingData> buildingsData = new List<SaveBuildingData>();
-            foreach (var file in files)
+            var skip = page * pageSize;
+            var buildingsPaged = buildingsServerData.Skip(skip).Take(pageSize).ToList();
+
+            foreach (var data in buildingsPaged)
             {
-                var json = File.ReadAllText(file);
-                var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
-                buildingsData.Add(data);
-            }
-
-            buildingsData = buildingsData.OrderBy(d => d.createDate).ToList();
-            //FindObjectOfType<UI>().txtPizdos.text += $" #{buildingsData.Count}";
-
-            foreach (var data in buildingsData)
-            {
-                var countLikes = data.playersLiked == null ? 0 : data.playersLiked.Count;
-                BuildingServerData buildingData = new BuildingServerData
-                {
-                    positions = data.blocksData.changedBlocks.Select(b => b.Pos).ToArray(),
-                    blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray(),
-                    nameBuilding = data.nameBuilding,
-                    authorName = data.blocksData.userName,
-                    countLikes = countLikes,
-                    liked = countLikes > 0 ? data.playersLiked.Contains(playername) : false,
-                    guid = data.guid
-                };
-
-                //FindObjectOfType<UI>().txtPizdos.text += $" #{buildingData.nameBuilding}";
-                //Debug.Log(buildingData.countLikes);
-                ReceiveBuildingDataClientRpc(buildingData, GetTargetClientParams(serverRpcParams));
+                ReceiveBuildingDataClientRpc(data, GetTargetClientParams(serverRpcParams));
                 //FindObjectOfType<UI>().txtPizdos.text += $" #{buildingData.nameBuilding}";
                 yield return null;
             }
+
+            if (skip + pageSize >= buildingsServerData.Count)
+            {
+                ReceiveEndOfPagesClientRpc(GetTargetClientParams(serverRpcParams));
+            }
         }
-        
     }
 
     private void UpdateBuildingsList()
@@ -238,18 +220,40 @@ public class NetworkBuildingManager : NetworkBehaviour
                 }
             }
 
+            
             buildingsServerData = buildings;
             //FindObjectOfType<UI>().txtPizdos.SetText($"{buildingsServerData.Count}");
             //Debug.Log($"{buildingsServerData.Count} -=-=-");
         }
     }
 
+    private void ShuffleBuildingList()
+    {
+        StartCoroutine(Await());
+
+        IEnumerator Await()
+        {
+            yield return new WaitForSeconds(38);
+
+            var random = new System.Random();
+            buildingsServerData = buildingsServerData.OrderBy(d => random.Next()).ToList();
+            
+            StartCoroutine(Await());
+        } 
+    }
+
 
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveBuildingDataClientRpc(BuildingServerData data, ClientRpcParams clientRpcParams = default)
     {
-        //Debug.Log(data.guid);
+        //Debug.Log($"{data.nameBuilding}  {data.guid}");
         BuildingManager.Singleton.CreateBuildingPreview(data);
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ReceiveEndOfPagesClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        BuildingManager.Singleton.InvokeEndBuildingList();
     }
 
     private void Building_Liked(string guid)
@@ -268,7 +272,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         var json = File.ReadAllText(path);
         var savedData = JsonConvert.DeserializeObject<SaveBuildingData>(json);
         var playername = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
-        // TO DO
+        // TO DO По ID юзера
         if (savedData.playersLiked == null)
         {
             savedData.playersLiked = new List<string>();
@@ -286,6 +290,8 @@ public class NetworkBuildingManager : NetworkBehaviour
         }
         json = JsonConvert.SerializeObject(savedData);
         File.WriteAllText(path, json);
+
+        UpdateBuildingsList();
     }
 
 }

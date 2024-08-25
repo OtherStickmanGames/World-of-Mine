@@ -18,6 +18,7 @@ public class BuildingManager : MonoBehaviour
     public UnityEvent onBuildSave;
     public UnityEvent onBuildingListShow;
     public UnityEvent onBuildingListHide;
+    public UnityEvent onBuildingListEnded;
     public UnityEvent<int> onCountBuildingsReceive;
     public UnityEvent<List<BlockData>, string> onSaveBuilding;
     public UnityEvent<BuildPreviewData, BuildingServerData> onLoadedPreviewBuild;
@@ -285,6 +286,7 @@ public class BuildingManager : MonoBehaviour
         onLoadedPreviewBuild?.Invoke(previewData, buildingServerData);
     }
 
+    internal void InvokeEndBuildingList() => onBuildingListEnded?.Invoke();
     public void InvokeBuildingListShow() => onBuildingListShow?.Invoke();
     public void InvokeBuildingListHide() => onBuildingListHide?.Invoke();
 }

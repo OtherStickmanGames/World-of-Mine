@@ -151,6 +151,9 @@ public class CameraStack : MonoBehaviour
         if (Input.mouseScrollDelta.y == 0)
             return;
 
+        if (!InputLogic.Singleton.AvailableMouseScrollWorld)
+            return;
+
         if (topDownCamera)
         {
             var topDownComponent = topDownCamera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
@@ -292,6 +295,8 @@ public class CameraStack : MonoBehaviour
             cameras.Add(cam);
         }
     }
+
+    public float GetSaveBuildingCamZoomValue() => saveBuildingCamera.m_Lens.OrthographicSize;
 
     public enum CameraType
     {

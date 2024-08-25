@@ -66,13 +66,17 @@ public class ShowBuildingView : MonoBehaviour
     private void Close_Clicked()
     {
         buildingsView.SetActive(false);
+        BuildingManager.Singleton.InvokeBuildingListHide();
+        InputLogic.Singleton.AvailableMouseScrollWorld = true;
     }
 
     private void ShowBuildings_Clicked()
     {
         buildingsView.SetActive(true);
 
+        BuildingManager.Singleton.InvokeBuildingListShow();
         BuildingManager.Singleton.SendRequestGetBuildings(page);
+        InputLogic.Singleton.AvailableMouseScrollWorld = false;
     }
 
     void UpdatePageBtnsView()

@@ -171,7 +171,7 @@ public class SaveBuildingView : MonoBehaviour
             case AcceptMode.Horizontal:
                 CurSelectionMode = AcceptMode.Vertical;
                 BuildingManager.Singleton.SwitchSelectionAxis();
-                moveCamJoystick.gameObject.SetActive(false);
+                
                 break;
 
             case AcceptMode.Vertical:
@@ -210,6 +210,7 @@ public class SaveBuildingView : MonoBehaviour
     {
         selectingArea.SetActive(false);
         panelPreview.SetActive(true);
+        moveCamJoystick.gameObject.SetActive(false);
 
         allowSelectBlocks = false;
 
@@ -252,14 +253,28 @@ public class SaveBuildingView : MonoBehaviour
         CameraMove();
     }
 
+
+    Vector3 camDir;
     private void CameraMove()
     {
         var joystickDir = moveCamJoystick.Direction;
         if (joystickDir != Vector2.zero)
         {
-            var dir = new Vector3(joystickDir.x, 0, joystickDir.y);
-            dir *= 5;
-            CameraStack.Instance.SaveBuildingCamMove(dir);
+            if (CurSelectionMode == AcceptMode.Horizontal)
+            {
+                camDir.x = joystickDir.x;
+                camDir.y = 0;
+                camDir.z = joystickDir.y;
+            }
+            if (CurSelectionMode == AcceptMode.Vertical)
+            {
+                camDir.x = joystickDir.x;
+                camDir.y = joystickDir.y;
+                camDir.z = 0;
+            }
+
+            camDir *= CameraStack.Instance.GetSaveBuildingCamZoomValue();
+            CameraStack.Instance.SaveBuildingCamMove(camDir);
         }
     }
 

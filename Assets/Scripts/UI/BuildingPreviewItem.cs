@@ -26,13 +26,17 @@ public class BuildingPreviewItem : MonoBehaviour
     public string Guid { get; private set; }
 
     public UnityEvent<BuildingPreviewItem> onLikeClick;
+    public UnityEvent<BuildingPreviewItem> onBuildingClick;
 
+    InteractableStateTracker lookTouchTracker;
     Color unlikedColor;
     bool liked;
     int countLikes;
 
     public void Init(BuildPreviewData preview, BuildingServerData serverData)
     {
+        lookTouchTracker = touchLook.GetComponent<InteractableStateTracker>();
+
         unlikedColor = iconLike.color;
         countLikes = serverData.countLikes;
         liked = serverData.liked;
@@ -45,8 +49,17 @@ public class BuildingPreviewItem : MonoBehaviour
         PrepareBuildingMesh(preview);
 
         btnLike.onClick.AddListener(Like_Clicked);
+        lookTouchTracker.onPointerUp.AddListener(LookTouch_Uped);
 
         UpdateBtnLikeView();
+    }
+
+    private void LookTouch_Uped()
+    {
+        if (lookTouchTracker.touchTime < 0.18f)
+        {
+            onBuildingClick?.Invoke(this);
+        }
     }
 
     private void Like_Clicked()

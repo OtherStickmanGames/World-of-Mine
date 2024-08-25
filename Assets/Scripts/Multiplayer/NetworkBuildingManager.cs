@@ -27,8 +27,11 @@ public class NetworkBuildingManager : NetworkBehaviour
         buildingManager.onGetBuildings.AddListener(GetBuildings_Requested);
         buildingManager.onBuildingLike.AddListener(Building_Liked);
 
-        NetworkManager.OnServerStarted += Server_Started;
+    }
 
+    private void Start()
+    {
+        NetworkManager.OnServerStarted += Server_Started;
     }
 
     private void Server_Started()

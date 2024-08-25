@@ -37,8 +37,8 @@ public class InteractableStateTracker : MonoBehaviour, IPointerDownHandler, IPoi
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        Pressed = false;
         onPointerUp?.Invoke();
+        Pressed = false;
         //UI.PrintCurrentUI();
     }
 

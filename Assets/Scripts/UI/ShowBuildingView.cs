@@ -9,6 +9,7 @@ public class ShowBuildingView : MonoBehaviour
 {
     [SerializeField] Button btnShowBuildings;
     [SerializeField] GameObject buildingsView;
+    [SerializeField] GameObject buildingInfoMessage;
     [SerializeField] Button btnClose;
     [SerializeField] Button btnNextPage;
     [SerializeField] Button btnPrevPage;
@@ -16,6 +17,7 @@ public class ShowBuildingView : MonoBehaviour
     [SerializeField] Transform parent;
     [SerializeField] BuildingPreviewItem previewItemPrefab;
     [SerializeField] ScrollRect scrollRect;
+   
 
     List<BuildingPreviewItem> buildingItems = new List<BuildingPreviewItem>();
     int page;
@@ -31,6 +33,7 @@ public class ShowBuildingView : MonoBehaviour
 
         gameObject.SetActive(true);
         buildingsView.SetActive(false);
+        buildingInfoMessage.SetActive(false);
 
         UpdatePageBtnsView();
     }
@@ -43,7 +46,13 @@ public class ShowBuildingView : MonoBehaviour
         var previewItem = Instantiate(previewItemPrefab, parent);
         previewItem.Init(preview, serverData);
         previewItem.onLikeClick.AddListener(BuildingLike_Clicked);
+        previewItem.onBuildingClick.AddListener(Building_Clicked);
         buildingItems.Add(previewItem);
+    }
+
+    private void Building_Clicked(BuildingPreviewItem buildingItem)
+    {
+        buildingInfoMessage.SetActive(true);
     }
 
     private void BuildingLike_Clicked(BuildingPreviewItem buildingItem)

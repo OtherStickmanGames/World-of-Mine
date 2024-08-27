@@ -171,7 +171,7 @@ public class PlayerBehaviour : MonoBehaviour
             blockHighlight.position = blockPosition;
             //blockHighlight.forward = Vector3.forward;
 
-            if (Input.GetMouseButtonDown(0) && !GameManager.Inst.ClickOnUI())
+            if (Input.GetMouseButtonDown(0) && !UI.ClickOnUI())
             {
                 WorldGenerator.Inst.MineBlock(blockPosition + Vector3.right);
             }
@@ -264,7 +264,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     void PlaceBlock(Vector3 blockPosition)
     {
-        if (Input.GetMouseButtonDown(1) && !GameManager.Inst.ClickOnUI())
+        if (Input.GetMouseButtonDown(1) && !UI.ClickOnUI())
         {
             //print("kjdnsfjksdf");
             if (player.inventory.CurrentSelectedItem != null)

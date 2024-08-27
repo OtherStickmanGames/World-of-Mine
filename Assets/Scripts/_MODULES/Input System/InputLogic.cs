@@ -5,7 +5,7 @@ using UnityEngine;
 public class InputLogic : MonoBehaviour
 {
     public static InputLogic Singleton;
-    public bool AvailableMouseScrollWorld { get; set; }
+    public bool AvailableMouseScrollWorld { get; set; } = true;
     public bool AvailableMouseScrollUI { get; set; } = true;
     public bool AvailableMouseMoveWorld { get; set; } = true;
 

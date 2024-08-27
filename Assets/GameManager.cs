@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Inst;
 
     List<IUpdateble> updatables = new();
+    PlayerBehaviour playerOwner;
 
     private void Awake()
     {
@@ -41,7 +42,7 @@ public class GameManager : MonoBehaviour
 
     private void PlayerOwner_Spawned(MonoBehaviour owner)
     {
-        
+        playerOwner = owner as PlayerBehaviour;
     }
 
     private IEnumerator Start()
@@ -65,6 +66,19 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         foreach (var item in updatables) item.Update();
+
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            var item = new Item() { id = 9 };
+            item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
+            item.count = 80;
+            playerOwner.GetComponent<Character>().inventory.TakeItem(item);
+
+            item = new Item() { id = 10 };
+            item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
+            item.count = 80;
+            playerOwner.GetComponent<Character>().inventory.TakeItem(item);
+        }
     }
 
     private void PlayerAny_Spawned(Character player)
@@ -97,21 +111,5 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public bool ClickOnUI()
-    {
-        List<RaycastResult> results = new List<RaycastResult>();
-        PointerEventData pointer = new PointerEventData(EventSystem.current)
-        {
-            position = Input.mousePosition,
-        };
-        EventSystem.current.RaycastAll(pointer, results);
-
-        foreach (var item in results)
-        {
-            if (item.gameObject.layer == 5)
-                return true;
-        }
-
-        return false;
-    }
+    
 }

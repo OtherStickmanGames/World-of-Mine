@@ -2768,6 +2768,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1092828629}
   - component: {fileID: 1092828628}
+  - component: {fileID: 1092828630}
   - component: {fileID: 1092828627}
   m_Layer: 0
   m_Name: UI Camera
@@ -2829,7 +2830,7 @@ Camera:
   m_GameObject: {fileID: 1092828626}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
+  m_ClearFlags: 2
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -2887,6 +2888,18 @@ Transform:
   - {fileID: 44387838}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1092828630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092828626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6efde3abd44bf3c4e87fe74c8aac3969, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1169108240
 GameObject:
   m_ObjectHideFlags: 0
@@ -3085,6 +3098,9 @@ MonoBehaviour:
   treeDatas:
   - name: "\u0414\u0435\u0440\u0435\u0432\u043E \u043F\u043E\u0431\u043E\u043B\u044C\u0448\u0435"
     treeJson: {fileID: 4900000, guid: 818938046b09ce74ea65cd7e8e0fd744, type: 3}
+    spawnChance: 3
+  - name: "\u0414\u0435\u0440\u0435\u0432\u0446\u0435"
+    treeJson: {fileID: 4900000, guid: 41719e6ec5d70f74286bcea5894b9f57, type: 3}
     spawnChance: 5
   - name: "Simple \u0414\u0435\u0440\u0435\u0432\u043E"
     treeJson: {fileID: 4900000, guid: 7bde12b7f1671b443b41f92196f81403, type: 3}

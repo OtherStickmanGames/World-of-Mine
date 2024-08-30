@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.114481024, g: 0.32995456, b: 0.7119407, a: 1}
+  m_IndirectSpecularColor: {r: 0.11464222, g: 0.3301195, b: 0.7125536, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -215,6 +215,85 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1001 &34086033
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 552805677}
+    m_Modifications:
+    - target: {fileID: 47995906519026764, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 47995906519026764, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 47995906519026764, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 47995906519026764, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 47995906519026764, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 47995906519026764, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 47995906519026764, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 47995906519026764, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 47995906519026764, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 47995906519026764, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 200192613175484809, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: proceduralGeneration
+      value: 
+      objectReference: {fileID: 552805675}
+    - target: {fileID: 3277557696256941904, guid: 6d123cd38562409408084b7542615971,
+        type: 3}
+      propertyPath: m_Name
+      value: Trees Generation
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6d123cd38562409408084b7542615971, type: 3}
+--- !u!4 &34086034 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 47995906519026764, guid: 6d123cd38562409408084b7542615971,
+    type: 3}
+  m_PrefabInstance: {fileID: 34086033}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &44387837
 GameObject:
   m_ObjectHideFlags: 0
@@ -1647,6 +1726,7 @@ GameObject:
   - component: {fileID: 534747633}
   - component: {fileID: 534747637}
   - component: {fileID: 534747634}
+  - component: {fileID: 534747638}
   m_Layer: 0
   m_Name: '[# GAME #]'
   m_TagString: Untagged
@@ -1684,6 +1764,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cbb70b30b293a749a7cb9a8f8afebc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serverAdress: 176.123.167.245
   workerPrefab: {fileID: 0}
   workersParent: {fileID: 0}
   autoSpawn: 0
@@ -1741,6 +1822,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f55b66a6b228b0f4399aea697fd0913f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &534747638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 534747631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1251e3ef1d8ea4444a1b5be2d09fec18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &552805674
 GameObject:
   m_ObjectHideFlags: 0
@@ -1779,6 +1872,17 @@ MonoBehaviour:
   landHeight: 38
   landBump: 50
   landHeightSlice: 130
+  excludeRockSettings:
+    noiseScale: 58
+    yCorrect: 0.7
+    landThresold: 0.8
+    landHeight: 0
+    landBump: 0
+    landHeightSlice: 0
+    randomFactor: 888
+    useLandHeight: 0
+    useHeightSlice: 0
+    useValuePower: 0
 --- !u!114 &552805676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1794,10 +1898,13 @@ MonoBehaviour:
   navMeshLayer:
     serializedVersion: 2
     m_Bits: 128
-  viewChunck: 3
+  generateNavMesh: 0
+  generateNavLinks: 0
+  viewChunck: 5
   navMeshVoxelSize: 0.1
   procedural: {fileID: 552805675}
   mat: {fileID: 2100000, guid: e3d60ae9373cd8c41b4a6d983e3a70fc, type: 2}
+  countGenerateByOneFrame: 1
   players: []
 --- !u!4 &552805677
 Transform:
@@ -1811,7 +1918,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 34086034}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &552805678
@@ -4649,6 +4757,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 534747632}
     m_Modifications:
+    - target: {fileID: 1860481792336884727, guid: e7ed1c4245ebd9844962a23f4844a020,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7306970119271692055, guid: e7ed1c4245ebd9844962a23f4844a020,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4703,6 +4816,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ~Building Manager~
+      objectReference: {fileID: 0}
+    - target: {fileID: 9122073355818950526, guid: e7ed1c4245ebd9844962a23f4844a020,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9122073355818950526, guid: e7ed1c4245ebd9844962a23f4844a020,
         type: 3}

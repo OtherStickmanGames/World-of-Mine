@@ -67,18 +67,18 @@ public class GameManager : MonoBehaviour
     {
         foreach (var item in updatables) item.Update();
 
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            var item = new Item() { id = 9 };
-            item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
-            item.count = 80;
-            playerOwner.GetComponent<Character>().inventory.TakeItem(item);
+        //if (Input.GetKeyDown(KeyCode.Y))
+        //{
+        //    var item = new Item() { id = 9 };
+        //    item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
+        //    item.count = 80;
+        //    playerOwner.GetComponent<Character>().inventory.TakeItem(item);
 
-            item = new Item() { id = 10 };
-            item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
-            item.count = 80;
-            playerOwner.GetComponent<Character>().inventory.TakeItem(item);
-        }
+        //    item = new Item() { id = 10 };
+        //    item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
+        //    item.count = 80;
+        //    playerOwner.GetComponent<Character>().inventory.TakeItem(item);
+        //}
     }
 
     private void PlayerAny_Spawned(Character player)

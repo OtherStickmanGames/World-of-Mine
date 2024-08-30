@@ -22,7 +22,7 @@ public class TreesGeneration : MonoBehaviour
     [Header("Деревья")]
     [SerializeField] TreeData[] treeDatas;
 
-    Random random = new Random(888);
+    
 
     private void Awake()
     {
@@ -40,10 +40,15 @@ public class TreesGeneration : MonoBehaviour
             landBump = landBump,
             landHeightSlice = landHeightSlice,
             randomFactor = randomFactor,
+
+            useHeightSlice = true,
+            useLandHeight = true,
+            useValuePower = false,
         };
 
         int chunckSize = chunckComponent.size;
-       
+        Random random = new Random(888);
+
         foreach (var grassPos in chunckComponent.grassBlocks)
         {
             var id = proceduralGeneration.GetBlockID

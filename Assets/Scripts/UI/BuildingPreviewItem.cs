@@ -36,7 +36,7 @@ public class BuildingPreviewItem : MonoBehaviour
     public void Init(BuildPreviewData preview, BuildingServerData serverData)
     {
         lookTouchTracker = touchLook.GetComponent<InteractableStateTracker>();
-
+        //print(serverData.liked);
         unlikedColor = iconLike.color;
         countLikes = serverData.countLikes;
         liked = serverData.liked;

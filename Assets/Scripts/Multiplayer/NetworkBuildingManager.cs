@@ -160,8 +160,12 @@ public class NetworkBuildingManager : NetworkBehaviour
             var skip = page * pageSize;
             var buildingsPaged = buildingsServerData.Skip(skip).Take(pageSize).ToList();
 
-            foreach (var data in buildingsPaged)
+            //foreach (var data in buildingsPaged)
+            for (int i = 0; i < buildingsPaged.Count; i++)
             {
+                var data = buildingsPaged[i];
+                var username = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
+                data.liked = data.playersLiked != null && data.playersLiked.Find(p => p == username) != null;
                 ReceiveBuildingDataClientRpc(data, GetTargetClientParams(serverRpcParams));
                 //FindObjectOfType<UI>().txtPizdos.text += $" #{buildingData.nameBuilding}";
                 yield return null;
@@ -208,7 +212,9 @@ public class NetworkBuildingManager : NetworkBehaviour
                     nameBuilding = data.nameBuilding,
                     authorName = data.blocksData.userName,
                     countLikes = data.playersLiked == null ? 0 : data.playersLiked.Count,
-                    guid = data.guid
+                    guid = data.guid,
+                    // NOT SENDABLE
+                    playersLiked = data.playersLiked,
                 };
 
                 buildings.Add(buildingData);
@@ -322,6 +328,9 @@ public struct BuildingServerData : INetworkSerializable
     public string guid;
     public int countLikes;
     public bool liked;
+
+    // NO SENDABLE
+    public List<string> playersLiked;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {

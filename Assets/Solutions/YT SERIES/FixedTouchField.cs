@@ -8,6 +8,7 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     [SerializeField] TMP_Text ebatos;
     [SerializeField] RectTransform touch1;
     [SerializeField] RectTransform touch2;
+    
 
     [HideInInspector]
     public Vector2 TouchDist;
@@ -22,9 +23,12 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
     void Start()
     {
+       
         resolutionFactorCurve = new();
         resolutionFactorCurve.AddKey(new(720, 15));
         resolutionFactorCurve.AddKey(new(1080, 1));
+        
+        
     }
 
     void Update()

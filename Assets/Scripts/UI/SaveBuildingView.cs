@@ -88,6 +88,7 @@ public class SaveBuildingView : MonoBehaviour
         panelPreview.SetActive(false);
         CameraStack.Instance.SwitchToThirdPerson();
         Destroy(buildPreviewData.view);
+        SetVisibleBtnSaveBuilding(true);
     }
 
     private void Building_Saved()
@@ -158,6 +159,8 @@ public class SaveBuildingView : MonoBehaviour
 
         cropHandleLeftTop.SetPos(new Vector2(480, 830));
         cropHandleRightBottom.SetPos(new Vector2(1500, 200));
+
+        SetVisibleBtnSaveBuilding(false);
 
         UpdateSelectionBackgroud();
 
@@ -392,12 +395,22 @@ public class SaveBuildingView : MonoBehaviour
         }
     }
 
+    public void SetBuildingName(string value)
+    {
+        nameInput.text = value;
+    }
+
     private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
     {
         if (lfAngle < -360f) lfAngle += 360f;
         if (lfAngle > 360f) lfAngle -= 360f;
         return Mathf.Clamp(lfAngle, lfMin, lfMax);
     }
+
+    public void SetVisibleBtnSaveBuilding(bool value) => btnSaveBuilding.gameObject.SetActive(value);
+
+    public InteractableStateTracker GetLeftTopCropHandle() => cropHandleLeftTop;
+    public InteractableStateTracker GetRightBottomCropHandle() => cropHandleRightBottom;
 }
 
 public enum AcceptMode

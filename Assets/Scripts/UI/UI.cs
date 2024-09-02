@@ -310,8 +310,14 @@ public class UI : MonoBehaviour
         pointer.position = Input.mousePosition;
 
         EventSystem.current.RaycastAll(pointer, results);
-
-        print(results[0].gameObject);
+        if (results.Count > 0)
+        {
+            print(results[0].gameObject);
+        }
+        else
+        {
+            print("Там ничего неееет");
+        }
     }
 
     public static GameObject CurrentUIObject { get; private set; }

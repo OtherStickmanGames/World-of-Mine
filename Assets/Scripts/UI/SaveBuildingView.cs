@@ -83,7 +83,7 @@ public class SaveBuildingView : MonoBehaviour
         CameraStack.onCameraSwitch.AddListener(Camera_Switched);
     }
 
-    private void SavedOk_Clicked()
+    public void SavedOk_Clicked()
     {
         panelPreview.SetActive(false);
         CameraStack.Instance.SwitchToThirdPerson();
@@ -184,11 +184,12 @@ public class SaveBuildingView : MonoBehaviour
 
             case AcceptMode.Preview:
                 ShowInputBuildName();
-                CurSelectionMode = AcceptMode.Save;
+                CurSelectionMode = AcceptMode.Name;
                 break;
 
-            case AcceptMode.Save:
+            case AcceptMode.Name:
                 SaveBuilding();
+                CurSelectionMode = AcceptMode.Save;
                 break;
         }
     }
@@ -407,8 +408,8 @@ public class SaveBuildingView : MonoBehaviour
         return Mathf.Clamp(lfAngle, lfMin, lfMax);
     }
 
+    public void SetVisibleBtnAccept(bool value) => btnAccept.gameObject.SetActive(value);
     public void SetVisibleBtnSaveBuilding(bool value) => btnSaveBuilding.gameObject.SetActive(value);
-
     public InteractableStateTracker GetLeftTopCropHandle() => cropHandleLeftTop;
     public InteractableStateTracker GetRightBottomCropHandle() => cropHandleRightBottom;
 }
@@ -418,5 +419,6 @@ public enum AcceptMode
     Horizontal,
     Vertical,
     Preview,
-    Save
+    Name,
+    Save,
 }

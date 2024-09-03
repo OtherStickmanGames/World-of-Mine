@@ -50,6 +50,8 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] GameObject horizontalPlaneAcceptZone;
     [SerializeField] GameObject verticalPlaneAcceptTutorial;
     [SerializeField] GameObject previewBuildingTutorial;
+    [SerializeField] GameObject nameBuildingTutorial;
+    [SerializeField] GameObject completeTutorial;
     [Space]
     [SerializeField] Transform highlightBlockTutorial;
     [SerializeField] CinemachineVirtualCamera tutorialPersonCamera;
@@ -61,6 +63,7 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] Transform makeBuildingHighlightPrefab;
     [SerializeField] MovePointerTutorial leftTopMovePointerTutorial;
     [SerializeField] MovePointerTutorial rightBottomMovePointerTutorial;
+    [SerializeField] Button btnComplete;
 
     Canvas canvasMine;
     Character mine;
@@ -98,6 +101,7 @@ public class TutorialUI : MonoBehaviour
     bool horizontalPlaneAcceptComplete;
     bool verticalPlaneAcceptComplete;
     bool previewBuildingComplete;
+    bool nameBuildingComplete;
     bool needCameraLookToPlaceBlock;
 
     AnimationCurve resolutionFactorCurve;
@@ -105,6 +109,10 @@ public class TutorialUI : MonoBehaviour
 
     private void Awake()
     {
+#if UNITY_SERVER || UNITY_STANDALONE_LINUX
+        UnityEngine.SceneManagement.SceneManager.LoadScene("World");
+#endif
+
         canvasMine = GetComponent<Canvas>();
 
         btnSwitchCamera.gameObject.SetActive(false);
@@ -125,15 +133,17 @@ public class TutorialUI : MonoBehaviour
         horizontalPlaneAcceptZone.SetActive(false);
         verticalPlaneAcceptTutorial.SetActive(false);
         previewBuildingTutorial.SetActive(false);
+        nameBuildingTutorial.SetActive(false);
+        completeTutorial.SetActive(false);
+
         btnSwitchCamera.onClick.AddListener(BtnSwitchCamera_Clicked);
+        btnComplete.onClick.AddListener(Tutorial_Completed);
 
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
         WorldGenerator.onBlockPlace.AddListener(Block_Placed);
 
         canvasTutorial.gameObject.SetActive(true);
     }
-
-    
 
     private void Start()
     {
@@ -279,7 +289,7 @@ public class TutorialUI : MonoBehaviour
             //print(sumCameraRotation);
             debugStr += $" {sumCameraRotation}";
 
-            if (sumCameraRotation > 300)
+            if (sumCameraRotation > 500)
             {
                 lookZoneComplete = true;
                 lookZoneTutorial.SetActive(false);
@@ -649,13 +659,37 @@ public class TutorialUI : MonoBehaviour
 
         if (!previewBuildingComplete && verticalPlaneAcceptComplete)
         {
-            if (saveBuildingView.CurSelectionMode == AcceptMode.Save)
+            if (saveBuildingView.CurSelectionMode == AcceptMode.Name)
             {
-                saveBuildingView.SetBuildingName(string.Empty);
+                saveBuildingView.SetBuildingName(":) ÕèæèíêÎ (:");
+                saveBuildingView.SetVisibleBtnAccept(true);
                 previewBuildingComplete = true;
                 previewBuildingTutorial.SetActive(false);
+                ShowTutorial(nameBuildingTutorial);
             }
         }
+
+        if (!nameBuildingComplete && previewBuildingComplete)
+        {
+            if (saveBuildingView.CurSelectionMode == AcceptMode.Save)
+            {
+                nameBuildingTutorial.SetActive(false);
+                nameBuildingComplete = true;
+                ShowTutorial(completeTutorial);
+            }
+        }
+
+        if (nameBuildingComplete)
+        {
+            LeanTween.delayedCall(3f, () => saveBuildingView.SavedOk_Clicked());
+            
+            print("À âñ¸");
+        }
+    }
+
+    private void Tutorial_Completed()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("World");
     }
 
     Dictionary<Vector3Int, BuildingPointer> makeBuildingPointers = new Dictionary<Vector3Int, BuildingPointer>();

@@ -67,6 +67,7 @@ public class UI : MonoBehaviour
 
     private void SERVER_STARTED()
     {
+        Debug.Log($"-= SERVER STARTED =-");
         serverStatePanel.SetActive(true);
     }
 
@@ -77,6 +78,10 @@ public class UI : MonoBehaviour
 
     private void Start()
     {
+#if UNITY_SERVER
+        NetworkManager.Singleton.StartServer();
+#endif
+
         userView.Init();
         saveBuildingView.Init();
         showBuildingView.Init();
@@ -89,11 +94,6 @@ public class UI : MonoBehaviour
         SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
 
         InitResolutionCurveFactor();
-
-
-#if UNITY_SERVER
-        NetworkManager.Singleton.StartServer();
-#endif
 
         txtEbala.text = $"{UserData.Owner.position}";
     }

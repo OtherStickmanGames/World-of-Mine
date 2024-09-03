@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -48,6 +49,14 @@ public class GameManager : MonoBehaviour
     private IEnumerator Start()
     {
         updatables.Add(new BlockItemSpawner());
+
+        yield return new WaitForEndOfFrame();
+
+        var tutorialSceneName = "Tutorial";
+        if (!UserData.Owner.tutorialComplete && SceneManager.GetActiveScene().name != tutorialSceneName)
+        {
+            SceneManager.LoadScene(tutorialSceneName);
+        }
 
         if (autoSpawn)
         {
@@ -111,5 +120,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    
+    private void OnDestroy()
+    {
+        
+    }
 }

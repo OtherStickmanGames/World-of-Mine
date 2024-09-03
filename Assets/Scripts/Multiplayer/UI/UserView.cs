@@ -45,5 +45,11 @@ public class UserView : MonoBehaviour
         UserData.Owner.SaveData();
     }
 
-    
+    private void OnDestroy()
+    {
+        if (NetworkManager.Singleton)
+        {
+            NetworkManager.Singleton.OnClientStarted -= Client_Started;
+        }
+    }
 }

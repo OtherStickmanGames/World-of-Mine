@@ -13,7 +13,7 @@ public class BlockItemSpawner : IUpdateble
     public BlockItemSpawner()
     {
         Instance = this;
-
+        
         WorldGenerator.onBlockPick.AddListener(Block_Picked);
     }
 
@@ -87,7 +87,7 @@ public class BlockItemSpawner : IUpdateble
         {
             data.ID = 3;
         }
-
+        
         var dropedBlock = CreateBlockGameObject(data.ID);
 
         float offsetRandomX = Random.Range(0.3f, 0.57f) - 1;
@@ -108,7 +108,7 @@ public class BlockItemSpawner : IUpdateble
 
         return dropedBlock;
     }
-   
+  
 }
 
 public class SpawnedBlockData

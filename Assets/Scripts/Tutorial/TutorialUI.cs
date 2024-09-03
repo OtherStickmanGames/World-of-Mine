@@ -13,6 +13,7 @@ using Cinemachine;
 public class TutorialUI : MonoBehaviour
 {
     [SerializeField] bool testMobileInput;
+    [SerializeField] int countBuildingsBlocks = 0;
     [SerializeField] TMP_Text debugTexto;
     [SerializeField] QuickInventoryView quickInventoryView;
     [SerializeField] SaveBuildingView saveBuildingView;
@@ -103,16 +104,13 @@ public class TutorialUI : MonoBehaviour
     bool previewBuildingComplete;
     bool nameBuildingComplete;
     bool needCameraLookToPlaceBlock;
+    bool needSetPlayerStartPos;
 
     AnimationCurve resolutionFactorCurve;
 
 
     private void Awake()
     {
-#if UNITY_SERVER || UNITY_STANDALONE_LINUX
-        UnityEngine.SceneManagement.SceneManager.LoadScene("World");
-#endif
-
         canvasMine = GetComponent<Canvas>();
 
         btnSwitchCamera.gameObject.SetActive(false);
@@ -140,9 +138,15 @@ public class TutorialUI : MonoBehaviour
         btnComplete.onClick.AddListener(Tutorial_Completed);
 
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
+        PlayerBehaviour.onOwnerPositionSet.AddListener(PlayerPosition_Seted);
         WorldGenerator.onBlockPlace.AddListener(Block_Placed);
 
         canvasTutorial.gameObject.SetActive(true);
+    }
+
+    private void PlayerPosition_Seted(MonoBehaviour player)
+    {
+        needSetPlayerStartPos = true;
     }
 
     private void Start()
@@ -248,8 +252,9 @@ public class TutorialUI : MonoBehaviour
             touchField.gameObject.SetActive(false);
         }
 
-        LeanTween.delayedCall(0.1f, () => mine.transform.position = startPos);
+        
     }
+
 
     private void InitInventoryView(Character player)
     {
@@ -518,7 +523,7 @@ public class TutorialUI : MonoBehaviour
                 makeBuildingInited = true;
             }
 
-            if (makeBuildingPointers.Count == 18)
+            if (makeBuildingPointers.Count == countBuildingsBlocks)
             {
                 ShowTutorial(openSaveBuildingTutorial);
                 saveBuildingView.SetVisibleBtnSaveBuilding(true);
@@ -679,10 +684,12 @@ public class TutorialUI : MonoBehaviour
             }
         }
 
-        if (nameBuildingComplete)
+        if (nameBuildingComplete && !UserData.Owner.tutorialComplete)
         {
-            LeanTween.delayedCall(3f, () => saveBuildingView.SavedOk_Clicked());
-            
+            LeanTween.delayedCall(1f, () => saveBuildingView.SavedOk_Clicked());
+            UserData.Owner.tutorialComplete = true;
+            UserData.Owner.SaveData();
+
             print("А всё");
         }
     }
@@ -725,7 +732,13 @@ public class TutorialUI : MonoBehaviour
             var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * height);
             var camRootLookDir = placeBlockPos - playerBehaviour.cameraTarget.position;
             playerBehaviour.cameraTarget.rotation = Quaternion.LookRotation(camRootLookDir);
+        }
 
+        if (needSetPlayerStartPos)
+        {
+            mine.transform.position = startPos;
+            print("ёба");
+            needSetPlayerStartPos = false;
         }
     }
 

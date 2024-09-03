@@ -42,7 +42,7 @@ public class MobileInput : MonoBehaviour
 
     private void Update()
     {
-        scaleFactor = (float)1080 / (float)Screen.height;
+        scaleFactor = UI.ScaleFactor;
 
         MineInputHandler();
     }
@@ -145,8 +145,6 @@ public class MobileInput : MonoBehaviour
 
         if (mineTimer > mineTime)
         {
-           
-            //WorldGenerator.Inst.SetBlockAndUpdateChunck(blockPos, 14);
             WorldGenerator.Inst.MineBlock(blockPos);
             mineTimer = 0;
         }

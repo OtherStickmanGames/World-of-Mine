@@ -296,7 +296,14 @@ public class CameraStack : MonoBehaviour
         }
     }
 
+    public void SetSaveBuildingCamPos(Vector3 pos)
+    {
+        saveBuildingCamera.transform.position = pos;
+    }
+
     public float GetSaveBuildingCamZoomValue() => saveBuildingCamera.m_Lens.OrthographicSize;
+
+    public Vector3 GetSaveBuildingCameraPosition() => saveBuildingCamera.transform.position;
 
     public enum CameraType
     {

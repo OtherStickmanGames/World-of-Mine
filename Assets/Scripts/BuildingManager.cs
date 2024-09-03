@@ -14,6 +14,8 @@ public class BuildingManager : MonoBehaviour
     public Vector3 verticalLeftTop;
     public Vector3 verticalRightBottom;
 
+    public bool selectionStarted;
+
     public UnityEvent onInputNameShow;
     public UnityEvent onBuildSave;
     public UnityEvent onBuildingListShow;
@@ -31,7 +33,7 @@ public class BuildingManager : MonoBehaviour
     List<Transform> highlights = new List<Transform>();
     List<BlockData> blocksData = new List<BlockData>();
     PlayerBehaviour playerBehaviour;
-    bool selectionStarted;
+    
 
     private void Awake()
     {

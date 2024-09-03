@@ -83,11 +83,12 @@ public class SaveBuildingView : MonoBehaviour
         CameraStack.onCameraSwitch.AddListener(Camera_Switched);
     }
 
-    private void SavedOk_Clicked()
+    public void SavedOk_Clicked()
     {
         panelPreview.SetActive(false);
         CameraStack.Instance.SwitchToThirdPerson();
         Destroy(buildPreviewData.view);
+        SetVisibleBtnSaveBuilding(true);
     }
 
     private void Building_Saved()
@@ -159,6 +160,8 @@ public class SaveBuildingView : MonoBehaviour
         cropHandleLeftTop.SetPos(new Vector2(480, 830));
         cropHandleRightBottom.SetPos(new Vector2(1500, 200));
 
+        SetVisibleBtnSaveBuilding(false);
+
         UpdateSelectionBackgroud();
 
         onSaveBuildingClick?.Invoke();
@@ -181,11 +184,12 @@ public class SaveBuildingView : MonoBehaviour
 
             case AcceptMode.Preview:
                 ShowInputBuildName();
-                CurSelectionMode = AcceptMode.Save;
+                CurSelectionMode = AcceptMode.Name;
                 break;
 
-            case AcceptMode.Save:
+            case AcceptMode.Name:
                 SaveBuilding();
+                CurSelectionMode = AcceptMode.Save;
                 break;
         }
     }
@@ -392,12 +396,22 @@ public class SaveBuildingView : MonoBehaviour
         }
     }
 
+    public void SetBuildingName(string value)
+    {
+        nameInput.text = value;
+    }
+
     private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
     {
         if (lfAngle < -360f) lfAngle += 360f;
         if (lfAngle > 360f) lfAngle -= 360f;
         return Mathf.Clamp(lfAngle, lfMin, lfMax);
     }
+
+    public void SetVisibleBtnAccept(bool value) => btnAccept.gameObject.SetActive(value);
+    public void SetVisibleBtnSaveBuilding(bool value) => btnSaveBuilding.gameObject.SetActive(value);
+    public InteractableStateTracker GetLeftTopCropHandle() => cropHandleLeftTop;
+    public InteractableStateTracker GetRightBottomCropHandle() => cropHandleRightBottom;
 }
 
 public enum AcceptMode
@@ -405,5 +419,6 @@ public enum AcceptMode
     Horizontal,
     Vertical,
     Preview,
-    Save
+    Name,
+    Save,
 }

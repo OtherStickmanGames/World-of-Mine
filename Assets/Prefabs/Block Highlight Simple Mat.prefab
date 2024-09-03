@@ -10,6 +10,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2095610716441364888, guid: cb1feb4c4284c274e938bba84bdd8502,
         type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2095610716441364888, guid: cb1feb4c4284c274e938bba84bdd8502,
+        type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2095610716441364888, guid: cb1feb4c4284c274e938bba84bdd8502,
+        type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 2c8bb6d540b0254459f8f1ec97afbc1e, type: 2}
@@ -66,6 +76,11 @@ PrefabInstance:
     - target: {fileID: 7384113964129042231, guid: cb1feb4c4284c274e938bba84bdd8502,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7577487250736767609, guid: cb1feb4c4284c274e938bba84bdd8502,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

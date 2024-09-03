@@ -12,6 +12,8 @@ public class UserData
   
     public Vector3 position;
 
+    public bool tutorialComplete;
+
     static string userDataPath = $"{DataPath}/Data/UserData.json";
 
     static string DataPath

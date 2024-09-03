@@ -21,8 +21,8 @@ public class PlayerBehaviour : MonoBehaviour
 
     public bool IsOwner { get; set; } = true;
 
-    //public static UnityEvent<Character> onMineSpawn = new UnityEvent<Character>();
     public static UnityEvent<MonoBehaviour> onMineSpawn = new UnityEvent<MonoBehaviour>();
+    public static UnityEvent<MonoBehaviour> onOwnerPositionSet = new UnityEvent<MonoBehaviour>();
 
     ThirdPersonController thirdPersonController;
     public Transform blockHighlight;
@@ -398,5 +398,11 @@ public class PlayerBehaviour : MonoBehaviour
         var json = JsonConvert.SerializeObject(jsonInventory);
         PlayerPrefs.SetString("inventory", json);
         PlayerPrefs.Save();
+    }
+
+    private void OnDestroy()
+    {
+        onMineSpawn.RemoveAllListeners();
+        onOwnerPositionSet.RemoveAllListeners();
     }
 }

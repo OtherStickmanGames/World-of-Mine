@@ -80,8 +80,7 @@ public class UI : MonoBehaviour
     {
 #if UNITY_SERVER
         NetworkManager.Singleton.StartServer();
-#endif
-
+#else
         userView.Init();
         saveBuildingView.Init();
         showBuildingView.Init();
@@ -96,6 +95,7 @@ public class UI : MonoBehaviour
         InitResolutionCurveFactor();
 
         txtEbala.text = $"{UserData.Owner.position}";
+#endif
     }
 
     private void Building_Saved()
@@ -184,7 +184,6 @@ public class UI : MonoBehaviour
     private void BtnClient_Clicked()
     {
         NetworkManager.Singleton.StartClient();
-
     }
 
     private void PlayerMine_Spawned(MonoBehaviour player)

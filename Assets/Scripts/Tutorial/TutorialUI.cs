@@ -14,6 +14,7 @@ public class TutorialUI : MonoBehaviour
 {
     [SerializeField] bool testMobileInput;
     [SerializeField] int countBuildingsBlocks = 0;
+    [SerializeField] float speedCamRot = 3f;
     [SerializeField] TMP_Text debugTexto;
     [SerializeField] QuickInventoryView quickInventoryView;
     [SerializeField] SaveBuildingView saveBuildingView;
@@ -42,6 +43,7 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] GameObject selectSlotTutorial;
     [SerializeField] GameObject placeBlockTutorial;
     [SerializeField] GameObject mineBlockTutorial;
+    [SerializeField] GameObject switchCameraTutorial;
     [SerializeField] GameObject makeBuildingTutorial;
     [SerializeField] GameObject openSaveBuildingTutorial;
     [SerializeField] GameObject moveSaveCameraTutorial;
@@ -92,6 +94,7 @@ public class TutorialUI : MonoBehaviour
     bool mineBlockComplete;
     bool placeBlockTutorInited;
     bool mineBlockTutorialInited;
+    bool switchCameraComplete;
     bool makeBuildingComplete;
     bool makeBuildingInited;
     bool openSaveBuildingComplete;
@@ -104,6 +107,7 @@ public class TutorialUI : MonoBehaviour
     bool previewBuildingComplete;
     bool nameBuildingComplete;
     bool needCameraLookToPlaceBlock;
+    bool needCameraLookToBuilding;
     bool needSetPlayerStartPos;
 
     AnimationCurve resolutionFactorCurve;
@@ -122,6 +126,7 @@ public class TutorialUI : MonoBehaviour
         selectSlotTutorial.SetActive(false);
         placeBlockTutorial.SetActive(false);
         mineBlockTutorial.SetActive(false);
+        switchCameraTutorial.SetActive(false);
         makeBuildingTutorial.SetActive(false);
         openSaveBuildingTutorial.SetActive(false);
         moveSaveCameraTutorial.SetActive(false);
@@ -146,7 +151,8 @@ public class TutorialUI : MonoBehaviour
 
     private void PlayerPosition_Seted(MonoBehaviour player)
     {
-        needSetPlayerStartPos = true;
+        LeanTween.delayedCall(0.1f, () => needSetPlayerStartPos = true);
+
     }
 
     private void Start()
@@ -215,19 +221,7 @@ public class TutorialUI : MonoBehaviour
 
     private void BtnSwitchCamera_Clicked()
     {
-        var curType = CameraStack.Instance.CurrentType;
-        if (curType == CameraStack.CameraType.First)
-        {
-            CameraStack.Instance.SwitchToThirdPerson();
-        }
-        else if (curType == CameraStack.CameraType.TopDown)
-        {
-            CameraStack.Instance.SwitchToFirstPerson();
-        }
-        else if (curType == CameraStack.CameraType.Third)
-        {
-            CameraStack.Instance.SwitchToTopDown();
-        }
+        CameraStack.Instance.SwitchCamera();
     }
 
     private void PlayerMine_Spawned(MonoBehaviour player)
@@ -461,16 +455,35 @@ public class TutorialUI : MonoBehaviour
                 tutorialPersonCamera.Priority = 5;
                 thirdPersonController.AllowCameraRotation = true;
 
+                placeBlockPointer.position = Vector3.zero;
                 highlightBlockTutorial.gameObject.SetActive(false);
 
                 mineBlockComplete = true;
 
-                ShowTutorial(makeBuildingTutorial);
-
+                ShowTutorial(switchCameraTutorial);
             }
         }
 
-        if (!makeBuildingComplete && mineBlockComplete)
+        if (!switchCameraComplete && mineBlockComplete)
+        {
+            if (CameraStack.Instance.CurrentType is CameraStack.CameraType.First)
+            {
+                switchCameraComplete = true;
+                switchCameraTutorial.SetActive(false);
+                
+
+                ShowTutorial(makeBuildingTutorial);
+
+                LeanTween.delayedCall(1.8f, () =>
+                {
+                    needCameraLookToBuilding = true;
+                    tutorialPersonCamera.Priority = 18;
+                    thirdPersonController.AllowCameraRotation = false;
+                });
+            }
+        }
+
+        if (!makeBuildingComplete && switchCameraComplete)
         {
             if (!makeBuildingInited)
             {
@@ -507,8 +520,10 @@ public class TutorialUI : MonoBehaviour
                     makeBuildingPointers.Add(pos.ToIntPos(), buildingPointer);
                 }
 
+              
                 //placeBlockPointer.gameObject.SetActive(false);
                 placeBlockPointer.position = buildingPos + (Vector3.up * (3 + 1)) + blockOffset;
+                tutorialPersonCamera.LookAt = null;// placeBlockPointer;
 
                 var item = new Item() { id = BLOCKS.WOOD };
                 item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
@@ -521,6 +536,11 @@ public class TutorialUI : MonoBehaviour
                 mine.inventory.TakeItem(item);
 
                 makeBuildingInited = true;
+            }
+
+            if (needCameraLookToBuilding)
+            {
+                thirdPersonController.AllowCameraRotation = touchField.Pressed;
             }
 
             if (makeBuildingPointers.Count == countBuildingsBlocks)
@@ -724,6 +744,7 @@ public class TutorialUI : MonoBehaviour
         });
     }
 
+    float lookToBuildingTimer = 0;
     private void LateUpdate()
     {
         if (needCameraLookToPlaceBlock)
@@ -734,12 +755,52 @@ public class TutorialUI : MonoBehaviour
             playerBehaviour.cameraTarget.rotation = Quaternion.LookRotation(camRootLookDir);
         }
 
+        if (needCameraLookToBuilding)
+        {
+            var camRootLookDir = buildingPos - playerBehaviour.cameraTarget.position + new Vector3(1, 0, -2);
+            var currentCameraRotation = playerBehaviour.cameraTarget.rotation.eulerAngles;
+            var targetCameraRotation = Quaternion.LookRotation(camRootLookDir).eulerAngles;
+            var cameraRotation = Vector3.MoveTowards
+            (
+                currentCameraRotation,
+                targetCameraRotation,
+                Time.deltaTime * speedCamRot * Mathf.Clamp(Vector3.Distance(currentCameraRotation, targetCameraRotation), 0.1f, 58)
+            );
+
+            cameraRotation.y = ClampAngle(cameraRotation.y, float.MinValue, float.MaxValue);
+            cameraRotation.x = ClampAngle(cameraRotation.x, -80, 80);
+
+            playerBehaviour.cameraTarget.rotation = Quaternion.Euler(cameraRotation);
+            if (!thirdPersonController.AllowCameraRotation)
+            {
+                var pitch = playerBehaviour.cameraTarget.rotation.eulerAngles.x - thirdPersonController.CameraAngleOverride;
+                var yaw = playerBehaviour.cameraTarget.rotation.eulerAngles.y;
+                thirdPersonController.SetPitchAndYaw(pitch, yaw);
+                currentVelocity = default;
+            }
+
+            lookToBuildingTimer += Time.deltaTime;
+            if (lookToBuildingTimer > 5f)
+            {
+                needCameraLookToBuilding = false;
+                thirdPersonController.AllowCameraRotation = true;
+                tutorialPersonCamera.Priority = 5;
+            }
+        }
+
         if (needSetPlayerStartPos)
         {
             mine.transform.position = startPos;
-            print("∏·‡");
+            
             needSetPlayerStartPos = false;
         }
+    }
+
+    private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
+    {
+        if (lfAngle < -360f) lfAngle += 360f;
+        if (lfAngle > 360f) lfAngle -= 360f;
+        return Mathf.Clamp(lfAngle, lfMin, lfMax);
     }
 
     public class BuildingPointer

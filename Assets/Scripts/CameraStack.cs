@@ -58,6 +58,22 @@ public class CameraStack : MonoBehaviour
         PlayerBehaviour.onMineSpawn.AddListener(OwnerPlayer_Spawned);
     }
 
+    public void SwitchCamera()
+    {
+        if (CurrentType is CameraType.Third)
+        {
+            SwitchToFirstPerson();
+        }
+        else if (CurrentType is CameraType.First)
+        {
+            SwitchToTopDown();
+        }
+        else if (CurrentType is CameraType.TopDown)
+        {
+            SwitchToThirdPerson();
+        }
+    }
+
     private void OwnerPlayer_Spawned(MonoBehaviour owner)
     {
         player = owner.GetComponent<PlayerBehaviour>();

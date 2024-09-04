@@ -9,14 +9,15 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     [SerializeField] RectTransform touch1;
     [SerializeField] RectTransform touch2;
     
+    [Space]
 
-    [HideInInspector]
+    [ReadOnlyField]
     public Vector2 TouchDist;
-    [HideInInspector]
+    [ReadOnlyField]
     public Vector2 PointerOld;
-    [HideInInspector]
+    [ReadOnlyField]
     protected int PointerId;
-    //[HideInInspector]
+    [ReadOnlyField]
     public bool Pressed;
 
     AnimationCurve resolutionFactorCurve;

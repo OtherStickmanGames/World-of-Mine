@@ -62,6 +62,8 @@ public class PlayerBehaviour : MonoBehaviour
                 transform.position = userDataPosition + (Vector3.up * 5);
             }
 
+            onOwnerPositionSet?.Invoke(this);
+
             player.inventory.onTakeItem += Item_TakedUpdated;
             player.inventory.onUpdateItem += Item_TakedUpdated;
 

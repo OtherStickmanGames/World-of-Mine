@@ -78,8 +78,9 @@ namespace StarterAssets
         public bool LockCameraPosition = false;
 
         // cinemachine
-        private float _cinemachineTargetYaw;
-        private float _cinemachineTargetPitch;
+       
+        [ReadOnlyField] public float _cinemachineTargetYaw;
+        [ReadOnlyField] public float _cinemachineTargetPitch;
 
         // player
         private float _speed;
@@ -370,6 +371,16 @@ namespace StarterAssets
             if (lfAngle < -360f) lfAngle += 360f;
             if (lfAngle > 360f) lfAngle -= 360f;
             return Mathf.Clamp(lfAngle, lfMin, lfMax);
+        }
+
+        public void SetPitchAndYaw(float pitch, float yaw)
+        {
+            _cinemachineTargetPitch = pitch;
+            _cinemachineTargetYaw = yaw;
+
+            _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
+            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
+
         }
 
         private void OnDrawGizmosSelected()

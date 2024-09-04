@@ -1858,7 +1858,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de4ff8a70e8ce374c9e520b47aa119b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testMobileInput: 0
+  testMobileInput: 1
   serverStatePanel: {fileID: 328820647}
   btnServer: {fileID: 1736012815}
   btnClient: {fileID: 1403220914}

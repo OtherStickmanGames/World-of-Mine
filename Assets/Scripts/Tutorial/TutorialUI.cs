@@ -686,7 +686,7 @@ public class TutorialUI : MonoBehaviour
         {
             if (saveBuildingView.CurSelectionMode == AcceptMode.Name)
             {
-                saveBuildingView.SetBuildingName(":) ’ижинкќ (:");
+                saveBuildingView.SetBuildingName("..’ижинкќ..");
                 saveBuildingView.SetVisibleBtnAccept(true);
                 previewBuildingComplete = true;
                 previewBuildingTutorial.SetActive(false);

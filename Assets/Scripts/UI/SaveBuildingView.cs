@@ -89,6 +89,7 @@ public class SaveBuildingView : MonoBehaviour
         CameraStack.Instance.SwitchToThirdPerson();
         Destroy(buildPreviewData.view);
         SetVisibleBtnSaveBuilding(true);
+        onBuildingSave?.Invoke();
     }
 
     private void Building_Saved()
@@ -157,8 +158,8 @@ public class SaveBuildingView : MonoBehaviour
         buildingSavedNotify.SetActive(false);
         moveCamJoystick.gameObject.SetActive(true);
 
-        cropHandleLeftTop.SetPos(new Vector2(480, 830));
-        cropHandleRightBottom.SetPos(new Vector2(1500, 200));
+        cropHandleLeftTop.SetPos(new Vector2(Screen.width * UI.ScaleFactor * 0.2f, 830));
+        cropHandleRightBottom.SetPos(new Vector2(Screen.width * UI.ScaleFactor * 0.8f, 200));
 
         SetVisibleBtnSaveBuilding(false);
 

@@ -22,8 +22,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         player.IsOwner = IsOwner;
         thirdPersonController.IsOwner = IsOwner;
-
-        
+        thirdPersonController.AllowGravityLogic = false;
     }
 
     private void Update()

@@ -16,8 +16,9 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] LayerMask layerMask;
     [SerializeField] SkinnedMeshRenderer[] skinnedMeshRenderers;
     [SerializeField] public bool allowDigging;
-
     [SerializeField] int sizeMainInventory = 0;
+
+    [ReadOnlyField] public Transform blockHighlight;
 
     public bool IsOwner { get; set; } = true;
 
@@ -25,9 +26,9 @@ public class PlayerBehaviour : MonoBehaviour
     public static UnityEvent<MonoBehaviour> onOwnerPositionSet = new UnityEvent<MonoBehaviour>();
 
     ThirdPersonController thirdPersonController;
-    public Transform blockHighlight;
     Character player;
-
+    float defaultBottomClamp;
+    float defaultTopClamp;
     float deltaTime;
 
     private void Start()
@@ -51,15 +52,16 @@ public class PlayerBehaviour : MonoBehaviour
             thirdPersonController.SetInput(sai, pi);
 
             var userDataPosition = UserData.Owner.position;
-            //print($"{UserData.Owner.userName} ### {UserData.Owner.position}");
+            print($"{UserData.Owner.userName} ### {UserData.Owner.position}");
             if (userDataPosition == Vector3.zero)
             {
                 transform.position += Vector3.one + Vector3.up * 180;
+                print($"soeiofsoefbiosebf");
             }
             else
             {
                 WorldGenerator.Inst.GetChunk(userDataPosition.ToGlobalRoundBlockPos());
-                transform.position = userDataPosition + (Vector3.up * 5);
+                transform.position = userDataPosition;// + (Vector3.up * 5);
             }
 
             onOwnerPositionSet?.Invoke(this);
@@ -151,7 +153,46 @@ public class PlayerBehaviour : MonoBehaviour
             transform.position += Vector3.up * 80;
         }
 
+        if (!thirdPersonController.AllowGravityLogic)
+        {
+            CheckChuncksLoadedBlocks();
+        }
         
+    }
+
+    float ebalaTimer;
+    private void CheckChuncksLoadedBlocks()
+    {
+        var pos = transform.position.ToGlobalRoundBlockPos();
+        var viewDistance = 2;
+        var size = WorldGenerator.size;
+        for (float x = -viewDistance + pos.x; x < viewDistance + pos.x; x += size)
+        {
+            for (float y = -viewDistance + pos.y; y < viewDistance + pos.y; y += size)
+            {
+                for (float z = -viewDistance + pos.z; z < viewDistance + pos.z; z += size)
+                {
+                    var worldPos = new Vector3(x, y, z);
+                    if (WorldGenerator.Inst.HasChunck(worldPos, out var key))
+                    {
+                        if (!WorldGenerator.Inst.GetChunk(key).blocksLoaded)
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+        
+        ebalaTimer += Time.deltaTime;
+        if (ebalaTimer > 1f)
+        {
+            thirdPersonController.AllowGravityLogic = true;
+        }
     }
 
     Vector3 targetPos;
@@ -323,27 +364,30 @@ public class PlayerBehaviour : MonoBehaviour
             return true;
     }
 
-    float defaultBottomClamp, defaultTopClamp;
+    
 
     private void Camera_Switched(CameraStack.CameraType cameraType)
     {
         if(cameraType == CameraStack.CameraType.First)
         {
-            foreach (var item in skinnedMeshRenderers)
-            {
-                item.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
-            }
+            SetVisibleMesh(false);
             thirdPersonController.BottomClamp = -80f;
             thirdPersonController.TopClamp = 87f;
         }
         else
         {
-            foreach (var item in skinnedMeshRenderers)
-            {
-                item.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
-            }
+            SetVisibleMesh(true);
             thirdPersonController.BottomClamp = defaultBottomClamp;
             thirdPersonController.TopClamp = defaultTopClamp;
+        }
+    }
+
+    private void SetVisibleMesh(bool value)
+    {
+        var shadowMode = value ? UnityEngine.Rendering.ShadowCastingMode.On : UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+        foreach (var item in skinnedMeshRenderers)
+        {
+            item.shadowCastingMode = shadowMode;
         }
     }
 
@@ -354,6 +398,9 @@ public class PlayerBehaviour : MonoBehaviour
 
     void CheckPosition()
     {
+        if (!thirdPersonController.AllowGravityLogic)
+            return;
+
         var blockablePos = transform.position + Vector3.up + Vector3.right;
         var blockID = WorldGenerator.Inst.GetBlockID(blockablePos);
         if (blockID > 0)

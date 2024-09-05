@@ -129,7 +129,7 @@ namespace StarterAssets
         public float CurrentSpeed => _speed;
         public bool IsOwner { get; set; } = true;
         public bool AllowCameraRotation { get; set; } = true;
-
+        public bool AllowGravityLogic { get; set; } = true;
 
         private void Awake()
         {
@@ -299,6 +299,9 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
+            if (!AllowGravityLogic)
+                return;
+
             if (Grounded)
             {
                 // reset the fall timeout timer

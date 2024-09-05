@@ -78,6 +78,17 @@ public class NetworkWorldGenerator : NetworkBehaviour
             //    ReceiveChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
             //}
         }
+        else
+        {
+            ReceiveNoDataChunckBlocksClientRpc(chunckPos, GetTargetClientParams(serverRpcParams));
+        }
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ReceiveNoDataChunckBlocksClientRpc(Vector3 chunckPos, ClientRpcParams clientRpcParams = default)
+    {
+        var chunck = worldGenerator.GetChunk(chunckPos);
+        chunck.blocksLoaded = true;
     }
 
     private void Chunck_Inited(ChunckComponent emptyChunck)
@@ -196,7 +207,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
             }
 
             worldGenerator.UpdateChunckMesh(chunck);
-            chunck.renderer.gameObject.name = chunck.renderer.gameObject.name.Insert(0, $"{chunckPos} ^^^ ");
+            chunck.renderer.gameObject.name = chunck.renderer.gameObject.name.Insert(0, $"{chunckPos} Srv Upd ");
+            chunck.blocksLoaded = true;
         }
     }
 

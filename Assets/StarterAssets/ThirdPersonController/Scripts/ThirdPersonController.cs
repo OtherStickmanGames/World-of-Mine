@@ -286,9 +286,51 @@ namespace StarterAssets
 
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
-            // move the player
-            _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
-                             new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+            var move = targetDirection.normalized * (_speed * Time.deltaTime) +
+                             new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime;
+
+            var pendingPos = transform.position + move;
+            Vector3 spherePosition = new Vector3
+            (
+                pendingPos.x,
+                pendingPos.y - GroundedOffset,
+                pendingPos.z
+            );
+            
+            
+
+            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.X))
+            {
+                var groundedPendingPos = Physics.CheckSphere
+                (
+                    spherePosition,
+                    0.18f,
+                    GroundLayers,
+                    QueryTriggerInteraction.Ignore
+                );
+
+                if (groundedPendingPos || !Grounded)
+                {
+                    if (groundedPendingPos && !Grounded)
+                    {
+                        ebaniyTimer += Time.deltaTime;
+                        if (ebaniyTimer > 0.5f)
+                        {
+                            _controller.Move(move);
+                        }
+                    }
+                    else
+                    {
+                        _controller.Move(move);
+                    }
+                }
+
+            }
+            else
+            {
+                ebaniyTimer = 0;
+                _controller.Move(move);
+            }
 
             // update animator if using character
             
@@ -296,6 +338,8 @@ namespace StarterAssets
             _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
             
         }
+
+        float ebaniyTimer = 0;
 
         private void JumpAndGravity()
         {

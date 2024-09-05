@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.114481024, g: 0.32995456, b: 0.7119407, a: 1}
+  m_IndirectSpecularColor: {r: 0.114642195, g: 0.33011943, b: 0.71255326, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2144,8 +2144,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 83.05, y: -44}
-  m_SizeDelta: {x: 146.1, y: 78}
+  m_AnchoredPosition: {x: 44.445, y: -35}
+  m_SizeDelta: {x: 64.89, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &597332099
 MonoBehaviour:
@@ -2167,7 +2167,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u0421\u043C\u0435\u043D\u0438\u0442\u044C\n\u0412\u0438\u0434"
+  m_text: "\u0412\u0438\u0434"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2566,7 +2566,7 @@ MonoBehaviour:
   mobileInput: {fileID: 288572288}
   btnJump: {fileID: 971869830}
   smoothTime: 3
-  sensitivity: 0.39
+  sensitivity: 0.58
   resolutionFactorInput: {fileID: 347325243}
   starterAssetsInputs: {fileID: 1785066746}
   mobileController: {fileID: 971869828}
@@ -2612,37 +2612,7 @@ MonoBehaviour:
   - ID: 3
     pos: {x: 0, y: 0, z: 1}
   - ID: 9
-    pos: {x: -1, y: 1, z: 1}
-  - ID: 9
-    pos: {x: 1, y: 1, z: -1}
-  - ID: 9
-    pos: {x: 1, y: 1, z: 1}
-  - ID: 9
-    pos: {x: -1, y: 1, z: -1}
-  - ID: 3
-    pos: {x: -1, y: 1, z: 0}
-  - ID: 3
-    pos: {x: 1, y: 1, z: 0}
-  - ID: 3
-    pos: {x: 0, y: 1, z: 1}
-  - ID: 3
-    pos: {x: 0, y: 2, z: 0}
-  - ID: 3
-    pos: {x: 0, y: 2, z: 1}
-  - ID: 3
-    pos: {x: 1, y: 2, z: 0}
-  - ID: 3
-    pos: {x: 1, y: 2, z: 1}
-  - ID: 3
-    pos: {x: -1, y: 2, z: 1}
-  - ID: 3
-    pos: {x: -1, y: 2, z: 0}
-  - ID: 3
-    pos: {x: 0, y: 2, z: -1}
-  - ID: 3
-    pos: {x: -1, y: 2, z: -1}
-  - ID: 3
-    pos: {x: 1, y: 2, z: -1}
+    pos: {x: 0, y: 0, z: -1}
   mat: {fileID: 2100000, guid: 0f0b8ed26ab436b48af48a02a2fbeedc, type: 2}
   highlightMakeBuildingMat: {fileID: 2100000, guid: 98e5443213aa2be4f80674383b89aaa7,
     type: 2}
@@ -4501,7 +4471,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 35, y: -35}
-  m_SizeDelta: {x: 0, y: 88}
+  m_SizeDelta: {x: 0, y: 70}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1931139162
 MonoBehaviour:
@@ -4530,8 +4500,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 10
-    m_Right: 10
+    m_Left: 12
+    m_Right: 12
     m_Top: 5
     m_Bottom: 5
   m_ChildAlignment: 0

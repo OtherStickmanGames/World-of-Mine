@@ -66,12 +66,13 @@ public class CameraStack : MonoBehaviour
         }
         else if (CurrentType is CameraType.First)
         {
-            SwitchToTopDown();
-        }
-        else if (CurrentType is CameraType.TopDown)
-        {
             SwitchToThirdPerson();
+            //SwitchToTopDown();
         }
+        //else if (CurrentType is CameraType.TopDown)
+        //{
+        //    SwitchToThirdPerson();
+        //}
     }
 
     private void OwnerPlayer_Spawned(MonoBehaviour owner)

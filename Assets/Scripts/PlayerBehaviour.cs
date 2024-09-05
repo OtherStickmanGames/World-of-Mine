@@ -116,31 +116,18 @@ public class PlayerBehaviour : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.C))
         {
-            var curType = CameraStack.Instance.CurrentType;
-            if (curType == CameraStack.CameraType.First)
-            {
-                CameraStack.Instance.SwitchToThirdPerson();
-            }
-            else if (curType == CameraStack.CameraType.TopDown)
-            {
-                CameraStack.Instance.SwitchToFirstPerson();
-            }
-            else if (curType == CameraStack.CameraType.Third)
-            {
-                CameraStack.Instance.SwitchToTopDown();
-            }
+            CameraStack.Instance.SwitchCamera();
         }
 
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            var pos = transform.position + Vector3.right + Vector3.up + transform.forward;
-            pos = pos.ToGlobalBlockPos();
-            WorldGenerator.Inst.SetBlockAndUpdateChunck(pos, 8);
-            targetPos = pos;
-            print(pos);
-            print(World.Instance.towerPos.position.ToGlobalBlockPos());
-
-        }
+        //if (Input.GetKeyDown(KeyCode.X))
+        //{
+        //    var pos = transform.position + Vector3.right + Vector3.up + transform.forward;
+        //    pos = pos.ToGlobalBlockPos();
+        //    WorldGenerator.Inst.SetBlockAndUpdateChunck(pos, 8);
+        //    targetPos = pos;
+        //    print(pos);
+        //    print(World.Instance.towerPos.position.ToGlobalBlockPos());
+        //}
 
         if (Input.GetKeyDown(KeyCode.P))
         {
@@ -177,6 +164,7 @@ public class PlayerBehaviour : MonoBehaviour
                     {
                         if (!WorldGenerator.Inst.GetChunk(key).blocksLoaded)
                         {
+                            print("эсть не загруженные блоки");
                             return;
                         }
                     }

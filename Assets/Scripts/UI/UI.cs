@@ -115,19 +115,7 @@ public class UI : MonoBehaviour
 
     private void BtnSwitchCamera_Clicked()
     {
-        var curType = CameraStack.Instance.CurrentType;
-        if (curType == CameraStack.CameraType.First)
-        {
-            CameraStack.Instance.SwitchToThirdPerson();
-        }
-        else if (curType == CameraStack.CameraType.TopDown)
-        {
-            CameraStack.Instance.SwitchToFirstPerson();
-        }
-        else if (curType == CameraStack.CameraType.Third)
-        {
-            CameraStack.Instance.SwitchToTopDown();
-        }
+        CameraStack.Instance.SwitchCamera();
     }
 
     Vector2 lookDirection;

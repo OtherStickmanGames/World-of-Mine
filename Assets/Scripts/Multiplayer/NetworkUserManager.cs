@@ -37,7 +37,7 @@ public class NetworkUserManager : NetworkBehaviour
             }
             else
             {
-                Debug.Log("Надо поразбираться шо за шляпа с дисконектом без конекта");
+                Debug.Log($"Надо поразбираться шо за шляпа с дисконектом без конекта");
             }
         }
     }

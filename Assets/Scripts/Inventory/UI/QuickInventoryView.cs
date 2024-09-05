@@ -11,11 +11,14 @@ public class QuickInventoryView : MonoBehaviour
 
     Action<Item> setSelectedItem;
 
+    Inventory inventory;
+
     public void Init(Inventory inventory)
     {
         inventory.onTakeQuick += Item_Taked;
         inventory.onUpdateItem += Item_Updated;
         inventory.onItemSets += Items_Seted;
+        this.inventory = inventory;
 
         foreach (var slot in slots)
         {
@@ -61,6 +64,11 @@ public class QuickInventoryView : MonoBehaviour
     {
         var slot = slots.Find(s => s.Item == null);
         slot.SetItem(item);
+        var slotIdx = slots.IndexOf(slot);
+        if (slotIdx == Selected)
+        {
+            inventory.CurrentSelectedItem = item;
+        }
     }
 
     private void Items_Seted(Inventory inventory)

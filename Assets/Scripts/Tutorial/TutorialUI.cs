@@ -474,7 +474,7 @@ public class TutorialUI : MonoBehaviour
 
                 ShowTutorial(makeBuildingTutorial);
 
-                LeanTween.delayedCall(1.8f, () =>
+                LeanTween.delayedCall(1f, () =>
                 {
                     needCameraLookToBuilding = true;
                     tutorialPersonCamera.Priority = 18;
@@ -522,17 +522,13 @@ public class TutorialUI : MonoBehaviour
 
               
                 //placeBlockPointer.gameObject.SetActive(false);
-                placeBlockPointer.position = buildingPos + (Vector3.up * (3 + 1)) + blockOffset;
+                placeBlockPointer.position = buildingPos + (Vector3.up * (3)) + blockOffset;
                 tutorialPersonCamera.LookAt = null;// placeBlockPointer;
 
-                var item = new Item() { id = BLOCKS.WOOD };
+
+                var item = new Item() { id = BLOCKS.COBBLESTONE };
                 item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
                 item.count = 8;
-                mine.inventory.TakeItem(item);
-
-                item = new Item() { id = BLOCKS.COBBLESTONE };
-                item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
-                item.count = 15;
                 mine.inventory.TakeItem(item);
 
                 makeBuildingInited = true;
@@ -555,6 +551,8 @@ public class TutorialUI : MonoBehaviour
                 makeBuildingTutorial.SetActive(false);
             }
         }
+
+        var allowCheckMoveCamTutorial = false;
 
         if (!openSaveBuildingComplete && makeBuildingComplete)
         {
@@ -580,8 +578,11 @@ public class TutorialUI : MonoBehaviour
                         camPos,
                         targetPos,
                         1f
-                    ).setEaseOutQuad();
-                    
+                    ).setEaseOutQuad().setOnComplete(() => allowCheckMoveCamTutorial = true);
+
+                    saveBuildingView.SetVisibleBtnAccept(false);
+                    saveBuildingView.GetLeftTopCropHandle().gameObject.SetActive(false);
+                    saveBuildingView.GetRightBottomCropHandle().gameObject.SetActive(false);
                 }
 
                 openSaveBuildingTutorial.SetActive(false);
@@ -591,12 +592,14 @@ public class TutorialUI : MonoBehaviour
             }
         }
 
+        
+
         if (!moveSaveCameraComplete && openSaveBuildingComplete)
         {
             var camPos = Camera.main.transform.position;
             var camPos2D = new Vector2(camPos.x, camPos.z);
             var buildingPos2D = new Vector2(buildingPos.x, buildingPos.z);
-            if (Vector2.Distance(camPos2D, buildingPos2D) < 1.88f)
+            if (Vector2.Distance(camPos2D, buildingPos2D) < 1.88f && allowCheckMoveCamTutorial)
             {
                 moveSaveCameraTutorial.SetActive(false);
                 ShowTutorial(zoomSaveCameraTutorial);
@@ -619,6 +622,8 @@ public class TutorialUI : MonoBehaviour
             {
                 zoomSaveCameraTutorial.SetActive(false);
                 ShowTutorial(leftCropHandleTutorial);
+                saveBuildingView.GetLeftTopCropHandle().gameObject.SetActive(true);
+                saveBuildingView.GetRightBottomCropHandle().gameObject.SetActive(true);
 
                 zoomSaveCameraComplete = true;
             }
@@ -658,6 +663,8 @@ public class TutorialUI : MonoBehaviour
 
                 rightCropHandleMoveComplete = true;
 
+                saveBuildingView.SetVisibleBtnAccept(true);
+
                 ShowTutorial(horizontalPlaneAcceptZone);
             }
         }
@@ -686,7 +693,7 @@ public class TutorialUI : MonoBehaviour
         {
             if (saveBuildingView.CurSelectionMode == AcceptMode.Name)
             {
-                saveBuildingView.SetBuildingName("..ХижинкО..");
+                saveBuildingView.SetBuildingName("Неведомое х..");
                 saveBuildingView.SetVisibleBtnAccept(true);
                 previewBuildingComplete = true;
                 previewBuildingTutorial.SetActive(false);
@@ -764,7 +771,7 @@ public class TutorialUI : MonoBehaviour
             (
                 currentCameraRotation,
                 targetCameraRotation,
-                Time.deltaTime * speedCamRot * Mathf.Clamp(Vector3.Distance(currentCameraRotation, targetCameraRotation), 0.1f, 58)
+                Time.deltaTime * speedCamRot * Mathf.Clamp(Vector3.Distance(currentCameraRotation, targetCameraRotation), 0.1f, 80)
             );
 
             cameraRotation.y = ClampAngle(cameraRotation.y, float.MinValue, float.MaxValue);

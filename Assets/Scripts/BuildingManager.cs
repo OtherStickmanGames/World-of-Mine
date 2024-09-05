@@ -213,7 +213,7 @@ public class BuildingManager : MonoBehaviour
     {
         selectionStarted = true;
         playerBehaviour.allowDigging = false;
-        var camPos = playerBehaviour.transform.position + (playerBehaviour.transform.up * 88);
+        var camPos = playerBehaviour.transform.position + (playerBehaviour.transform.up * 50);
         CameraStack.Instance.SaveBuilding(AcceptMode.Horizontal, camPos);
     }
 

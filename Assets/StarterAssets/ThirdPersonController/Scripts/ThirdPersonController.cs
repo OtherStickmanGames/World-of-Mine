@@ -113,6 +113,7 @@ namespace StarterAssets
         private const float _threshold = 0.01f;
 
         private bool _hasAnimator;
+        float ebaniyTimer = 0;
 
         private bool IsCurrentDeviceMouse
         {
@@ -305,47 +306,88 @@ namespace StarterAssets
             
             if(NoFall)
             {
-                
+                //var groundedPendingPos = Physics.CheckSphere
+                //(
+                //    spherePosition,
+                //    0.18f,
+                //    GroundLayers,
+                //    QueryTriggerInteraction.Ignore
+                //);
 
-                var groundedPendingPos = Physics.CheckSphere
-                (
-                    spherePosition,
-                    0.18f,
-                    GroundLayers,
-                    QueryTriggerInteraction.Ignore
-                );
-
-                if (groundedPendingPos || !Grounded)
+                //if (groundedPendingPos || !Grounded)
+                //{
+                //    if (groundedPendingPos && !Grounded)
+                //    {
+                //        ebaniyTimer += Time.deltaTime;
+                //        if (ebaniyTimer > 0.5f)
+                //        {
+                //            _controller.Move(move);
+                //        }
+                //    }
+                //    else
+                //    {
+                //        _controller.Move(move);
+                //    }
+                //}
+                if (Grounded)
                 {
-                    if (groundedPendingPos && !Grounded)
-                    {
-                        ebaniyTimer += Time.deltaTime;
-                        if (ebaniyTimer > 0.5f)
-                        {
-                            _controller.Move(move);
-                        }
-                    }
-                    else
-                    {
-                        _controller.Move(move);
-                    }
+                    move = AdjustMovementForEdge(move);
                 }
+                //_controller.Move(move);
 
             }
             else
             {
                 ebaniyTimer = 0;
-                _controller.Move(move);
+                //_controller.Move(move);
             }
 
+            _controller.Move(move);
             // update animator if using character
-            
+
             _animator.SetFloat(_animIDSpeed, _animationBlend);
             _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
             
         }
 
-        float ebaniyTimer = 0;
+        Vector3 AdjustMovementForEdge(Vector3 moveDirection)
+        {
+            // Проверяем движение вперед по оси Z
+            if (!IsEdgeSafe(Vector3.forward) && moveDirection.z > 0)
+            {
+                moveDirection.z = 0; // Останавливаем движение вперед
+            }
+            // Проверяем движение назад по оси Z
+            if (!IsEdgeSafe(Vector3.back) && moveDirection.z < 0)
+            {
+                moveDirection.z = 0; // Останавливаем движение назад
+            }
+            // Проверяем движение вправо по оси X
+            if (!IsEdgeSafe(Vector3.right) && moveDirection.x > 0)
+            {
+                moveDirection.x = 0; // Останавливаем движение вправо
+            }
+            // Проверяем движение влево по оси X
+            if (!IsEdgeSafe(Vector3.left) && moveDirection.x < 0)
+            {
+                moveDirection.x = 0; // Останавливаем движение влево
+            }
+
+            return moveDirection;
+        }
+
+        bool IsEdgeSafe(Vector3 direction)
+        {
+            RaycastHit hit;
+            Vector3 checkPosition = transform.position + direction.normalized * 0.5f; // Проверяем на расстоянии пол блока вперед
+
+            if (Physics.Raycast(checkPosition, Vector3.down, out hit, 0.5f, GroundLayers))
+            {
+                return hit.collider != null;
+            }
+            return false;
+        }
+
 
         private void JumpAndGravity()
         {

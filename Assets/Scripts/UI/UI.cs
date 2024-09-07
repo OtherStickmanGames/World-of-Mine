@@ -54,8 +54,9 @@ public class UI : MonoBehaviour
 
         btnReset.onClick.AddListener(BtnReset_Clicked);
 
+#if !UNITY_SERVER
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
-
+#endif
 
         serverStatePanel.SetActive(false);
         NetworkManager.Singleton.OnServerStarted += SERVER_STARTED;
@@ -176,6 +177,7 @@ public class UI : MonoBehaviour
 
     private void PlayerMine_Spawned(MonoBehaviour player)
     {
+#if !UNITY_SERVER
         mobileInput.gameObject.SetActive(true);
         mobileInput.Init(player as PlayerBehaviour);
 
@@ -199,6 +201,7 @@ public class UI : MonoBehaviour
         }
 
         this.player = player.transform;
+#endif
     }
 
     private void InitInventoryView(Character player)

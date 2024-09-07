@@ -52,6 +52,8 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForEndOfFrame();
 
+#if !UNITY_SERVER
+
         var tutorialSceneName = "Tutorial";
         if (!UserData.Owner.tutorialComplete && SceneManager.GetActiveScene().name != tutorialSceneName)
         {
@@ -68,7 +70,7 @@ public class GameManager : MonoBehaviour
                 worker.transform.SetParent(workersParent);
             }
         }
-
+#endif
         
     }
 

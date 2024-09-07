@@ -27,8 +27,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         buildingManager.onInputNameShow.AddListener(InputBuildingName_Showed);
         buildingManager.onSaveBuilding.AddListener(SaveBuilding_Clicked);
         buildingManager.onGetBuildings.AddListener(GetBuildings_Requested);
-        buildingManager.onBuildingLike.AddListener(Building_Liked);
-
+        buildingManager.onBuildingLike.AddListener(Building_Liked);   
     }
 
     private void Start()
@@ -256,9 +255,14 @@ public class NetworkBuildingManager : NetworkBehaviour
         BuildingManager.Singleton.CreateBuildingPreview(data);
     }
 
+    /// <summary>
+    /// Метод который вызыватся на клиенте, означающий конец списка построек
+    /// </summary>
+    /// <param name="clientRpcParams"></param>
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveEndOfPagesClientRpc(ClientRpcParams clientRpcParams = default)
     {
+        print("Конец списка");
         BuildingManager.Singleton.InvokeEndBuildingList();
     }
 

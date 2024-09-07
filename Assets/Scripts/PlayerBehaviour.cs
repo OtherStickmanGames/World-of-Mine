@@ -62,6 +62,7 @@ public class PlayerBehaviour : MonoBehaviour
             {
                 WorldGenerator.Inst.GetChunk(userDataPosition.ToGlobalRoundBlockPos());
                 transform.position = userDataPosition;// + (Vector3.up * 5);
+                print($"{transform.position} ===---+++");
             }
 
             onOwnerPositionSet?.Invoke(this);
@@ -144,7 +145,20 @@ public class PlayerBehaviour : MonoBehaviour
         {
             CheckChuncksLoadedBlocks();
         }
-        
+
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            thirdPersonController.NoFall = true;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            thirdPersonController.NoFall = false;
+        }
+        if(Input.GetKeyDown(KeyCode.X))
+        {
+            FindObjectOfType<MobileInput>().NoFall_Clicked();
+        }
+
     }
 
     float ebalaTimer;
@@ -164,7 +178,7 @@ public class PlayerBehaviour : MonoBehaviour
                     {
                         if (!WorldGenerator.Inst.GetChunk(key).blocksLoaded)
                         {
-                            print("эсть не загруженные блоки");
+                            //print("эсть не загруженные блоки");
                             return;
                         }
                     }
@@ -180,6 +194,7 @@ public class PlayerBehaviour : MonoBehaviour
         if (ebalaTimer > 1f)
         {
             thirdPersonController.AllowGravityLogic = true;
+            print("ЧАНКИ ЗАГРУЖЕНЫ");
         }
     }
 

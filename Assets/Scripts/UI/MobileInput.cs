@@ -12,6 +12,11 @@ public class MobileInput : MonoBehaviour
     [SerializeField] RectTransform innerMineIcon;
     [SerializeField] float mineTime = 1.5f;
     [SerializeField] RectTransform TouchTest;
+    [SerializeField] Button btnNoFall;
+    [SerializeField] GameObject noFallOutline;
+    [SerializeField] Color noFallActiveColor;
+    [SerializeField] TMP_Text noFallTitle;
+    [SerializeField] LayerMask layer;
     [SerializeField] TMP_Text txtDebuga;
 
     AnimationCurve mineCurve;
@@ -35,23 +40,50 @@ public class MobileInput : MonoBehaviour
         character = player.GetComponent<Character>();
         thirdPersonController = player.GetComponent<ThirdPersonController>();
 
+        if (btnNoFall)
+        {
+            btnNoFall.onClick.AddListener(NoFall_Clicked);
+            UpdateBtnNoFallView();
+        }
+
         Keyframe start = new Keyframe(0, 0);
         Keyframe end = new Keyframe(mineTime, 1);
         mineCurve = new AnimationCurve(new Keyframe[] { start, end });
     }
 
+    public void NoFall_Clicked()
+    {
+        thirdPersonController.NoFall = !thirdPersonController.NoFall;
+        UpdateBtnNoFallView();
+    }
+
+    private void UpdateBtnNoFallView()
+    {
+        if (thirdPersonController.NoFall)
+        {
+            noFallOutline.SetActive(true);
+            noFallTitle.color = noFallActiveColor;
+        }
+        else
+        {
+            noFallOutline.SetActive(false);
+            noFallTitle.color = Color.white;
+        }
+    }
+
     private void Update()
     {
+#if !UNITY_SERVER
         scaleFactor = UI.ScaleFactor;
 
         MineInputHandler();
+#endif
     }
 
     private void MineInputHandler()
     {
         mineIconPos.x = -888;
         mineIconPos.y = -888;
-        //mineIconPos.z = 300;
 
         if (thirdPersonController.CurrentSpeed > 0)
         {
@@ -89,7 +121,7 @@ public class MobileInput : MonoBehaviour
                 var dir = touch.position - oldTouchPos;
                 // ≈сли нет движени€ больше 0,5 сек, то активируем майнинг
                 lastBlockRaycast = IsBlockRaycast(out raycastHit);
-                if (dir.magnitude < 0.88f * scaleFactor && lastBlockRaycast)
+                if (dir.magnitude < 1.88f * scaleFactor && lastBlockRaycast)
                 {
                     touchTimer += Time.deltaTime;
 
@@ -165,7 +197,7 @@ public class MobileInput : MonoBehaviour
     {
         var maxDist = character.MineDistance;
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out raycastHit))
+        if (Physics.Raycast(ray, out raycastHit, layer))
         {
             var dist = Vector3.Distance(raycastHit.point, player.transform.position + Vector3.up);
             if (dist > maxDist)

@@ -85,6 +85,9 @@ public class TutorialUI : MonoBehaviour
     float sumCharacterMove;
     float ResolutionFactor => float.Parse(resolutionFactorInput.text);
 
+  
+    
+
     bool touchZoneComplete;
     bool lookZoneComplete;
     bool moveZoneComplete;
@@ -109,6 +112,7 @@ public class TutorialUI : MonoBehaviour
     bool needCameraLookToPlaceBlock;
     bool needCameraLookToBuilding;
     bool needSetPlayerStartPos;
+    bool allowCheckMoveCamTutorial;
 
     AnimationCurve resolutionFactorCurve;
 
@@ -552,7 +556,7 @@ public class TutorialUI : MonoBehaviour
             }
         }
 
-        var allowCheckMoveCamTutorial = false;
+        
 
         if (!openSaveBuildingComplete && makeBuildingComplete)
         {
@@ -574,11 +578,16 @@ public class TutorialUI : MonoBehaviour
                         pos =>
                         {
                             CameraStack.Instance.SetSaveBuildingCamPos(pos);
+                            //print("Òû ÅÁÀÍÓÒ ????!!!!");
                         },
                         camPos,
                         targetPos,
                         1f
-                    ).setEaseOutQuad().setOnComplete(() => allowCheckMoveCamTutorial = true);
+                    ).setEaseOutQuad().setOnComplete(() => 
+                    {
+                        allowCheckMoveCamTutorial = true;
+                        //print($"{allowCheckMoveCamTutorial} ============================================");
+                    });
 
                     saveBuildingView.SetVisibleBtnAccept(false);
                     saveBuildingView.GetLeftTopCropHandle().gameObject.SetActive(false);
@@ -599,6 +608,7 @@ public class TutorialUI : MonoBehaviour
             var camPos = Camera.main.transform.position;
             var camPos2D = new Vector2(camPos.x, camPos.z);
             var buildingPos2D = new Vector2(buildingPos.x, buildingPos.z);
+            //print($"{Vector2.Distance(camPos2D, buildingPos2D)} ### {allowCheckMoveCamTutorial}");
             if (Vector2.Distance(camPos2D, buildingPos2D) < 1.88f && allowCheckMoveCamTutorial)
             {
                 moveSaveCameraTutorial.SetActive(false);

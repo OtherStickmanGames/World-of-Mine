@@ -111,12 +111,14 @@ public class NetworkWorldGenerator : NetworkBehaviour
         worldGenerator = WorldGenerator.Inst;
 
         yield return null;
+#if !UNITY_SERVER
         var chunck = worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos());
         offlineBlocksSeted.Add(chunck);
         //print(chunck.pos);
         chunck = worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos() + (Vector3.down * WorldGenerator.size));
         offlineBlocksSeted.Add(chunck);
         //print(chunck.pos);
+#endif
     }
 
     private void Update()

@@ -130,6 +130,7 @@ namespace StarterAssets
         public bool IsOwner { get; set; } = true;
         public bool AllowCameraRotation { get; set; } = true;
         public bool AllowGravityLogic { get; set; } = true;
+        public bool NoFall { get; set; } = false;
 
         private void Awake()
         {
@@ -169,20 +170,24 @@ namespace StarterAssets
 
         private void Update()
         {
+#if !UNITY_SERVER
             if (!IsOwner)
                 return;
 
             JumpAndGravity();
             GroundedCheck();
             Move();
+#endif
         }
 
         private void LateUpdate()
         {
+#if !UNITY_SERVER
             if (!IsOwner || !_input || !AllowCameraRotation)
                 return;
 
             CameraRotation();
+#endif
         }
 
         private void AssignAnimationIDs()
@@ -298,9 +303,10 @@ namespace StarterAssets
             );
             
             
-
-            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.X))
+            if(NoFall)
             {
+                
+
                 var groundedPendingPos = Physics.CheckSphere
                 (
                     spherePosition,
@@ -365,7 +371,7 @@ namespace StarterAssets
                 }
 
                 // Jump
-                if (_input.jump && _jumpTimeoutDelta <= 0.0f)
+                if (_input.jump && _jumpTimeoutDelta <= 0.0f && !NoFall)
                 {
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);

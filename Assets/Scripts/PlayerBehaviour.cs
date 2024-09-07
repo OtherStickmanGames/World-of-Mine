@@ -51,19 +51,7 @@ public class PlayerBehaviour : MonoBehaviour
             var pi = FindObjectOfType<PlayerInput>();
             thirdPersonController.SetInput(sai, pi);
 
-            var userDataPosition = UserData.Owner.position;
-            print($"{UserData.Owner.userName} ### {UserData.Owner.position}");
-            if (userDataPosition == Vector3.zero)
-            {
-                transform.position += Vector3.one + Vector3.up * 180;
-                print($"soeiofsoefbiosebf");
-            }
-            else
-            {
-                WorldGenerator.Inst.GetChunk(userDataPosition.ToGlobalRoundBlockPos());
-                transform.position = userDataPosition;// + (Vector3.up * 5);
-                print($"{transform.position} ===---+++");
-            }
+            SetLoadedPosition();
 
             onOwnerPositionSet?.Invoke(this);
 
@@ -76,6 +64,23 @@ public class PlayerBehaviour : MonoBehaviour
 
 
         //FindPathSystem.Instance.onPathComplete += FindPath_Completed;
+    }
+
+    public void SetLoadedPosition()
+    {
+        var userDataPosition = UserData.Owner.position;
+        print($"{UserData.Owner.userName} ### {UserData.Owner.position}");
+        if (userDataPosition == Vector3.zero)
+        {
+            transform.position += Vector3.one + Vector3.up * 180;
+            print($"soeiofsoefbiosebf");
+        }
+        else
+        {
+            WorldGenerator.Inst.GetChunk(userDataPosition.ToGlobalRoundBlockPos());
+            transform.position = userDataPosition;// + (Vector3.up * 5);
+            print($"{transform.position} ===---+++");
+        }
     }
 
     private void Item_TakedUpdated(Item item)

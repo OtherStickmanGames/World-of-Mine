@@ -77,8 +77,10 @@ namespace StarterAssets
         [Tooltip("For locking the camera position on all axis")]
         public bool LockCameraPosition = false;
 
+        public float checkEdgeDist = 0.3f;
+
         // cinemachine
-       
+
         [ReadOnlyField] public float _cinemachineTargetYaw;
         [ReadOnlyField] public float _cinemachineTargetPitch;
 
@@ -342,6 +344,7 @@ namespace StarterAssets
                 //_controller.Move(move);
             }
 
+   
             _controller.Move(move);
             // update animator if using character
 
@@ -379,13 +382,24 @@ namespace StarterAssets
         bool IsEdgeSafe(Vector3 direction)
         {
             RaycastHit hit;
-            Vector3 checkPosition = transform.position + direction.normalized * 0.5f; // Проверяем на расстоянии пол блока вперед
+            Vector3 checkPosition = transform.position + (direction * checkEdgeDist) + (Vector3.up * 0.5f); // Проверяем на расстоянии пол блока вперед
 
-            if (Physics.Raycast(checkPosition, Vector3.down, out hit, 0.5f, GroundLayers))
-            {
-                return hit.collider != null;
-            }
-            return false;
+            checkPosition -= Vector3.up * 0.5f;
+
+            return Physics.CheckSphere
+            (
+                checkPosition,
+                0.18f,
+                GroundLayers,
+                QueryTriggerInteraction.Ignore
+            );
+            
+            //if (Physics.Raycast(checkPosition, Vector3.down, out hit, 0.5f, GroundLayers))
+            //{
+            //    return hit.collider != null;
+            //}
+
+            //return false;
         }
 
 
@@ -413,7 +427,7 @@ namespace StarterAssets
                 }
 
                 // Jump
-                if (_input.jump && _jumpTimeoutDelta <= 0.0f && !NoFall)
+                if (_input.jump && _jumpTimeoutDelta <= 0.0f)
                 {
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);

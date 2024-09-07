@@ -80,7 +80,7 @@ public class UI : MonoBehaviour
     private void Start()
     {
 #if UNITY_SERVER
-        NetworkManager.Singleton.StartServer();
+        START_SERVER();
 #else
         userView.Init();
         saveBuildingView.Init();
@@ -97,6 +97,18 @@ public class UI : MonoBehaviour
 
         txtEbala.text = $"{UserData.Owner.position}";
 #endif
+    }
+
+    private void START_SERVER()
+    {
+        StartCoroutine(ASYNC_START());
+
+        IEnumerator ASYNC_START()
+        {
+            yield return new WaitForEndOfFrame();
+
+            NetworkManager.Singleton.StartServer();
+        }
     }
 
     private void Building_Saved()

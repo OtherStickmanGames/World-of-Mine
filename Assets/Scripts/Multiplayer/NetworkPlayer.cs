@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using StarterAssets;
@@ -23,6 +24,22 @@ public class NetworkPlayer : NetworkBehaviour
         player.IsOwner = IsOwner;
         thirdPersonController.IsOwner = IsOwner;
         thirdPersonController.AllowGravityLogic = false;
+
+        Client_Started();
+    }
+
+    private void Client_Started()
+    {
+        // КОСТЫЛИЩЕ, я задолбался разбираться, почему перс иногда спавнится на старте
+
+        StartCoroutine(Async());
+
+        IEnumerator Async()
+        {
+            yield return null;
+
+            player.SetLoadedPosition();
+        }
     }
 
     private void Update()

@@ -67,19 +67,10 @@ public class NetworkWorldGenerator : NetworkBehaviour
                 byte[] blockIDs = changedBlocks.Select(b => b.blockId).ToArray();
                 ReceivePendingChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
             }
-
-            //var json = File.ReadAllText(path);
-            //var chunckData = JsonConvert.DeserializeObject<ChunckData>(json);
-            //var userChunckData = chunckData.usersChangedBlocks.Find(u => u.userName == userName);
-            //if (userChunckData != null)
-            //{
-            //    Vector3[] positions = userChunckData.changedBlocks.Select(b => b.Pos).ToArray();
-            //    byte[] blockIDs = userChunckData.changedBlocks.Select(b => b.blockId).ToArray();
-            //    ReceiveChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
-            //}
         }
         else
         {
+            // Сервер отправляет клиенту, информацию о том, что чанк не менялся
             ReceiveNoDataChunckBlocksClientRpc(chunckPos, GetTargetClientParams(serverRpcParams));
         }
     }
@@ -175,6 +166,16 @@ public class NetworkWorldGenerator : NetworkBehaviour
             pendingChuncks.Remove(currentPendingChunck);
         }
         waitHandlingChunck = false;
+
+        // КОСТЫЛИЩЕ
+        StartCoroutine(Async());
+
+        IEnumerator Async()
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            UpdateChunckMesh(positions, blockIDs, chunckPos);
+        }
     }
 
     [ClientRpc(RequireOwnership = false)]

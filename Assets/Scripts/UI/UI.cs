@@ -213,6 +213,8 @@ public class UI : MonoBehaviour
         }
 
         this.player = player.transform;
+
+        (player as PlayerBehaviour).MobileTestINput = testMobileInput;
 #endif
     }
 
@@ -343,5 +345,5 @@ public class UI : MonoBehaviour
         }
     }
 
-    public static float ScaleFactor => (float)1080 / (float) Screen.height;
+    public static float ScaleFactor => 1080f / (float) Screen.height;
 }

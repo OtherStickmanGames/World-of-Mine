@@ -528,7 +528,7 @@ MonoBehaviour:
   mineIcon: {fileID: 1669497413}
   lookTouch: {fileID: 653725232}
   innerMineIcon: {fileID: 735919285}
-  mineTime: 0.7
+  mineTime: 0.5
   TouchTest: {fileID: 598927500}
   btnNoFall: {fileID: 1468434774}
   noFallOutline: {fileID: 1277859705}
@@ -536,7 +536,7 @@ MonoBehaviour:
   noFallTitle: {fileID: 1468434773}
   layer:
     serializedVersion: 2
-    m_Bits: 129
+    m_Bits: 128
   txtDebuga: {fileID: 1974414733}
 --- !u!1 &328820647
 GameObject:
@@ -1077,7 +1077,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.9716981, g: 0.22459061, b: 0.6522111, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1769,7 +1769,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de4ff8a70e8ce374c9e520b47aa119b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testMobileInput: 0
+  testMobileInput: 1
   serverStatePanel: {fileID: 328820647}
   btnServer: {fileID: 1736012815}
   btnClient: {fileID: 711917653}
@@ -1788,8 +1788,8 @@ MonoBehaviour:
   txtPizdos: {fileID: 926837987}
   starterAssetsInputs: {fileID: 1785066746}
   btnReset: {fileID: 1826133748}
-  smoothTime: 1
-  sensitivity: 0.5
+  smoothTime: 0.8
+  sensitivity: 0.39
 --- !u!224 &690583769
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1805,10 +1805,10 @@ RectTransform:
   - {fileID: 1736012814}
   - {fileID: 711917652}
   - {fileID: 1870677589}
+  - {fileID: 288572287}
   - {fileID: 471371737}
   - {fileID: 1220749139}
   - {fileID: 1826133751}
-  - {fileID: 288572287}
   - {fileID: 1974414735}
   - {fileID: 75413804}
   - {fileID: 1069987052}
@@ -2939,7 +2939,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.328966, g: 0.22352937, b: 0.972549, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:

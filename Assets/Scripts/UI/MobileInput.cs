@@ -106,14 +106,17 @@ public class MobileInput : MonoBehaviour
                 
                 TouchTest.anchoredPosition = Input.touches[0].position * scaleFactor;
             }
+
             var exclude = new List<GameObject>() { lookTouch.gameObject };
             if (Input.touches.Length == 1 && !touchWasMoved && !UI.ClickOnUI(exclude))
             {
+                //print("зашли в тач");
                 var touch = Input.touches[0];
 
                 // ≈сли было нажатие первый раз
                 if (!touchDown)
                 {
+                    //print("==============================================");
                     touchDown = true;
                     oldTouchPos = touch.position;
                 }
@@ -121,7 +124,8 @@ public class MobileInput : MonoBehaviour
                 var dir = touch.position - oldTouchPos;
                 // ≈сли нет движени€ больше 0,5 сек, то активируем майнинг
                 lastBlockRaycast = IsBlockRaycast(out raycastHit);
-                if (dir.magnitude < 1.88f * scaleFactor && lastBlockRaycast)
+                //print($"{oldTouchPos} ??? {touch.position} ### {dir.magnitude < 1.88f * scaleFactor}");
+                if (dir.magnitude < 3.8f * scaleFactor && lastBlockRaycast)
                 {
                     touchTimer += Time.deltaTime;
 
@@ -134,10 +138,9 @@ public class MobileInput : MonoBehaviour
                     blockPosition = new(x, y, z);
 
                     player.blockHighlight.position = blockPosition;
-
+                    //print(touchTimer);
                     if (touchTimer > 0.5f)
                     {
-                        var scaleFactor = (float)1080 / (float)Screen.height;
                         mineIconPos.x = touch.position.x * scaleFactor;
                         mineIconPos.y = touch.position.y * scaleFactor;
 
@@ -197,8 +200,9 @@ public class MobileInput : MonoBehaviour
     {
         var maxDist = character.MineDistance;
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out raycastHit, layer))
+        if (Physics.Raycast(ray, out raycastHit, maxDist * 1.3f, layer))
         {
+            //print($"{LayerMask.LayerToName(raycastHit.collider.gameObject.layer)} =-=-=-=-=-=-=-");
             var dist = Vector3.Distance(raycastHit.point, player.transform.position + Vector3.up);
             if (dist > maxDist)
                 return false;

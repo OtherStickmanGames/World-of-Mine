@@ -21,6 +21,7 @@ public class PlayerBehaviour : MonoBehaviour
     [ReadOnlyField] public Transform blockHighlight;
 
     public bool IsOwner { get; set; } = true;
+    public bool MobileTestINput { get; set; } = false;
 
     public static UnityEvent<MonoBehaviour> onMineSpawn = new UnityEvent<MonoBehaviour>();
     public static UnityEvent<MonoBehaviour> onOwnerPositionSet = new UnityEvent<MonoBehaviour>();
@@ -69,7 +70,7 @@ public class PlayerBehaviour : MonoBehaviour
     public void SetLoadedPosition()
     {
         var userDataPosition = UserData.Owner.position;
-        print($"{UserData.Owner.userName} ### {UserData.Owner.position}");
+        //print($"{UserData.Owner.userName} ### {UserData.Owner.position}");
         if (userDataPosition == Vector3.zero)
         {
             transform.position += Vector3.one + Vector3.up * 180;
@@ -79,7 +80,7 @@ public class PlayerBehaviour : MonoBehaviour
         {
             WorldGenerator.Inst.GetChunk(userDataPosition.ToGlobalRoundBlockPos());
             transform.position = userDataPosition;// + (Vector3.up * 5);
-            print($"{transform.position} ===---+++");
+            //print($"{transform.position} ===---+++");
         }
     }
 
@@ -115,7 +116,7 @@ public class PlayerBehaviour : MonoBehaviour
 
         SavePlayerPosition();
 
-        if (allowDigging && !Application.isMobilePlatform)
+        if (allowDigging && !Application.isMobilePlatform && !MobileTestINput)
         {
             BlockRaycast();
         }

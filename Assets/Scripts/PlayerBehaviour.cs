@@ -208,7 +208,10 @@ public class PlayerBehaviour : MonoBehaviour
 
     void BlockRaycast()
     {
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, 8f, layerMask))
+        var camPos = Camera.main.transform.position;
+        var dist = Vector3.Distance(camPos, transform.position);
+        dist += player.MineDistance;
+        if (Physics.Raycast(camPos, Camera.main.transform.forward, out RaycastHit hit, dist, layerMask))
         {
             blockHighlight.position = Vector3.zero;
 

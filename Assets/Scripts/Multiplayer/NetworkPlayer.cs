@@ -28,22 +28,30 @@ public class NetworkPlayer : NetworkBehaviour
         Client_Started();
     }
 
+    Coroutine delay;
+
     private void Client_Started()
     {
         // КОСТЫЛИЩЕ, я задолбался разбираться, почему перс иногда спавнится на старте
 
-        StartCoroutine(Async());
+        delay = StartCoroutine(Async());
 
         IEnumerator Async()
         {
             yield return null;
 
             player.SetLoadedPosition();
+            delay = null; 
         }
     }
 
-    private void Update()
+    public override void OnDestroy()
     {
-        
+        base.OnDestroy();
+
+        if(delay != null)
+        {
+            StopCoroutine(delay);
+        }
     }
 }

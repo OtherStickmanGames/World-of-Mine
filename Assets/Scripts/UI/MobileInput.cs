@@ -200,7 +200,7 @@ public class MobileInput : MonoBehaviour
     {
         var maxDist = character.MineDistance;
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out raycastHit, maxDist * 1.3f, layer))
+        if (Physics.Raycast(ray, out raycastHit, 888, layer))
         {
             //print($"{LayerMask.LayerToName(raycastHit.collider.gameObject.layer)} =-=-=-=-=-=-=-");
             var dist = Vector3.Distance(raycastHit.point, player.transform.position + Vector3.up);

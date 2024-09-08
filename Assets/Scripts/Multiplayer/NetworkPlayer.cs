@@ -25,7 +25,10 @@ public class NetworkPlayer : NetworkBehaviour
         thirdPersonController.IsOwner = IsOwner;
         thirdPersonController.AllowGravityLogic = false;
 
-        Client_Started();
+        if (IsOwner)
+        {
+            Client_Started();
+        }
     }
 
     Coroutine delay;
@@ -40,7 +43,10 @@ public class NetworkPlayer : NetworkBehaviour
         {
             yield return null;
 
-            player.SetLoadedPosition();
+#if !UNITY_SERVER
+            Debug.Log($"Сервак выкидывает Ошибку {player} ### {UserData.Owner}");
+#endif
+            player?.SetLoadedPosition();
             delay = null; 
         }
     }

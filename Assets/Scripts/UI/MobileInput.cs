@@ -9,6 +9,8 @@ public class MobileInput : MonoBehaviour
 {
     [SerializeField] RectTransform mineIcon;
     [SerializeField] FixedTouchField lookTouch;
+    [SerializeField] ZoomButtonsComponent zoomCameraButtons;
+    [SerializeField] float zoomFactor = 1f;
     [SerializeField] RectTransform innerMineIcon;
     [SerializeField] float mineTime = 1.5f;
     [SerializeField] RectTransform TouchTest;
@@ -46,9 +48,46 @@ public class MobileInput : MonoBehaviour
             UpdateBtnNoFallView();
         }
 
+        if (Application.isMobilePlatform)
+        {
+            zoomCameraButtons.onZoomValue.AddListener(ZoomCamera_Changed);
+            
+        }
+        else
+        {
+            zoomCameraButtons.gameObject.SetActive(false);
+        }
+
+        CameraStack.onCameraSwitch.AddListener(Camera_Switched);
+
         Keyframe start = new Keyframe(0, 0);
         Keyframe end = new Keyframe(mineTime, 1);
         mineCurve = new AnimationCurve(new Keyframe[] { start, end });
+    }
+
+    private void Camera_Switched(CameraStack.CameraType camType)
+    {
+        switch (camType)
+        {
+            case CameraStack.CameraType.Third:
+                if (Application.isMobilePlatform)
+                {
+                    zoomCameraButtons.gameObject.SetActive(true);
+                }
+                break;
+            
+            default:
+                if (Application.isMobilePlatform)
+                {
+                    zoomCameraButtons.gameObject.SetActive(false);
+                }
+                break;
+        }
+    }
+
+    private void ZoomCamera_Changed(float zoomValue)
+    {
+        CameraStack.Instance.ZoomThirdPersonCamera(zoomValue * zoomFactor * Time.deltaTime);
     }
 
     public void NoFall_Clicked()
@@ -93,17 +132,6 @@ public class MobileInput : MonoBehaviour
         {
             if (Input.touches.Length == 1)
             {
-                //txtDebuga.text = $"Mos Pos {Input.mousePosition}\nTach Poso {Input.touches[0].position}";
-
-                //var offsetX = Screen.width / 2;
-                //var offsetY = Screen.height / 2;
-                //var offset = new Vector2(offsetX, offsetY);
-                //TouchTest.position = Input.touches[0].position;// - offset;
-
-                //var localPos = TouchTest.localPosition;
-                //localPos.z = 0;
-                //TouchTest.localPosition = localPos;
-                
                 TouchTest.anchoredPosition = Input.touches[0].position * scaleFactor;
             }
 

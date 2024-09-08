@@ -187,6 +187,18 @@ public class CameraStack : MonoBehaviour
         }
     }
 
+    public void ZoomThirdPersonCamera(float value)
+    {
+        ZoomCamera(thirdPersonCamera, value, 28f);
+    }
+
+    public void ZoomCamera(CinemachineVirtualCamera camera, float zoomValue, float maxDistance)
+    {
+        var component = camera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
+        component.CameraDistance -= zoomValue;
+        component.CameraDistance = Mathf.Clamp(component.CameraDistance, 1f, maxDistance);
+    }
+
     private void Update()
     {
         TopDownZoom();

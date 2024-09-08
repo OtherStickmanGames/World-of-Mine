@@ -218,7 +218,7 @@ MonoBehaviour:
   sensitivityMouseY: 1.5
   CameraAngleOverride: 0
   LockCameraPosition: 0
-  checkEdgeDist: 0.15
+  checkEdgeDist: 0.3
   _cinemachineTargetYaw: 0
   _cinemachineTargetPitch: 0
   _animator: {fileID: 4412435983000359391}

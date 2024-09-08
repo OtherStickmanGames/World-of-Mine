@@ -304,53 +304,37 @@ namespace StarterAssets
                 pendingPos.y - GroundedOffset,
                 pendingPos.z
             );
-            
-            
-            if(NoFall)
-            {
-                //var groundedPendingPos = Physics.CheckSphere
-                //(
-                //    spherePosition,
-                //    0.18f,
-                //    GroundLayers,
-                //    QueryTriggerInteraction.Ignore
-                //);
 
-                //if (groundedPendingPos || !Grounded)
-                //{
-                //    if (groundedPendingPos && !Grounded)
-                //    {
-                //        ebaniyTimer += Time.deltaTime;
-                //        if (ebaniyTimer > 0.5f)
-                //        {
-                //            _controller.Move(move);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        _controller.Move(move);
-                //    }
-                //}
+
+            if (NoFall)
+            {
                 if (Grounded)
                 {
                     move = AdjustMovementForEdge(move);
                 }
-                //_controller.Move(move);
-
+                else
+                {
+                    // Костыль, иногда только, что поставленный блок не упевает
+                    // дать коллизию с рейкастом, поэтому ждем время, чтобы
+                    // точно убедиться, что под нами нет поверхности.
+                    ebaniyTimer += Time.deltaTime;
+                    if (ebaniyTimer < 0.3f)
+                    {
+                        move = AdjustMovementForEdge(move);
+                    }
+                }
             }
             else
             {
                 ebaniyTimer = 0;
-                //_controller.Move(move);
             }
 
-   
             _controller.Move(move);
             // update animator if using character
 
             _animator.SetFloat(_animIDSpeed, _animationBlend);
             _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
-            
+
         }
 
         Vector3 AdjustMovementForEdge(Vector3 moveDirection)
@@ -382,9 +366,9 @@ namespace StarterAssets
         bool IsEdgeSafe(Vector3 direction)
         {
             RaycastHit hit;
-            Vector3 checkPosition = transform.position + (direction * checkEdgeDist) + (Vector3.up * 0.5f); // Проверяем на расстоянии пол блока вперед
+            Vector3 checkPosition = transform.position + (direction * checkEdgeDist) + (Vector3.up * 0.5f);
 
-            checkPosition -= Vector3.up * 0.5f;
+            checkPosition -= Vector3.up * 0.58f;
 
             return Physics.CheckSphere
             (

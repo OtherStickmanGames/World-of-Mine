@@ -161,7 +161,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.OtherStickmanGames.WoM
+    Android: com.OtherStickmanGames.NoobOnline
     Standalone: com.OtherStickmanGames.WoM
     iPhone: com.Unity-Technologies.com.unity.template.urp-blank
   buildNumber:
@@ -273,7 +273,7 @@ PlayerSettings:
   AndroidEnableTango: 0
   androidEnableBanner: 1
   androidUseLowAccuracyLocation: 0
-  androidUseCustomKeystore: 0
+  androidUseCustomKeystore: 1
   m_AndroidBanners:
   - width: 320
     height: 180

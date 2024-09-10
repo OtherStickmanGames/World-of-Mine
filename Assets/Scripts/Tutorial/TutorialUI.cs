@@ -657,6 +657,10 @@ public class TutorialUI : MonoBehaviour
 
                 leftCropHandleMoveComplete = true;
             }
+
+            // Система сохранения постройки после отпускания указателя выбора обалсти
+            // включает отображение кнопки, поэтому мы ее тут постоянно скрываем
+            saveBuildingView.SetVisibleBtnAccept(false);
         }
 
         if (!rightCropHandleMoveComplete && leftCropHandleMoveComplete)
@@ -667,7 +671,7 @@ public class TutorialUI : MonoBehaviour
             rightBottomMovePointerTutorial.SetCorners(startPos, endPos);
 
             var dist = rightBottomMovePointerTutorial.distance;
-            if (dist != null && dist < 35)
+            if (dist != null && dist < 50)
             {
                 rightCropHandleTutorial.SetActive(false);
 
@@ -677,6 +681,10 @@ public class TutorialUI : MonoBehaviour
 
                 ShowTutorial(horizontalPlaneAcceptZone);
             }
+
+            // Система сохранения постройки после отпускания указателя выбора обалсти
+            // включает отображение кнопки, поэтому мы ее тут постоянно скрываем
+            saveBuildingView.SetVisibleBtnAccept(false);
         }
 
         if (!horizontalPlaneAcceptComplete && rightCropHandleMoveComplete)

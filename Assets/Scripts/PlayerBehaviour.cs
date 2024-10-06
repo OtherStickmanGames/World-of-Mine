@@ -15,6 +15,7 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] Transform blockHighlightPrefab;
     [SerializeField] LayerMask layerMask;
     [SerializeField] SkinnedMeshRenderer[] skinnedMeshRenderers;
+    [SerializeField] MeshRenderer[] meshRenderers;
     [SerializeField] public bool allowDigging;
     [SerializeField] int sizeMainInventory = 0;
 
@@ -398,6 +399,10 @@ public class PlayerBehaviour : MonoBehaviour
     {
         var shadowMode = value ? UnityEngine.Rendering.ShadowCastingMode.On : UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
         foreach (var item in skinnedMeshRenderers)
+        {
+            item.shadowCastingMode = shadowMode;
+        }
+        foreach (var item in meshRenderers)
         {
             item.shadowCastingMode = shadowMode;
         }

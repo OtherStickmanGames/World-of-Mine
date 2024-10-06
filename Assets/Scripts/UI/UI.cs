@@ -92,11 +92,23 @@ public class UI : MonoBehaviour
 
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
         SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
+        BuildingManager.Singleton.onBuildingListShow.AddListener(BuildingList_Showed);
+        BuildingManager.Singleton.onBuildingListHide.AddListener(BuildingList_Hided);
 
         InitResolutionCurveFactor();
 
         txtEbala.text = $"{UserData.Owner.position}";
 #endif
+    }
+
+    private void BuildingList_Showed()
+    {
+        quickInventoryView.gameObject.SetActive(false);
+    }
+
+    private void BuildingList_Hided()
+    {
+        quickInventoryView.gameObject.SetActive(true);
     }
 
     private void START_SERVER()

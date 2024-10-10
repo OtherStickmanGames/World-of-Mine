@@ -183,7 +183,7 @@ public class MobileInput : MonoBehaviour
 
             }
             // Сброс логики нажатия на экран
-            if (Input.touches.Length == 0)
+            if (Input.touches.Length == 0 && !UI.ClickOnUI(exclude))
             {
                 if (touchTimer > 0 && touchTimer < 0.3f && lastBlockRaycast && !touchWasMoved && character.inventory.CurrentSelectedItem != null)
                 {

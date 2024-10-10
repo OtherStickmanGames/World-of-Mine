@@ -21,6 +21,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     [ReadOnlyField] public Transform blockHighlight;
 
+    public Character Character => player;
     public bool IsOwner { get; set; } = true;
     public bool MobileTestINput { get; set; } = false;
 
@@ -117,7 +118,7 @@ public class PlayerBehaviour : MonoBehaviour
 
         SavePlayerPosition();
 
-        if (allowDigging && !Application.isMobilePlatform && !MobileTestINput)
+        if (allowDigging && !Application.isMobilePlatform && !MobileTestINput && !UI.ClickOnUI())
         {
             BlockRaycast();
         }
@@ -161,11 +162,22 @@ public class PlayerBehaviour : MonoBehaviour
         {
             thirdPersonController.NoFall = false;
         }
-        if(Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.X))
         {
             FindObjectOfType<MobileInput>().NoFall_Clicked();
         }
 
+        if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.E))
+        {
+            if (player.inventory.IsOpen)
+            {
+                player.inventory.Close();
+            }
+            else
+            {
+                player.inventory.Open();
+            }
+        }
     }
 
     float ebalaTimer;

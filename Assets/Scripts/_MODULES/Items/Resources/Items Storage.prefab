@@ -1,0 +1,117 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &543340232091038637
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3765167186613939041}
+  - component: {fileID: 6008844796423724763}
+  m_Layer: 0
+  m_Name: Items Storage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3765167186613939041
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 543340232091038637}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6008844796423724763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 543340232091038637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70b5226a29b161f4caf00680135e2985, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemsData:
+  - name: "\u0411\u0440\u0435\u0432\u043D\u043E"
+    itemID: 0
+    itemTypeID: 9
+    itemType: 1
+    description: "\u0411\u0440\u0435\u0432\u043D\u043E \u043C\u043E\u0436\u043D\u043E
+      \u0434\u043E\u0431\u044B\u0442\u044C \u0441\u043B\u043E\u043C\u0430\u0432..
+      \u0434\u0435\u0440\u0435\u0432\u043E. "
+    view: {fileID: 0}
+  - name: 
+    itemID: 50
+    itemTypeID: 0
+    itemType: 2
+    description: 
+    view: {fileID: 0}
+  - name: "\u0414\u043E\u0441\u043A\u0438"
+    itemID: 0
+    itemTypeID: 11
+    itemType: 1
+    description: "\u0414\u043E\u0441\u043A\u0438 \u0447\u0430\u0441\u0442\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442\u0441\u044F
+      \u0432 \u0434\u0440\u0443\u0433\u0438\u0445 \u043A\u0440\u0430\u0444\u0442\u0430\u0445
+      \u0438 \u0441\u0442\u0440\u043E\u0438\u0442\u0435\u043B\u044C\u0441\u0442\u0432\u0435."
+    view: {fileID: 0}
+  - name: "\u041A\u0430\u043C\u0435\u043D\u044C"
+    itemID: 0
+    itemTypeID: 2
+    itemType: 1
+    description: 
+    view: {fileID: 0}
+  itemsCraftableData:
+  - name: "\u0414\u043E\u0441\u043A\u0438"
+    description: "\u0418\u0437 \u043E\u0434\u043D\u043E\u0433\u043E \u0431\u043B\u043E\u043A\u0430
+      \u0434\u0435\u0440\u0435\u0432\u0430 \u043C\u043E\u0436\u043D\u043E \u043F\u043E\u043B\u0443\u0447\u0438\u0442\u044C
+      4 \u0434\u043E\u0441\u043A\u0438.\n\n\u0414\u043E\u0441\u043A\u0438 \u0447\u0430\u0441\u0442\u043E
+      \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442\u0441\u044F \u0432
+      \u0434\u0440\u0443\u0433\u0438\u0445 \u043A\u0440\u0430\u0444\u0442\u0430\u0445
+      \u0438 \u0441\u0442\u0440\u043E\u0438\u0442\u0435\u043B\u044C\u0441\u0442\u0432\u0435."
+    result:
+    - itemID: 0
+      itemTypeID: 11
+      count: 4
+    ingredients:
+    - itemID: 0
+      itemTypeID: 9
+      count: 1
+    timeCrafting: 1
+  - name: "\u0421\u0442\u043E\u043B \u0434\u043B\u044F \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0438
+      \u043A\u0430\u043C\u043D\u044F"
+    description: "\u041D\u0430 \u044D\u0442\u043E\u043C \u0441\u0442\u043E\u043B\u0435
+      \u043C\u043E\u0436\u043D\u043E \u0438\u0437\u0433\u043E\u0442\u0430\u0432\u043B\u0438\u0432\u0430\u0442\u044C
+      \u043D\u043E\u0432\u044B\u0435 \u0432\u0438\u0434\u044B \u0431\u043B\u043E\u043A\u043E\u0432
+      \u0438\u0437 \u043A\u0430\u043C\u043D\u044F, \u0430 \u0442\u0430\u043A \u0436\u0435
+      \u0434\u0440\u0443\u0433\u0438\u0435 \u043F\u0440\u0435\u0434\u043C\u0435\u0442\u044B
+      \u0441\u043E\u0434\u0435\u0440\u0436\u0430\u0449\u0438\u0435 \u043A\u0430\u043C\u0435\u043D\u044C"
+    result:
+    - itemID: 50
+      itemTypeID: 0
+      count: 1
+    ingredients:
+    - itemID: 0
+      itemTypeID: 11
+      count: 2
+    - itemID: 0
+      itemTypeID: 2
+      count: 2
+    timeCrafting: 5
+  - name: "\u041B\u0438\u0441\u0442\u044C\u044F"
+    description: 
+    result: []
+    ingredients: []
+    timeCrafting: 0

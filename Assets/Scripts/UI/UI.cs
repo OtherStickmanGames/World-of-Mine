@@ -281,7 +281,7 @@ public class UI : MonoBehaviour
         onInventoryOpen.AddListener(player.inventory.Open);
         onInventoryClose.AddListener(player.inventory.Close);
 
-        craftView.Init();
+        craftView.Init(mine);
     }
 
 

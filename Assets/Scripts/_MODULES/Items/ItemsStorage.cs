@@ -102,6 +102,18 @@ public struct ItemData
     [TextArea(1, 18)]
     public string description;
     public GameObject view;
+
+    public byte GetID()
+    {
+        if (itemID is ItemID.NONE)
+        {
+            return (byte)itemTypeID;
+        }
+        else
+        {
+            return (byte)itemID;
+        }
+    }
     
 }
 
@@ -127,6 +139,24 @@ public struct ItemCraftableData
         public ItemID itemID;
         public ItemTypeID itemTypeID;
         public int count;
+
+
+        public byte GetID()
+        {
+            if (itemID is ItemID.NONE)
+            {
+                return (byte)itemTypeID;
+            }
+            else
+            {
+                return (byte)itemID;
+            }
+        }
+
+        public ItemData GetItemData()
+        {
+            return ItemsStorage.Singleton.GetItemData(this);
+        }
     }
 }
 

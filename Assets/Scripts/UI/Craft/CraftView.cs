@@ -17,14 +17,41 @@ public class CraftView : ViewUI
     [SerializeField] Transform resultItemsParent;
     [SerializeField] Transform ingridientsParent;
     [SerializeField] TMP_Text labelDescription;
+    [SerializeField] GameObject bottomArea;
+    [SerializeField] TMP_Text labelNoIngridients;
+    [SerializeField] Button btnCraft;
+    [SerializeField] CountControllerView countCraftItems;
 
     [HideInInspector] public UnityEvent onClose;
 
-    public override void Init()
+    CraftableItemView selectedCraftableItem;
+    Character player;
+
+    public void Init(Character character)
     {
-        base.Init();
+        Init();
+
+        player = character;
 
         btnClose.onClick.AddListener(Close_Clicked);
+        btnCraft.onClick.AddListener(Craft_Clicked);
+        countCraftItems.Init();
+    }
+
+    private void Craft_Clicked()
+    {
+        var craftableData = selectedCraftableItem.Data;
+        foreach (var resultData in craftableData.result)
+        {
+            var item = new Item()
+            {
+                id = resultData.GetItemData().GetID(),
+                count = resultData.count,
+            };
+
+            player.inventory.TakeItem(item);
+        }
+        
     }
 
     public override void Show()
@@ -33,6 +60,8 @@ public class CraftView : ViewUI
 
         labelCraftInfo.gameObject.SetActive(true);
         craftInfoArea.gameObject.SetActive(false);
+        bottomArea.SetActive(false);
+        labelNoIngridients.gameObject.SetActive(false);
 
         ClearCraftInfo();
         InitItems();
@@ -53,12 +82,19 @@ public class CraftView : ViewUI
 
     private void Item_Clicked(CraftableItemView itemView)
     {
+        selectedCraftableItem = itemView;
+        var craftableData = itemView.Data;
+
         labelCraftInfo.gameObject.SetActive(false);
         craftInfoArea.gameObject.SetActive(true);
 
+        var availableCraft = CheckAvailableCraft(craftableData);
+        bottomArea.SetActive(availableCraft);
+        labelNoIngridients.gameObject.SetActive(!availableCraft);
+
         ClearCraftInfo();
 
-        var craftableData = itemView.Data;
+        
         foreach (var itemData in craftableData.result)
         {
             var slotView = Instantiate(itemSlotPrefab, resultItemsParent);
@@ -75,6 +111,20 @@ public class CraftView : ViewUI
 
         var description = string.IsNullOrEmpty(craftableData.description) ? craftableData.GetResultItemData().description : craftableData.description;
         labelDescription.SetText(description);
+    }
+
+    private bool CheckAvailableCraft(ItemCraftableData craftableData)
+    {
+        foreach (var ingridientData in craftableData.ingredients)
+        {
+            var hasItem = player.inventory.GetItem(ingridientData.GetID());
+            if (hasItem.count < ingridientData.count)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void ClearCraftInfo()

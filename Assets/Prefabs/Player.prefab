@@ -152,6 +152,8 @@ MonoBehaviour:
   - {fileID: 9122834423006960289}
   - {fileID: 3848527698516051141}
   - {fileID: 7746329806677692226}
+  - {fileID: 7941221953923839599}
+  - {fileID: 6853977124982039026}
   allowDigging: 1
   sizeMainInventory: 0
   blockHighlight: {fileID: 0}
@@ -1600,6 +1602,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 7806579355091725390}
   m_PrefabAsset: {fileID: 0}
+--- !u!23 &6853977124982039026 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -5527960260807569988, guid: 657a24a550f86f040bc1ae3cbf29c980,
+    type: 3}
+  m_PrefabInstance: {fileID: 7806579355091725390}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6960281742513983775 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 657a24a550f86f040bc1ae3cbf29c980,
@@ -1770,6 +1778,12 @@ MeshRenderer:
 --- !u!4 &7772144173651495845 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 657a24a550f86f040bc1ae3cbf29c980,
+    type: 3}
+  m_PrefabInstance: {fileID: 7806579355091725390}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &7941221953923839599 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -9051556005878818271, guid: 657a24a550f86f040bc1ae3cbf29c980,
     type: 3}
   m_PrefabInstance: {fileID: 7806579355091725390}
   m_PrefabAsset: {fileID: 0}

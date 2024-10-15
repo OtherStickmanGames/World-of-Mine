@@ -17,6 +17,7 @@ public class UI : MonoBehaviour
     [SerializeField] Button btnClient;
     [SerializeField] InventotyView inventoryView;
     [SerializeField] QuickInventoryView quickInventoryView;
+    [SerializeField] CraftView craftView;
     [SerializeField] SaveBuildingView saveBuildingView;
     [SerializeField] ShowBuildingView showBuildingView;
     [SerializeField] Button btnSwitchCamera;
@@ -28,6 +29,8 @@ public class UI : MonoBehaviour
     [SerializeField] RectTransform touch2;
     [SerializeField] TMP_Text txtEbala;
     [SerializeField] public TMP_Text txtPizdos;
+    [SerializeField] Button btnInventory;
+    [SerializeField] Button btnCrafting;
     
 
     [Header("Output")]
@@ -50,9 +53,13 @@ public class UI : MonoBehaviour
         btnServer.onClick.AddListener(BtnServer_Clicked);
 
         btnSwitchCamera.gameObject.SetActive(false);
+        btnInventory.gameObject.SetActive(false);
         btnSwitchCamera.onClick.AddListener(BtnSwitchCamera_Clicked);
 
         btnReset.onClick.AddListener(BtnReset_Clicked);
+        btnInventory.onClick.AddListener(Inventory_Clicked);
+        btnCrafting.onClick.AddListener(Crafting_Clicked);
+        craftView.onClose.AddListener(Craft_Closed);
 
 #if !UNITY_SERVER
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
@@ -64,17 +71,6 @@ public class UI : MonoBehaviour
         btnServer.gameObject.SetActive(false);
 
 #endif
-    }
-
-    private void SERVER_STARTED()
-    {
-        Debug.Log($"-= SERVER STARTED =-");
-        serverStatePanel.SetActive(true);
-    }
-
-    private void BtnServer_Clicked()
-    {
-        NetworkManager.Singleton.StartServer();
     }
 
     private void Start()
@@ -90,13 +86,64 @@ public class UI : MonoBehaviour
         mobileController.SetActive(false);
         mobileInput.gameObject.SetActive(false);
 
+        inventoryView.gameObject.SetActive(false);
+        craftView.gameObject.SetActive(false);
+
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
         SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
+        BuildingManager.Singleton.onBuildingListShow.AddListener(BuildingList_Showed);
+        BuildingManager.Singleton.onBuildingListHide.AddListener(BuildingList_Hided);
 
         InitResolutionCurveFactor();
 
         txtEbala.text = $"{UserData.Owner.position}";
 #endif
+    }
+
+    private void Craft_Closed()
+    {
+        btnCrafting.gameObject.SetActive(true);
+    }
+
+    private void Inventory_Clicked()
+    {
+        if (mine.inventory.IsOpen)
+        {
+            mine.inventory.Close();
+        }
+        else
+        {
+            mine.inventory.Open();
+        }
+    }
+
+    private void Crafting_Clicked()
+    {
+        btnCrafting.gameObject.SetActive(false);
+        craftView.Show();
+    }
+
+    private void SERVER_STARTED()
+    {
+        Debug.Log($"-= SERVER STARTED =-");
+        serverStatePanel.SetActive(true);
+    }
+
+    private void BtnServer_Clicked()
+    {
+        NetworkManager.Singleton.StartServer();
+    }
+
+    private void BuildingList_Showed()
+    {
+        quickInventoryView.gameObject.SetActive(false);
+        btnInventory.gameObject.SetActive(false);
+    }
+
+    private void BuildingList_Hided()
+    {
+        quickInventoryView.gameObject.SetActive(true);
+        btnInventory.gameObject.SetActive(true);
     }
 
     private void START_SERVER()
@@ -148,6 +195,10 @@ public class UI : MonoBehaviour
         {
             NetworkManager.Singleton.StartServer();
         }
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            PrintCurrentUI();
+        }
 
         SetCurrentUIObject();
     }
@@ -197,6 +248,7 @@ public class UI : MonoBehaviour
         btnServer.gameObject.SetActive(false);
 
         btnSwitchCamera.gameObject.SetActive(true);
+        btnInventory.gameObject.SetActive(true);
 
         mine = player.GetComponent<Character>();
         quickInventoryView.gameObject.SetActive(true);
@@ -228,6 +280,8 @@ public class UI : MonoBehaviour
 
         onInventoryOpen.AddListener(player.inventory.Open);
         onInventoryClose.AddListener(player.inventory.Close);
+
+        craftView.Init(mine);
     }
 
 

@@ -146,6 +146,29 @@ public class Inventory
         return AvailableSpace(item);
     }
 
+    Item foundResult = new Item();
+    public Item GetItem(byte id)
+    {
+        foundResult.id = id;
+        foundResult.count = 0;
+        foreach (var item in quick)
+        {
+            if (item.id == id)
+            {
+                foundResult.count += item.count;
+            }
+        }
+        foreach (var item in main)
+        {
+            if (item.id == id)
+            {
+                foundResult.count += item.count;
+            }
+        }
+
+        return foundResult;
+    }
+
     public void InvokeItemSets()
     {
         onItemSets?.Invoke(this);

@@ -8,6 +8,7 @@ public class InventotyView : ViewUI
 {
     [SerializeField] List<InventorySlot> slots;
     [SerializeField] Transform location;
+    [SerializeField] Button btnClose;
 
     public bool IsShowed { get; private set; }
 
@@ -24,6 +25,8 @@ public class InventotyView : ViewUI
         inventory.onUpdateItem += Item_Updated;
         inventory.onClose += Hide;
         inventory.onOpen += Show;
+
+        btnClose.onClick.AddListener(inventory.Close);
     }
 
     private void Item_Updated(Item item)

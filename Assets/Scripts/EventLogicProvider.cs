@@ -23,17 +23,34 @@ public class EventLogicProvider : MonoBehaviour
 
     private void BuildingList_Hideed()
     {
-        ownerPersonController.LockCameraPosition = false;
+        SetLockCameraPosition(false);
     }
 
     private void BuildingList_Showed()
     {
-        ownerPersonController.LockCameraPosition = true;
+        SetLockCameraPosition(true);
+    }
+
+    private void SetLockCameraPosition(bool value)
+    {
+        ownerPersonController.LockCameraPosition = value;
     }
 
     private void PlayerOwner_Spawned(MonoBehaviour owner)
     {
         playerOwner = owner as PlayerBehaviour;
         ownerPersonController = owner.GetComponent<ThirdPersonController>();
+        playerOwner.Character.inventory.onOpen  += Inventory_Opened;
+        playerOwner.Character.inventory.onClose += Inventory_Closed;
+    }
+
+    private void Inventory_Closed()
+    {
+        SetLockCameraPosition(false);
+    }
+
+    private void Inventory_Opened()
+    {
+        SetLockCameraPosition(true);
     }
 }

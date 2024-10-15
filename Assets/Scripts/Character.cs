@@ -38,17 +38,7 @@ public class Character : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.E))
-        {
-            if (inventory.IsOpen)
-            {
-                inventory.Close();
-            }
-            else
-            {
-                inventory.Open();
-            }
-        }
+        
     }
 
     

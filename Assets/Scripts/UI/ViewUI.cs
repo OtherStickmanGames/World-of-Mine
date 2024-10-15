@@ -82,6 +82,11 @@ public class ViewUI : MonoBehaviour
 
     void TransparencyAnim(float to, Action onComplete = null)
     {
+        if (!canvasGroup)
+        {
+            return;
+        }
+
         var from = canvasGroup.alpha;
         var diff = Mathf.Abs(from - to);
 
@@ -112,6 +117,8 @@ public class ViewUI : MonoBehaviour
 
     void PositionAnim(Vector2 to, Action onComplete = null)
     {
+        //originPosition = transform.position;
+
         var from = (Vector2)transform.position;
         var diff = (from - to).magnitude;
 

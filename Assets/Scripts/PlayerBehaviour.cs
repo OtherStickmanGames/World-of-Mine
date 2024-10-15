@@ -15,11 +15,13 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] Transform blockHighlightPrefab;
     [SerializeField] LayerMask layerMask;
     [SerializeField] SkinnedMeshRenderer[] skinnedMeshRenderers;
+    [SerializeField] MeshRenderer[] meshRenderers;
     [SerializeField] public bool allowDigging;
     [SerializeField] int sizeMainInventory = 0;
 
     [ReadOnlyField] public Transform blockHighlight;
 
+    public Character Character => player;
     public bool IsOwner { get; set; } = true;
     public bool MobileTestINput { get; set; } = false;
 
@@ -116,7 +118,7 @@ public class PlayerBehaviour : MonoBehaviour
 
         SavePlayerPosition();
 
-        if (allowDigging && !Application.isMobilePlatform && !MobileTestINput)
+        if (allowDigging && !Application.isMobilePlatform && !MobileTestINput && !UI.ClickOnUI())
         {
             BlockRaycast();
         }
@@ -160,11 +162,22 @@ public class PlayerBehaviour : MonoBehaviour
         {
             thirdPersonController.NoFall = false;
         }
-        if(Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.X))
         {
             FindObjectOfType<MobileInput>().NoFall_Clicked();
         }
 
+        if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.E))
+        {
+            if (player.inventory.IsOpen)
+            {
+                player.inventory.Close();
+            }
+            else
+            {
+                player.inventory.Open();
+            }
+        }
     }
 
     float ebalaTimer;
@@ -398,6 +411,10 @@ public class PlayerBehaviour : MonoBehaviour
     {
         var shadowMode = value ? UnityEngine.Rendering.ShadowCastingMode.On : UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
         foreach (var item in skinnedMeshRenderers)
+        {
+            item.shadowCastingMode = shadowMode;
+        }
+        foreach (var item in meshRenderers)
         {
             item.shadowCastingMode = shadowMode;
         }

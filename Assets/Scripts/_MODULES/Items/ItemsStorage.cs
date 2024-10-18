@@ -79,6 +79,30 @@ public class ItemsStorage : MonoBehaviour
     private void Awake()
     {
         instance = instance != null ? instance : this;
+
+        WorldGenerator.onReady.AddListener(WG_Inited);
+
+    }
+
+    private void WG_Inited()
+    {
+        foreach (var item in itemsData)
+        {
+            if (item.itemType is ItemType.BLOCKABLE)
+            {
+                WorldGenerator.Inst.AddBlockableMesh((byte)item.itemID, item.view.transform);
+            }
+        }
+
+        print("лллл");
+    }
+
+    private IEnumerator Start()
+    {
+
+        yield return new WaitForEndOfFrame();
+
+        
     }
 
     public ItemCraftableData[] GetCratableItems()
@@ -175,6 +199,8 @@ public enum ItemTypeID : byte
 public enum ItemID : byte
 {
     NONE = 0,
+    STONE = 2,
+    COBBLESTONE = 3,
     STONE_WORKBENCH = 50,
 }
 

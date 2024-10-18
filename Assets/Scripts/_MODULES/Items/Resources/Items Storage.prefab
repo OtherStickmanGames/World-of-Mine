@@ -53,12 +53,18 @@ MonoBehaviour:
       \u0434\u043E\u0431\u044B\u0442\u044C \u0441\u043B\u043E\u043C\u0430\u0432..
       \u0434\u0435\u0440\u0435\u0432\u043E. "
     view: {fileID: 0}
-  - name: 
+  - name: "\u041F\u0440\u043E\u0441\u0442\u0430\u044F \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430
+      \u043A\u0430\u043C\u043D\u044F"
     itemID: 50
     itemTypeID: 0
     itemType: 2
-    description: 
-    view: {fileID: 0}
+    description: "\u041D\u0430 \u044D\u0442\u043E\u043C \u0441\u0442\u043E\u043B\u0435
+      \u043C\u043E\u0436\u043D\u043E \u0438\u0437\u0433\u043E\u0442\u0430\u0432\u043B\u0438\u0432\u0430\u0442\u044C
+      \u043D\u043E\u0432\u044B\u0435 \u0432\u0438\u0434\u044B \u0431\u043B\u043E\u043A\u043E\u0432
+      \u0438\u0437 \u043A\u0430\u043C\u043D\u044F, \u0430 \u0442\u0430\u043A \u0436\u0435
+      \u0434\u0440\u0443\u0433\u0438\u0435 \u043F\u0440\u0435\u0434\u043C\u0435\u0442\u044B
+      \u0441\u043E\u0434\u0435\u0440\u0436\u0430\u0449\u0438\u0435 \u043A\u0430\u043C\u0435\u043D\u044C"
+    view: {fileID: 2957543389148660415, guid: 35b88133b3a55f44c96f32ad6e6bfe84, type: 3}
   - name: "\u0414\u043E\u0441\u043A\u0438"
     itemID: 0
     itemTypeID: 11
@@ -70,6 +76,12 @@ MonoBehaviour:
   - name: "\u041A\u0430\u043C\u0435\u043D\u044C"
     itemID: 0
     itemTypeID: 2
+    itemType: 1
+    description: 
+    view: {fileID: 0}
+  - name: "\u0411\u0443\u043B\u044B\u0436\u043D\u0438\u043A"
+    itemID: 3
+    itemTypeID: 3
     itemType: 1
     description: 
     view: {fileID: 0}
@@ -105,9 +117,9 @@ MonoBehaviour:
     ingredients:
     - itemID: 0
       itemTypeID: 11
-      count: 2
+      count: 3
     - itemID: 0
-      itemTypeID: 2
+      itemTypeID: 3
       count: 2
     timeCrafting: 5
   - name: "\u041B\u0438\u0441\u0442\u044C\u044F"

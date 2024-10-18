@@ -48,6 +48,11 @@ public class CraftView : ViewUI
                 id = resultData.GetItemData().GetID(),
                 count = resultData.count,
             };
+            var itemData = resultData.GetItemData();
+            if (itemData.itemType is ItemType.MESH or ItemType.BLOCKABLE)
+            {
+                item.view = Instantiate(itemData.view);
+            }
 
             player.inventory.TakeItem(item);
         }
@@ -94,7 +99,6 @@ public class CraftView : ViewUI
 
         ClearCraftInfo();
 
-        
         foreach (var itemData in craftableData.result)
         {
             var slotView = Instantiate(itemSlotPrefab, resultItemsParent);

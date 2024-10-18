@@ -46,17 +46,19 @@ public class Inventory
     {
         if (AvailableSpace(item))
         {
-            UnityEngine.Object.DestroyImmediate(item.view);
+            // хер знает, попробую убрать
+            //UnityEngine.Object.DestroyImmediate(item.view);
 
             var matched = ExistMatchInQuick(item);
             if (matched != null)
             {
                 matched.count += item.count;
-                //UnityEngine.Object.Destroy(item.view);
+                UnityEngine.Object.DestroyImmediate(item.view);
                 onUpdateItem?.Invoke(matched);
             }
             else if (quick.Count < quickSize)
             {
+
                 quick.Add(item);
                 onTakeQuick?.Invoke(item);
                 onTakeItem?.Invoke(item);
@@ -67,6 +69,7 @@ public class Inventory
                 if (matched != null)
                 {
                     matched.count += item.count;
+                    UnityEngine.Object.DestroyImmediate(item.view);
                     onUpdateItem?.Invoke(matched);
                 }
                 else

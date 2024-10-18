@@ -104,6 +104,10 @@ public class InventorySlot : MonoBehaviour
         {
             Item.view = BlockItemSpawner.CreateBlockGameObject(Item.id);
         }
+        else
+        {
+            print("есть чё");
+        }
 
         Item.view.transform.SetParent(itemParent, false);
         Item.view.transform.localPosition = Vector3.zero;

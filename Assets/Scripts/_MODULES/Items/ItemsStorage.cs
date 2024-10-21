@@ -7,6 +7,8 @@ public class ItemsStorage : MonoBehaviour
     [SerializeField] ItemData[] itemsData;
     [Space(18)]
     [SerializeField] ItemCraftableData[] itemsCraftableData;
+    [Space(18)]
+    [SerializeField] TurnableBlockData[] turnableBlockData;
 
     static ItemsStorage instance;
     public static ItemsStorage Singleton
@@ -94,7 +96,13 @@ public class ItemsStorage : MonoBehaviour
             }
         }
 
-        print("лллл");
+
+        foreach (var item in turnableBlockData)
+        {
+            WorldGenerator.Inst.AddTurnableBlock((byte)item.itemID, item.rotationAxis);
+        }
+
+        //print("лллл");
     }
 
     private IEnumerator Start()
@@ -182,6 +190,15 @@ public struct ItemCraftableData
             return ItemsStorage.Singleton.GetItemData(this);
         }
     }
+}
+
+
+[System.Serializable]
+public struct TurnableBlockData
+{
+    public ItemID itemID;
+    public ItemTypeID itemTypeID;
+    public RotationAxis rotationAxis;
 }
 
 public enum ItemTypeID : byte

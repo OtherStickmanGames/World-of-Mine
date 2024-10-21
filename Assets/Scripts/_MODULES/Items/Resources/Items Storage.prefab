@@ -127,3 +127,7 @@ MonoBehaviour:
     result: []
     ingredients: []
     timeCrafting: 0
+  turnableBlockData:
+  - itemID: 50
+    itemTypeID: 0
+    rotationAxis: 2

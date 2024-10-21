@@ -64,9 +64,6 @@ public class PlayerBehaviour : MonoBehaviour
             InitSizeMainInventory();
             LoadInventory();
         }
-
-
-        //FindPathSystem.Instance.onPathComplete += FindPath_Completed;
     }
 
     public void SetLoadedPosition()
@@ -96,18 +93,6 @@ public class PlayerBehaviour : MonoBehaviour
         player.inventory.mainSize = sizeMainInventory;
     }
 
-    
-
-    private void FindPath_Completed(FindPathSystem.PathDataResult data)
-    {
-        if (!data.found)
-        {
-            foreach (var item in data.explored)
-            {
-                WorldGenerator.Inst.SetBlockAndUpdateChunck(item, 66);
-            }
-        }
-    }
 
     private void Update()
     {
@@ -244,7 +229,7 @@ public class PlayerBehaviour : MonoBehaviour
                 WorldGenerator.Inst.MineBlock(blockPosition + Vector3.right);
             }
 
-            PlaceBlock(blockPosition + hit.normal);
+            PlaceBlock(blockPosition + hit.normal, hit.normal);
 
 
             //if (Input.GetMouseButtonDown(1))
@@ -330,11 +315,53 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    void PlaceBlock(Vector3 blockPosition)
+    void PlaceBlock(Vector3 blockPosition, Vector3 hitNormal)
     {
         if (Input.GetMouseButtonDown(1) && !UI.ClickOnUI())
         {
-            //print("kjdnsfjksdf");
+            //print($"{hitNormal} - hit normal");
+            //print($"Dot right {Vector3.Dot(Vector3.right, hitNormal)}");
+            //print($"Dot Left {Vector3.Dot(Vector3.left, hitNormal)}");
+
+            Ray ray = CameraStack.Instance.Main.ScreenPointToRay(Input.mousePosition);
+            // Получаем направление луча
+            Vector3 rayDirection = ray.direction;
+
+            rayDirection = GetDominantDirection(rayDirection) * -1f;
+
+            // Округляем направление до ближайшего кратного 90 градусов значения (-1, 0, 1)
+            Vector3 roundedDirection = new Vector3(
+                Mathf.Round(rayDirection.x),
+                Mathf.Round(rayDirection.y),
+                Mathf.Round(rayDirection.z)
+            );
+
+            print(roundedDirection);
+
+            Quaternion rotation = Quaternion.LookRotation(roundedDirection);
+            rotation.ToAngleAxis(out var angle, out var axoso);
+            Debug.Log("Ось вращения: " + axoso + ", Угол поворота: " + angle);
+
+            RotationAxis zaebis = RotationAxis.Y;
+            if (!(Mathf.Abs(roundedDirection.z - 1f) < 0.001f))
+            {
+                if (Mathf.Abs(axoso.x) > 0)
+                {
+                    zaebis = RotationAxis.X;
+                }
+                //else if(Mathf.Abs(axoso.y) > 0)
+                //{
+                //    zaebis = RotationAxis.Y;
+                //}
+            }
+            print($"Май ось вращенька {zaebis}");
+
+            var axis = WorldGenerator.Inst.turnableBlocks[(byte)ItemID.STONE_WORKBENCH];
+
+            bool axisXY = (axis & (RotationAxis.X | RotationAxis.Y)) == (RotationAxis.X | RotationAxis.Y);
+            var chicko = WorldGenerator.Inst.GetChunk(blockPosition + Vector3.right);
+            
+
             if (player.inventory.CurrentSelectedItem != null)
             {
 
@@ -377,6 +404,23 @@ public class PlayerBehaviour : MonoBehaviour
 
                 player.inventory.Remove(item);
             }
+        }
+    }
+
+    private Vector3 GetDominantDirection(Vector3 direction)
+    {
+        // Сравниваем компоненты по их абсолютной величине
+        if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y) && Mathf.Abs(direction.x) > Mathf.Abs(direction.z))
+        {
+            return new Vector3(Mathf.Sign(direction.x), 0, 0); // Оставляем только X
+        }
+        else if (Mathf.Abs(direction.y) > Mathf.Abs(direction.x) && Mathf.Abs(direction.y) > Mathf.Abs(direction.z))
+        {
+            return new Vector3(0, Mathf.Sign(direction.y), 0); // Оставляем только Y
+        }
+        else
+        {
+            return new Vector3(0, 0, Mathf.Sign(direction.z)); // Оставляем только Z
         }
     }
 

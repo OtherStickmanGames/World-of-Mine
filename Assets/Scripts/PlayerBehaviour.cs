@@ -213,6 +213,8 @@ public class PlayerBehaviour : MonoBehaviour
         {
             blockHighlight.position = Vector3.zero;
 
+            hit.normal = GetDominantDirection(hit.normal);
+
             Vector3 normalPos = hit.point - (hit.normal / 2);
 
             int x = Mathf.FloorToInt(normalPos.x);
@@ -336,31 +338,26 @@ public class PlayerBehaviour : MonoBehaviour
                 Mathf.Round(rayDirection.z)
             );
 
-            print(roundedDirection);
-
             Quaternion rotation = Quaternion.LookRotation(roundedDirection);
             rotation.ToAngleAxis(out var angle, out var axoso);
-            Debug.Log("Ось вращения: " + axoso + ", Угол поворота: " + angle);
+            //Debug.Log("Ось вращения: " + axoso + ", Угол поворота: " + angle);
 
             RotationAxis zaebis = RotationAxis.Y;
+            var turnBlockAngle = angle * axoso.y;
             if (!(Mathf.Abs(roundedDirection.z - 1f) < 0.001f))
             {
                 if (Mathf.Abs(axoso.x) > 0)
                 {
                     zaebis = RotationAxis.X;
+                    turnBlockAngle = angle * axoso.x;
                 }
-                //else if(Mathf.Abs(axoso.y) > 0)
-                //{
-                //    zaebis = RotationAxis.Y;
-                //}
             }
-            print($"Май ось вращенька {zaebis}");
+            //print($"Май ось вращенька {zaebis}");
 
             var axis = WorldGenerator.Inst.turnableBlocks[(byte)ItemID.STONE_WORKBENCH];
 
             bool axisXY = (axis & (RotationAxis.X | RotationAxis.Y)) == (RotationAxis.X | RotationAxis.Y);
             var chicko = WorldGenerator.Inst.GetChunk(blockPosition + Vector3.right);
-            
 
             if (player.inventory.CurrentSelectedItem != null)
             {
@@ -379,15 +376,32 @@ public class PlayerBehaviour : MonoBehaviour
 
                 chunck.blocks[xBlock, yBlock, zBlock] = item.id;
 
+                var isTurnableBlock = IsTurnableBlock(item.id);
+                if (isTurnableBlock)
+                {
+                    var availableAxis = WorldGenerator.Inst.turnableBlocks[item.id];
+                    if ((availableAxis & zaebis) == zaebis)
+                    {
+                        chunck.AddTurnBlock
+                        (
+                            new Vector3Int(xBlock, yBlock, zBlock),
+                            zaebis,
+                            (int)turnBlockAngle
+                        );
+                        print($"зашли и вроде как повернули {turnBlockAngle} ### {zaebis}");
+                    }
+                }
+
                 var mesh = generator.UpdateMesh(chunck);//, (int)pos.x, (int)pos.y, (int)pos.z);
                 chunck.meshFilter.mesh = mesh;
                 chunck.collider.sharedMesh = mesh;
 
+                var blockLocalPos = new Vector3(xBlock, yBlock, zBlock);
+
                 for (int p = 0; p < 6; p++)
                 {
-                    var blockPos = new Vector3(xBlock, yBlock, zBlock);
 
-                    Vector3 checkingBlockPos = blockPos + World.faceChecks[p];
+                    Vector3 checkingBlockPos = blockLocalPos + World.faceChecks[p];
                     var blockInOtherChunckPos = checkingBlockPos + pos;
 
                     if (!IsBlockChunk((int)checkingBlockPos.x, (int)checkingBlockPos.y, (int)checkingBlockPos.z))
@@ -400,11 +414,30 @@ public class PlayerBehaviour : MonoBehaviour
                     }
                 }
 
-                WorldGenerator.Inst.PlaceBlock(blockPosition + Vector3.right, item.id);
+
+                if (isTurnableBlock)
+                {
+                    WorldGenerator.Inst.PlaceTurnedBlock
+                    (
+                        blockPosition + Vector3.right,
+                        item.id,
+                        (int)turnBlockAngle,
+                        zaebis
+                    );
+                }
+                else
+                {
+                    WorldGenerator.Inst.PlaceBlock(blockPosition + Vector3.right, item.id);
+                }
 
                 player.inventory.Remove(item);
             }
         }
+    }
+
+    private bool IsTurnableBlock(byte blockID)
+    {
+        return WorldGenerator.Inst.turnableBlocks.ContainsKey(blockID);
     }
 
     private Vector3 GetDominantDirection(Vector3 direction)

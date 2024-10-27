@@ -26,6 +26,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
     {
         WorldGenerator.onBlockPick.AddListener(Block_Mined);
         WorldGenerator.onBlockPlace.AddListener(Block_Placed);
+        WorldGenerator.onTurnedBlockPlace.AddListener(TurnedBlock_Placed);
         ChunckComponent.onChunckInit.AddListener(Chunck_Inited);
         ChunckComponent.onBlocksSeted.AddListener(ChunckBlocks_Seted);
         NetworkUserManager.onUserRegistred.AddListener(UserOnServer_Registred);
@@ -238,6 +239,27 @@ public class NetworkWorldGenerator : NetworkBehaviour
         {
             SendBlockPlacedServerRpc(blockData.pos, blockData.ID);
         }
+    }
+
+    private void TurnedBlock_Placed(TurnedBlockData data)
+    {
+        if (IsClient)
+        {
+            NetworkTurnedBlockData networkData = new NetworkTurnedBlockData
+            {
+                pos = data.pos,
+                blockID = data.ID,
+                angle = data.angle,
+                axis = data.axis
+            };
+            SendTurnedBlockPlacedServerRpc(networkData);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SendTurnedBlockPlacedServerRpc(NetworkTurnedBlockData blockData, ServerRpcParams serverRpcParams = default)
+    {
+        print($"≈ба че получил {blockData.angle} ### {blockData.axis}");
     }
 
     [ServerRpc(RequireOwnership = false)]

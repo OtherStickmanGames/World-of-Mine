@@ -218,6 +218,7 @@ public enum ItemID : byte
     NONE = 0,
     STONE = 2,
     COBBLESTONE = 3,
+    WOOD = 9,
     STONE_WORKBENCH = 50,
 }
 

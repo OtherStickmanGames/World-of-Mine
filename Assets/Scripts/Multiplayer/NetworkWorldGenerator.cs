@@ -64,6 +64,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
             var changedBlocks = chunckData.changedBlocks;
             if (changedBlocks.Count > 0)
             {
+                PrepareAndSendTurnedBlocksData(chunckData, chunckPos, GetTargetClientParams(serverRpcParams));
+
                 Vector3[] positions = changedBlocks.Select(b => b.Pos).ToArray();
                 byte[] blockIDs = changedBlocks.Select(b => b.blockId).ToArray();
                 ReceivePendingChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
@@ -104,6 +106,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
 
         yield return null;
 #if !UNITY_SERVER
+        //print(UserData.Owner);
         var chunck = worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos());
         offlineBlocksSeted.Add(chunck);
         //print(chunck.pos);
@@ -142,6 +145,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
             var changedBlocks = chunckData.changedBlocks;
             if(changedBlocks.Count > 0)
             {
+                PrepareAndSendTurnedBlocksData(chunckData, chunckPos, GetTargetClientParams(serverRpcParams));
+                
                 Vector3[] positions = changedBlocks.Select(b => b.Pos).ToArray();
                 byte[] blockIDs = changedBlocks.Select(b => b.blockId).ToArray();
                 ReceivePendingChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
@@ -154,6 +159,48 @@ public class NetworkWorldGenerator : NetworkBehaviour
         else
         {
             SendNoChunckServerData(serverRpcParams.Receive.SenderClientId);
+        }
+    }
+
+    private void PrepareAndSendTurnedBlocksData(ChunckData chunckData, Vector3 chunckPos, ClientRpcParams clientRpcParams)
+    {
+        if (chunckData.turnedBlocks == null || chunckData.turnedBlocks.Count is 0)
+            return;
+
+        var networkTurnedBlocksData = ToNetworkTurnedBlocksData(chunckData.turnedBlocks);
+        ReceivePendingChunkTurnedBlocksDataClientRpc(networkTurnedBlocksData, chunckPos, clientRpcParams);
+    }
+
+    private NetworkTurnedBlockData[] ToNetworkTurnedBlocksData(List<ChunckData.JsonTurnedBlock> turnedBlocks)
+    {
+        var length = turnedBlocks.Count;
+        NetworkTurnedBlockData[] result = new NetworkTurnedBlockData[length];
+        for (int i = 0; i < length; i++)
+        {
+            var jsonData = turnedBlocks[i];
+            result[i] = new NetworkTurnedBlockData()
+            {
+                worldBlockPos = jsonData.Pos,
+                angle = jsonData.angle,
+                axis = jsonData.axis
+            };
+        }
+
+        return result;
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ReceivePendingChunkTurnedBlocksDataClientRpc(NetworkTurnedBlockData[] turnedBlocks, Vector3 chunkPos, ClientRpcParams clientRpcParams)
+    {
+        if (turnedBlocks.Length is 0)
+            return;
+
+        //print($"хуль, я клиент и я получил данные о повертышах {turnedBlocks.Length}");
+        var chunk = worldGenerator.GetChunk(chunkPos);
+        foreach (var turnData in turnedBlocks)
+        {
+            //print($"{chunkPos} ### {turnData.worldBlockPos} ### {turnData.angle}");
+            chunk.AddTurnBlock(worldGenerator.ToLocalBlockPos(turnData.worldBlockPos), (int)turnData.angle, turnData.axis);
         }
     }
 
@@ -247,7 +294,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
         {
             NetworkTurnedBlockData networkData = new NetworkTurnedBlockData
             {
-                pos = data.pos,
+                worldBlockPos = data.pos,
                 blockID = data.ID,
                 angle = data.angle,
                 axis = data.axis
@@ -259,7 +306,11 @@ public class NetworkWorldGenerator : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendTurnedBlockPlacedServerRpc(NetworkTurnedBlockData blockData, ServerRpcParams serverRpcParams = default)
     {
-        print($"Еба че получил {blockData.angle} ### {blockData.axis}");
+        //print($"Еба че получил {blockData.angle} ### {blockData.axis}");
+        SaveChangeChunck(blockData.worldBlockPos, blockData.blockID, serverRpcParams);
+        SaveTurnedChangeChunck(blockData, serverRpcParams);
+        ReceiveBlockPlacedClientRpc(blockData.worldBlockPos, blockData.blockID, serverRpcParams.Receive.SenderClientId);
+        ReceiveTurnBlockPlacedClientRpc(blockData, serverRpcParams.Receive.SenderClientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -282,17 +333,31 @@ public class NetworkWorldGenerator : NetworkBehaviour
         worldGenerator.SetBlockAndUpdateChunck(blockPos, blockID);
     }
 
+    [ClientRpc]
+    private void ReceiveTurnBlockPlacedClientRpc(NetworkTurnedBlockData blockData, ulong mineClientId)
+    {
+        if (mineClientId == NetworkManager.LocalClient.ClientId)
+            return;
+        // TO DO Доделать, чтобы не отправлять эти данные тому кто добыл блок
+
+        var chunk = worldGenerator.GetChunk(blockData.worldBlockPos);
+
+        chunk.AddTurnBlock
+        (
+            worldGenerator.ToLocalBlockPos(blockData.worldBlockPos),
+            (int)blockData.angle,
+            blockData.axis
+        );
+
+        worldGenerator.UpdateChunckMesh(chunk);
+    }
+
     private void Block_Mined(BlockData data)
     {
-        if (IsServer)
+        if (IsClient)
         {
-
-        }
-        else
-        {
-            //print("отправили запрос добычи блока");
             BlockMinedServerRpc(data.pos, data.ID);
-            //SaveChangeChunckClientRpc();
+
         }
     }
 
@@ -303,8 +368,38 @@ public class NetworkWorldGenerator : NetworkBehaviour
 #if !UNITY_SERVER
         ChangeChunck(blockPos, 0);
 #endif
+        RemoveTurnedBlockData(blockPos);
         SaveChangeChunck(blockPos, 0, serverRpcParams);
         ReceiveMinedBlockClientRpc(blockPos, serverRpcParams.Receive.SenderClientId);
+    }
+
+    private void RemoveTurnedBlockData(Vector3 blockPos)
+    {
+        var chunck = worldGenerator.GetChunk(blockPos);
+        var chunckFileName = GetChunckName(chunck);
+        var path = $"{chuncksDirectory}{serverDirectory}{chunckFileName}.json";
+
+        ChunckData jsonChunkData = GetChunckData(path, chunck);
+        int idx = 0;
+        var hasTurnedData = false;
+        foreach (var turnData in jsonChunkData.turnedBlocks)
+        {
+            if(turnData.Pos == blockPos)
+            {
+                hasTurnedData = true;
+                break;
+            }
+            idx++;
+        }
+
+        if (hasTurnedData)
+        {
+            jsonChunkData.turnedBlocks.RemoveAt(idx);
+
+            var json = JsonConvert.SerializeObject(jsonChunkData);
+            File.WriteAllText(path, json);
+            //print($"Жахнул поворото датас из чанкас {chunckFileName}");
+        }
     }
 
     private void SaveChangeChunck(Vector3 blockPos, byte blockID, ServerRpcParams serverRpcParams)
@@ -315,12 +410,12 @@ public class NetworkWorldGenerator : NetworkBehaviour
         var chunckFileName = GetChunckName(chunck);
         var path = $"{chuncksDirectory}{serverDirectory}{chunckFileName}.json";
 
-        ChunckData data = GetChunckData(path, chunck);
+        ChunckData jsonChunkData = GetChunckData(path, chunck);
 
-        ServerChangedDataBlocks(data, blockPos, blockID);
+        ServerChangedDataBlocks(jsonChunkData, blockPos, blockID);
 
-        var userName = NetworkUserManager.Instance.users[serverRpcParams.Receive.SenderClientId];
-        var userChunckData = data.usersChangedBlocks.Find(u => u.userName == userName);
+        var userName = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
+        var userChunckData = jsonChunkData.usersChangedBlocks.Find(u => u.userName == userName);
         if (userChunckData == null)
         {
             userChunckData = new ChunckData.UserChunckData
@@ -328,25 +423,43 @@ public class NetworkWorldGenerator : NetworkBehaviour
                 userName = userName
             };
             userChunckData.changedBlocks.Add(new(blockPos, blockID));
-            data.usersChangedBlocks.Add(userChunckData);
+            jsonChunkData.usersChangedBlocks.Add(userChunckData);
         }
         else
         {
-            var jsonBlockData = userChunckData.changedBlocks.Find(d => d.Pos == blockPos);
-            if (jsonBlockData == null)
+            var jsonUserBlockData = userChunckData.changedBlocks.Find(d => d.Pos == blockPos);
+            if (jsonUserBlockData == null)
             {
                 userChunckData.changedBlocks.Add(new(blockPos, blockID));
             }
             else
             {
-                jsonBlockData.blockId = blockID;
+                jsonUserBlockData.blockId = blockID;
             }
         }
 
-
-        var json = JsonConvert.SerializeObject(data); //JsonUtility.ToJson(data);
+        var json = JsonConvert.SerializeObject(jsonChunkData); //JsonUtility.ToJson(data);
 
         File.WriteAllText(path, json);
+    }
+
+    
+    private void SaveTurnedChangeChunck(NetworkTurnedBlockData blockData, ServerRpcParams serverRpcParams)
+    {
+        CheckDirectory(serverDirectory);
+
+        var chunck = worldGenerator.GetChunk(blockData.worldBlockPos);
+        var chunckFileName = GetChunckName(chunck);
+        var path = $"{chuncksDirectory}{serverDirectory}{chunckFileName}.json";
+
+        ChunckData jsonChunkData = GetChunckData(path, chunck);
+
+        ServerChangedTurnedBlock(jsonChunkData, blockData);
+
+        var json = JsonConvert.SerializeObject(jsonChunkData); //JsonUtility.ToJson(data);
+
+        File.WriteAllText(path, json);
+        //print($"Жасон савед - {chunckFileName}");
     }
 
     [ClientRpc]
@@ -366,26 +479,57 @@ public class NetworkWorldGenerator : NetworkBehaviour
         {
             var fileText = File.ReadAllText(path);
             data = JsonConvert.DeserializeObject<ChunckData>(fileText, settings);
-            data.blocks = chunck.blocks;
+            data.blocks = chunck.blocks;// Я хз зачем я это делаю
         }
         else
         {
-            data = new(chunck);
+            data = new ChunckData(chunck);
         }
         return data;
     }
 
-    private void ServerChangedDataBlocks(ChunckData data, Vector3 blockPos, byte blockID)
+    private void ServerChangedDataBlocks(ChunckData jsonChunckData, Vector3 blockPos, byte blockID)
     {
-        var changedBlockData = data.changedBlocks.Find(d => d.Pos == blockPos);
+        var changedBlockData = jsonChunckData.changedBlocks.Find(d => d.Pos == blockPos);
         if (changedBlockData == null)
         {
-            data.changedBlocks.Add(new ChunckData.JsonBlockData(blockPos, blockID));
+            jsonChunckData.changedBlocks.Add(new ChunckData.JsonBlockData(blockPos, blockID));
         }
         else
         {
             changedBlockData.blockId = blockID;
         }
+    }
+
+    private void ServerChangedTurnedBlock(ChunckData jsonChunckData, NetworkTurnedBlockData blockData)
+    {
+        if (jsonChunckData.turnedBlocks is null)
+        {
+            jsonChunckData.turnedBlocks = new List<ChunckData.JsonTurnedBlock>();
+        }
+        // Ищем в уже сохраненных данных информацию о повернутом блоке
+        for (int i = 0; i < jsonChunckData.turnedBlocks.Count; i++)
+        {
+            var turnedBlock = jsonChunckData.turnedBlocks[i];
+            if (turnedBlock.Pos == blockData.worldBlockPos)
+            {
+                turnedBlock.angle = blockData.angle;
+                turnedBlock.axis = blockData.axis;
+
+                return;
+            }
+        }
+
+        // Если не находим, то создаем её
+        jsonChunckData.turnedBlocks.Add
+        (
+            new ChunckData.JsonTurnedBlock
+            (
+                blockData.worldBlockPos,
+                blockData.angle,
+                blockData.axis
+            )
+        );
     }
 
     private void ChangeChunck(Vector3 blockPos, byte blockId)

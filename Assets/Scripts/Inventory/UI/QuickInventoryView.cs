@@ -17,7 +17,7 @@ public class QuickInventoryView : MonoBehaviour
     {
         inventory.onTakeQuick += Item_Taked;
         inventory.onUpdateItem += Item_Updated;
-        inventory.onItemSets += Items_Seted;
+        inventory.onItemsSet += Items_Seted;
         this.inventory = inventory;
 
         foreach (var slot in slots)
@@ -76,6 +76,11 @@ public class QuickInventoryView : MonoBehaviour
         foreach (var item in inventory.quick)
         {
             Item_Taked(item);
+        }
+        foreach (var item in inventory.main)
+        {
+            // Сделать заполнение разных инвентарей, ибо просто вызов
+            // Item_Taked не поймет какой итем из какого инвентаря
         }
     }
 

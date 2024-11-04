@@ -45,8 +45,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemsData:
-  - name: "\u0411\u0440\u0435\u0432\u043D\u043E"
+  - name: "\u0411\u043B\u043E\u043A \u0442\u0440\u0430\u0432\u044B"
+    itemID: 1
+    itemTypeID: 1
+    itemType: 1
+    description: 
+    view: {fileID: 0}
+  - name: "\u041A\u0430\u043C\u0435\u043D\u044C"
     itemID: 0
+    itemTypeID: 2
+    itemType: 1
+    description: 
+    view: {fileID: 0}
+  - name: "\u0411\u0443\u043B\u044B\u0436\u043D\u0438\u043A"
+    itemID: 3
+    itemTypeID: 3
+    itemType: 1
+    description: 
+    view: {fileID: 0}
+  - name: "\u0417\u0435\u043C\u043B\u0438\u0449\u0435"
+    itemID: 4
+    itemTypeID: 4
+    itemType: 1
+    description: 
+    view: {fileID: 0}
+  - name: "\u0411\u0440\u0435\u0432\u043D\u043E"
+    itemID: 9
     itemTypeID: 9
     itemType: 1
     description: "\u0411\u0440\u0435\u0432\u043D\u043E \u043C\u043E\u0436\u043D\u043E
@@ -66,24 +90,12 @@ MonoBehaviour:
       \u0441\u043E\u0434\u0435\u0440\u0436\u0430\u0449\u0438\u0435 \u043A\u0430\u043C\u0435\u043D\u044C"
     view: {fileID: 2957543389148660415, guid: 35b88133b3a55f44c96f32ad6e6bfe84, type: 3}
   - name: "\u0414\u043E\u0441\u043A\u0438"
-    itemID: 0
+    itemID: 11
     itemTypeID: 11
     itemType: 1
     description: "\u0414\u043E\u0441\u043A\u0438 \u0447\u0430\u0441\u0442\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442\u0441\u044F
       \u0432 \u0434\u0440\u0443\u0433\u0438\u0445 \u043A\u0440\u0430\u0444\u0442\u0430\u0445
       \u0438 \u0441\u0442\u0440\u043E\u0438\u0442\u0435\u043B\u044C\u0441\u0442\u0432\u0435."
-    view: {fileID: 0}
-  - name: "\u041A\u0430\u043C\u0435\u043D\u044C"
-    itemID: 0
-    itemTypeID: 2
-    itemType: 1
-    description: 
-    view: {fileID: 0}
-  - name: "\u0411\u0443\u043B\u044B\u0436\u043D\u0438\u043A"
-    itemID: 3
-    itemTypeID: 3
-    itemType: 1
-    description: 
     view: {fileID: 0}
   itemsCraftableData:
   - name: "\u0414\u043E\u0441\u043A\u0438"

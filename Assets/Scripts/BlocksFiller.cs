@@ -15,7 +15,7 @@ public class BlocksFiller : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 var item = new Item() { id = (byte)blocksNames[0] };
-                item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
+                item.view = BlockItemSpawner.CreateDropedView(item.id);
                 item.count = 8;
                 player.inventory.TakeItem(item);
             }

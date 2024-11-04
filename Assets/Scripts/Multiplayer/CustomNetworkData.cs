@@ -36,14 +36,14 @@ public struct BuildingServerData : INetworkSerializable
 [Serializable]
 public struct NetworkTurnedBlockData : INetworkSerializable
 {
-    public Vector3 pos;
+    public Vector3 worldBlockPos;
     public byte blockID;
     public float angle;
     public RotationAxis axis;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        serializer.SerializeValue(ref pos);
+        serializer.SerializeValue(ref worldBlockPos);
         serializer.SerializeValue(ref blockID);
         serializer.SerializeValue(ref angle);
         serializer.SerializeValue(ref axis);

@@ -65,6 +65,11 @@ public class ItemsStorage : MonoBehaviour
         return default;
     }
 
+    internal ItemData GetItemData(byte itemID)
+    {
+        return GetItemData((ItemID)itemID);
+    }
+
     internal ItemData GetItemData(ItemCraftableData.PropsData props)
     {
         if (props.itemID is ItemID.NONE)
@@ -134,6 +139,7 @@ public struct ItemData
     [TextArea(1, 18)]
     public string description;
     public GameObject view;
+    public Mesh colliderMesh;
 
     public byte GetID()
     {
@@ -204,7 +210,7 @@ public struct TurnableBlockData
 public enum ItemTypeID : byte
 {
     NONE = 0,
-    GRASS = 1,
+    GRASS_BLOCK = 1,
     STONE = 2,
     COBBLESTONE = 3,
     DIRT = 4,
@@ -216,9 +222,12 @@ public enum ItemTypeID : byte
 public enum ItemID : byte
 {
     NONE = 0,
+    GRASS_BLOCK = 1,
     STONE = 2,
     COBBLESTONE = 3,
+    DIRT = 4,
     WOOD = 9,
+    WOODEN_PLANK = 11,
     STONE_WORKBENCH = 50,
 }
 

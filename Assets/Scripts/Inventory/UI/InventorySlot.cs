@@ -97,12 +97,12 @@ public class InventorySlot : MonoBehaviour
 
     private void SetGameObjectView()
     {
-        if (itemParent.childCount > 0)
+        if (itemParent.childCount > 0)// Я так понимаю типа уже ест ьиконка и мы просто +1 к количеству
             return;
 
         if (Item.view == null)
         {
-            Item.view = BlockItemSpawner.CreateBlockGameObject(Item.id);
+            Item.view = BlockItemSpawner.CreateDropedView(Item.id);
         }
         else
         {

@@ -385,8 +385,8 @@ public class PlayerBehaviour : MonoBehaviour
                         chunck.AddTurnBlock
                         (
                             new Vector3Int(xBlock, yBlock, zBlock),
-                            zaebis,
-                            (int)turnBlockAngle
+                            (int)turnBlockAngle,
+                            zaebis
                         );
                         print($"зашли и вроде как повернули {turnBlockAngle} ### {zaebis}");
                     }
@@ -542,8 +542,6 @@ public class PlayerBehaviour : MonoBehaviour
             var json = PlayerPrefs.GetString("inventory");
             var jsonInventory = JsonConvert.DeserializeObject<JsonInventory>(json);
             jsonInventory.SetInventoryData(player.inventory);
-            //print(jsonInventory);
-            //print(jsonInventory.quick[0].count);
         }
     }
 

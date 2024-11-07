@@ -38,13 +38,24 @@ public struct NetworkTurnedBlockData : INetworkSerializable
 {
     public Vector3 worldBlockPos;
     public byte blockID;
-    public float angle;
-    public RotationAxis axis;
+    public NetworkTurnData[] turnsData;
+
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         serializer.SerializeValue(ref worldBlockPos);
         serializer.SerializeValue(ref blockID);
+        serializer.SerializeValue(ref turnsData);
+    }
+}
+
+public struct NetworkTurnData : INetworkSerializable
+{
+    public float angle;
+    public RotationAxis axis;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
         serializer.SerializeValue(ref angle);
         serializer.SerializeValue(ref axis);
     }

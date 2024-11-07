@@ -902,6 +902,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: -7415653982076606429, guid: 657a24a550f86f040bc1ae3cbf29c980,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 93e0a95059362304eae23f3a75d1bb7a, type: 2}
     - target: {fileID: -7321462337165257108, guid: 657a24a550f86f040bc1ae3cbf29c980,
         type: 3}
       propertyPath: m_Layer
@@ -948,6 +953,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: -5138871654631427197, guid: 657a24a550f86f040bc1ae3cbf29c980,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 93e0a95059362304eae23f3a75d1bb7a, type: 2}
     - target: {fileID: -5138871654631427197, guid: 657a24a550f86f040bc1ae3cbf29c980,
         type: 3}
       propertyPath: m_Materials.Array.data[1]
@@ -1098,6 +1108,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 1548975678669686139, guid: 657a24a550f86f040bc1ae3cbf29c980,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 93e0a95059362304eae23f3a75d1bb7a, type: 2}
     - target: {fileID: 1630794972795428178, guid: 657a24a550f86f040bc1ae3cbf29c980,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -1248,6 +1263,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 7453458142706874930, guid: 657a24a550f86f040bc1ae3cbf29c980,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 93e0a95059362304eae23f3a75d1bb7a, type: 2}
     - target: {fileID: 7453458142706874930, guid: 657a24a550f86f040bc1ae3cbf29c980,
         type: 3}
       propertyPath: m_Materials.Array.data[1]

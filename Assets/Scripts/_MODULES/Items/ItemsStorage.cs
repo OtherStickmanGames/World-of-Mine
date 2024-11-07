@@ -98,6 +98,10 @@ public class ItemsStorage : MonoBehaviour
             if (item.itemType is ItemType.BLOCKABLE)
             {
                 WorldGenerator.Inst.AddBlockableMesh((byte)item.itemID, item.view.transform);
+                if (item.colliderMesh)
+                {
+                    WorldGenerator.Inst.AddBlockableColliderMesh((byte)item.itemID, item.colliderMesh);
+                }
             }
         }
 
@@ -217,6 +221,7 @@ public enum ItemTypeID : byte
     WOOD = 9,
     LEAVES = 10,
     WOODEN_PLANK = 11,
+    WOODEN_STAIR = 12,
 }
 
 public enum ItemID : byte
@@ -227,7 +232,9 @@ public enum ItemID : byte
     COBBLESTONE = 3,
     DIRT = 4,
     WOOD = 9,
+    LEAVES_BLOCK = 10,
     WOODEN_PLANK = 11,
+    WOODEN_STAIR = 12,
     STONE_WORKBENCH = 50,
 }
 

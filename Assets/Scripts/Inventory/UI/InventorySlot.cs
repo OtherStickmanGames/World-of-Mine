@@ -106,7 +106,7 @@ public class InventorySlot : MonoBehaviour
         }
         else
         {
-            print("есть чё");
+            //print("есть чё");
         }
 
         Item.view.transform.SetParent(itemParent, false);

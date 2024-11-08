@@ -27,6 +27,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     public static UnityEvent<MonoBehaviour> onMineSpawn = new UnityEvent<MonoBehaviour>();
     public static UnityEvent<MonoBehaviour> onOwnerPositionSet = new UnityEvent<MonoBehaviour>();
+    public static UnityEvent<byte> onBlockInteract = new UnityEvent<byte>();
 
     ThirdPersonController thirdPersonController;
     Character player;
@@ -73,7 +74,7 @@ public class PlayerBehaviour : MonoBehaviour
         if (userDataPosition == Vector3.zero)
         {
             transform.position += Vector3.one + Vector3.up * 180;
-            print($"soeiofsoefbiosebf");
+            print($"Загружена дефолтная позиция");
         }
         else
         {
@@ -231,9 +232,19 @@ public class PlayerBehaviour : MonoBehaviour
                 WorldGenerator.Inst.MineBlock(blockPosition + Vector3.right);
             }
 
-            PlaceBlock(blockPosition + hit.normal, hit.normal);
-
-
+            //print($"Ща блок: {WorldGenerator.Inst.GetBlockID(transform.position + (Vector3.down * 0.5f) + Vector3.right)}");
+            var lookBlockID = WorldGenerator.Inst.GetBlockID(blockPosition + Vector3.right);
+            if (ItemsStorage.Singleton.HasCraftingBundle(lookBlockID))
+            {
+                if (Input.GetMouseButtonDown(1) && !UI.ClickOnUI())
+                {
+                    onBlockInteract?.Invoke(lookBlockID);
+                }
+            }
+            else
+            {
+                PlaceBlock(blockPosition + hit.normal, hit.normal);
+            }
             //if (Input.GetMouseButtonDown(1))
             //{
             //    // зачем-то нужно прибавлять 1 по оси X, хз почему так, но именно так работает
@@ -360,7 +371,6 @@ public class PlayerBehaviour : MonoBehaviour
             var axis = WorldGenerator.Inst.turnableBlocks[(byte)ItemID.STONE_WORKBENCH];
 
             bool axisXY = (axis & (RotationAxis.X | RotationAxis.Y)) == (RotationAxis.X | RotationAxis.Y);
-            var chicko = WorldGenerator.Inst.GetChunk(blockPosition + Vector3.right);
 
             if (player.inventory.CurrentSelectedItem != null)
             {
@@ -625,7 +635,7 @@ public class PlayerBehaviour : MonoBehaviour
                     (int)item.angle,
                     item.axis
                 );
-            Debug.Log($"Повернул {item.axis} :: {item.angle}");
+            //Debug.Log($"Повернул {item.axis} :: {item.angle}");
         }
         
 

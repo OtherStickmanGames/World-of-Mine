@@ -120,6 +120,21 @@ MonoBehaviour:
     view: {fileID: 2957543389148660415, guid: 35b88133b3a55f44c96f32ad6e6bfe84, type: 3}
     colliderMesh: {fileID: -267059760217051132, guid: c8da94005ffcdff468d08fb88b32c4a7,
       type: 3}
+  - name: "\u0421\u0442\u0443\u043F\u0435\u043D\u044C\u043A\u0438 \u0438\u0437 \u0431\u0443\u043B\u044B\u0436\u043D\u0438\u043A\u0430"
+    itemID: 16
+    itemTypeID: 0
+    itemType: 2
+    description: "\u0421\u0442\u0443\u043F\u0435\u043D\u044C\u043A\u0438 \u043F\u043E\u0437\u0432\u043E\u043B\u044F\u044E\u0442
+      \u043D\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C
+      \u043F\u0440\u044B\u0436\u043E\u0433, \u0447\u0442\u043E\u0431\u044B \u0437\u0430\u0431\u0440\u0430\u0442\u044C\u0441\u044F
+      \u043D\u0430 \u043E\u0434\u0438\u043D \u0431\u043B\u043E\u043A \u0432\u0432\u0435\u0440\u0445,
+      \u0442\u0430\u043A \u0436\u0435 \u0438\u0445 \u043C\u043E\u0436\u043D\u043E
+      \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0432
+      \u043A\u0430\u0447\u0435\u0441\u0432\u0442\u0435 \u0434\u0435\u043A\u043E\u0440\u0430\u0442\u0438\u0432\u043D\u044B\u0445
+      \u0431\u043B\u043E\u043A\u043E\u0432."
+    view: {fileID: 3697216878236514609, guid: 076c040848878db4fbae81466eb7db82, type: 3}
+    colliderMesh: {fileID: -280350712708759278, guid: b0237dcdd02b76b40885a144232103b8,
+      type: 3}
   itemsCraftableData:
   - name: "\u0414\u043E\u0441\u043A\u0438"
     description: "\u0418\u0437 \u043E\u0434\u043D\u043E\u0433\u043E \u0431\u043B\u043E\u043A\u0430
@@ -129,7 +144,7 @@ MonoBehaviour:
       \u0434\u0440\u0443\u0433\u0438\u0445 \u043A\u0440\u0430\u0444\u0442\u0430\u0445
       \u0438 \u0441\u0442\u0440\u043E\u0438\u0442\u0435\u043B\u044C\u0441\u0442\u0432\u0435."
     result:
-    - itemID: 0
+    - itemID: 11
       itemTypeID: 11
       count: 4
     ingredients:
@@ -173,6 +188,24 @@ MonoBehaviour:
       itemTypeID: 0
       count: 2
     timeCrafting: 1
+  - name: "\u0421\u0442\u0443\u043F\u0435\u043D\u044C\u043A\u0438 \u0438\u0437 \u0411\u0443\u043B\u044B\u0436\u043D\u0438\u043A\u0430"
+    description: "\u0421\u0442\u0443\u043F\u0435\u043D\u044C\u043A\u0438 \u043F\u043E\u0437\u0432\u043E\u043B\u044F\u044E\u0442
+      \u043D\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C
+      \u043F\u0440\u044B\u0436\u043E\u0433, \u0447\u0442\u043E\u0431\u044B \u0437\u0430\u0431\u0440\u0430\u0442\u044C\u0441\u044F
+      \u043D\u0430 \u043E\u0434\u0438\u043D \u0431\u043B\u043E\u043A \u0432\u0432\u0435\u0440\u0445,
+      \u0442\u0430\u043A \u0436\u0435 \u0438\u0445 \u043C\u043E\u0436\u043D\u043E
+      \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0432
+      \u043A\u0430\u0447\u0435\u0441\u0432\u0442\u0435 \u0434\u0435\u043A\u043E\u0440\u0430\u0442\u0438\u0432\u043D\u044B\u0445
+      \u0431\u043B\u043E\u043A\u043E\u0432."
+    result:
+    - itemID: 16
+      itemTypeID: 0
+      count: 1
+    ingredients:
+    - itemID: 3
+      itemTypeID: 0
+      count: 1
+    timeCrafting: 1
   turnableBlockData:
   - itemID: 50
     itemTypeID: 0
@@ -180,3 +213,12 @@ MonoBehaviour:
   - itemID: 12
     itemTypeID: 0
     rotationAxis: 3
+  - itemID: 16
+    itemTypeID: 0
+    rotationAxis: 3
+  interactableBlocks: 32
+  craftingBundles:
+  - craftingID: 0
+    items: 0b32
+  - craftingID: 50
+    items: 10

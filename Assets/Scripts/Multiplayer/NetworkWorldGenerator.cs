@@ -211,7 +211,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
                 turnsData[i].angle = turnData.turnsData[i].angle;
                 turnsData[i].axis = turnData.turnsData[i].axis;
             }
-            print($"{turnData.worldBlockPos} ### {turnData.turnsData[0].angle}");
+            //print($"{turnData.worldBlockPos} ### {turnData.turnsData[0].angle}");
             chunk.AddTurnBlock
             (
                 turnData.worldBlockPos.ToVecto3Int(),// бля.. в общем он тут
@@ -221,15 +221,15 @@ public class NetworkWorldGenerator : NetworkBehaviour
             //print($"{chunkPos} ### {turnData.worldBlockPos} ### {turnData.angle}");
         }
 
-        print("проверяю данные повернутых блоков у чанка");
-        foreach (var kv in chunk.turnedBlocks)
-        {
-            print(kv.Key + " Позиция блока");
-            foreach (var item in kv.Value)
-            {
-                print($"{item.angle} ^^^ {item.axis}");
-            }
-        }
+        //print("проверяю данные повернутых блоков у чанка");
+        //foreach (var kv in chunk.turnedBlocks)
+        //{
+        //    print(kv.Key + " Позиция блока");
+        //    foreach (var item in kv.Value)
+        //    {
+        //        print($"{item.angle} ^^^ {item.axis}");
+        //    }
+        //}
     }
 
     [ClientRpc(RequireOwnership = false)]
@@ -275,16 +275,16 @@ public class NetworkWorldGenerator : NetworkBehaviour
             //print($"{chunckPos} ### {chunck.pos} ### {chunck.renderer.transform}");
 
             //yield return null;
-            print("=========================");
+            //print("=========================");
             for (int i = 0; i < length; i++)
             {
                 var pos = positions[i];
                 var blockId = blockIDs[i];
 
-                if(blockId > 0)
-                {
-                    print($"{pos} :: {blockId}");
-                }
+                //if(blockId > 0)
+                //{
+                //    print($"{pos} :: {blockId}");
+                //}
 
                 chunck.SetBlock(pos, blockId);
             }

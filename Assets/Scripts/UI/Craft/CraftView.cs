@@ -59,25 +59,27 @@ public class CraftView : ViewUI
         
     }
 
-    public override void Show()
+    public void Show(byte craftingItemID)
     {
-        base.Show();
+        Show();
 
         labelCraftInfo.gameObject.SetActive(true);
         craftInfoArea.gameObject.SetActive(false);
         bottomArea.SetActive(false);
         labelNoIngridients.gameObject.SetActive(false);
 
+        var itemsCraftable = ItemsStorage.Singleton.GetCraftableItems(craftingItemID);
+
         ClearCraftInfo();
-        InitItems();
+        InitItems(itemsCraftable);
     }
 
-    private void InitItems()
+    private void InitItems(ItemCraftableData[] itemCraftableDatas)
     {
         ClearCraftableItems();
 
         var storage = ItemsStorage.Singleton;
-        foreach (var itemData in storage.GetCratableItems())
+        foreach (var itemData in itemCraftableDatas)
         {
             var itemView = Instantiate(itemPrefab, itemsParent);
             itemView.Init(itemData);

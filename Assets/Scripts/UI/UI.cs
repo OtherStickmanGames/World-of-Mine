@@ -38,6 +38,9 @@ public class UI : MonoBehaviour
 
     [SerializeField] Button btnReset;
 
+    [Header("DEV POEBOTA")]
+    [SerializeField] Button btnDisableAll;
+
     public static UnityEvent onInventoryOpen = new UnityEvent();
     public static UnityEvent onInventoryClose = new UnityEvent();
 
@@ -61,8 +64,11 @@ public class UI : MonoBehaviour
         btnCrafting.onClick.AddListener(Crafting_Clicked);
         craftView.onClose.AddListener(Craft_Closed);
 
+        btnDisableAll.onClick.AddListener(DisableAll_Clicked);
+
 #if !UNITY_SERVER
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
+        PlayerBehaviour.onBlockInteract.AddListener(PlayerBlock_Interacted);
 #endif
 
         serverStatePanel.SetActive(false);
@@ -71,6 +77,27 @@ public class UI : MonoBehaviour
         btnServer.gameObject.SetActive(false);
 
 #endif
+    }
+
+    private void PlayerBlock_Interacted(byte blockID)
+    {
+        mine.inventory.Open();
+        btnCrafting.gameObject.SetActive(false);
+        craftView.Show(blockID);
+    }
+
+    private void DisableAll_Clicked()
+    {
+        if (quickInventoryView.gameObject.activeInHierarchy)
+        {
+            quickInventoryView.gameObject.SetActive(false);
+            btnInventory.gameObject.SetActive(false);
+        }
+        else
+        {
+            quickInventoryView.gameObject.SetActive(true);
+            btnInventory.gameObject.SetActive(true);
+        }
     }
 
     private void Start()
@@ -120,7 +147,7 @@ public class UI : MonoBehaviour
     private void Crafting_Clicked()
     {
         btnCrafting.gameObject.SetActive(false);
-        craftView.Show();
+        craftView.Show(0);
     }
 
     private void SERVER_STARTED()

@@ -11,7 +11,7 @@ public class ItemsStorage : MonoBehaviour
     [SerializeField] TurnableBlockData[] turnableBlockData;
     [Space(18)]
     [SerializeField] ItemID[] interactableBlocks;
-    [Space(18)]
+    [Space(18)][Header("“”“ Œœ»—€¬¿… Õ¿  ¿ ŒÃ —“ŒÀ≈, ◊“Œ  –¿‘“»“—ﬂ")]
     [SerializeField] CraftingBundle[] craftingBundles;
 
     static ItemsStorage instance;
@@ -284,6 +284,7 @@ public struct TurnableBlockData
 [System.Serializable]
 public struct CraftingBundle
 {
+    public string name;
     public CraftingItemID craftingID;
     public ItemID[] items;
 }
@@ -312,14 +313,17 @@ public enum ItemID : byte
     LEAVES_BLOCK = 10,
     WOODEN_PLANK = 11,
     WOODEN_STAIR = 12,
+    STONE_8_3 = 14,
     COBBLESTONE_STAIR = 16,
     STONE_WORKBENCH = 50,
+    SIMPLE_WOOD_WORKBENCH = 51,
 }
 
 public enum CraftingItemID : byte
 {
     SIMPLE_CRAFT = 0,
     STONE_WORKBENCH = 50,
+    SIMPLE_WOOD_WORKBENCH = 51,
 }
 
 public enum ItemType : byte

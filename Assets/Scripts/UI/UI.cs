@@ -68,7 +68,6 @@ public class UI : MonoBehaviour
 
 #if !UNITY_SERVER
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
-        PlayerBehaviour.onBlockInteract.AddListener(PlayerBlock_Interacted);
 #endif
 
         serverStatePanel.SetActive(false);
@@ -268,8 +267,9 @@ public class UI : MonoBehaviour
     private void PlayerMine_Spawned(MonoBehaviour player)
     {
 #if !UNITY_SERVER
+        var playerBeh = player as PlayerBehaviour;
         mobileInput.gameObject.SetActive(true);
-        mobileInput.Init(player as PlayerBehaviour);
+        mobileInput.Init(playerBeh);
 
         btnClient.gameObject.SetActive(false);
         btnServer.gameObject.SetActive(false);
@@ -293,7 +293,8 @@ public class UI : MonoBehaviour
 
         this.player = player.transform;
 
-        (player as PlayerBehaviour).MobileTestINput = testMobileInput;
+        playerBeh.MobileTestINput = testMobileInput;
+        playerBeh.onBlockInteract.AddListener(PlayerBlock_Interacted);
 #endif
     }
 

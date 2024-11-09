@@ -27,7 +27,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     public static UnityEvent<MonoBehaviour> onMineSpawn = new UnityEvent<MonoBehaviour>();
     public static UnityEvent<MonoBehaviour> onOwnerPositionSet = new UnityEvent<MonoBehaviour>();
-    public static UnityEvent<byte> onBlockInteract = new UnityEvent<byte>();
+    public UnityEvent<byte> onBlockInteract = new UnityEvent<byte>();
 
     ThirdPersonController thirdPersonController;
     Character player;
@@ -450,7 +450,7 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    private bool IsTurnableBlock(byte blockID)
+    public bool IsTurnableBlock(byte blockID)
     {
         return WorldGenerator.Inst.turnableBlocks.ContainsKey(blockID);
     }
@@ -497,7 +497,7 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    private List<TurnBlockData> TurnBlockCalculation(byte blockID, ChunckComponent chunk, Vector3Int blockLocalPos)
+    public List<TurnBlockData> TurnBlockCalculation(byte blockID, ChunckComponent chunk, Vector3Int blockLocalPos)
     {
         Ray ray = CameraStack.Instance.Main.ScreenPointToRay(Input.mousePosition);
         Vector3 rayDirection = ray.direction;
@@ -512,17 +512,7 @@ public class PlayerBehaviour : MonoBehaviour
         var dominantDirection = VectorTools.GetDominantDirection(rayDirection) * -1f;
         var roundedDominant = VectorTools.GetRoundedVector(dominantDirection);
         Debug.Log($"Зырь {roundedDir} &&& {roundedDominant}");
-        //if ((availableAxis & zaebis) == zaebis)
-        //{
-        //    chunck.AddTurnBlock
-        //    (
-        //        new Vector3Int(xBlock, yBlock, zBlock),
-        //        (int)turnBlockAngle,
-        //        zaebis
-        //    );
-        //    print($"зашли и вроде как повернули {turnBlockAngle} ### {zaebis}");
-        //}
-
+        
         TurnBlockData turnData = default;
         List<TurnBlockData> turns = new List<TurnBlockData>();
 
@@ -543,12 +533,6 @@ public class PlayerBehaviour : MonoBehaviour
                 turnData.axis = RotationAxis.Y;
                 turns.Add(turnData);
 
-                //chunk.AddTurnBlock
-                //(
-                //    blockLocalpos,
-                //    (int)turnData.angle,
-                //    turnData.axis
-                //);
                 //Debug.Log($"Повернул {turnData.axis} :: {turnData.angle}");
             }
         }

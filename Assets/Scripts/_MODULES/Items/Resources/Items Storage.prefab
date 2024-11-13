@@ -203,7 +203,7 @@ MonoBehaviour:
       itemTypeID: 0
       count: 1
     ingredients:
-    - itemID: 9
+    - itemID: 11
       itemTypeID: 0
       count: 2
     timeCrafting: 1

@@ -48,31 +48,38 @@ public class CraftView : ViewUI
                 id = resultData.GetItemData().GetID(),
                 count = resultData.count,
             };
+            var itemData = resultData.GetItemData();
+            if (itemData.itemType is ItemType.MESH or ItemType.BLOCKABLE)
+            {
+                item.view = Instantiate(itemData.view);
+            }
 
             player.inventory.TakeItem(item);
         }
         
     }
 
-    public override void Show()
+    public void Show(byte craftingItemID)
     {
-        base.Show();
+        Show();
 
         labelCraftInfo.gameObject.SetActive(true);
         craftInfoArea.gameObject.SetActive(false);
         bottomArea.SetActive(false);
         labelNoIngridients.gameObject.SetActive(false);
 
+        var itemsCraftable = ItemsStorage.Singleton.GetCraftableItems(craftingItemID);
+
         ClearCraftInfo();
-        InitItems();
+        InitItems(itemsCraftable);
     }
 
-    private void InitItems()
+    private void InitItems(ItemCraftableData[] itemCraftableDatas)
     {
         ClearCraftableItems();
 
         var storage = ItemsStorage.Singleton;
-        foreach (var itemData in storage.GetCratableItems())
+        foreach (var itemData in itemCraftableDatas)
         {
             var itemView = Instantiate(itemPrefab, itemsParent);
             itemView.Init(itemData);
@@ -94,7 +101,6 @@ public class CraftView : ViewUI
 
         ClearCraftInfo();
 
-        
         foreach (var itemData in craftableData.result)
         {
             var slotView = Instantiate(itemSlotPrefab, resultItemsParent);

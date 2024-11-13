@@ -27,6 +27,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     public static UnityEvent<MonoBehaviour> onMineSpawn = new UnityEvent<MonoBehaviour>();
     public static UnityEvent<MonoBehaviour> onOwnerPositionSet = new UnityEvent<MonoBehaviour>();
+    public UnityEvent<byte> onBlockInteract = new UnityEvent<byte>();
 
     ThirdPersonController thirdPersonController;
     Character player;
@@ -64,9 +65,6 @@ public class PlayerBehaviour : MonoBehaviour
             InitSizeMainInventory();
             LoadInventory();
         }
-
-
-        //FindPathSystem.Instance.onPathComplete += FindPath_Completed;
     }
 
     public void SetLoadedPosition()
@@ -76,7 +74,7 @@ public class PlayerBehaviour : MonoBehaviour
         if (userDataPosition == Vector3.zero)
         {
             transform.position += Vector3.one + Vector3.up * 180;
-            print($"soeiofsoefbiosebf");
+            print($"Загружена дефолтная позиция");
         }
         else
         {
@@ -96,18 +94,6 @@ public class PlayerBehaviour : MonoBehaviour
         player.inventory.mainSize = sizeMainInventory;
     }
 
-    
-
-    private void FindPath_Completed(FindPathSystem.PathDataResult data)
-    {
-        if (!data.found)
-        {
-            foreach (var item in data.explored)
-            {
-                WorldGenerator.Inst.SetBlockAndUpdateChunck(item, 66);
-            }
-        }
-    }
 
     private void Update()
     {
@@ -228,6 +214,8 @@ public class PlayerBehaviour : MonoBehaviour
         {
             blockHighlight.position = Vector3.zero;
 
+            hit.normal = VectorTools.GetDominantDirection(hit.normal);
+
             Vector3 normalPos = hit.point - (hit.normal / 2);
 
             int x = Mathf.FloorToInt(normalPos.x);
@@ -244,9 +232,19 @@ public class PlayerBehaviour : MonoBehaviour
                 WorldGenerator.Inst.MineBlock(blockPosition + Vector3.right);
             }
 
-            PlaceBlock(blockPosition + hit.normal);
-
-
+            //print($"Ща блок: {WorldGenerator.Inst.GetBlockID(transform.position + (Vector3.down * 0.5f) + Vector3.right)}");
+            var lookBlockID = WorldGenerator.Inst.GetBlockID(blockPosition + Vector3.right);
+            if (ItemsStorage.Singleton.HasCraftingBundle(lookBlockID))
+            {
+                if (Input.GetMouseButtonDown(1) && !UI.ClickOnUI())
+                {
+                    onBlockInteract?.Invoke(lookBlockID);
+                }
+            }
+            else
+            {
+                PlaceBlock(blockPosition + hit.normal, hit.normal);
+            }
             //if (Input.GetMouseButtonDown(1))
             //{
             //    // зачем-то нужно прибавлять 1 по оси X, хз почему так, но именно так работает
@@ -330,11 +328,50 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    void PlaceBlock(Vector3 blockPosition)
+    void PlaceBlock(Vector3 blockPosition, Vector3 hitNormal)
     {
         if (Input.GetMouseButtonDown(1) && !UI.ClickOnUI())
         {
-            //print("kjdnsfjksdf");
+            //print($"{hitNormal} - hit normal");
+            //print($"Dot right {Vector3.Dot(Vector3.right, hitNormal)}");
+            //print($"Dot Left {Vector3.Dot(Vector3.left, hitNormal)}");
+
+            Ray ray = CameraStack.Instance.Main.ScreenPointToRay(Input.mousePosition);
+            // Получаем направление луча
+            Vector3 rayDirection = ray.direction;
+            //print(VectorTools.GetRoundedVector(rayDirection));
+            // 1,1,0 и -1,1,0 направления поворота
+
+            rayDirection = VectorTools.GetDominantDirection(rayDirection) * -1f;
+
+            // Округляем направление до ближайшего кратного 90 градусов значения (-1, 0, 1)
+            Vector3 roundedDirection = new Vector3(
+                Mathf.Round(rayDirection.x),
+                Mathf.Round(rayDirection.y),
+                Mathf.Round(rayDirection.z)
+            );
+            roundedDirection.x *= -1f;
+
+            //Quaternion rotation = Quaternion.LookRotation(roundedDirection);
+            //rotation.ToAngleAxis(out var angle, out var axoso);
+            ////Debug.Log("Ось вращения: " + axoso + ", Угол поворота: " + angle);
+
+            //RotationAxis zaebis = RotationAxis.Y;
+            //var turnBlockAngle = angle * axoso.y;
+            //if (!(Mathf.Abs(roundedDirection.z - 1f) < 0.001f))
+            //{
+            //    if (Mathf.Abs(axoso.x) > 0)
+            //    {
+            //        zaebis = RotationAxis.X;
+            //        turnBlockAngle = angle * axoso.x;
+            //    }
+            //}
+            //print($"Май ось вращенька {zaebis}");
+
+            var axis = WorldGenerator.Inst.turnableBlocks[(byte)ItemID.STONE_WORKBENCH];
+
+            bool axisXY = (axis & (RotationAxis.X | RotationAxis.Y)) == (RotationAxis.X | RotationAxis.Y);
+
             if (player.inventory.CurrentSelectedItem != null)
             {
 
@@ -352,15 +389,35 @@ public class PlayerBehaviour : MonoBehaviour
 
                 chunck.blocks[xBlock, yBlock, zBlock] = item.id;
 
+                List<TurnBlockData> turnsData = new List<TurnBlockData>();
+                var isTurnableBlock = IsTurnableBlock(item.id);
+                if (isTurnableBlock)
+                {
+                    turnsData = TurnBlockCalculation(item.id, chunck, new Vector3Int(xBlock, yBlock, zBlock));
+
+                    //var availableAxis = WorldGenerator.Inst.turnableBlocks[item.id];
+                    //if ((availableAxis & zaebis) == zaebis)
+                    //{
+                    //    chunck.AddTurnBlock
+                    //    (
+                    //        new Vector3Int(xBlock, yBlock, zBlock),
+                    //        (int)turnBlockAngle,
+                    //        zaebis
+                    //    );
+                    //    print($"зашли и вроде как повернули {turnBlockAngle} ### {zaebis}");
+                    //}
+                }
+
                 var mesh = generator.UpdateMesh(chunck);//, (int)pos.x, (int)pos.y, (int)pos.z);
                 chunck.meshFilter.mesh = mesh;
-                chunck.collider.sharedMesh = mesh;
+                //chunck.collider.sharedMesh = mesh;
+
+                var blockLocalPos = new Vector3(xBlock, yBlock, zBlock);
 
                 for (int p = 0; p < 6; p++)
                 {
-                    var blockPos = new Vector3(xBlock, yBlock, zBlock);
 
-                    Vector3 checkingBlockPos = blockPos + World.faceChecks[p];
+                    Vector3 checkingBlockPos = blockLocalPos + World.faceChecks[p];
                     var blockInOtherChunckPos = checkingBlockPos + pos;
 
                     if (!IsBlockChunk((int)checkingBlockPos.x, (int)checkingBlockPos.y, (int)checkingBlockPos.z))
@@ -369,16 +426,36 @@ public class PlayerBehaviour : MonoBehaviour
 
                         var otherMesh = generator.UpdateMesh(otherChunck);
                         otherChunck.meshFilter.mesh = otherMesh;
-                        otherChunck.collider.sharedMesh = otherMesh;
+                        //otherChunck.collider.sharedMesh = otherMesh;
                     }
                 }
 
-                WorldGenerator.Inst.PlaceBlock(blockPosition + Vector3.right, item.id);
+
+                if (isTurnableBlock)
+                {
+                    WorldGenerator.Inst.PlaceTurnedBlock
+                    (
+                        blockPosition + Vector3.right,
+                        item.id,
+                        turnsData.ToArray()
+                    );
+                }
+                else
+                {
+                    WorldGenerator.Inst.PlaceBlock(blockPosition + Vector3.right, item.id);
+                }
 
                 player.inventory.Remove(item);
             }
         }
     }
+
+    public bool IsTurnableBlock(byte blockID)
+    {
+        return WorldGenerator.Inst.turnableBlocks.ContainsKey(blockID);
+    }
+
+    
 
     bool IsBlockChunk(int x, int y, int z)
     {
@@ -418,6 +495,135 @@ public class PlayerBehaviour : MonoBehaviour
         {
             item.shadowCastingMode = shadowMode;
         }
+    }
+
+    public List<TurnBlockData> TurnBlockCalculation(byte blockID, ChunckComponent chunk, Vector3Int blockLocalPos)
+    {
+        Ray ray = CameraStack.Instance.Main.ScreenPointToRay(Input.mousePosition);
+        Vector3 rayDirection = ray.direction;
+        var roundedDir = VectorTools.GetRoundedVector(rayDirection);
+        // 1,1,0 и -1,1,0 направления поворота
+        //print(chunk.turnedBlocks.ContainsKey(blockLocalPos));
+        //Quaternion roto = Quaternion.LookRotation(roundedDir);
+        //roto.ToAngleAxis(out var agle, out var os);
+        //Debug.Log($"{roundedDir}:: Ось вращения: " + os + ", Угол поворота: " + agle);
+
+        var availableAxis = WorldGenerator.Inst.turnableBlocks[blockID];
+        var dominantDirection = VectorTools.GetDominantDirection(rayDirection) * -1f;
+        var roundedDominant = VectorTools.GetRoundedVector(dominantDirection);
+        Debug.Log($"Зырь {roundedDir} &&& {roundedDominant}");
+        
+        TurnBlockData turnData = default;
+        List<TurnBlockData> turns = new List<TurnBlockData>();
+
+        var isXYTurn = (availableAxis & (RotationAxis.X | RotationAxis.Y)) == (RotationAxis.X | RotationAxis.Y);
+
+        if (roundedDir.x > 0 && roundedDir.y > 0)
+        {
+            if (roundedDominant.x < 0 || roundedDominant.y < 0)
+            {
+                Debug.Log($"1: Смотрим вверх-вправо");
+                if (isXYTurn)
+                {
+                    turnData.axis = RotationAxis.X;
+                    turnData.angle = 90;
+                    turns.Add(turnData);
+                }
+
+                turnData.axis = RotationAxis.Y;
+                turns.Add(turnData);
+
+                //Debug.Log($"Повернул {turnData.axis} :: {turnData.angle}");
+            }
+        }
+        else
+        if (roundedDir.x < 0 && roundedDir.y > 0)
+        {
+            if (roundedDominant.x > 0 || roundedDominant.y < 0)
+            {
+                if (isXYTurn)
+                {
+                    turnData.axis = RotationAxis.X;
+                    turnData.angle = 90;
+                    turns.Add(turnData);
+                }
+
+                turnData.axis = RotationAxis.Y;
+                turnData.angle = -90;
+                turns.Add(turnData);
+                Debug.Log($"2: Смотрим вверх-влево");
+            }
+        }
+        else
+        if (roundedDir.y > 0 && roundedDir.z > 0)
+        {
+            if (roundedDominant.y < 0 || roundedDominant.z < 0)
+            {
+                turnData.axis = RotationAxis.X;
+                turnData.angle = 180;
+                turns.Add(turnData);
+            }
+        }
+        else
+        if (roundedDir.y > 0 && roundedDir.z < 0)
+        {
+            turnData.axis = RotationAxis.X;
+            turnData.angle = 90;
+            turns.Add(turnData);
+            print("тыр тыр");
+        }
+
+        if (turns.Count == 0)
+        {
+            roundedDominant.x *= -1f;
+            Quaternion rotation = Quaternion.LookRotation(roundedDominant);
+            rotation.ToAngleAxis(out var angle, out var rotationAxis);
+
+            RotationAxis turnAxis = RotationAxis.Y;
+            var turnBlockAngle = angle * rotationAxis.y;
+            if (!(Mathf.Abs(roundedDominant.z - 1f) < 0.001f))
+            {
+                if (Mathf.Abs(rotationAxis.x) > 0)
+                {
+                    turnAxis = RotationAxis.X;
+                    turnBlockAngle = angle * rotationAxis.x;
+                }
+            }
+
+            if ((availableAxis & turnAxis) == turnAxis)
+            {
+                turnData.axis = turnAxis;
+                turnData.angle = turnBlockAngle;
+
+                turns.Add(turnData);
+                //chunk.AddTurnBlock
+                //(
+                //    blockLocalpos,
+                //    (int)turnData.angle,
+                //    turnData.axis
+                //);
+                //Debug.Log($"Повернул {turnData.axis} :: {turnData.angle}");
+            }
+
+
+            // Округляем направление до ближайшего кратного 90 градусов значения (-1, 0, 1)
+
+
+        }
+
+        foreach (var item in turns)
+        {
+            chunk.AddTurnBlock
+                (
+                    blockLocalPos,
+                    (int)item.angle,
+                    item.axis
+                );
+            //Debug.Log($"Повернул {item.axis} :: {item.angle}");
+        }
+        
+
+        return turns;
     }
 
     private void LateUpdate()
@@ -465,8 +671,6 @@ public class PlayerBehaviour : MonoBehaviour
             var json = PlayerPrefs.GetString("inventory");
             var jsonInventory = JsonConvert.DeserializeObject<JsonInventory>(json);
             jsonInventory.SetInventoryData(player.inventory);
-            //print(jsonInventory);
-            //print(jsonInventory.quick[0].count);
         }
     }
 

@@ -7,6 +7,12 @@ public class ItemsStorage : MonoBehaviour
     [SerializeField] ItemData[] itemsData;
     [Space(18)]
     [SerializeField] ItemCraftableData[] itemsCraftableData;
+    [Space(18)]
+    [SerializeField] TurnableBlockData[] turnableBlockData;
+    [Space(18)]
+    [SerializeField] ItemID[] interactableBlocks;
+    [Space(18)][Header("“”“ Œœ»—€¬¿… Õ¿  ¿ ŒÃ —“ŒÀ≈, ◊“Œ  –¿‘“»“—ﬂ")]
+    [SerializeField] CraftingBundle[] craftingBundles;
 
     static ItemsStorage instance;
     public static ItemsStorage Singleton
@@ -26,6 +32,46 @@ public class ItemsStorage : MonoBehaviour
 
             return instance;
         }
+    }
+
+
+    private void Awake()
+    {
+        instance = instance != null ? instance : this;
+
+        WorldGenerator.onReady.AddListener(WG_Inited);
+
+    }
+
+    private void WG_Inited()
+    {
+        foreach (var item in itemsData)
+        {
+            if (item.itemType is ItemType.BLOCKABLE)
+            {
+                WorldGenerator.Inst.AddBlockableMesh((byte)item.itemID, item.view.transform);
+                if (item.colliderMesh)
+                {
+                    WorldGenerator.Inst.AddBlockableColliderMesh((byte)item.itemID, item.colliderMesh);
+                }
+            }
+        }
+
+
+        foreach (var item in turnableBlockData)
+        {
+            WorldGenerator.Inst.AddTurnableBlock((byte)item.itemID, item.rotationAxis);
+        }
+
+        //print("€€€€");
+    }
+
+    private IEnumerator Start()
+    {
+
+        yield return new WaitForEndOfFrame();
+
+        
     }
 
     ItemData foundResult;
@@ -63,6 +109,11 @@ public class ItemsStorage : MonoBehaviour
         return default;
     }
 
+    internal ItemData GetItemData(byte itemID)
+    {
+        return GetItemData((ItemID)itemID);
+    }
+
     internal ItemData GetItemData(ItemCraftableData.PropsData props)
     {
         if (props.itemID is ItemID.NONE)
@@ -74,12 +125,6 @@ public class ItemsStorage : MonoBehaviour
             return GetItemData(props.itemID);
         }
     }
-    
-
-    private void Awake()
-    {
-        instance = instance != null ? instance : this;
-    }
 
     public ItemCraftableData[] GetCratableItems()
     {
@@ -90,6 +135,60 @@ public class ItemsStorage : MonoBehaviour
     {
         return itemsData;
     }
+
+    public CraftingBundle[] GetCraftingBundles()
+    {
+        return craftingBundles;
+    }
+
+    public bool HasCraftingBundle(byte itemID)
+    {
+        foreach (var bundle in craftingBundles)
+        {
+            if ((byte)bundle.craftingID == itemID)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public CraftingBundle GetCraftingBundle(byte itemID)
+    {
+        foreach (var bundle in craftingBundles)
+        {
+            if((byte)bundle.craftingID == itemID)
+            {
+                return bundle; 
+            }
+        }
+
+        Debug.LogError($"ÕÂÚ ÚÛÚ Ú‡ÍÓ„Ó „Ó‚Ì‡, Ú˚ ¯Ó, ˝Ô‡ÌÛÚ?");
+
+        return default;
+    }
+
+    public ItemCraftableData[] GetCraftableItems(byte craftingTableID)
+    {
+        var bundle = GetCraftingBundle(craftingTableID);
+        List<ItemCraftableData> result = new List<ItemCraftableData>();
+        
+        foreach (var bundleItem in bundle.items)
+        {
+            foreach (var itemCraftable in itemsCraftableData)
+            {
+                //print($"{itemCraftable.result[0].itemID}")
+                if (itemCraftable.HasCraftResultItem(bundleItem))
+                {
+                    result.Add(itemCraftable);
+                }
+            }
+        }
+
+        return result.ToArray();
+    }
+
 }
 
 [System.Serializable]
@@ -102,6 +201,7 @@ public struct ItemData
     [TextArea(1, 18)]
     public string description;
     public GameObject view;
+    public Mesh colliderMesh;
 
     public byte GetID()
     {
@@ -132,6 +232,18 @@ public struct ItemCraftableData
         return ItemsStorage.Singleton.GetItemData(result[idx]);
     }
 
+    public bool HasCraftResultItem(ItemID itemID)
+    {
+        foreach (var item in result)
+        {
+            if(item.itemID == itemID)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     [System.Serializable]
     public struct PropsData
@@ -160,22 +272,58 @@ public struct ItemCraftableData
     }
 }
 
+
+[System.Serializable]
+public struct TurnableBlockData
+{
+    public ItemID itemID;
+    public ItemTypeID itemTypeID;
+    public RotationAxis rotationAxis;
+}
+
+[System.Serializable]
+public struct CraftingBundle
+{
+    public string name;
+    public CraftingItemID craftingID;
+    public ItemID[] items;
+}
+
 public enum ItemTypeID : byte
 {
     NONE = 0,
-    GRASS = 1,
+    GRASS_BLOCK = 1,
     STONE = 2,
     COBBLESTONE = 3,
     DIRT = 4,
     WOOD = 9,
     LEAVES = 10,
     WOODEN_PLANK = 11,
+    WOODEN_STAIR = 12,
 }
 
 public enum ItemID : byte
 {
     NONE = 0,
+    GRASS_BLOCK = 1,
+    STONE = 2,
+    COBBLESTONE = 3,
+    DIRT = 4,
+    WOOD = 9,
+    LEAVES_BLOCK = 10,
+    WOODEN_PLANK = 11,
+    WOODEN_STAIR = 12,
+    STONE_8_3 = 14,
+    COBBLESTONE_STAIR = 16,
     STONE_WORKBENCH = 50,
+    SIMPLE_WOOD_WORKBENCH = 51,
+}
+
+public enum CraftingItemID : byte
+{
+    SIMPLE_CRAFT = 0,
+    STONE_WORKBENCH = 50,
+    SIMPLE_WOOD_WORKBENCH = 51,
 }
 
 public enum ItemType : byte

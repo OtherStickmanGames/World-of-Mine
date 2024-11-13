@@ -187,7 +187,16 @@ public class MobileInput : MonoBehaviour
             {
                 if (touchTimer > 0 && touchTimer < 0.3f && lastBlockRaycast && !touchWasMoved && character.inventory.CurrentSelectedItem != null)
                 {
-                    PlaceBlock();
+                    // Надо переделать, и в плеер бехе и тут одинаковый код
+                    var lookBlockID = WorldGenerator.Inst.GetBlockID(blockPosition + Vector3.right);
+                    if (ItemsStorage.Singleton.HasCraftingBundle(lookBlockID))
+                    {
+                        player.onBlockInteract?.Invoke(lookBlockID);
+                    }
+                    else
+                    {
+                        PlaceBlock();
+                    }
                 }
 
                 touchWasMoved = false;
@@ -215,12 +224,35 @@ public class MobileInput : MonoBehaviour
 
     private void PlaceBlock()
     {
-        
         var pos = blockPosition + raycastHit.normal + Vector3.right;
         var item = character.inventory.CurrentSelectedItem;
         var blockID = item.id;
+
+        List<TurnBlockData> turnsData = new List<TurnBlockData>();
+        var isTurnableBlock = player.IsTurnableBlock(item.id);
+        if (isTurnableBlock)
+        {
+            var localBlockPos = WorldGenerator.Inst.ToLocalBlockPos(pos);
+            var chunk = WorldGenerator.Inst.GetChunk(pos);
+            turnsData = player.TurnBlockCalculation(blockID, chunk, localBlockPos);
+        }
+
         WorldGenerator.Inst.SetBlockAndUpdateChunck(pos, blockID);
-        WorldGenerator.Inst.PlaceBlock(pos, blockID);
+
+        if (isTurnableBlock)
+        {
+            WorldGenerator.Inst.PlaceTurnedBlock
+            (
+                pos,
+                blockID,
+                turnsData.ToArray()
+            );
+        }
+        else
+        {
+            WorldGenerator.Inst.PlaceBlock(pos, blockID);
+        }
+        //WorldGenerator.Inst.PlaceBlock(pos, blockID);
         character.inventory.Remove(item);
     }
 
@@ -249,4 +281,6 @@ public class MobileInput : MonoBehaviour
             return false;
         }
     }
+
+
 }

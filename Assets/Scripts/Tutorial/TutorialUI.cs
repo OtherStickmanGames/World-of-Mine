@@ -350,7 +350,7 @@ public class TutorialUI : MonoBehaviour
                     canvasMine.sortingOrder = canvasTutorial.sortingOrder + 1;
 
                     var item = new Item() { id = 1 };
-                    item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
+                    item.view = BlockItemSpawner.CreateDropedView(item.id);
                     item.count = 8;
                     mine.inventory.TakeItem(item);
                 });
@@ -492,10 +492,10 @@ public class TutorialUI : MonoBehaviour
             if (!makeBuildingInited)
             {
                 var hightLisghtPrefab = makeBuildingHighlightPrefab;// highlightBlockTutorial;
-                var woodPrefab = BlockItemSpawner.CreateBlockGameObject(BLOCKS.WOOD);
+                var woodPrefab = BlockItemSpawner.CreateDropedView(BLOCKS.WOOD);
                 woodPrefab.transform.localScale *= 3f;
                 woodPrefab.GetComponent<MeshRenderer>().material = mat;
-                var cobblestonePrefab = BlockItemSpawner.CreateBlockGameObject(BLOCKS.COBBLESTONE);
+                var cobblestonePrefab = BlockItemSpawner.CreateDropedView(BLOCKS.COBBLESTONE);
                 cobblestonePrefab.transform.localScale *= 3f;
                 cobblestonePrefab.GetComponent<MeshRenderer>().material = mat;
 
@@ -531,7 +531,7 @@ public class TutorialUI : MonoBehaviour
 
 
                 var item = new Item() { id = BLOCKS.COBBLESTONE };
-                item.view = BlockItemSpawner.CreateBlockGameObject(item.id);
+                item.view = BlockItemSpawner.CreateDropedView(item.id);
                 item.count = 8;
                 mine.inventory.TakeItem(item);
 

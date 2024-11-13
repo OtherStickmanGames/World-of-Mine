@@ -32,7 +32,8 @@ public class CraftItemSlot : MonoBehaviour
 
         if (data.itemType is ItemType.MESH or ItemType.BLOCKABLE)
         {
-            //item.view = 
+            // TO DO на пул объектов
+            item.view = Instantiate(data.view);
         }
         slot.SetItem(item);
     }

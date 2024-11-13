@@ -19,7 +19,7 @@ public class Inventory
     public Action<Item> onTakeQuick;
     public Action<Item> onTakeMain;
     public Action<Item> onTakeItem;
-    public Action<Inventory> onItemSets;
+    public Action<Inventory> onItemsSet;
     public Item CurrentSelectedItem { get; set; }
     public bool IsOpen { get; private set; }
 
@@ -46,17 +46,19 @@ public class Inventory
     {
         if (AvailableSpace(item))
         {
-            UnityEngine.Object.DestroyImmediate(item.view);
+            // хер знает, попробую убрать
+            //UnityEngine.Object.DestroyImmediate(item.view);
 
             var matched = ExistMatchInQuick(item);
             if (matched != null)
             {
                 matched.count += item.count;
-                //UnityEngine.Object.Destroy(item.view);
+                UnityEngine.Object.DestroyImmediate(item.view);
                 onUpdateItem?.Invoke(matched);
             }
             else if (quick.Count < quickSize)
             {
+
                 quick.Add(item);
                 onTakeQuick?.Invoke(item);
                 onTakeItem?.Invoke(item);
@@ -67,6 +69,7 @@ public class Inventory
                 if (matched != null)
                 {
                     matched.count += item.count;
+                    UnityEngine.Object.DestroyImmediate(item.view);
                     onUpdateItem?.Invoke(matched);
                 }
                 else
@@ -169,9 +172,13 @@ public class Inventory
         return foundResult;
     }
 
-    public void InvokeItemSets()
+    /// <summary>
+    /// Метод вызывается когда в спискам инвентаря присвоены
+    /// значения из сохраненного Json-а 
+    /// </summary>
+    public void InvokeItemsSeted()
     {
-        onItemSets?.Invoke(this);
+        onItemsSet?.Invoke(this);
     }
 }
 
@@ -203,7 +210,22 @@ public class JsonInventory
         inventory.quickSize = quickSize;
         inventory.mainSize = mainSize;
 
-        inventory.InvokeItemSets();
+        SetItemViews(inventory);
+
+        inventory.InvokeItemsSeted();
     }
+
+    private void SetItemViews(Inventory inventory)
+    {
+        foreach (var item in inventory.quick)
+        {
+            var itemData = ItemsStorage.Singleton.GetItemData(item.id);
+            if (itemData.itemType is ItemType.MESH or ItemType.BLOCKABLE)
+            {
+                item.view = GameObject.Instantiate(itemData.view);
+            }
+        }
+    }
+
 }
 

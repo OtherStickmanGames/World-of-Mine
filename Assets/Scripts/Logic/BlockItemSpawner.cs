@@ -88,25 +88,35 @@ public class BlockItemSpawner : IUpdateble
             data.ID = 3;
         }
         
-        var dropedBlock = CreateBlockGameObject(data.ID);
+        var dropedView = CreateDropedView(data.ID);
 
         float offsetRandomX = Random.Range(0.3f, 0.57f) - 1;
         float offsetRandomY = Random.Range(0.3f, 0.57f);
         float offsetRandomZ = Random.Range(0.3f, 0.57f);
 
-        dropedBlock.transform.position = data.pos + new Vector3(offsetRandomX, offsetRandomY, offsetRandomZ);
+        dropedView.transform.position = data.pos + new Vector3(offsetRandomX, offsetRandomY, offsetRandomZ);
 
-        spawnedBlocks.Add(new() { ID = data.ID, view = dropedBlock });
+        spawnedBlocks.Add(new() { ID = data.ID, view = dropedView });
     }
 
-    public static GameObject CreateBlockGameObject(byte ID)
+    public static GameObject CreateDropedView(byte ID)
     {
-        var dropedBlock = new GameObject($"Droped Block - {ID}");
-        dropedBlock.AddComponent<MeshRenderer>().material = WorldGenerator.Inst.mat;
-        dropedBlock.AddComponent<MeshFilter>().mesh = Instance.blockGenerator.GenerateBlockMesh(ID);
-        dropedBlock.transform.localScale /= 3f;
+        GameObject view;
+        var itemData = ItemsStorage.Singleton.GetItemData(ID);
+        if (itemData.itemType is ItemType.MESH or ItemType.BLOCKABLE)
+        {
+            view = GameObject.Instantiate(itemData.view);
+            view.layer = 0;
+        }
+        else
+        {
+            view = new GameObject($"Droped Block - {ID}");
+            view.AddComponent<MeshRenderer>().material = WorldGenerator.Inst.mat;
+            view.AddComponent<MeshFilter>().mesh = Instance.blockGenerator.GenerateBlockMesh(ID);
+            view.transform.localScale /= 3f;
+        }
 
-        return dropedBlock;
+        return view;
     }
   
 }

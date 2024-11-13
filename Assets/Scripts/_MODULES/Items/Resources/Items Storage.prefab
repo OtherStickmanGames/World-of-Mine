@@ -45,34 +45,115 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemsData:
-  - name: "\u0411\u0440\u0435\u0432\u043D\u043E"
-    itemID: 0
-    itemTypeID: 9
+  - name: "\u0411\u043B\u043E\u043A \u0442\u0440\u0430\u0432\u044B"
+    itemID: 1
+    itemTypeID: 1
     itemType: 1
-    description: "\u0411\u0440\u0435\u0432\u043D\u043E \u043C\u043E\u0436\u043D\u043E
-      \u0434\u043E\u0431\u044B\u0442\u044C \u0441\u043B\u043E\u043C\u0430\u0432..
-      \u0434\u0435\u0440\u0435\u0432\u043E. "
-    view: {fileID: 0}
-  - name: 
-    itemID: 50
-    itemTypeID: 0
-    itemType: 2
     description: 
     view: {fileID: 0}
-  - name: "\u0414\u043E\u0441\u043A\u0438"
-    itemID: 0
-    itemTypeID: 11
-    itemType: 1
-    description: "\u0414\u043E\u0441\u043A\u0438 \u0447\u0430\u0441\u0442\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442\u0441\u044F
-      \u0432 \u0434\u0440\u0443\u0433\u0438\u0445 \u043A\u0440\u0430\u0444\u0442\u0430\u0445
-      \u0438 \u0441\u0442\u0440\u043E\u0438\u0442\u0435\u043B\u044C\u0441\u0442\u0432\u0435."
-    view: {fileID: 0}
+    colliderMesh: {fileID: 0}
   - name: "\u041A\u0430\u043C\u0435\u043D\u044C"
     itemID: 0
     itemTypeID: 2
     itemType: 1
     description: 
     view: {fileID: 0}
+    colliderMesh: {fileID: 0}
+  - name: "\u0411\u0443\u043B\u044B\u0436\u043D\u0438\u043A"
+    itemID: 3
+    itemTypeID: 3
+    itemType: 1
+    description: 
+    view: {fileID: 0}
+    colliderMesh: {fileID: 0}
+  - name: "\u0417\u0435\u043C\u043B\u0438\u0449\u0435"
+    itemID: 4
+    itemTypeID: 4
+    itemType: 1
+    description: 
+    view: {fileID: 0}
+    colliderMesh: {fileID: 0}
+  - name: "\u0411\u0440\u0435\u0432\u043D\u043E"
+    itemID: 9
+    itemTypeID: 9
+    itemType: 1
+    description: "\u0411\u0440\u0435\u0432\u043D\u043E \u043C\u043E\u0436\u043D\u043E
+      \u0434\u043E\u0431\u044B\u0442\u044C \u0441\u043B\u043E\u043C\u0430\u0432..
+      \u0434\u0435\u0440\u0435\u0432\u043E. "
+    view: {fileID: 0}
+    colliderMesh: {fileID: 0}
+  - name: "\u041B\u0438\u0441\u0442\u044C\u044F \u0411\u043B\u043E\u043A"
+    itemID: 10
+    itemTypeID: 0
+    itemType: 1
+    description: "\u041B\u044B\u0441\u0442\u0438\u0413\u0438"
+    view: {fileID: 0}
+    colliderMesh: {fileID: 0}
+  - name: "\u0414\u043E\u0441\u043A\u0438"
+    itemID: 11
+    itemTypeID: 11
+    itemType: 1
+    description: "\u0414\u043E\u0441\u043A\u0438 \u0447\u0430\u0441\u0442\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442\u0441\u044F
+      \u0432 \u0434\u0440\u0443\u0433\u0438\u0445 \u043A\u0440\u0430\u0444\u0442\u0430\u0445
+      \u0438 \u0441\u0442\u0440\u043E\u0438\u0442\u0435\u043B\u044C\u0441\u0442\u0432\u0435."
+    view: {fileID: 0}
+    colliderMesh: {fileID: 0}
+  - name: "\u0421\u0442\u0443\u043F\u0435\u043D\u044C\u043A\u0438 \u0438\u0437 \u0414\u043E\u0441\u043E\u043A"
+    itemID: 12
+    itemTypeID: 0
+    itemType: 2
+    description: "\u0421\u0442\u0443\u043F\u044C\u043A\u0438, \u0451\u043F\u0442\u0430"
+    view: {fileID: 1392263408945661587, guid: c4e89f1ccfa3eea4ba5af55a01d9a07e, type: 3}
+    colliderMesh: {fileID: -280350712708759278, guid: b0237dcdd02b76b40885a144232103b8,
+      type: 3}
+  - name: "\u041F\u0440\u043E\u0441\u0442\u0430\u044F \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430
+      \u043A\u0430\u043C\u043D\u044F"
+    itemID: 50
+    itemTypeID: 0
+    itemType: 2
+    description: "\u041D\u0430 \u044D\u0442\u043E\u043C \u0441\u0442\u043E\u043B\u0435
+      \u043C\u043E\u0436\u043D\u043E \u0438\u0437\u0433\u043E\u0442\u0430\u0432\u043B\u0438\u0432\u0430\u0442\u044C
+      \u043D\u043E\u0432\u044B\u0435 \u0432\u0438\u0434\u044B \u0431\u043B\u043E\u043A\u043E\u0432
+      \u0438\u0437 \u043A\u0430\u043C\u043D\u044F, \u0430 \u0442\u0430\u043A \u0436\u0435
+      \u0434\u0440\u0443\u0433\u0438\u0435 \u043F\u0440\u0435\u0434\u043C\u0435\u0442\u044B
+      \u0441\u043E\u0434\u0435\u0440\u0436\u0430\u0449\u0438\u0435 \u043A\u0430\u043C\u0435\u043D\u044C"
+    view: {fileID: 2957543389148660415, guid: 35b88133b3a55f44c96f32ad6e6bfe84, type: 3}
+    colliderMesh: {fileID: -267059760217051132, guid: c8da94005ffcdff468d08fb88b32c4a7,
+      type: 3}
+  - name: "\u0421\u0442\u0443\u043F\u0435\u043D\u044C\u043A\u0438 \u0438\u0437 \u0431\u0443\u043B\u044B\u0436\u043D\u0438\u043A\u0430"
+    itemID: 16
+    itemTypeID: 0
+    itemType: 2
+    description: "\u0421\u0442\u0443\u043F\u0435\u043D\u044C\u043A\u0438 \u043F\u043E\u0437\u0432\u043E\u043B\u044F\u044E\u0442
+      \u043D\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C
+      \u043F\u0440\u044B\u0436\u043E\u0433, \u0447\u0442\u043E\u0431\u044B \u0437\u0430\u0431\u0440\u0430\u0442\u044C\u0441\u044F
+      \u043D\u0430 \u043E\u0434\u0438\u043D \u0431\u043B\u043E\u043A \u0432\u0432\u0435\u0440\u0445,
+      \u0442\u0430\u043A \u0436\u0435 \u0438\u0445 \u043C\u043E\u0436\u043D\u043E
+      \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0432
+      \u043A\u0430\u0447\u0435\u0441\u0432\u0442\u0435 \u0434\u0435\u043A\u043E\u0440\u0430\u0442\u0438\u0432\u043D\u044B\u0445
+      \u0431\u043B\u043E\u043A\u043E\u0432."
+    view: {fileID: 3697216878236514609, guid: 076c040848878db4fbae81466eb7db82, type: 3}
+    colliderMesh: {fileID: -280350712708759278, guid: b0237dcdd02b76b40885a144232103b8,
+      type: 3}
+  - name: "\u041F\u0440\u043E\u0441\u0442\u043E\u0439 \u0432\u0435\u0440\u0441\u0442\u0430\u043A
+      \u0434\u043B\u044F \u0434\u0435\u0440\u0435\u0432\u0430"
+    itemID: 51
+    itemTypeID: 9
+    itemType: 2
+    description: "\u0412\u0435\u0440\u0441\u0442\u0430\u043A \u0434\u043B\u044F \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F
+      \u0431\u0430\u0437\u043E\u0432\u044B\u0445 \u0431\u043B\u043E\u043A\u043E\u0432
+      \u0438 \u043F\u0440\u0435\u0434\u043C\u0435\u0442\u043E\u0432 \u0438\u0437
+      \u0434\u0435\u0440\u0435\u0432\u0430"
+    view: {fileID: 2981849918896863183, guid: b722b321e7992b84aae11dcaf53c8f9c, type: 3}
+    colliderMesh: {fileID: 0}
+  - name: "\u041A\u0430\u043C\u0435\u043D\u044C \u0431\u043B\u0443\u0436\u0434\u0430\u044E\u0449\u0435\u0439
+      \u0441\u043A\u0430\u043B\u044B"
+    itemID: 14
+    itemTypeID: 2
+    itemType: 1
+    description: 
+    view: {fileID: 0}
+    colliderMesh: {fileID: 0}
   itemsCraftableData:
   - name: "\u0414\u043E\u0441\u043A\u0438"
     description: "\u0418\u0437 \u043E\u0434\u043D\u043E\u0433\u043E \u0431\u043B\u043E\u043A\u0430
@@ -82,7 +163,7 @@ MonoBehaviour:
       \u0434\u0440\u0443\u0433\u0438\u0445 \u043A\u0440\u0430\u0444\u0442\u0430\u0445
       \u0438 \u0441\u0442\u0440\u043E\u0438\u0442\u0435\u043B\u044C\u0441\u0442\u0432\u0435."
     result:
-    - itemID: 0
+    - itemID: 11
       itemTypeID: 11
       count: 4
     ingredients:
@@ -105,9 +186,9 @@ MonoBehaviour:
     ingredients:
     - itemID: 0
       itemTypeID: 11
-      count: 2
+      count: 3
     - itemID: 0
-      itemTypeID: 2
+      itemTypeID: 3
       count: 2
     timeCrafting: 5
   - name: "\u041B\u0438\u0441\u0442\u044C\u044F"
@@ -115,3 +196,71 @@ MonoBehaviour:
     result: []
     ingredients: []
     timeCrafting: 0
+  - name: "\u0421\u0442\u0443\u043F\u0435\u043D\u044C\u043A\u0438 \u0438\u0437 \u0434\u043E\u0441\u043E\u043A"
+    description: 
+    result:
+    - itemID: 12
+      itemTypeID: 0
+      count: 1
+    ingredients:
+    - itemID: 9
+      itemTypeID: 0
+      count: 2
+    timeCrafting: 1
+  - name: "\u0421\u0442\u0443\u043F\u0435\u043D\u044C\u043A\u0438 \u0438\u0437 \u0411\u0443\u043B\u044B\u0436\u043D\u0438\u043A\u0430"
+    description: "\u0421\u0442\u0443\u043F\u0435\u043D\u044C\u043A\u0438 \u043F\u043E\u0437\u0432\u043E\u043B\u044F\u044E\u0442
+      \u043D\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C
+      \u043F\u0440\u044B\u0436\u043E\u0433, \u0447\u0442\u043E\u0431\u044B \u0437\u0430\u0431\u0440\u0430\u0442\u044C\u0441\u044F
+      \u043D\u0430 \u043E\u0434\u0438\u043D \u0431\u043B\u043E\u043A \u0432\u0432\u0435\u0440\u0445,
+      \u0442\u0430\u043A \u0436\u0435 \u0438\u0445 \u043C\u043E\u0436\u043D\u043E
+      \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0432
+      \u043A\u0430\u0447\u0435\u0441\u0432\u0442\u0435 \u0434\u0435\u043A\u043E\u0440\u0430\u0442\u0438\u0432\u043D\u044B\u0445
+      \u0431\u043B\u043E\u043A\u043E\u0432."
+    result:
+    - itemID: 16
+      itemTypeID: 0
+      count: 1
+    ingredients:
+    - itemID: 3
+      itemTypeID: 0
+      count: 1
+    timeCrafting: 1
+  - name: "\u041F\u0440\u043E\u0441\u0442\u043E\u0439 \u0432\u0435\u0440\u0441\u0442\u0430\u043A
+      \u0434\u043B\u044F \u0434\u0435\u0440\u0435\u0432\u0430"
+    description: "\u0412\u0435\u0440\u0441\u0442\u0430\u043A \u0434\u043B\u044F \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F
+      \u0431\u0430\u0437\u043E\u0432\u044B\u0445 \u0431\u043B\u043E\u043A\u043E\u0432
+      \u0438 \u043F\u0440\u0435\u0434\u043C\u0435\u0442\u043E\u0432 \u0438\u0437
+      \u0434\u0435\u0440\u0435\u0432\u0430"
+    result:
+    - itemID: 51
+      itemTypeID: 0
+      count: 1
+    ingredients:
+    - itemID: 9
+      itemTypeID: 0
+      count: 1
+    - itemID: 11
+      itemTypeID: 0
+      count: 2
+    timeCrafting: 1
+  turnableBlockData:
+  - itemID: 50
+    itemTypeID: 0
+    rotationAxis: 2
+  - itemID: 12
+    itemTypeID: 0
+    rotationAxis: 3
+  - itemID: 16
+    itemTypeID: 0
+    rotationAxis: 3
+  interactableBlocks: 3233
+  craftingBundles:
+  - name: 
+    craftingID: 0
+    items: 0b3233
+  - name: 
+    craftingID: 50
+    items: 10
+  - name: 
+    craftingID: 51
+    items: 0c

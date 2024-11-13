@@ -319,31 +319,4 @@ public struct SaveBuildingData
     public List<string> playersLiked;
 }
 
-/// <summary>
-/// Данные передающиеся по сети
-/// </summary>
-[Serializable]
-public struct BuildingServerData : INetworkSerializable
-{
-    public Vector3[] positions;
-    public byte[] blockIDs;
-    public string nameBuilding;
-    public string authorName;
-    public string guid;
-    public int countLikes;
-    public bool liked;
 
-    // NO SENDABLE
-    public List<string> playersLiked;
-
-    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-    {
-        serializer.SerializeValue(ref positions);
-        serializer.SerializeValue(ref blockIDs);
-        serializer.SerializeValue(ref nameBuilding);
-        serializer.SerializeValue(ref authorName);
-        serializer.SerializeValue(ref guid);
-        serializer.SerializeValue(ref countLikes);
-        serializer.SerializeValue(ref liked);
-    }
-}

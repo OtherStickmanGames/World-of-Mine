@@ -47,7 +47,7 @@ MonoBehaviour:
   proceduralGeneration: {fileID: 0}
   yCorrect: 1
   noiseScale: 108
-  landThresold: 11
+  landThresold: 9
   landHeight: 1
   landBump: 30
   landHeightSlice: 8

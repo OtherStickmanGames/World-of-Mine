@@ -318,6 +318,7 @@ public enum ItemID : byte
     STONE_WORKBENCH = 50,
     SIMPLE_WOOD_WORKBENCH = 51,
     SAND = 90,
+    INTERWOVEN_STONE = 94,
 }
 
 public enum CraftingItemID : byte

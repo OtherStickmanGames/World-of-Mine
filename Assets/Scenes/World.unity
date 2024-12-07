@@ -1750,7 +1750,7 @@ MonoBehaviour:
     useDebug: 0
     debugHeight: 0
   - name: "\u0412\u043E\u043B\u0448\u0435\u0431\u043D\u043E \u0414\u0435\u0440\u0435\u0432\u043E\u0441"
-    mainBlockID: 11
+    mainBlockID: 94
     noiseScale: 50
     yCorrect: 1.1
     landThresold: 0.9
@@ -5751,7 +5751,7 @@ PrefabInstance:
     - target: {fileID: 893457518205462052, guid: 6445c4e1c7da8c840b60a30d618a8cea,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.00001992253
+      value: 0.00030003508
       objectReference: {fileID: 0}
     - target: {fileID: 923734661448454273, guid: 6445c4e1c7da8c840b60a30d618a8cea,
         type: 3}

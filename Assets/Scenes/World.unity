@@ -1624,17 +1624,173 @@ MonoBehaviour:
   landHeight: 30
   landBump: 30
   landHeightSlice: 80
+  biomeScale: 300
+  biomeThresoldFactor: 1
+  biomes:
+  - name: "\u0421\u043A\u0438\u043F\u043D\u0443\u0442\u044C"
+    frequency: 1.92
+    sizeThresold: 0.212
+    noiseOffset: 1.99
+    useScriptable: 0
+    scriptableBiomeNoise: {fileID: 0}
+    useLerpSmooth: 0
+    idx: 0
+  - name: "\u041F\u043B\u043E\u0441\u043A\u0438\u0435 \u0420\u0430\u0432\u043D\u0438\u043D\u044B"
+    frequency: 0.5
+    sizeThresold: 0.58
+    noiseOffset: 45364
+    useScriptable: 0
+    scriptableBiomeNoise: {fileID: 11400000, guid: d2c65addd01e8554db7965a501b388fb,
+      type: 2}
+    useLerpSmooth: 0
+    idx: 0
+  - name: "\u041F\u0443\u0441\u0442\u044B\u043D\u0438\u0449\u0435"
+    frequency: 0.3
+    sizeThresold: 0.7
+    noiseOffset: 35646
+    useScriptable: 0
+    scriptableBiomeNoise: {fileID: 11400000, guid: e0ecef01498632f4893479c01455fa66,
+      type: 2}
+    useLerpSmooth: 0
+    idx: 0
+  - name: "\u0413\u043E\u0440\u0435\u0446"
+    frequency: 0.23
+    sizeThresold: 0.65
+    noiseOffset: 618981
+    useScriptable: 0
+    scriptableBiomeNoise: {fileID: 11400000, guid: 1ffbebedfcb637f4a9004fcce9dfc226,
+      type: 2}
+    useLerpSmooth: 1
+    idx: 0
+  - name: "\u0412\u043E\u0448\u0435\u0431\u043D\u043E \u0414\u0435\u0440\u0435\u0432\u043E\u0441"
+    frequency: 0.18
+    sizeThresold: 0.85
+    noiseOffset: 90890
+    useScriptable: 0
+    scriptableBiomeNoise: {fileID: 11400000, guid: f0822beb3d2ccfe4bb66a82a7e63efc4,
+      type: 2}
+    useLerpSmooth: 0
+    idx: 0
+  generationLayers:
+  - name: "\u0421\u043A\u0438\u043F\u043D\u0443\u0442\u043E\u0441\u0442\u044C"
+    mainBlockID: 0
+    noiseScale: 0
+    yCorrect: 0
+    landThresold: 0
+    landHeight: 0
+    landBump: 0
+    landHeightSlice: 0
+    seed: {x: 0, y: 0, z: 0}
+    useLandHeight: 0
+    useHeightSlice: 0
+    useValuePower: 0
+    notUseInclude: 0
+    scriptableGeneration: {fileID: 0}
+    includeGenerators: []
+    excludeGenerators: []
+    useScriptableGeneration: 0
+    useDebug: 0
+    debugHeight: 0
+  - name: "\u041F\u043B\u043E\u0441\u043A\u0438\u0435 \u0440\u0430\u0432\u043D\u0438\u043D\u044B"
+    mainBlockID: 4
+    noiseScale: 180
+    yCorrect: 0.8
+    landThresold: 0.5
+    landHeight: 30
+    landBump: 10
+    landHeightSlice: 10
+    seed: {x: 456, y: 55, z: 534}
+    useLandHeight: 1
+    useHeightSlice: 1
+    useValuePower: 0
+    notUseInclude: 0
+    scriptableGeneration: {fileID: 0}
+    includeGenerators: []
+    excludeGenerators: []
+    useScriptableGeneration: 0
+    useDebug: 0
+    debugHeight: 0
+  - name: "\u041F\u0443\u0441\u0442\u044B\u043D\u0438\u0449\u0435"
+    mainBlockID: 90
+    noiseScale: 100
+    yCorrect: 1
+    landThresold: 0.8
+    landHeight: 80
+    landBump: 10
+    landHeightSlice: 100
+    seed: {x: 7896, y: 697, z: 7897}
+    useLandHeight: 1
+    useHeightSlice: 0
+    useValuePower: 0
+    notUseInclude: 0
+    scriptableGeneration: {fileID: 0}
+    includeGenerators: []
+    excludeGenerators: []
+    useScriptableGeneration: 0
+    useDebug: 0
+    debugHeight: 0
+  - name: "\u0413\u043E\u0440\u0435\u0446"
+    mainBlockID: 2
+    noiseScale: 300
+    yCorrect: 1
+    landThresold: 0.8
+    landHeight: 80
+    landBump: 10
+    landHeightSlice: 100
+    seed: {x: 456, y: 789, z: 123}
+    useLandHeight: 1
+    useHeightSlice: 0
+    useValuePower: 0
+    notUseInclude: 0
+    scriptableGeneration: {fileID: 11400000, guid: 1fdfd47a63622c14f9804358d98ca75a,
+      type: 2}
+    includeGenerators: []
+    excludeGenerators: []
+    useScriptableGeneration: 0
+    useDebug: 0
+    debugHeight: 0
+  - name: "\u0412\u043E\u043B\u0448\u0435\u0431\u043D\u043E \u0414\u0435\u0440\u0435\u0432\u043E\u0441"
+    mainBlockID: 94
+    noiseScale: 50
+    yCorrect: 1.1
+    landThresold: 0.9
+    landHeight: 800
+    landBump: 800
+    landHeightSlice: 100
+    seed: {x: 563, y: 78, z: 78}
+    useLandHeight: 1
+    useHeightSlice: 0
+    useValuePower: 0
+    notUseInclude: 0
+    scriptableGeneration: {fileID: 0}
+    includeGenerators: []
+    excludeGenerators: []
+    useScriptableGeneration: 0
+    useDebug: 0
+    debugHeight: 0
+  biomsGenerationData: []
+  biomsPointsData: []
+  averageNoise: 0
   excludeRockSettings:
+    name: 
+    mainBlockID: 4
     noiseScale: 50
     yCorrect: 0.8
     landThresold: 0.38
     landHeight: 0
     landBump: 0
     landHeightSlice: 0
-    randomFactor: 88888
+    seed: {x: 888, y: 888, z: 888}
     useLandHeight: 0
     useHeightSlice: 0
     useValuePower: 0
+    notUseInclude: 0
+    scriptableGeneration: {fileID: 0}
+    includeGenerators: []
+    excludeGenerators: []
+    useScriptableGeneration: 0
+    useDebug: 0
+    debugHeight: 0
 --- !u!114 &552805676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1660,6 +1816,7 @@ MonoBehaviour:
   procedural: {fileID: 552805675}
   mat: {fileID: 2100000, guid: 406ff5dd1fec116449b24a2eaa289b0e, type: 2}
   countGenerateByOneFrame: 1
+  useTestInit: 0
   saveMeshes: 0
   players: []
   optimizeThresold: 1.1
@@ -1837,7 +1994,7 @@ MonoBehaviour:
   m_MaxConnectAttempts: 60
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
-    Address: 192.168.0.105
+    Address: 192.168.0.106
     Port: 7777
     ServerListenAddress: 0.0.0.0
   DebugSimulator:
@@ -5594,7 +5751,7 @@ PrefabInstance:
     - target: {fileID: 893457518205462052, guid: 6445c4e1c7da8c840b60a30d618a8cea,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00023015647
+      value: 0.00030003508
       objectReference: {fileID: 0}
     - target: {fileID: 923734661448454273, guid: 6445c4e1c7da8c840b60a30d618a8cea,
         type: 3}
@@ -6264,7 +6421,7 @@ PrefabInstance:
     - target: {fileID: 2463360413540612815, guid: d51f44526a3db454494f8416f53e9a60,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.0000076293945
+      value: 0.000022888184
       objectReference: {fileID: 0}
     - target: {fileID: 2697329484437569044, guid: d51f44526a3db454494f8416f53e9a60,
         type: 3}

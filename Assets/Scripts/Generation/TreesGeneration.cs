@@ -33,17 +33,20 @@ public class TreesGeneration : MonoBehaviour
     {
         GenerateBlockIdSettings settings = new GenerateBlockIdSettings()
         {
+            mainBlockID = 3,
             yCorrect = yCorrect,
             noiseScale = noiseScale,
             landThresold = landThresold,
             landHeight = landHeight,
             landBump = landBump,
             landHeightSlice = landHeightSlice,
-            randomFactor = randomFactor,
 
             useHeightSlice = true,
             useLandHeight = true,
             useValuePower = false,
+
+            includeGenerators = new IncludeSettings[0],
+            excludeGenerators = new GenerateBlockIdSettings[0],
         };
 
         int chunckSize = chunckComponent.size;
@@ -56,7 +59,7 @@ public class TreesGeneration : MonoBehaviour
                 grassPos.x,
                 0,
                 grassPos.z,
-                settings
+                ref settings
             );
 
             if (id > 0)

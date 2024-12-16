@@ -19,14 +19,20 @@ public class InventorySlot : MonoBehaviour
     [Space(18)]
 
     public UnityEvent<InventorySlot> onClick;
+    public UnityEvent<InventorySlot> onSetItem;
+    public UnityEvent<InventorySlot> onRemove;
+    public UnityEvent<InventorySlot, Item> onSetWithSwap;
 
     public Item Item { get; private set; }
+    public SlotType SlotType { get; private set; }
 
 
     Color normalColor;
 
-    public void Init()
+    public void Init(SlotType slotType = SlotType.None)
     {
+        SlotType = slotType;
+
         Deselect();
 
         UpdateView();
@@ -54,8 +60,24 @@ public class InventorySlot : MonoBehaviour
     public void SetItem(Item item)
     {
         Item = item;
-        //print("ебала");
         UpdateView();
+
+        onSetItem?.Invoke(this);
+    }
+
+    public void SetItemWithoutUpdate(Item item)
+    {
+        Item = item;
+        //print($"Item count {Item.count}");
+        onSetItem?.Invoke(this);
+    }
+
+    public void SetItemToSwap(Item item)
+    {
+        var oldItem = Item;
+        Item = item;
+
+        onSetWithSwap?.Invoke(this, oldItem);
     }
 
     public void RemoveItem(Item item)
@@ -67,9 +89,18 @@ public class InventorySlot : MonoBehaviour
         }
     }
 
+    public void RemoveItem()
+    {
+        onRemove?.Invoke(this);
+        //print($"{transform.parent?.parent?.parent?.parent?.parent}");
+        Item = null;
+        UpdateView();
+    }
+
     public void UpdateView()
     {
-        if(Item != null)
+        //print($"Update: Count {Item?.count} && Nameee {Item?.view} && Idx Slot {transform.GetSiblingIndex()+1}:{SlotType}");
+        if (Item != null)
         {
             if (Item.icon)
             {
@@ -97,9 +128,9 @@ public class InventorySlot : MonoBehaviour
 
     private void SetGameObjectView()
     {
-        if (itemParent.childCount > 0)// Я так понимаю типа уже ест ьиконка и мы просто +1 к количеству
+        if (itemParent.childCount > 0)// Я так понимаю типа уже есть иконка и мы просто +1 к количеству
             return;
-
+        //print($"Зырим иконка {Item.view}");
         if (Item.view == null)
         {
             Item.view = BlockItemSpawner.CreateDropedView(Item.id);
@@ -136,4 +167,9 @@ public class InventorySlot : MonoBehaviour
 
         return Vector3.zero;
     }
+}
+
+public enum SlotType
+{
+    None, Quick, Main
 }

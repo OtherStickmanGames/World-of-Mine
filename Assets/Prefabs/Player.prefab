@@ -155,8 +155,11 @@ MonoBehaviour:
   - {fileID: 7941221953923839599}
   - {fileID: 6853977124982039026}
   allowDigging: 1
-  sizeMainInventory: 0
+  sizeMainInventory: 15
   blockHighlight: {fileID: 0}
+  onBlockInteract:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!143 &4254776806189264067
 CharacterController:
   m_ObjectHideFlags: 0

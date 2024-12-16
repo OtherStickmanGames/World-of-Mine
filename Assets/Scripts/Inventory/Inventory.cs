@@ -44,6 +44,7 @@ public class Inventory
 
     public void TakeItem(Item item)
     {
+        Debug.Log("да ну на ");
         if (AvailableSpace(item))
         {
             // хер знает, попробую убрать
@@ -110,6 +111,26 @@ public class Inventory
         onUpdateItem?.Invoke(item);
     }
 
+    public void RemoveFullSlot(Item item)
+    {
+        if (item == CurrentSelectedItem)
+        {
+            CurrentSelectedItem = null;
+        }
+        //Debug.Log($"{quick.Count} =-=- {main.Count}");
+        //Debug.Log($"{quick.Contains(item)} ### {ItemsStorage.Singleton.GetItemData(item.id).name}");
+        if (quick.Contains(item))
+        {
+            quick.Remove(item);
+        }
+        else
+        {
+            main.Remove(item);
+            //Debug.Log($"Ремувнул {item.id} {ItemsStorage.Singleton?.GetItemData(item.id).name}");
+        }
+        //Debug.Log($"After opta {quick.Count} =-=- {main.Count}");
+    }
+
     Item ExistMatchInQuick(Item item)
     {
         var matched = quick.Find(i => i.id == item.id && i.count < i.stackSize);
@@ -126,12 +147,14 @@ public class Inventory
 
     public bool AvailableSpace(Item item)
     {
+        //Debug.Log($"{ExistMatchInQuick(item) != null} ### {ExistMatchInMain(item) != null}");
         if (ExistMatchInQuick(item) != null || ExistMatchInMain(item) != null)
         {
             return true;
         }
         else 
         {
+            //Debug.Log($"{main.Count} ### {mainSize}");
             if (quick.Count < quickSize || main.Count < mainSize)
             {
                 return true;
@@ -172,13 +195,38 @@ public class Inventory
         return foundResult;
     }
 
+    public void AddItemToQuick(Item item)
+    {
+        quick.Add(item);
+        SaveInventory();
+    }
+
+    public void AddItemToMain(Item item)
+    {
+        main.Add(item);
+        SaveInventory();
+    }
+
     /// <summary>
-    /// Метод вызывается когда в спискам инвентаря присвоены
+    /// Метод вызывается когда спискам инвентаря присвоены
     /// значения из сохраненного Json-а 
     /// </summary>
     public void InvokeItemsSeted()
     {
         onItemsSet?.Invoke(this);
+    }
+
+    public void SetMainInventorySize(int value)
+    {
+        mainSize = value;
+    }
+
+    public void SaveInventory()
+    {
+        var jsonInventory = new JsonInventory(this);
+        var json = JsonConvert.SerializeObject(jsonInventory);
+        PlayerPrefs.SetString("inventory", json);
+        PlayerPrefs.Save();
     }
 }
 
@@ -217,12 +265,27 @@ public class JsonInventory
 
     private void SetItemViews(Inventory inventory)
     {
-        foreach (var item in inventory.quick)
+        //foreach (var item in inventory.quick)
+        //{
+        //    var itemData = ItemsStorage.Singleton.GetItemData(item.id);
+        //    if (itemData.itemType is ItemType.MESH or ItemType.BLOCKABLE)
+        //    {
+        //        item.view = GameObject.Instantiate(itemData.view);
+        //    }
+        //}
+
+        InitViews(inventory.quick);
+        InitViews(inventory.main);
+
+        void InitViews(List<Item> items)
         {
-            var itemData = ItemsStorage.Singleton.GetItemData(item.id);
-            if (itemData.itemType is ItemType.MESH or ItemType.BLOCKABLE)
+            foreach (var item in items)
             {
-                item.view = GameObject.Instantiate(itemData.view);
+                var itemData = ItemsStorage.Singleton.GetItemData(item.id);
+                if (itemData.itemType is ItemType.MESH or ItemType.BLOCKABLE)
+                {
+                    item.view = GameObject.Instantiate(itemData.view);
+                }
             }
         }
     }

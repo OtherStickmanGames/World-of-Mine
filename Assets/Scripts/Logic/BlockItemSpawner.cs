@@ -26,7 +26,7 @@ public class BlockItemSpawner : IUpdateble
 
             foreach (var player in GameManager.Inst.players)
             {
-                CheckDistanceToPlayer(player, block);
+                CheckAvailableToTake(player, block);
             }
         }
 
@@ -38,7 +38,7 @@ public class BlockItemSpawner : IUpdateble
         removable.Clear();
     }
 
-    void CheckDistanceToPlayer(Character player, SpawnedBlockData data)
+    void CheckAvailableToTake(Character player, SpawnedBlockData data)
     {
         if (data.lifetime > 1f)
         {
@@ -61,7 +61,7 @@ public class BlockItemSpawner : IUpdateble
                 }
                 else
                 {
-                    data.view.transform.position += (5 / dist) * Time.deltaTime * dir;
+                    data.view.transform.position += (5f / dist) * Time.deltaTime * dir;
                 }
             }
         }

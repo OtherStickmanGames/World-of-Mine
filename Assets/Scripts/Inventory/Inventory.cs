@@ -86,6 +86,7 @@ public class Inventory
 
     public void Remove(Item item)
     {
+        Debug.Log($"Remove {item.view}:{item.count}");
         item.count--;
         //onUpdateItem?.Invoke(item);
 
@@ -172,23 +173,22 @@ public class Inventory
         return AvailableSpace(item);
     }
 
-    Item foundResult = new Item();
-    public Item GetItem(byte id)
+    List<Item> foundResult = new();
+    public List<Item> GetItem(byte id)
     {
-        foundResult.id = id;
-        foundResult.count = 0;
+        foundResult.Clear();
         foreach (var item in quick)
         {
             if (item.id == id)
             {
-                foundResult.count += item.count;
+                foundResult.Add(item);
             }
         }
         foreach (var item in main)
         {
             if (item.id == id)
             {
-                foundResult.count += item.count;
+                foundResult.Add(item);
             }
         }
 
@@ -223,6 +223,13 @@ public class Inventory
 
     public void SaveInventory()
     {
+        var item = main.Find(i => i.count < 1);
+        if (item != null)
+        {
+            main.Remove(item);
+            Debug.Log("Дропнул эбушку");
+        }
+
         var jsonInventory = new JsonInventory(this);
         var json = JsonConvert.SerializeObject(jsonInventory);
         PlayerPrefs.SetString("inventory", json);

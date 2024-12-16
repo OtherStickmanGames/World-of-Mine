@@ -681,6 +681,13 @@ public class PlayerBehaviour : MonoBehaviour
 
     void SaveInventory()
     {
+        var item = player.inventory.main.Find(i => i.count < 1);
+        if (item != null)
+        {
+            player.inventory.main.Remove(item);
+            Debug.Log("Дропнул эбушку");
+        }
+
         var jsonInventory = new JsonInventory(player.inventory);
         //print(jsonInventory.mainSize);
         //print(jsonInventory.main.Count);

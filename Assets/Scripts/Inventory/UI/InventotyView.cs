@@ -25,7 +25,7 @@ public class InventotyView : ViewUI
             slot.onSetItem.AddListener((s) => SlotItem_Seted(s, inventory));
             slot.onRemove.AddListener((s) => SlotItem_Removed(s, inventory));
             slot.onSetWithSwap.AddListener((s, oldItem) => SlotItemSwap_Seted(s, oldItem, inventory));
-
+            inventory.onRemoveItem += slot.RemoveItem;
         }
 
         inventory.onTakeMain += Item_Taked;

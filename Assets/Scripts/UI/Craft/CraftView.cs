@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine;
+using System.Linq;
 using TMPro;
 
 
@@ -55,6 +56,8 @@ public class CraftView : ViewUI
             }
 
             player.inventory.TakeItem(item);
+            RemoveIngridients(craftableData);
+            Item_Clicked(selectedCraftableItem);// Птом добавить метод Update, сейчас это чисто для обновление
         }
         
     }
@@ -123,8 +126,9 @@ public class CraftView : ViewUI
     {
         foreach (var ingridientData in craftableData.ingredients)
         {
-            var hasItem = player.inventory.GetItem(ingridientData.GetID());
-            if (hasItem.count < ingridientData.count)
+            var hasItems = player.inventory.GetItem(ingridientData.GetID());
+            var counts = hasItems.Sum(i => i.count);
+            if (counts < ingridientData.count)
             {
                 return false;
             }
@@ -145,6 +149,32 @@ public class CraftView : ViewUI
         }
         
         LayoutRebuilder.ForceRebuildLayoutImmediate(resultItemsParent as RectTransform);
+    }
+
+    private void RemoveIngridients(ItemCraftableData craftableData)
+    {
+        foreach (var ingridientData in craftableData.ingredients)
+        {
+            var hasItems = player.inventory.GetItem(ingridientData.GetID());
+            //Debug.Log($"DKSFub {hasItems.Count}:");
+
+            var countRemoved = 0;
+            foreach (var item in hasItems)
+            {
+                for (int i = 0; i <= item.count; i++)
+                {
+                    if (countRemoved < ingridientData.count)
+                    {
+                        player.inventory.Remove(item);
+                        countRemoved++;
+                    }
+                    else
+                    {
+                        //break;
+                    }
+                }
+            }            
+        }
     }
 
     private void ClearCraftableItems()

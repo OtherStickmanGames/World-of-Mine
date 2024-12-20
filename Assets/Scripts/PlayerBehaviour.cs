@@ -64,6 +64,11 @@ public class PlayerBehaviour : MonoBehaviour
 
             InitSizeMainInventory();
             LoadInventory();
+
+            if (player.inventory.mainSize == 0)// Сначала инвентаря не было, поэтому тем кто был без него надо его увеличить 
+            {
+                player.inventory.SetMainInventorySize(sizeMainInventory);
+            }
         }
     }
 
@@ -371,7 +376,7 @@ public class PlayerBehaviour : MonoBehaviour
             var axis = WorldGenerator.Inst.turnableBlocks[(byte)ItemID.STONE_WORKBENCH];
 
             bool axisXY = (axis & (RotationAxis.X | RotationAxis.Y)) == (RotationAxis.X | RotationAxis.Y);
-
+            
             if (player.inventory.CurrentSelectedItem != null)
             {
 
@@ -676,7 +681,16 @@ public class PlayerBehaviour : MonoBehaviour
 
     void SaveInventory()
     {
+        var item = player.inventory.main.Find(i => i.count < 1);
+        if (item != null)
+        {
+            player.inventory.main.Remove(item);
+            Debug.Log("Дропнул эбушку");
+        }
+
         var jsonInventory = new JsonInventory(player.inventory);
+        //print(jsonInventory.mainSize);
+        //print(jsonInventory.main.Count);
         var json = JsonConvert.SerializeObject(jsonInventory);
         PlayerPrefs.SetString("inventory", json);
         PlayerPrefs.Save();

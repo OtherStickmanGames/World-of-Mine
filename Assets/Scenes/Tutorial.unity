@@ -1919,17 +1919,33 @@ MonoBehaviour:
   landHeight: 38
   landBump: 50
   landHeightSlice: 130
+  biomeScale: 1
+  biomeThresoldFactor: 0.001
+  biomes: []
+  generationLayers: []
+  biomsGenerationData: []
+  biomsPointsData: []
+  averageNoise: 0
   excludeRockSettings:
+    name: 
+    mainBlockID: 4
     noiseScale: 50
     yCorrect: 0.7
     landThresold: 0.38
     landHeight: 0
     landBump: 0
     landHeightSlice: 0
-    randomFactor: 888
+    seed: {x: 888, y: 888, z: 888}
     useLandHeight: 0
     useHeightSlice: 0
     useValuePower: 0
+    notUseInclude: 0
+    scriptableGeneration: {fileID: 0}
+    includeGenerators: []
+    excludeGenerators: []
+    useScriptableGeneration: 0
+    useDebug: 0
+    debugHeight: 0
 --- !u!114 &552805676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1955,6 +1971,7 @@ MonoBehaviour:
   procedural: {fileID: 552805675}
   mat: {fileID: 2100000, guid: e3d60ae9373cd8c41b4a6d983e3a70fc, type: 2}
   countGenerateByOneFrame: 1
+  useTestInit: 0
   saveMeshes: 0
   players: []
   optimizeThresold: 1.1
@@ -4414,17 +4431,87 @@ MonoBehaviour:
   landHeight: 38
   landBump: 50
   landHeightSlice: 130
+  biomeScale: 300
+  biomeThresoldFactor: 1
+  biomes:
+  - name: 
+    frequency: 0
+    sizeThresold: 0
+    noiseOffset: 0
+    useScriptable: 0
+    scriptableBiomeNoise: {fileID: 0}
+    useLerpSmooth: 0
+    idx: 0
+  - name: "\u0421\u0442\u0430\u0440\u0442"
+    frequency: 0.15
+    sizeThresold: 0.1
+    noiseOffset: 0
+    useScriptable: 0
+    scriptableBiomeNoise: {fileID: 0}
+    useLerpSmooth: 0
+    idx: 0
+  generationLayers:
+  - name: 
+    mainBlockID: 0
+    noiseScale: 0
+    yCorrect: 0
+    landThresold: 0
+    landHeight: 0
+    landBump: 0
+    landHeightSlice: 0
+    seed: {x: 0, y: 0, z: 0}
+    useLandHeight: 0
+    useHeightSlice: 0
+    useValuePower: 0
+    notUseInclude: 0
+    scriptableGeneration: {fileID: 0}
+    includeGenerators: []
+    excludeGenerators: []
+    useScriptableGeneration: 0
+    useDebug: 0
+    debugHeight: 0
+  - name: "\u0421\u043A\u0430\u0439 \u043B\u0435\u043D\u0434\u044B"
+    mainBlockID: 4
+    noiseScale: 100
+    yCorrect: 0.3
+    landThresold: 0.8
+    landHeight: 0
+    landBump: 0
+    landHeightSlice: 0
+    seed: {x: 5687, y: 5678, z: 346}
+    useLandHeight: 0
+    useHeightSlice: 0
+    useValuePower: 0
+    notUseInclude: 0
+    scriptableGeneration: {fileID: 0}
+    includeGenerators: []
+    excludeGenerators: []
+    useScriptableGeneration: 0
+    useDebug: 0
+    debugHeight: 0
+  biomsGenerationData: []
+  biomsPointsData: []
+  averageNoise: 0
   excludeRockSettings:
+    name: 
+    mainBlockID: 4
     noiseScale: 50
     yCorrect: 0.7
     landThresold: 0.38
     landHeight: 0
     landBump: 0
     landHeightSlice: 0
-    randomFactor: 888
+    seed: {x: 888, y: 888, z: 888}
     useLandHeight: 0
     useHeightSlice: 0
     useValuePower: 0
+    notUseInclude: 0
+    scriptableGeneration: {fileID: 0}
+    includeGenerators: []
+    excludeGenerators: []
+    useScriptableGeneration: 0
+    useDebug: 0
+    debugHeight: 0
 --- !u!114 &1898912575
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4450,6 +4537,7 @@ MonoBehaviour:
   procedural: {fileID: 1898912574}
   mat: {fileID: 2100000, guid: 406ff5dd1fec116449b24a2eaa289b0e, type: 2}
   countGenerateByOneFrame: 1
+  useTestInit: 0
   saveMeshes: 0
   players: []
   optimizeThresold: 1.1

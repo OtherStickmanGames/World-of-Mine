@@ -22,8 +22,11 @@ public class QuickInventoryView : MonoBehaviour
 
         foreach (var slot in slots)
         {
-            slot.Init();
+            slot.Init(SlotType.Quick);
             slot.onClick.AddListener((s) => Slot_Clicked(s, inventory));
+            slot.onSetItem.AddListener((s) => SlotItem_Seted(s, inventory));
+            slot.onRemove.AddListener((s) => SlotItem_Removed(s, inventory));
+            slot.onSetWithSwap.AddListener((s, oldItem) => SlotItemSwap_Seted(s, oldItem, inventory));
             inventory.onRemoveItem += slot.RemoveItem;
         }
 
@@ -32,6 +35,45 @@ public class QuickInventoryView : MonoBehaviour
         slots[0].Select();
     }
 
+    private void SlotItemSwap_Seted(InventorySlot slot, Item oldItem, Inventory inventory)
+    {
+        print($"SlotItemSwap_Seted {slot.Item?.view} ### {oldItem?.view}");
+
+        inventory.RemoveFullSlot(oldItem);
+
+        var foundItem = inventory.quick.Find(item => item == slot.Item);
+        if (foundItem == null)
+        {
+            inventory.AddItemToQuick(slot.Item);
+            //print("добавлено");
+        }
+
+        if (Selected == slot.transform.GetSiblingIndex())
+        {
+            inventory.CurrentSelectedItem = slot.Item;
+        }
+    }
+
+    private void SlotItem_Removed(InventorySlot s, Inventory inventory)
+    {
+        //print($"{ItemsStorage.Singleton.GetItemData(s.Item.id).name}");
+        inventory.RemoveFullSlot(s.Item);
+    }
+
+    private void SlotItem_Seted(InventorySlot slot, Inventory inventory)
+    {
+        var foundItem = inventory.quick.Find(item => item == slot.Item);
+        if (foundItem == null)
+        {
+            inventory.AddItemToQuick(slot.Item);
+            //print("добавлено");
+        }
+
+        if (Selected == slot.transform.GetSiblingIndex())
+        {
+            inventory.CurrentSelectedItem = slot.Item;
+        }
+    }
 
     public InventorySlot GetActiveSlot()
     {
@@ -76,11 +118,6 @@ public class QuickInventoryView : MonoBehaviour
         foreach (var item in inventory.quick)
         {
             Item_Taked(item);
-        }
-        foreach (var item in inventory.main)
-        {
-            // Сделать заполнение разных инвентарей, ибо просто вызов
-            // Item_Taked не поймет какой итем из какого инвентаря
         }
     }
 

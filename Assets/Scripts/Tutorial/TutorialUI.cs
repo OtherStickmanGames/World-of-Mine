@@ -77,7 +77,7 @@ public class TutorialUI : MonoBehaviour
     Vector3 oldCameraRotation;
     Vector3 oldCharacterPosition;
     Vector3 lookToPlaceBlock;
-    Vector3 startPos = new(-220, 30, 53);
+    Vector3 startPos = new(-125, 10, 1);
     Vector3 buildingPos;
 
     string debugStr;
@@ -376,7 +376,7 @@ public class TutorialUI : MonoBehaviour
 
         if (!placeBlockComplete && selectSlotComplete)
         {
-            var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * 10);
+            var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * 24);
 
             highlightBlockTutorial.position = placeBlockPos;
             playerBehaviour.blockHighlight.position = Vector3.zero;
@@ -426,7 +426,7 @@ public class TutorialUI : MonoBehaviour
 
         if (!mineBlockComplete && placeBlockComplete)
         {
-            var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * 9);
+            var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * 22);
 
             highlightBlockTutorial.position = placeBlockPos;
             playerBehaviour.blockHighlight.position = Vector3.zero;

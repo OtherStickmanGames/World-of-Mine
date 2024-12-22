@@ -68,6 +68,15 @@ MonoBehaviour:
   onClick:
     m_PersistentCalls:
       m_Calls: []
+  onSetItem:
+    m_PersistentCalls:
+      m_Calls: []
+  onRemove:
+    m_PersistentCalls:
+      m_Calls: []
+  onSetWithSwap:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!222 &7314038962367211576
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -307,7 +316,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 16
   m_TargetDisplay: 0
 --- !u!1 &2245386316733882527
 GameObject:

@@ -174,7 +174,7 @@ public class TutorialUI : MonoBehaviour
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
         SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
 
-        buildingPos = startPos + (Vector3.down * 9) + (Vector3.left * 5);
+        buildingPos = startPos + (Vector3.down * 24) + (Vector3.right * 1) + (Vector3.forward * 9);
 
     }
 
@@ -209,7 +209,7 @@ public class TutorialUI : MonoBehaviour
         }
 
         TutorialLogic();
-        debugStr = $"{sensitivity * UI.ScaleFactor} ## {Screen.height} # {resolutionFactorCurve.Evaluate(Screen.height)}";
+        //debugStr = $"{sensitivity * UI.ScaleFactor} ## {Screen.height} # {resolutionFactorCurve.Evaluate(Screen.height)}";
         debugTexto.text = debugStr;
 
         if (Input.GetKeyDown(KeyCode.L))
@@ -349,7 +349,7 @@ public class TutorialUI : MonoBehaviour
 
                     canvasMine.sortingOrder = canvasTutorial.sortingOrder + 1;
 
-                    var item = new Item() { id = 1 };
+                    var item = new Item() { id = 3 };
                     item.view = BlockItemSpawner.CreateDropedView(item.id);
                     item.count = 8;
                     mine.inventory.TakeItem(item);
@@ -402,11 +402,11 @@ public class TutorialUI : MonoBehaviour
                 placeBlockTutorInited = true;
             }
 
-            var checkingPos = placeBlockPos + Vector3.right + Vector3.up;
+            var checkingPos = placeBlockPos + Vector3.right;// + Vector3.up;
 
             needCameraLookToPlaceBlock = true;
 
-            debugStr += $"Блокос {WorldGenerator.Inst.GetBlockID(checkingPos)}";
+            debugStr += $"Установка блока {WorldGenerator.Inst.GetBlockID(checkingPos)}";
 
             if (WorldGenerator.Inst.GetBlockID(checkingPos) > 0)
             {
@@ -426,7 +426,7 @@ public class TutorialUI : MonoBehaviour
 
         if (!mineBlockComplete && placeBlockComplete)
         {
-            var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * 22);
+            var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * 24);
 
             highlightBlockTutorial.position = placeBlockPos;
             playerBehaviour.blockHighlight.position = Vector3.zero;
@@ -526,7 +526,7 @@ public class TutorialUI : MonoBehaviour
 
               
                 //placeBlockPointer.gameObject.SetActive(false);
-                placeBlockPointer.position = buildingPos + (Vector3.up * (3)) + blockOffset;
+                placeBlockPointer.position = buildingPos + (Vector3.up * 3) + blockOffset;
                 tutorialPersonCamera.LookAt = null;// placeBlockPointer;
 
 
@@ -770,11 +770,12 @@ public class TutorialUI : MonoBehaviour
     }
 
     float lookToBuildingTimer = 0;
+    [SerializeField] int cameraHeightForPlaceMineBlockTutor = 10;
     private void LateUpdate()
     {
         if (needCameraLookToPlaceBlock)
         {
-            var height = placeBlockComplete ? 9 : 10;
+            var height = placeBlockComplete ? cameraHeightForPlaceMineBlockTutor - 1 : cameraHeightForPlaceMineBlockTutor;
             var placeBlockPos = startPos + (Vector3.right * 3) - (Vector3.up * height);
             var camRootLookDir = placeBlockPos - playerBehaviour.cameraTarget.position;
             playerBehaviour.cameraTarget.rotation = Quaternion.LookRotation(camRootLookDir);
@@ -805,7 +806,7 @@ public class TutorialUI : MonoBehaviour
             }
 
             lookToBuildingTimer += Time.deltaTime;
-            if (lookToBuildingTimer > 5f)
+            if (lookToBuildingTimer > 3.5f)
             {
                 needCameraLookToBuilding = false;
                 thirdPersonController.AllowCameraRotation = true;
@@ -818,6 +819,11 @@ public class TutorialUI : MonoBehaviour
             mine.transform.position = startPos;
             
             needSetPlayerStartPos = false;
+        }
+
+        if (playerBehaviour && playerBehaviour.transform.position.y < -18)
+        {
+            playerBehaviour.transform.position = startPos;
         }
     }
 

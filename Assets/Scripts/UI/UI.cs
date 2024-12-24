@@ -15,6 +15,7 @@ public class UI : MonoBehaviour
     [SerializeField] GameObject serverStatePanel;
     [SerializeField] Button btnServer;
     [SerializeField] Button btnClient;
+    [SerializeField] Button btnPlay;
     [SerializeField] InventotyView inventoryView;
     [SerializeField] QuickInventoryView quickInventoryView;
     [SerializeField] CraftView craftView;
@@ -31,7 +32,11 @@ public class UI : MonoBehaviour
     [SerializeField] public TMP_Text txtPizdos;
     [SerializeField] Button btnInventory;
     [SerializeField] Button btnCrafting;
-    
+
+    [Space]
+
+    [SerializeField] GameObject InventoryParent;
+    [SerializeField] GameObject ReleaseNotesParent;
 
     [Header("Output")]
     public StarterAssetsInputs starterAssetsInputs;
@@ -54,6 +59,8 @@ public class UI : MonoBehaviour
     {
         btnClient.onClick.AddListener(BtnClient_Clicked);
         btnServer.onClick.AddListener(BtnServer_Clicked);
+
+        btnPlay.onClick.AddListener(BtnPlay_Clicked);
 
         btnSwitchCamera.gameObject.SetActive(false);
         btnInventory.gameObject.SetActive(false);
@@ -78,6 +85,7 @@ public class UI : MonoBehaviour
 #endif
     }
 
+   
     private void PlayerBlock_Interacted(byte blockID)
     {
         mine.inventory.Open();
@@ -123,6 +131,9 @@ public class UI : MonoBehaviour
         InitResolutionCurveFactor();
 
         txtEbala.text = $"{UserData.Owner.position}";
+
+        InitStartMenu();
+
 #endif
     }
 
@@ -184,6 +195,18 @@ public class UI : MonoBehaviour
         }
     }
 
+    private void START_CLIENT()
+    {
+        StartCoroutine(ASYNC_START());
+
+        IEnumerator ASYNC_START()
+        {
+            yield return new WaitForSeconds(0.358f);
+
+            NetworkManager.Singleton.StartClient();
+        }
+    }
+
     private void Building_Saved()
     {
         mobileController.SetActive(true);
@@ -217,10 +240,7 @@ public class UI : MonoBehaviour
             VirtualLookInput(lookDirection);
         }
 
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            NetworkManager.Singleton.StartServer();
-        }
+        
         if (Input.GetKeyDown(KeyCode.G))
         {
             PrintCurrentUI();
@@ -268,18 +288,40 @@ public class UI : MonoBehaviour
     {
 #if !UNITY_SERVER
         var playerBeh = player as PlayerBehaviour;
-        mobileInput.gameObject.SetActive(true);
+
+        btnPlay.gameObject.SetActive(true);
+
         mobileInput.Init(playerBeh);
 
         btnClient.gameObject.SetActive(false);
         btnServer.gameObject.SetActive(false);
 
+        mine = player.GetComponent<Character>();
+        
+        InitInventoryView(mine);
+
+        this.player = player.transform;
+
+        playerBeh.MobileTestINput = testMobileInput;
+        playerBeh.onBlockInteract.AddListener(PlayerBlock_Interacted);
+
+        var thirdController = playerBeh.GetComponent<ThirdPersonController>();
+        thirdController.AllowCameraRotation = false;
+        InputLogic.Singleton.AvailableMouseScrollWorld = false;
+#endif
+    }
+
+    private void BtnPlay_Clicked()
+    {
+        InventoryParent.SetActive(true);
+        ReleaseNotesParent.SetActive(false);
+        btnPlay.gameObject.SetActive(false);
+        mobileInput.gameObject.SetActive(true);
+
         btnSwitchCamera.gameObject.SetActive(true);
         btnInventory.gameObject.SetActive(true);
 
-        mine = player.GetComponent<Character>();
         quickInventoryView.gameObject.SetActive(true);
-        InitInventoryView(mine);
 
         if (Application.isMobilePlatform || testMobileInput)
         {
@@ -291,11 +333,9 @@ public class UI : MonoBehaviour
             touchField.gameObject.SetActive(false);
         }
 
-        this.player = player.transform;
-
-        playerBeh.MobileTestINput = testMobileInput;
-        playerBeh.onBlockInteract.AddListener(PlayerBlock_Interacted);
-#endif
+        var thirdController = mine.GetComponent<ThirdPersonController>();
+        thirdController.AllowCameraRotation = true;
+        InputLogic.Singleton.AvailableMouseScrollWorld = true;
     }
 
     private void InitInventoryView(Character player)
@@ -330,6 +370,19 @@ public class UI : MonoBehaviour
             needResetPlayerPosition = false;
         }
     }
+
+    /// <summary>
+    /// Метод в зависимости от платформы настраивает видимость 
+    /// кнопок меню на старте
+    /// </summary>
+    private void InitStartMenu()
+    {
+#if UNITY_EDITOR || UNITY_STANDALONE
+        btnClient.gameObject.SetActive(true);
+        btnPlay.gameObject.SetActive(false);
+#endif
+    }
+
 
     public static void ClearParent(Transform parent)
     {

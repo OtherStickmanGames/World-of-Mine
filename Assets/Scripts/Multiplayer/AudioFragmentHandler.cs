@@ -24,7 +24,7 @@ public class AudioFragmentHandler : NetworkBehaviour
             {
                 SendFragment(dataId, fragments[i], i, fragments.Count, clientID);
 
-                if (i % fragments.Count / 180 == 0)
+                if (i % 80 == 0)
                 {
                     yield return null;
                 }
@@ -54,7 +54,7 @@ public class AudioFragmentHandler : NetworkBehaviour
     //[ServerRpc(RequireOwnership = false)]
     private void SendFragment(int dataId, byte[] fragment, int index, int totalFragments, ulong clientID)
     {
-        Debug.Log($"Отправил {index}");
+        //Debug.Log($"Отправил {index} из {totalFragments}");
         ReceiveFragmentClientRpc(dataId, fragment, index, totalFragments, GetTargetClientParams(clientID));
     }
 
@@ -124,6 +124,7 @@ public class AudioFragmentHandler : NetworkBehaviour
         Debug.Log($"Processing received data of size {data.Length}");
         onDataReceive?.Invoke(data);
     }
+
 
     private ClientRpcParams GetTargetClientParams(ServerRpcParams serverRpcParams)
     {

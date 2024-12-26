@@ -28,14 +28,16 @@ public class AudioClipSender : NetworkBehaviour
         audioFragmentHandler.onDataReceive.AddListener(Data_Received);
 
         NetworkManager.OnServerStarted += Server_Started;
+
+        print(DateTime.UtcNow);
     }
 
+    Dictionary<ulong, int> clientIdxAudioSending = new();
     private void Client_Connected(ulong clienId)
     {
-        foreach (var item in releaseNotesSounds)
-        {
-            SendAudioClip(item, clienId);
-        }
+        clientIdxAudioSending.Add(clienId, 0);
+
+        SendAudioClip(releaseNotesSounds[0], clienId);
     }
 
     private void Server_Started()
@@ -63,7 +65,7 @@ public class AudioClipSender : NetworkBehaviour
     {
         foreach (var filePath in filePaths)
         {
-            Debug.Log("Found file: " + filePath);
+            Debug.Log("Found file: " + filePath); 
 
             // Загружаем аудиофайл
             using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(filePath, GetAudioTypeFromFile(filePath)))
@@ -131,13 +133,51 @@ public class AudioClipSender : NetworkBehaviour
         }
     }
 
+    byte[] currentReceivedAudioBytes;
     private void Data_Received(byte[] data)
     {
-        print("чёт пришло");
+        currentReceivedAudioBytes = data;
+        AudioClipBytesReceivedServerRpc();
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void AudioClipBytesReceivedServerRpc(ServerRpcParams serverRpcParams = default)
+    {
+        var clientId = serverRpcParams.Receive.SenderClientId;
+        var clip = currentSendingClips[clientId];
+        ReveiveAuidioClipInfoClientRpc
+        (
+            clip.channels,
+            clip.frequency,
+            GetTargetClientParams(serverRpcParams)
+        );
+
+        clientIdxAudioSending[clientId]++;
+
+        if (clientIdxAudioSending[clientId] < releaseNotesSounds.Count)
+        {
+            SendAudioClip(releaseNotesSounds[clientIdxAudioSending[clientId]], clientId);
+        }
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ReveiveAuidioClipInfoClientRpc(int channels, int frequency, ClientRpcParams clientRpcParams = default)
+    {
+        AudioClipReceiveDone(currentReceivedAudioBytes, channels, frequency);
+    }
+
+    Dictionary<ulong, AudioClip> currentSendingClips = new();
     public void SendAudioClip(AudioClip audioClip, ulong clientID)
     {
+        if (!currentSendingClips.ContainsKey(clientID))
+        {
+            currentSendingClips.Add(clientID, audioClip);
+        }
+        else
+        {
+            currentSendingClips[clientID] = audioClip;
+        }
+
         byte[] audioData = AudioClipToByteArray(audioClip);
 
         audioFragmentHandler.SendLargeData(audioData, 0, clientID);
@@ -147,17 +187,13 @@ public class AudioClipSender : NetworkBehaviour
         //}
     }
 
-    [ServerRpc]
-    private void SendAudioServerRpc(byte[] audioData)
-    {
-        ReceiveAudioClientRpc(audioData);
-    }
+    
 
-    [ClientRpc]
-    private void ReceiveAudioClientRpc(byte[] audioData)
+    
+    private void AudioClipReceiveDone(byte[] audioData, int channels, int frequency)
     {
-        //AudioClip receivedClip = ByteArrayToAudioClip(audioData, audioClip.channels, audioClip.frequency);
-        //PlayAudio(receivedClip);
+        AudioClip receivedClip = ByteArrayToAudioClip(audioData, channels, frequency);
+        PlayAudio(receivedClip);
     }
 
     private byte[] AudioClipToByteArray(AudioClip clip)
@@ -182,5 +218,19 @@ public class AudioClipSender : NetworkBehaviour
         return clip;
     }
 
-    
+    private ClientRpcParams GetTargetClientParams(ServerRpcParams serverRpcParams)
+    {
+        ClientRpcParams clientRpcParams = default;
+        clientRpcParams.Send.TargetClientIds = new ulong[] { serverRpcParams.Receive.SenderClientId };
+
+        return clientRpcParams;
+    }
+
+    private ClientRpcParams GetTargetClientParams(ulong clientId)
+    {
+        ClientRpcParams clientRpcParams = default;
+        clientRpcParams.Send.TargetClientIds = new ulong[] { clientId };
+
+        return clientRpcParams;
+    }
 }

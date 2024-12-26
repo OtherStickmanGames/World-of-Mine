@@ -15,7 +15,7 @@ public class AudioClipSender : NetworkBehaviour
 
     public AudioFragmentHandler audioFragmentHandler;
     private string[] filters = { "*.mp3", "*.wav" }; // Укажите нужные фильтры
-
+    Dictionary<ulong, int> clientIdxAudioSending = new();
     public List<AudioClip> releaseNotesSounds;
 
     private void Awake()
@@ -29,10 +29,10 @@ public class AudioClipSender : NetworkBehaviour
 
         NetworkManager.OnServerStarted += Server_Started;
 
-        print(DateTime.UtcNow);
+        
     }
 
-    Dictionary<ulong, int> clientIdxAudioSending = new();
+    
     private void Client_Connected(ulong clienId)
     {
         clientIdxAudioSending.Add(clienId, 0);
@@ -65,7 +65,7 @@ public class AudioClipSender : NetworkBehaviour
     {
         foreach (var filePath in filePaths)
         {
-            Debug.Log("Found file: " + filePath); 
+            Debug.Log("Found Audio file: " + filePath); 
 
             // Загружаем аудиофайл
             using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(filePath, GetAudioTypeFromFile(filePath)))
@@ -76,6 +76,9 @@ public class AudioClipSender : NetworkBehaviour
                 {
                     // Получаем AudioClip из ответа
                     AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
+                    var name = Path.GetFileName(filePath);
+                    name = name.Substring(0, name.IndexOf("."));
+                    clip.name = name;
                     releaseNotesSounds.Add(clip);
                     //PlayAudio(clip);
                 }
@@ -149,6 +152,7 @@ public class AudioClipSender : NetworkBehaviour
         (
             clip.channels,
             clip.frequency,
+            clip.name,
             GetTargetClientParams(serverRpcParams)
         );
 
@@ -161,9 +165,9 @@ public class AudioClipSender : NetworkBehaviour
     }
 
     [ClientRpc(RequireOwnership = false)]
-    private void ReveiveAuidioClipInfoClientRpc(int channels, int frequency, ClientRpcParams clientRpcParams = default)
+    private void ReveiveAuidioClipInfoClientRpc(int channels, int frequency, string name, ClientRpcParams clientRpcParams = default)
     {
-        AudioClipReceiveDone(currentReceivedAudioBytes, channels, frequency);
+        AudioClipReceiveDone(currentReceivedAudioBytes, channels, frequency, name);
     }
 
     Dictionary<ulong, AudioClip> currentSendingClips = new();
@@ -187,12 +191,14 @@ public class AudioClipSender : NetworkBehaviour
         //}
     }
 
-    
 
-    
-    private void AudioClipReceiveDone(byte[] audioData, int channels, int frequency)
+
+    public Dictionary<string, AudioClip> clientReceivedAudios = new();
+    private void AudioClipReceiveDone(byte[] audioData, int channels, int frequency, string name)
     {
         AudioClip receivedClip = ByteArrayToAudioClip(audioData, channels, frequency);
+        receivedClip.name = name;
+        clientReceivedAudios.Add(name, receivedClip);
         PlayAudio(receivedClip);
     }
 

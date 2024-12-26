@@ -40,7 +40,6 @@ public struct NetworkTurnedBlockData : INetworkSerializable
     public byte blockID;
     public NetworkTurnData[] turnsData;
 
-
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         serializer.SerializeValue(ref worldBlockPos);
@@ -58,5 +57,24 @@ public struct NetworkTurnData : INetworkSerializable
     {
         serializer.SerializeValue(ref angle);
         serializer.SerializeValue(ref axis);
+    }
+}
+
+[Serializable]
+public struct NetworkNewsData : INetworkSerializable
+{
+    public string name;
+    public string title;
+    public string text;
+
+    // Не передаю по сети
+    public AudioClip voiceClip;
+    public DateTime date;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref name);
+        serializer.SerializeValue(ref title);
+        serializer.SerializeValue(ref text);
     }
 }

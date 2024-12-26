@@ -32,6 +32,7 @@ public class UI : MonoBehaviour
     [SerializeField] public TMP_Text txtPizdos;
     [SerializeField] Button btnInventory;
     [SerializeField] Button btnCrafting;
+    [SerializeField] ReleaseNotesView releaseNotesView;
 
     [Space]
 
@@ -115,6 +116,8 @@ public class UI : MonoBehaviour
         userView.Init();
         saveBuildingView.Init();
         showBuildingView.Init();
+
+        releaseNotesView.Init();
 
         quickInventoryView.gameObject.SetActive(false);
         mobileController.SetActive(false);

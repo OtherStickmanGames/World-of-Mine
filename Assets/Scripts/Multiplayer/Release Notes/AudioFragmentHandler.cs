@@ -6,10 +6,12 @@ using System.Collections;
 
 public class AudioFragmentHandler : NetworkBehaviour
 {
-    private const int FragmentSize = 1000; // Размер одного фрагмента в байтах
+    private const int FragmentSize = 800; // Размер одного фрагмента в байтах
 
     // Словарь для хранения фрагментов данных на клиенте
     private Dictionary<int, List<byte[]>> receivedFragments = new Dictionary<int, List<byte[]>>();
+
+    [HideInInspector] public UnityEvent<byte[]> onDataReceive;
 
     // Метод для отправки большого массива данных
     public void SendLargeData(byte[] data, int dataId, ulong clientID)
@@ -115,7 +117,7 @@ public class AudioFragmentHandler : NetworkBehaviour
         return completeData;
     }
 
-    public UnityEvent<byte[]> onDataReceive;
+    
 
     // Пример обработки полученных данных
     private void ProcessReceivedData(byte[] data)

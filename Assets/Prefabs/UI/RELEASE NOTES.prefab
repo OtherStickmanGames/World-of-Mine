@@ -464,6 +464,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac9851131e230934797ea5bd679be844, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  notesParent: {fileID: 4795892551876565928}
+  noteViewPrefab: {fileID: 4538067421442489131, guid: fca5b4973f043394b8c0680a5fe5a955,
+    type: 3}
 --- !u!1 &7117344329058841607
 GameObject:
   m_ObjectHideFlags: 0

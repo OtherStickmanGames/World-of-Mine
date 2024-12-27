@@ -19,6 +19,15 @@ public class ReseaseNoteView : MonoBehaviour
         btnPause.onClick.AddListener(BtnPause_Clicked);
     }
 
+    public void Fill(string title, string date, string description)
+    {
+        txtTitle.SetText(title);
+        txtDate.SetText(date);
+        txtDescription.SetText(description);
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
+    }
+
     private void BtnPause_Clicked()
     {
 

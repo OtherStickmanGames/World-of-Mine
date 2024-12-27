@@ -6,7 +6,7 @@ using UnityEngine;
 public class ReleaseNotesView : MonoBehaviour
 {
     [SerializeField] Transform notesParent;
-    [SerializeField] ReseaseNoteView noteViewPrefab
+    [SerializeField] ReseaseNoteView noteViewPrefab;
 
     public void Init()
     {
@@ -16,6 +16,13 @@ public class ReleaseNotesView : MonoBehaviour
     private void NewsData_Received(List<NetworkNewsData> newsData)
     {
         Clear();
+
+        foreach (var data in newsData)
+        {
+            var view = Instantiate(noteViewPrefab, notesParent);
+            view.Init();
+            view.Fill(data.title, data.name.Replace("_", "."), data.text);
+        }
     }
 
     private void Clear()

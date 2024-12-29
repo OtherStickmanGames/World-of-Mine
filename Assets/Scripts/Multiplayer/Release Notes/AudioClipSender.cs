@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine.Events;
 #if !UNITY_WEBGL || UNITY_EDITOR
 using System.IO;
 #endif
@@ -18,6 +19,8 @@ public class AudioClipSender : NetworkBehaviour
     Dictionary<ulong, int> clientIdxAudioSending = new();
     public List<AudioClip> releaseNotesSounds;
 
+    public UnityEvent<AudioClip> onVoiceReceive;
+
     private void Awake()
     {
         releaseNotesSounds = new();
@@ -29,11 +32,17 @@ public class AudioClipSender : NetworkBehaviour
 
         NetworkManager.OnServerStarted += Server_Started;
 
-        
     }
 
     
-    private void Client_Connected(ulong clienId)
+    public void StartSendNewsVoice(ulong clienId)
+    {
+        SendVoicesServerRpc(clienId);
+        
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SendVoicesServerRpc(ulong clienId, ServerRpcParams serverRpcParams = default)
     {
         clientIdxAudioSending.Add(clienId, 0);
 
@@ -42,8 +51,6 @@ public class AudioClipSender : NetworkBehaviour
 
     private void Server_Started()
     {
-        NetworkManager.OnClientConnectedCallback += Client_Connected;
-
         LoadSound();
     }
 
@@ -109,7 +116,7 @@ public class AudioClipSender : NetworkBehaviour
         return AudioType.UNKNOWN; // Неизвестный формат
     }
 
-    private void PlayAudio(AudioClip clip)
+    public void PlayAudio(AudioClip clip)
     {
         // Убедитесь, что есть AudioSource
         AudioSource audioSource = GetComponent<AudioSource>();
@@ -153,7 +160,7 @@ public class AudioClipSender : NetworkBehaviour
             clip.channels,
             clip.frequency,
             clip.name,
-            GetTargetClientParams(serverRpcParams)
+            NetTool.GetTargetClientParams(serverRpcParams)
         );
 
         clientIdxAudioSending[clientId]++;
@@ -199,7 +206,8 @@ public class AudioClipSender : NetworkBehaviour
         AudioClip receivedClip = ByteArrayToAudioClip(audioData, channels, frequency);
         receivedClip.name = name;
         clientReceivedAudios.Add(name, receivedClip);
-        PlayAudio(receivedClip);
+        onVoiceReceive?.Invoke(receivedClip);
+        //PlayAudio(receivedClip);
     }
 
     private byte[] AudioClipToByteArray(AudioClip clip)
@@ -224,19 +232,4 @@ public class AudioClipSender : NetworkBehaviour
         return clip;
     }
 
-    private ClientRpcParams GetTargetClientParams(ServerRpcParams serverRpcParams)
-    {
-        ClientRpcParams clientRpcParams = default;
-        clientRpcParams.Send.TargetClientIds = new ulong[] { serverRpcParams.Receive.SenderClientId };
-
-        return clientRpcParams;
-    }
-
-    private ClientRpcParams GetTargetClientParams(ulong clientId)
-    {
-        ClientRpcParams clientRpcParams = default;
-        clientRpcParams.Send.TargetClientIds = new ulong[] { clientId };
-
-        return clientRpcParams;
-    }
 }

@@ -11,6 +11,8 @@ public class ReleaseNotesView : MonoBehaviour
     public void Init()
     {
         ReleaseNotesHandler.onNewsReceive.AddListener(NewsData_Received);
+
+        Clear();
     }
 
     private void NewsData_Received(List<NetworkNewsData> newsData)

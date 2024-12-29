@@ -13,6 +13,8 @@ public class ReleaseNotesHandler : NetworkBehaviour
 {
     static string releaseNotesDirectory = $"{Application.dataPath}/Data/ReleaseNotes/News/";
 
+    [SerializeField] AudioClipSender audioClipSender;
+
     public List<NetworkNewsData> newsData = new();
     public List<NetworkNewsData> clientNewsData = new();
 
@@ -30,6 +32,26 @@ public class ReleaseNotesHandler : NetworkBehaviour
     private void Start()
     {
         NetworkManager.OnServerStarted += Server_Started;
+        audioClipSender.onVoiceReceive.AddListener(ClientNewsVoice_Received);
+    }
+
+    private void ClientNewsVoice_Received(AudioClip audio)
+    {
+        for (int i = 0; i < clientNewsData.Count; i++)
+        {
+            if(clientNewsData[i].name == audio.name)
+            {
+                var data = clientNewsData[i];
+                data.voiceClip = audio;
+                clientNewsData[i] = data;
+                if(i == 0)
+                {
+                    audioClipSender.PlayAudio(audio);
+                }
+                //
+                break;
+            }
+        }
     }
 
     private void Server_Started()
@@ -132,7 +154,17 @@ public class ReleaseNotesHandler : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     private void AllNewsSendedClientRpc(ClientRpcParams clientRpcParams = default)
     {
+        audioClipSender.StartSendNewsVoice(NetworkManager.LocalClientId);
+
         onNewsReceive?.Invoke(clientNewsData);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            audioClipSender.PlayAudio(clientNewsData[0].voiceClip);
+        }
     }
 }
 

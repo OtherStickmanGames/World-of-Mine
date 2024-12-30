@@ -107,6 +107,7 @@ public class GameManager : MonoBehaviour
             t.gameObject.layer = layer;
             SetLayerByChild(t.gameObject, layer);
         }
+
     }
 
     public static void CheckPathBetweenBlock(Vector3 start, Vector3 end)

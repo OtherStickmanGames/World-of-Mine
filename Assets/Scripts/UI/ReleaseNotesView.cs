@@ -24,6 +24,7 @@ public class ReleaseNotesView : MonoBehaviour
             var view = Instantiate(noteViewPrefab, notesParent);
             view.Init();
             view.Fill(data.title, data.name.Replace("_", "."), data.text);
+            print(data.date);
         }
     }
 

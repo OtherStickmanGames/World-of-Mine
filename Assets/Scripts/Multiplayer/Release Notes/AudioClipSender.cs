@@ -20,6 +20,9 @@ public class AudioClipSender : NetworkBehaviour
     public List<AudioClip> releaseNotesSounds;
 
     public UnityEvent<AudioClip> onVoiceReceive;
+    public UnityEvent<AudioClip> onVoiceEndPlay;
+
+    AudioSource audioSource;
 
     private void Awake()
     {
@@ -119,7 +122,7 @@ public class AudioClipSender : NetworkBehaviour
     public void PlayAudio(AudioClip clip)
     {
         // Убедитесь, что есть AudioSource
-        AudioSource audioSource = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
@@ -129,17 +132,27 @@ public class AudioClipSender : NetworkBehaviour
         audioSource.clip = clip;
         audioSource.Play();
 
+        startPlayingFlag = true;
+
         Debug.Log($"Playing audio: {clip.name}");
     }
 
+
+    bool startPlayingFlag;
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.V))
         {
             if (IsServer)
             {
-                
+
             }
+        }
+
+        if (startPlayingFlag && !audioSource.isPlaying)
+        {
+            startPlayingFlag = false;
+            onVoiceEndPlay?.Invoke(audioSource.clip);
         }
     }
 

@@ -621,6 +621,9 @@ MonoBehaviour:
   onVoiceReceive:
     m_PersistentCalls:
       m_Calls: []
+  onVoiceEndPlay:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &263365094 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8479735533659835910, guid: a5d6bf6b47d8bf74891f874eb11bd4eb,
@@ -2705,7 +2708,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.65, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -175}
+  m_AnchoredPosition: {x: 0, y: -175.00002}
   m_SizeDelta: {x: 0, y: -350}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &653725232

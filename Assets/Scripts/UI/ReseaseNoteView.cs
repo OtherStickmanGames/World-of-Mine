@@ -21,6 +21,7 @@ public class ReseaseNoteView : MonoBehaviour
 
     public void Fill(string title, string date, string description)
     {
+        
         txtTitle.SetText(title);
         txtDate.SetText(date);
         txtDescription.SetText(description);

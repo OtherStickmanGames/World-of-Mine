@@ -5,6 +5,8 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Events;
+using System.Linq;
+using System.Globalization;
 #if !UNITY_WEBGL || UNITY_EDITOR
 using System.IO;
 #endif
@@ -33,23 +35,35 @@ public class ReleaseNotesHandler : NetworkBehaviour
     {
         NetworkManager.OnServerStarted += Server_Started;
         audioClipSender.onVoiceReceive.AddListener(ClientNewsVoice_Received);
+        audioClipSender.onVoiceEndPlay.AddListener(PlayVoice_Ended);
+    }
+
+    private void PlayVoice_Ended(AudioClip audio)
+    {
+        if (audio.name == "Start_Voice")
+        {
+            audioClipSender.PlayAudio(clientNewsData[0].voiceClip);
+        }
     }
 
     private void ClientNewsVoice_Received(AudioClip audio)
     {
-        for (int i = 0; i < clientNewsData.Count; i++)
+        if (audio.name == "Start_Voice")
         {
-            if(clientNewsData[i].name == audio.name)
+            audioClipSender.PlayAudio(audio);
+        }
+        else
+        {
+            for (int i = 0; i < clientNewsData.Count; i++)
             {
-                var data = clientNewsData[i];
-                data.voiceClip = audio;
-                clientNewsData[i] = data;
-                if(i == 0)
+                if (clientNewsData[i].name == audio.name)
                 {
-                    audioClipSender.PlayAudio(audio);
+                    var data = clientNewsData[i];
+                    data.voiceClip = audio;
+                    clientNewsData[i] = data;
+
+                    break;
                 }
-                //
-                break;
             }
         }
     }
@@ -60,6 +74,9 @@ public class ReleaseNotesHandler : NetworkBehaviour
 
         LoadReleaseNotes();
     }
+
+    string format = "dd_MM_yyyy"; // Формат строки даты
+    CultureInfo provider = CultureInfo.InvariantCulture; // 
 
     private void LoadReleaseNotes()
     {
@@ -100,7 +117,9 @@ public class ReleaseNotesHandler : NetworkBehaviour
                             idxText - "text:".Length - 2
                         );
                         data.text = news[(idxText + 5)..];
-                        data.date = DateTime.Parse(name.Replace("_", "/"));
+                        
+                        data.date = DateTime.ParseExact(name, format, provider);
+                        //print(data.date);
                         newsData.Add(data);
                     }
                     else
@@ -141,7 +160,9 @@ public class ReleaseNotesHandler : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveNewsDataClientRpc(NetworkNewsData newsData, ClientRpcParams clientRpcParams = default)
     {
+        newsData.date = DateTime.ParseExact(newsData.name, format, provider);
         clientNewsData.Add(newsData);
+        clientNewsData = clientNewsData.OrderByDescending(n => n.date).ToList();
         ClientReceivedNewsServerRpc();
     }
 
@@ -156,6 +177,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
     {
         audioClipSender.StartSendNewsVoice(NetworkManager.LocalClientId);
 
+        clientNewsData = clientNewsData.OrderByDescending(n => n.date).ToList();
         onNewsReceive?.Invoke(clientNewsData);
     }
 

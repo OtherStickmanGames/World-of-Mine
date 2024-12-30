@@ -126,6 +126,8 @@ public class UI : MonoBehaviour
         inventoryView.gameObject.SetActive(false);
         craftView.gameObject.SetActive(false);
 
+        ReleaseNotesParent.SetActive(false);
+
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
         SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
         BuildingManager.Singleton.onBuildingListShow.AddListener(BuildingList_Showed);
@@ -298,6 +300,8 @@ public class UI : MonoBehaviour
 
         btnClient.gameObject.SetActive(false);
         btnServer.gameObject.SetActive(false);
+
+        ReleaseNotesParent.SetActive(true);
 
         mine = player.GetComponent<Character>();
         

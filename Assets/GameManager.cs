@@ -53,25 +53,21 @@ public class GameManager : MonoBehaviour
         yield return new WaitForEndOfFrame();
 
 #if !UNITY_SERVER
+        if (Application.isMobilePlatform)
+        {
+            LoadTutorialScene();
+        }
+#endif
 
+    }
+
+    private void LoadTutorialScene()
+    {
         var tutorialSceneName = "Tutorial";
         if (!UserData.Owner.tutorialComplete && SceneManager.GetActiveScene().name != tutorialSceneName)
         {
             SceneManager.LoadScene(tutorialSceneName);
         }
-
-        if (autoSpawn)
-        {
-            for (int i = 0; i < countWorkers; i++)
-            {
-                yield return new WaitForSeconds(8);
-
-                var worker = Instantiate(workerPrefab);
-                worker.transform.SetParent(workersParent);
-            }
-        }
-#endif
-        
     }
 
     private void Update()

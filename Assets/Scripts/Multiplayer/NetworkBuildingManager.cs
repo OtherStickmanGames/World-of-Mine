@@ -52,6 +52,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SaveBuildingServerRpc(Vector3[] positions, byte[] blockIDs, string nameBuilding, ServerRpcParams serverRpcParams = default )
     {
+#if !UNITY_WEBGL
         UserChunckData buildData = new UserChunckData()
         {
             changedBlocks = new List<JsonBlockData>()
@@ -83,6 +84,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         ReceiveSaveBuildingSuccesClientRpc(GetTargetClientParams(serverRpcParams));
         Debug.Log($"Building will be saved by {data.blocksData.userName}");
         UpdateBuildingsList();
+#endif
     }
 
     /// <summary>
@@ -108,6 +110,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void GetCountSavedBuildingsServerRpc(ServerRpcParams serverRpcParams = default)
     {
+#if !UNITY_WEBGL
         if (!Directory.Exists(buildingsDirectory))
         {
             Directory.CreateDirectory(buildingsDirectory);
@@ -116,6 +119,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         var countBuildings = Directory.GetFiles(buildingsDirectory).Length;
 
         SendCountBuildingsClientRpc(countBuildings, GetTargetClientParams(serverRpcParams));
+#endif
     }
 
     [ClientRpc(RequireOwnership = false)]
@@ -179,6 +183,7 @@ public class NetworkBuildingManager : NetworkBehaviour
 
     private void UpdateBuildingsList()
     {
+#if !UNITY_WEBGL
         if (!Directory.Exists(buildingsDirectory))
         {
             Directory.CreateDirectory(buildingsDirectory);
@@ -230,6 +235,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             //FindObjectOfType<UI>().txtPizdos.SetText($"{buildingsServerData.Count}");
             //Debug.Log($"{buildingsServerData.Count} -=-=-");
         }
+#endif
     }
 
     private void ShuffleBuildingList()
@@ -274,6 +280,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void BuildingLikedServerRpc(string guid, ServerRpcParams serverRpcParams = default)
     {
+#if !UNITY_WEBGL
         //Debug.Log(buildingsServerData.Count);
         var building = buildingsServerData.Find(b => b.guid == guid);
 
@@ -302,6 +309,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         File.WriteAllText(path, json);
 
         UpdateBuildingsList();
+#endif
     }
 
 }

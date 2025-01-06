@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.Events;
-#if !UNITY_WEBGL || UNITY_EDITOR
+#if !UNITY_WEBGL
 using System.IO;
 #endif
 
@@ -59,6 +59,7 @@ public class AudioClipSender : NetworkBehaviour
 
     private void LoadSound()
     {
+        #if !UNITY_WEBGL
         if (!Directory.Exists(releaseNotesDirectory))
         {
             Directory.CreateDirectory(releaseNotesDirectory);
@@ -69,8 +70,10 @@ public class AudioClipSender : NetworkBehaviour
 
           
         StartCoroutine(LoadAudioFromFile(filePaths));
+#endif
     }
 
+#if !UNITY_WEBGL
     private IEnumerator LoadAudioFromFile(string[] filePaths)
     {
         foreach (var filePath in filePaths)
@@ -99,7 +102,9 @@ public class AudioClipSender : NetworkBehaviour
             }
         }
     }
+#endif
 
+#if !UNITY_WEBGL
     private AudioType GetAudioTypeFromFile(string filePath)
     {
         byte[] fileHeader = new byte[4];
@@ -118,6 +123,7 @@ public class AudioClipSender : NetworkBehaviour
 
         return AudioType.UNKNOWN; // Неизвестный формат
     }
+#endif
 
     public void PlayAudio(AudioClip clip)
     {

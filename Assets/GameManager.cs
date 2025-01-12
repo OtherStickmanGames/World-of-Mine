@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -8,6 +10,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] public string serverAdress = "176.123.167.245";
+    [SerializeField] public string hostName = "worldofmine.online";
     [SerializeField] Worker workerPrefab;
     [SerializeField] public Transform workersParent;
     [SerializeField] bool autoSpawn;
@@ -59,6 +62,7 @@ public class GameManager : MonoBehaviour
         }
 #endif
 
+        
     }
 
     private void LoadTutorialScene()

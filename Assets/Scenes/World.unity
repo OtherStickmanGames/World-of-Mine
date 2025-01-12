@@ -586,6 +586,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59f446cd9bae860428608b801d62bb48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  countFragmentsOneFrame: 50
   onDataReceive:
     m_PersistentCalls:
       m_Calls: []
@@ -1481,7 +1482,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -100}
   m_SizeDelta: {x: 180, y: 58}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &521501944
@@ -1644,6 +1645,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serverAdress: 176.123.167.245
+  hostName: worldofmine.online
   workerPrefab: {fileID: 0}
   workersParent: {fileID: 0}
   autoSpawn: 0
@@ -2586,6 +2588,7 @@ GameObject:
   - component: {fileID: 647023262}
   - component: {fileID: 647023263}
   - component: {fileID: 647023260}
+  - component: {fileID: 647023264}
   m_Layer: 0
   m_Name: -=Multiplayer=-
   m_TagString: Untagged
@@ -2615,7 +2618,7 @@ MonoBehaviour:
   m_MaxConnectAttempts: 60
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
-    Address: 127.0.0.1
+    Address: 176.123.167.245
     Port: 7777
     ServerListenAddress: 0.0.0.0
   DebugSimulator:
@@ -2651,7 +2654,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NetworkConfig:
     ProtocolVersion: 0
-    NetworkTransport: {fileID: 647023260}
+    NetworkTransport: {fileID: 647023264}
     PlayerPrefab: {fileID: 4050704144213722128, guid: 9ae00bc17e91cfa47b9c2098f98b99b7,
       type: 3}
     Prefabs:
@@ -2675,6 +2678,24 @@ MonoBehaviour:
     OldPrefabList: []
   RunInBackground: 1
   LogLevel: 1
+--- !u!114 &647023264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 647023259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54618226c9df54608af7731199ed5f0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConnectAddress: localhost
+  Path: /
+  Port: 7777
+  SecureConnection: 0
+  AllowForwardedRequest: 1
+  CertificateBase64String: 
 --- !u!1 &653725230
 GameObject:
   m_ObjectHideFlags: 0
@@ -6109,7 +6130,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1974414733
 MonoBehaviour:
   m_ObjectHideFlags: 0

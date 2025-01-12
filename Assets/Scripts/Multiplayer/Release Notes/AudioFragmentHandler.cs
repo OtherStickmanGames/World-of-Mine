@@ -6,6 +6,7 @@ using System.Collections;
 
 public class AudioFragmentHandler : NetworkBehaviour
 {
+    [SerializeField] int countFragmentsOneFrame = 50;
     private const int FragmentSize = 800; // Размер одного фрагмента в байтах
 
     // Словарь для хранения фрагментов данных на клиенте
@@ -26,8 +27,10 @@ public class AudioFragmentHandler : NetworkBehaviour
             {
                 SendFragment(dataId, fragments[i], i, fragments.Count, clientID);
 
-                if (i % 80 == 0)
+                if (i % countFragmentsOneFrame == 0)
                 {
+                    yield return null;
+                    yield return null;
                     yield return null;
                 }
             }

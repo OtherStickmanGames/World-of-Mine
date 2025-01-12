@@ -32,10 +32,14 @@ public class ShowBuildingView : MonoBehaviour
         BuildingManager.Singleton.onLoadedPreviewBuild.AddListener(LoadedPreview_Builded);
         BuildingManager.Singleton.onBuildingListEnded.AddListener(BuildingList_Ended);
 
-        gameObject.SetActive(true);
         buildingsView.SetActive(false);
         buildingInfoMessage.SetActive(false);
 
+        
+    }
+
+    private void OnEnable()
+    {
         UpdatePageBtnsView();
     }
 

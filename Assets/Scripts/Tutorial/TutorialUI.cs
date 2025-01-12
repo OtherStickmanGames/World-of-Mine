@@ -237,6 +237,8 @@ public class TutorialUI : MonoBehaviour
 
         btnSwitchCamera.gameObject.SetActive(true);
 
+        saveBuildingView.gameObject.SetActive(true);
+
         mine = player.GetComponent<Character>();
         quickInventoryView.gameObject.SetActive(true);
         InitInventoryView(mine);
@@ -671,7 +673,7 @@ public class TutorialUI : MonoBehaviour
             rightBottomMovePointerTutorial.SetCorners(startPos, endPos);
 
             var dist = rightBottomMovePointerTutorial.distance;
-            if (dist != null && dist < 50)
+            if (dist != null && dist < 58)
             {
                 rightCropHandleTutorial.SetActive(false);
 

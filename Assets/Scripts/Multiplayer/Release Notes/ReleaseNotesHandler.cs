@@ -42,6 +42,18 @@ public class ReleaseNotesHandler : NetworkBehaviour
     {
         if (audio.name == "Start_Voice")
         {
+            if (clientNewsData.Count == 0)
+            {
+                Debug.Log("Нет новостей");
+                return;
+            }
+
+            if (clientNewsData[0].voiceClip == null)
+            {
+                Debug.Log("Последняя новость не имеет озвучки");
+                return;
+            }
+
             audioClipSender.PlayAudio(clientNewsData[0].voiceClip);
         }
     }

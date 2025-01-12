@@ -281,11 +281,15 @@ public class NetworkWorldGenerator : NetworkBehaviour
                 var pos = positions[i];
                 var blockId = blockIDs[i];
 
-                //if(blockId > 0)
-                //{
-                //    print($"{pos} :: {blockId}");
-                //}
+                if (IsWorldPos(pos))
+                {
+                    pos = worldGenerator.ToLocalBlockPos(pos);
+                }
 
+                //int xIdx = (int)pos.x;
+                //int yIdx = (int)pos.y;
+                //int zIdx = (int)pos.z;
+                //print($"{xIdx} # {yIdx} # {zIdx} # {chunck.blocks.Length}");
                 chunck.SetBlock(pos, blockId);
             }
 
@@ -293,6 +297,26 @@ public class NetworkWorldGenerator : NetworkBehaviour
             chunck.renderer.gameObject.name = chunck.renderer.gameObject.name.Insert(0, $"{chunckPos} Srv Upd ");
             chunck.blocksLoaded = true;
         }
+    }
+
+    private bool IsWorldPos(Vector3 pos)
+    {
+        if (pos.x < 0 || pos.x > WorldGenerator.size - 1)
+        {
+            return true;
+        }
+
+        if (pos.y < 0 || pos.y > WorldGenerator.size - 1)
+        {
+            return true;
+        }
+
+        if (pos.z < 0 || pos.z > WorldGenerator.size - 1)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void SendNoChunckServerData(ulong clientID)

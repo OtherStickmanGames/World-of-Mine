@@ -8,6 +8,7 @@ using System;
 using StarterAssets;
 using TMPro;
 using UnityEngine.EventSystems;
+using Unity.Netcode.Transports.UTP;
 
 public class UI : MonoBehaviour
 {
@@ -127,6 +128,8 @@ public class UI : MonoBehaviour
         craftView.gameObject.SetActive(false);
 
         ReleaseNotesParent.SetActive(false);
+        saveBuildingView.gameObject.SetActive(false);
+        showBuildingView.gameObject.SetActive(false); 
 
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
         SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
@@ -286,6 +289,12 @@ public class UI : MonoBehaviour
 
     private void BtnClient_Clicked()
     {
+        //var networkManager = NetworkManager.Singleton;
+        //var m_Transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
+        ////m_Transport.SetServerSecrets(MyGameServerCertificate, MyGameServerPrivateKey);
+
+        //m_Transport.SetClientSecrets("worldofmine.online");
+
         NetworkManager.Singleton.StartClient();
     }
 
@@ -327,6 +336,9 @@ public class UI : MonoBehaviour
 
         btnSwitchCamera.gameObject.SetActive(true);
         btnInventory.gameObject.SetActive(true);
+
+        saveBuildingView.gameObject.SetActive(true);
+        showBuildingView.gameObject.SetActive(true);
 
         quickInventoryView.gameObject.SetActive(true);
 

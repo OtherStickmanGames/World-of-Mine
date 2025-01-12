@@ -81,7 +81,7 @@ public class AudioClipSender : NetworkBehaviour
             Debug.Log("Found Audio file: " + filePath); 
 
             // Загружаем аудиофайл
-            using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(filePath, GetAudioTypeFromFile(filePath)))
+            using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip("file:/" + filePath, GetAudioTypeFromFile(filePath)))
             {
                 yield return request.SendWebRequest();
 

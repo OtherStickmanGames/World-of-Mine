@@ -63,7 +63,6 @@ public class SaveBuildingView : MonoBehaviour
 
     public void Init()
     {
-        gameObject.SetActive(true);
         selectionBox.gameObject.SetActive(false);
         btnAccept.gameObject.SetActive(false);
         selectingArea.SetActive(false);

@@ -78,10 +78,15 @@ public class AudioClipSender : NetworkBehaviour
     {
         foreach (var filePath in filePaths)
         {
-            Debug.Log("Found Audio file: " + filePath); 
+            Debug.Log("Found Audio file: " + filePath);
+
+            var uri = filePath;
+#if UNITY_STANDALONE_LINUX
+            uri = filePath.Insert(0, "file://");
+#endif
 
             // Загружаем аудиофайл
-            using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip("file:/" + filePath, GetAudioTypeFromFile(filePath)))
+            using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(uri, GetAudioTypeFromFile(filePath)))
             {
                 yield return request.SendWebRequest();
 
@@ -209,6 +214,8 @@ public class AudioClipSender : NetworkBehaviour
         }
 
         byte[] audioData = AudioClipToByteArray(audioClip);
+
+        Debug.Log($"Начинаю отправку {audioClip.name}");
 
         audioFragmentHandler.SendLargeData(audioData, 0, clientID);
         //if (audioData.Length > 0)

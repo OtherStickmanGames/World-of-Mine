@@ -67,6 +67,7 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] MovePointerTutorial leftTopMovePointerTutorial;
     [SerializeField] MovePointerTutorial rightBottomMovePointerTutorial;
     [SerializeField] Button btnComplete;
+    [SerializeField] Button btnSkipTutor;
 
     Canvas canvasMine;
     Character mine;
@@ -145,12 +146,19 @@ public class TutorialUI : MonoBehaviour
 
         btnSwitchCamera.onClick.AddListener(BtnSwitchCamera_Clicked);
         btnComplete.onClick.AddListener(Tutorial_Completed);
+        btnSkipTutor.onClick.AddListener(BtnSkipTutor_Clicked);
 
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
         PlayerBehaviour.onOwnerPositionSet.AddListener(PlayerPosition_Seted);
         WorldGenerator.onBlockPlace.AddListener(Block_Placed);
 
         canvasTutorial.gameObject.SetActive(true);
+    }
+
+    private void BtnSkipTutor_Clicked()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("World");
+        UserData.Owner.tutorialSkiped = true;
     }
 
     private void PlayerPosition_Seted(MonoBehaviour player)
@@ -168,7 +176,7 @@ public class TutorialUI : MonoBehaviour
         mobileInput.gameObject.SetActive(false);
 
         resolutionFactorCurve = new();
-        resolutionFactorCurve.AddKey(new(720, 15));
+        resolutionFactorCurve.AddKey(new(720, 5));
         resolutionFactorCurve.AddKey(new(1080, 1));
 
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
@@ -194,12 +202,9 @@ public class TutorialUI : MonoBehaviour
 
         if (Application.isMobilePlatform || testMobileInput)
         {
-            var factor = resolutionFactorCurve.Evaluate(Screen.height);
-#if UNITY_EDITOR
-            factor = 3f;
-#endif
-            var value = (1920f / Screen.width) * factor * sensitivity * touchField.TouchDist;
-            lookDirection = Vector2.SmoothDamp(lookDirection, value, ref currentVelocity, Time.deltaTime * smoothTime);
+            var damping = resolutionFactorCurve.Evaluate(Screen.height) * Time.deltaTime;
+            var value = touchField.TouchDist * sensitivity * damping;
+            lookDirection = Vector2.SmoothDamp(lookDirection, value, ref currentVelocity, damping * smoothTime);
             VirtualLookInput(lookDirection);
         }
 

@@ -35,6 +35,7 @@ public class UI : MonoBehaviour
     [SerializeField] Button btnCrafting;
     [SerializeField] ReleaseNotesView releaseNotesView;
     [SerializeField] NicknamesView nicknames;
+    [SerializeField] TMP_Text positionInfo;
 
     [Space]
 
@@ -261,6 +262,16 @@ public class UI : MonoBehaviour
         }
 
         SetCurrentUIObject();
+
+        if (player)
+        {
+            positionInfo.gameObject.SetActive(true);
+            positionInfo.SetText($"X:{player.position.x:F0} Y:{player.position.y:F0} Z:{player.position.z:F0}");
+        }
+        else
+        {
+            positionInfo.gameObject.SetActive(false);
+        }
     }
 
     void TouchUpdate()

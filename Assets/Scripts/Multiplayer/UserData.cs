@@ -106,7 +106,7 @@ public class UserData
         File.WriteAllText(userDataPath, json);
 #endif
 
-#if YG_PLUGIN_YANDEX_GAME
+#if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
         YG.YandexGame.savesData.nickname = owner.userName;
         YG.YandexGame.savesData.tutorialComplete = owner.tutorialComplete;
         YG.YandexGame.savesData.tutorialSkiped = owner.tutorialSkiped;

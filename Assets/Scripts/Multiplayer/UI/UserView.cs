@@ -94,18 +94,18 @@ public class UserView : MonoBehaviour
             Debug.Log(UserData.Owner.userName + " +++++++++", this);
         }
 
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            print(UserData.Owner.userName + " ----------");
+        //if (Input.GetKeyDown(KeyCode.H))
+        //{
+        //    print(UserData.Owner.userName + " ----------");
 
-            YG.YandexGame.LoadProgress();
-        }
+        //    YG.YandexGame.LoadProgress();
+        //}
 
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            YG.YandexGame.ResetSaveProgress();
-            YG.YandexGame.SaveProgress();
-        }
+        //if (Input.GetKeyDown(KeyCode.R))
+        //{
+        //    YG.YandexGame.ResetSaveProgress();
+        //    YG.YandexGame.SaveProgress();
+        //}
     }
 
     private void OnDestroy()

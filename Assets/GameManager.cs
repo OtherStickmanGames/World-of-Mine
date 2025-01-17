@@ -75,9 +75,12 @@ public class GameManager : MonoBehaviour
     private void LoadTutorialScene()
     {
         var tutorialSceneName = "Tutorial";
-        if (!UserData.Owner.tutorialComplete && SceneManager.GetActiveScene().name != tutorialSceneName)
+        if (SceneManager.GetActiveScene().name != tutorialSceneName)
         {
-            SceneManager.LoadScene(tutorialSceneName);
+            if (!UserData.Owner.tutorialComplete && !UserData.Owner.tutorialSkiped)
+            {
+                SceneManager.LoadScene(tutorialSceneName);
+            }
         }
     }
 

@@ -148,7 +148,15 @@ public class ReleaseNotesHandler : NetworkBehaviour
     {
         clientIdxNewsSending.Add(clientID, 0);
 
-        SendNews(clientID);
+        // TODO  остыль, чтобы не начинать одновременно отправку и чанков и новостей
+        StartCoroutine(Delay());
+
+        IEnumerator Delay()
+        {
+            yield return new WaitForSeconds(1f);
+
+            SendNews(clientID);
+        }
     }
 
     private void SendNews(ulong clientID)

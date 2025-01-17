@@ -7,6 +7,7 @@ public class ReleaseNotesView : MonoBehaviour
 {
     [SerializeField] Transform notesParent;
     [SerializeField] ReseaseNoteView noteViewPrefab;
+    [SerializeField] GameObject notesView;
 
     public void Init()
     {
@@ -18,6 +19,14 @@ public class ReleaseNotesView : MonoBehaviour
     private void NewsData_Received(List<NetworkNewsData> newsData)
     {
         Clear();
+
+        if (newsData == null || newsData.Count == 0)
+        {
+            notesView.SetActive(false);
+            return;
+        }
+
+        notesView.SetActive(true);
 
         foreach (var data in newsData)
         {

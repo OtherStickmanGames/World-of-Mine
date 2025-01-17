@@ -15,7 +15,7 @@ public class AudioClipSender : NetworkBehaviour
     public static string releaseNotesDirectory = $"{Application.dataPath}/Data/Sounds/ReleaseNotes/";
 
     public AudioFragmentHandler audioFragmentHandler;
-    private string[] filters = { "*.mp3", "*.wav" }; // ”кажите нужные фильтры
+    private string[] filters = { "*.mp3", "*.wav", ".ogg" }; // ”кажите нужные фильтры
     Dictionary<ulong, int> clientIdxAudioSending = new();
     public List<AudioClip> releaseNotesSounds;
 

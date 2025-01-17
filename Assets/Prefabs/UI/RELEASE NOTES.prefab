@@ -467,6 +467,7 @@ MonoBehaviour:
   notesParent: {fileID: 4795892551876565928}
   noteViewPrefab: {fileID: 4538067421442489131, guid: fca5b4973f043394b8c0680a5fe5a955,
     type: 3}
+  notesView: {fileID: 9080097107547940999}
 --- !u!1 &7117344329058841607
 GameObject:
   m_ObjectHideFlags: 0
@@ -773,7 +774,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1312553323045622914}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.7255746
+  m_Size: 0.78092927
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -869,7 +870,7 @@ PrefabInstance:
     - target: {fileID: 1927019574236150818, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -899.1749
+      value: -835.67505
       objectReference: {fileID: 0}
     - target: {fileID: 1927019574236150818, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}
@@ -939,7 +940,7 @@ PrefabInstance:
     - target: {fileID: 4715522590175375623, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -228.765
+      value: -224.065
       objectReference: {fileID: 0}
     - target: {fileID: 4906374787874009929, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}
@@ -1078,7 +1079,7 @@ PrefabInstance:
     - target: {fileID: 1927019574236150818, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -537.505
+      value: -499.40503
       objectReference: {fileID: 0}
     - target: {fileID: 1927019574236150818, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}
@@ -1148,7 +1149,7 @@ PrefabInstance:
     - target: {fileID: 4715522590175375623, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -228.765
+      value: -224.065
       objectReference: {fileID: 0}
     - target: {fileID: 4906374787874009929, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}
@@ -1287,7 +1288,7 @@ PrefabInstance:
     - target: {fileID: 1927019574236150818, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -175.83499
+      value: -163.13501
       objectReference: {fileID: 0}
     - target: {fileID: 1927019574236150818, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}
@@ -1357,7 +1358,7 @@ PrefabInstance:
     - target: {fileID: 4715522590175375623, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -228.765
+      value: -224.065
       objectReference: {fileID: 0}
     - target: {fileID: 4906374787874009929, guid: fca5b4973f043394b8c0680a5fe5a955,
         type: 3}

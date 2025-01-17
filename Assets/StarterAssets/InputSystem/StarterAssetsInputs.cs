@@ -78,17 +78,29 @@ namespace StarterAssets
 			//SetCursorState(cursorLocked);
 		}
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
+		private void Update()
+		{
+			if (Input.GetKeyDown(KeyCode.Escape))
+			{
 				SetCursorState(false);
 			}
 
-			if (Input.GetKeyDown(KeyCode.F))
+			if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.LeftControl))
 			{
-				SetCursorState(true);
-			}
+                switch (Cursor.lockState)
+                {
+                    case CursorLockMode.None:
+						SetCursorState(true);
+						break;
+                    case CursorLockMode.Locked:
+						SetCursorState(false);
+						break;
+                    case CursorLockMode.Confined:
+						SetCursorState(false);
+						break;
+                    
+                }
+            }
 		}
 
         private void SetCursorState(bool newState)

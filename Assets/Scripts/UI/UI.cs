@@ -34,11 +34,13 @@ public class UI : MonoBehaviour
     [SerializeField] Button btnInventory;
     [SerializeField] Button btnCrafting;
     [SerializeField] ReleaseNotesView releaseNotesView;
+    [SerializeField] NicknamesView nicknames;
 
     [Space]
 
     [SerializeField] GameObject InventoryParent;
     [SerializeField] GameObject ReleaseNotesParent;
+    [SerializeField] GameObject hideShowCursorInfo;
 
     [Header("Output")]
     public StarterAssetsInputs starterAssetsInputs;
@@ -120,6 +122,8 @@ public class UI : MonoBehaviour
 
         releaseNotesView.Init();
 
+        nicknames.Init();
+
         quickInventoryView.gameObject.SetActive(false);
         mobileController.SetActive(false);
         mobileInput.gameObject.SetActive(false);
@@ -129,7 +133,9 @@ public class UI : MonoBehaviour
 
         ReleaseNotesParent.SetActive(false);
         saveBuildingView.gameObject.SetActive(false);
-        showBuildingView.gameObject.SetActive(false); 
+        showBuildingView.gameObject.SetActive(false);
+
+        hideShowCursorInfo.SetActive(false);
 
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
         SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
@@ -137,8 +143,6 @@ public class UI : MonoBehaviour
         BuildingManager.Singleton.onBuildingListHide.AddListener(BuildingList_Hided);
 
         InitResolutionCurveFactor();
-
-        txtEbala.text = $"{UserData.Owner.position}";
 
         InitStartMenu();
 
@@ -239,12 +243,14 @@ public class UI : MonoBehaviour
     Vector2 currentVelocity;
     public float smoothTime = 1f;
     public float sensitivity = 3f;
+
     private void Update()
     {
         if (Application.isMobilePlatform || testMobileInput)
         {
-            var value = touchField.TouchDist * sensitivity * resolutionFactorCurve.Evaluate(Screen.height);
-            lookDirection = Vector2.SmoothDamp(lookDirection, value, ref currentVelocity, Time.deltaTime * smoothTime);
+            var damping = resolutionFactorCurve.Evaluate(Screen.height) * Time.deltaTime;
+            var value = touchField.TouchDist * sensitivity * damping;
+            lookDirection = Vector2.SmoothDamp(lookDirection, value, ref currentVelocity, damping * smoothTime);
             VirtualLookInput(lookDirection);
         }
 
@@ -346,10 +352,12 @@ public class UI : MonoBehaviour
         {
             mobileController.SetActive(true);
             touchField.gameObject.SetActive(true);
+            hideShowCursorInfo.SetActive(false);
         }
         else
         {
             touchField.gameObject.SetActive(false);
+            hideShowCursorInfo.SetActive(true);
         }
 
         var thirdController = mine.GetComponent<ThirdPersonController>();
@@ -375,7 +383,7 @@ public class UI : MonoBehaviour
     private void InitResolutionCurveFactor()
     {
         resolutionFactorCurve = new();
-        resolutionFactorCurve.AddKey(new(720, 15));
+        resolutionFactorCurve.AddKey(new(720, 5));
         resolutionFactorCurve.AddKey(new(1080, 1));
     }
 
@@ -481,6 +489,11 @@ public class UI : MonoBehaviour
     public static GameObject CurrentUIObject { get; private set; }
     private static void SetCurrentUIObject()
     {
+        if (!EventSystem.current)
+        {
+            return;
+        }
+
         if (pointer == null)
         {
             pointer = new PointerEventData(EventSystem.current);

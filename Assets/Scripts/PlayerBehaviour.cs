@@ -78,7 +78,7 @@ public class PlayerBehaviour : MonoBehaviour
         //print($"{UserData.Owner.userName} ### {UserData.Owner.position}");
         if (userDataPosition == Vector3.zero)
         {
-            transform.position += Vector3.one + Vector3.up * 180;
+            transform.position += Vector3.one + Vector3.up * 38;
             print($"Загружена дефолтная позиция");
         }
         else
@@ -660,7 +660,7 @@ public class PlayerBehaviour : MonoBehaviour
     {
         savePositionTimer += deltaTime;
 
-        if (savePositionTimer < 1)
+        if (savePositionTimer < 1.5f)
             return;
 
         savePositionTimer = 0;

@@ -279,6 +279,7 @@ MonoBehaviour:
   - name: 
     craftingID: 50
     items: 10
-  - name: 
+  - name: "\u041F\u0440\u043E\u0441\u0442\u043E\u0439 \u0432\u0435\u0440\u0441\u0442\u0430\u043A
+      \u0434\u043B\u044F \u0434\u0435\u0440\u0435\u0432\u0430"
     craftingID: 51
-    items: 0c
+    items: 0b0c

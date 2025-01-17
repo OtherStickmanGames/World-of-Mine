@@ -12,6 +12,7 @@ public class Character : MonoBehaviour
     //[SerializeField] ThirdPersonController thirdPersonController;
 
     public static UnityEvent<Character> onSpawn = new UnityEvent<Character>();
+    public static UnityEvent<Character> onDisable = new UnityEvent<Character>();
 
     public float MineDistance => mineDistance;
     public Transform SpineItemHolder => spineItemHolder;
@@ -69,5 +70,10 @@ public class Character : MonoBehaviour
     {
         topDownTarget.position = transform.position + Vector3.up;
         topDownTarget.rotation = Quaternion.Euler(57, 0, 0);
+    }
+
+    private void OnDestroy()
+    {
+        onDisable?.Invoke(this);
     }
 }

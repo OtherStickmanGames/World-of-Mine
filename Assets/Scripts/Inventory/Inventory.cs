@@ -44,7 +44,7 @@ public class Inventory
 
     public void TakeItem(Item item)
     {
-        Debug.Log("да ну на ");
+        //Debug.Log("да ну на ");
         if (AvailableSpace(item))
         {
             // хер знает, попробую убрать

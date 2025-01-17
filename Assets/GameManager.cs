@@ -56,13 +56,20 @@ public class GameManager : MonoBehaviour
         yield return new WaitForEndOfFrame();
 
 #if !UNITY_SERVER
+
+#if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
+        while (!YG.YandexGame.SDKEnabled)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+#endif
         if (Application.isMobilePlatform)
         {
             LoadTutorialScene();
         }
 #endif
 
-        
+
     }
 
     private void LoadTutorialScene()
@@ -78,7 +85,8 @@ public class GameManager : MonoBehaviour
     {
         foreach (var item in updatables) item.Update();
 
-        //if (Input.GetKeyDown(KeyCode.Y))
+        //if (Input.GetKeyDown(
+        //))
         //{
         //    var item = new Item() { id = 9 };
         //    item.view = BlockItemSpawner.CreateBlockGameObject(item.id);

@@ -805,7 +805,7 @@ PlayerSettings:
   blurSplashScreenBackground: 1
   spritePackerPolicy: 
   webGLMemorySize: 32
-  webGLExceptionSupport: 2
+  webGLExceptionSupport: 3
   webGLNameFilesAsHashes: 0
   webGLShowDiagnostics: 0
   webGLDataCaching: 1
@@ -830,7 +830,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     Android: YG_PLUGIN_YANDEX_GAME
     Standalone: ENABLE_INPUT_SYSTEM;YG_PLUGIN_YANDEX_GAME
-    WebGL: YandexGamesPlatform_yg;PLUGIN_YG_2;TMP_YG2;NJSON_YG2;RU_YG2;YG_PLUGIN_YANDEX_GAME;ENABLE_INPUT_SYSTEM
+    WebGL: ENABLE_INPUT_SYSTEM;YG_PLUGIN_YANDEX_GAME
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

@@ -75,4 +75,25 @@ public class NetworkUserManager : NetworkBehaviour
     {
         return users[userId];
     }
+
+    Action<string> nicknameRequest;
+    public void GetNicknameRequest(ulong ownerID, Action<string> requestResult)
+    {
+        nicknameRequest = requestResult;
+        SendNicknameServerRpc(ownerID);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SendNicknameServerRpc(ulong ownerID, ServerRpcParams serverRpcParams = default)
+    {
+        var crp = NetTool.GetTargetClientParams(serverRpcParams);
+
+        ReceiveNicknameClientRpc(users[ownerID], crp);
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ReceiveNicknameClientRpc(string nickname, ClientRpcParams clientRpcParams = default)
+    {
+        nicknameRequest?.Invoke(nickname);
+    }
 }

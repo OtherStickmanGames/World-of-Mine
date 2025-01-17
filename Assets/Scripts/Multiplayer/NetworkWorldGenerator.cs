@@ -106,6 +106,14 @@ public class NetworkWorldGenerator : NetworkBehaviour
 
         yield return null;
 #if !UNITY_SERVER
+
+#if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
+        while (!YG.YandexGame.SDKEnabled)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+#endif
+
         //print(UserData.Owner);
         var chunck = worldGenerator.GetChunk(UserData.Owner.position.ToGlobalRoundBlockPos());
         offlineBlocksSeted.Add(chunck);

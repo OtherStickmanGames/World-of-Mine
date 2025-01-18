@@ -748,6 +748,7 @@ public class TutorialUI : MonoBehaviour
 
     private void Tutorial_Completed()
     {
+        playerBehaviour.transform.position += Vector3.up * 70; ;
         UnityEngine.SceneManagement.SceneManager.LoadScene("World");
     }
 

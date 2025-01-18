@@ -2453,7 +2453,7 @@ MonoBehaviour:
   mobileInput: {fileID: 288572288}
   btnJump: {fileID: 971869830}
   smoothTime: 0.8
-  sensitivity: 0.398
+  sensitivity: 15
   resolutionFactorInput: {fileID: 347325243}
   starterAssetsInputs: {fileID: 1785066746}
   mobileController: {fileID: 971869828}

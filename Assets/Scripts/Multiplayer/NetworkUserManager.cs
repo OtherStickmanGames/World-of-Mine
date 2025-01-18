@@ -172,6 +172,7 @@ public class NetworkUserManager : NetworkBehaviour
     // TODO переделать, чтобы держать в оперативе все данные юзеров
     public void AddMinedBlock(ulong clienID)
     {
+#if !UNITY_WEBGL
         if (!playerIds.ContainsKey(clienID))
             return;
 
@@ -191,10 +192,12 @@ public class NetworkUserManager : NetworkBehaviour
             json = JsonConvert.SerializeObject(userData);
             File.WriteAllText(path, json);
         }
+#endif
     }
 
     private void EndUserSession(string playerId)
     {
+#if !UNITY_WEBGL
         var fileName = $"{playerId}.json";
         var path = $"{usersDataDirectory}{fileName}";
         if (File.Exists(path))
@@ -214,6 +217,7 @@ public class NetworkUserManager : NetworkBehaviour
         {
             print("чё за хуйня блять...");
         }
+#endif
     }
 }
 

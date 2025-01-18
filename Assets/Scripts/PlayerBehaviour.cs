@@ -48,6 +48,7 @@ public class PlayerBehaviour : MonoBehaviour
         if (IsOwner)
         {
             onMineSpawn?.Invoke(this);
+            WorldGenerator.Inst.AddPlayer(transform);
             EventsHolder.playerSpawnedMine?.Invoke(player);
             CameraStack.onCameraSwitch.AddListener(Camera_Switched);
 

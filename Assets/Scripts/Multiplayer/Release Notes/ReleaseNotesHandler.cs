@@ -44,7 +44,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
         {
             if (clientNewsData.Count == 0)
             {
-                Debug.Log("Нет новостей");
+                print("Нет новостей");
                 return;
             }
 

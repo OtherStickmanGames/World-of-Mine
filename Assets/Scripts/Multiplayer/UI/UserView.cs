@@ -39,7 +39,7 @@ public class UserView : MonoBehaviour
             }
 #endif
 
-            Debug.Log(UserData.Owner.userName + "  -=-==-=-=-=-");
+            //Debug.Log(UserData.Owner.userName + "  -=-==-=-=-=-");
             var userData = UserData.Owner;
 
             //Debug.Log(string.IsNullOrEmpty(userData.userName));

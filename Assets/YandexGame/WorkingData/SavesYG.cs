@@ -23,6 +23,11 @@ namespace YG
         public bool tutorialComplete;
         public bool tutorialSkiped;
         public Vector3 position;
+        
+        
+        internal int money;
+        public string newPlayerName;
+        public bool[] openLevels = new bool[3];
 
         // Поля (сохранения) можно удалять и создавать новые. При обновлении игры сохранения ломаться не должны
 

@@ -442,6 +442,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
         RemoveTurnedBlockData(blockPos);
         SaveChangeChunck(blockPos, 0, serverRpcParams);
         ReceiveMinedBlockClientRpc(blockPos, serverRpcParams.Receive.SenderClientId);
+
+        NetworkUserManager.Instance.AddMinedBlock(serverRpcParams.Receive.SenderClientId);
     }
 
     private void RemoveTurnedBlockData(Vector3 blockPos)

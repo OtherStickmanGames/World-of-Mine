@@ -78,3 +78,14 @@ public struct NetworkNewsData : INetworkSerializable
         serializer.SerializeValue(ref text);
     }
 }
+
+public struct NetworkUserSessionData : INetworkSerializable
+{
+    //public string
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        //serializer.SerializeValue(ref angle);
+        //serializer.SerializeValue(ref axis);
+    }
+}

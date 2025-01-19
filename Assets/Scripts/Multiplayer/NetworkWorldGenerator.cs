@@ -243,16 +243,21 @@ public class NetworkWorldGenerator : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     private void ReceivePendingChunckBlocksDataClientRpc(Vector3[] positions, byte[] blockIDs, Vector3 chunckPos, ClientRpcParams clientRpcParams = default)
     {
-        UpdateChunckMesh(positions, blockIDs, chunckPos);
+        UpdateChunckMesh(positions, blockIDs, chunckPos, ActionOnComplete);
 
-        if (pendingChuncks.Count > 0)
+        void ActionOnComplete()
         {
-            pendingChuncks.Remove(currentPendingChunck);
-        }
-        waitHandlingChunck = false;
+            if (pendingChuncks.Count > 0)
+            {
+                pendingChuncks.Remove(currentPendingChunck);
+            }
+            waitHandlingChunck = false;
 
-        //  Œ—“€À»Ÿ≈
-        StartCoroutine(Async());
+            print("®¡¿ ???");
+
+            //  Œ—“€À»Ÿ≈
+            StartCoroutine(Async());
+        }
 
         IEnumerator Async()
         {
@@ -262,14 +267,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
     }
 
-    [ClientRpc(RequireOwnership = false)]
-    private void ReceiveChunckBlocksDataClientRpc(Vector3[] positions, byte[] blockIDs, Vector3 chunckPos, ClientRpcParams clientRpcParams = default)
-    {
-        UpdateChunckMesh(positions, blockIDs, chunckPos);
-    }
-
     // ¬˚ÔÓÎÌˇÂÚÒˇ Ì‡ ÍÎËÂÌÚÂ
-    private void UpdateChunckMesh(Vector3[] positions, byte[] blockIDs, Vector3 chunckPos)
+    private void UpdateChunckMesh(Vector3[] positions, byte[] blockIDs, Vector3 chunckPos, Action onComplete = null)
     {
         //Debug.Break();
         StartCoroutine(Async());
@@ -301,7 +300,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
                 chunck.SetBlock(pos, blockId);
             }
 
-            worldGenerator.UpdateChunckMesh(chunck);
+            //worldGenerator.UpdateChunckMesh(chunck);
+            worldGenerator.UpdateChunkMeshAsync(chunck, onComplete);
             chunck.renderer.gameObject.name = chunck.renderer.gameObject.name.Insert(0, $"{chunckPos} Srv Upd ");
             chunck.blocksLoaded = true;
         }
@@ -420,8 +420,9 @@ public class NetworkWorldGenerator : NetworkBehaviour
                 turndata.axis
             );
         }
-        
-        worldGenerator.UpdateChunckMesh(chunk);
+
+        //worldGenerator.UpdateChunckMesh(chunk);
+        worldGenerator.UpdateChunkMeshAsync(chunk);
     }
 
     private void Block_Mined(BlockData data)

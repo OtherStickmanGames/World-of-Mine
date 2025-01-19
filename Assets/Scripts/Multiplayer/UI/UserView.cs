@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using UnityEngine;
 using TMPro;
+using System;
 
 public class UserView : MonoBehaviour
 {
@@ -13,10 +14,16 @@ public class UserView : MonoBehaviour
     public void Init()
     {
         inputUserName.onValueChanged.AddListener(Name_Changed);
+        inputUserName.onSubmit.AddListener(Submited);
 
         NetworkManager.Singleton.OnClientStarted += Client_Started;
 
         InitUserName();
+    }
+
+    private void Submited(string text)
+    {
+        DelayShowCursor();
     }
 
     private void Client_Started()
@@ -71,6 +78,23 @@ public class UserView : MonoBehaviour
         {
             needSave = true;
             saveTimer = 0;
+        }
+
+         
+    }
+
+    private void DelayShowCursor()
+    {
+        if (!Application.isMobilePlatform)
+        {
+            StartCoroutine(Delay());
+        }
+
+        static IEnumerator Delay()
+        {
+            yield return new WaitForEndOfFrame();
+
+            Cursor.lockState = CursorLockMode.None;
         }
     }
 

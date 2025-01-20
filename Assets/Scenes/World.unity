@@ -3052,10 +3052,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54618226c9df54608af7731199ed5f0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ConnectAddress: worldofmine.online
+  ConnectAddress: localhost
   Path: /
-  Port: 443
-  SecureConnection: 1
+  Port: 7777
+  SecureConnection: 0
   AllowForwardedRequest: 1
   CertificateBase64String: 
 --- !u!1 &653725230

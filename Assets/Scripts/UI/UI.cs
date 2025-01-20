@@ -202,7 +202,7 @@ public class UI : MonoBehaviour
 
         IEnumerator ASYNC_START()
         {
-            yield return new WaitForEndOfFrame();
+            yield return null;
 
             NetworkManager.Singleton.StartServer();
         }
@@ -394,7 +394,7 @@ public class UI : MonoBehaviour
     private void InitResolutionCurveFactor()
     {
         resolutionFactorCurve = new();
-        resolutionFactorCurve.AddKey(new(720, 5));
+        resolutionFactorCurve.AddKey(new(720, 3));
         resolutionFactorCurve.AddKey(new(1080, 1));
     }
 

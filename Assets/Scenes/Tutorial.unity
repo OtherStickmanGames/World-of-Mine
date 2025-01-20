@@ -1813,6 +1813,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   serverAdress: 176.123.167.245
   hostName: worldofmine.online
+  yandexMetricCounter: 99583935
   workerPrefab: {fileID: 0}
   workersParent: {fileID: 0}
   autoSpawn: 0
@@ -1974,7 +1975,10 @@ MonoBehaviour:
   countGenerateByOneFrame: 1
   useTestInit: 0
   saveMeshes: 0
+  asyncDistanceGenerate: 38
+  getBlockIdAsyncFrequency: 6
   players: []
+  asyncCreatingChunk: 0
   optimizeThresold: 1.1
 --- !u!4 &552805677
 Transform:
@@ -2453,7 +2457,7 @@ MonoBehaviour:
   mobileInput: {fileID: 288572288}
   btnJump: {fileID: 971869830}
   smoothTime: 0.8
-  sensitivity: 15
+  sensitivity: 11
   resolutionFactorInput: {fileID: 347325243}
   starterAssetsInputs: {fileID: 1785066746}
   mobileController: {fileID: 971869828}
@@ -4904,7 +4908,7 @@ MonoBehaviour:
     m_Bits: 128
   generateNavMesh: 0
   generateNavLinks: 0
-  viewChunck: 7
+  viewChunck: 5
   navMeshVoxelSize: 0.1
   testoMesh: {fileID: 0}
   testos: {fileID: 0}
@@ -4914,7 +4918,10 @@ MonoBehaviour:
   countGenerateByOneFrame: 1
   useTestInit: 0
   saveMeshes: 0
+  asyncDistanceGenerate: 38
+  getBlockIdAsyncFrequency: 6
   players: []
+  asyncCreatingChunk: 0
   optimizeThresold: 1.1
 --- !u!4 &1898912576
 Transform:

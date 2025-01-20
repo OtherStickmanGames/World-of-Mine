@@ -704,13 +704,13 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 239071175}
   - {fileID: 653725231}
   - {fileID: 1169108241}
   - {fileID: 497024975}
   - {fileID: 1669497413}
   - {fileID: 1468434772}
   - {fileID: 1572859798}
-  - {fileID: 239071175}
   m_Father: {fileID: 690583769}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1792,7 +1792,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &521501943
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1973,6 +1973,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   serverAdress: 176.123.167.245
   hostName: worldofmine.online
+  yandexMetricCounter: 99583935
   workerPrefab: {fileID: 0}
   workersParent: {fileID: 0}
   autoSpawn: 0
@@ -2241,7 +2242,7 @@ MonoBehaviour:
     m_Bits: 128
   generateNavMesh: 0
   generateNavLinks: 0
-  viewChunck: 8
+  viewChunck: 5
   navMeshVoxelSize: 0.1
   testoMesh: {fileID: 0}
   testos: {fileID: 0}
@@ -3417,8 +3418,8 @@ MonoBehaviour:
   starterAssetsInputs: {fileID: 1785066746}
   btnReset: {fileID: 1826133748}
   btnDisableAll: {fileID: 56887742}
-  smoothTime: 0.8
-  sensitivity: 15
+  smoothTime: 0.5
+  sensitivity: 11
 --- !u!224 &690583769
 RectTransform:
   m_ObjectHideFlags: 0

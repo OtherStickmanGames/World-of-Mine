@@ -202,7 +202,7 @@ public class PlayerBehaviour : MonoBehaviour
         }
         
         ebalaTimer += Time.deltaTime;
-        if (ebalaTimer > 1f)
+        if (ebalaTimer > 3.0f)
         {
             thirdPersonController.AllowGravityLogic = true;
             print("◊¿Õ » «¿√–”∆≈Õ€");

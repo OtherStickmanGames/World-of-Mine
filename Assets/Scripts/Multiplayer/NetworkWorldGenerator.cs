@@ -78,6 +78,12 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Метод, который вызывается, чтобы сообщить клиенту
+    /// что на сервере нет сохраненных изминений чанка 
+    /// </summary>
+    /// <param name="chunckPos"></param>
+    /// <param name="clientRpcParams"></param>
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveNoDataChunckBlocksClientRpc(Vector3 chunckPos, ClientRpcParams clientRpcParams = default)
     {
@@ -85,6 +91,10 @@ public class NetworkWorldGenerator : NetworkBehaviour
         chunck.blocksLoaded = true;
     }
 
+    /// <summary>
+    /// Вроде как здесь я чанку задаю блоки из json файла
+    /// </summary>
+    /// <param name="emptyChunck"></param>
     private void Chunck_Inited(ChunckComponent emptyChunck)
     {
         var chunckFileName = GetChunckName(emptyChunck);
@@ -95,7 +105,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
 
             var chunckData = JsonConvert.DeserializeObject<ChunckData>(json, settings);
             emptyChunck.blocks = chunckData.blocks;
-            emptyChunck.blocksLoaded = true;
+            //emptyChunck.blocksLoaded = true;
         }
 
     }
@@ -253,10 +263,10 @@ public class NetworkWorldGenerator : NetworkBehaviour
             }
             waitHandlingChunck = false;
 
-            print("ЁБА ???");
+            //print("ЁБА ???");
 
             // КОСТЫЛИЩЕ
-            StartCoroutine(Async());
+            //StartCoroutine(Async());
         }
 
         IEnumerator Async()
@@ -301,9 +311,16 @@ public class NetworkWorldGenerator : NetworkBehaviour
             }
 
             //worldGenerator.UpdateChunckMesh(chunck);
-            worldGenerator.UpdateChunkMeshAsync(chunck, onComplete);
-            chunck.renderer.gameObject.name = chunck.renderer.gameObject.name.Insert(0, $"{chunckPos} Srv Upd ");
-            chunck.blocksLoaded = true;
+            worldGenerator.UpdateChunkMeshAsync(chunck, LocalOnComplete);
+
+            void LocalOnComplete()
+            {
+                chunck.renderer.gameObject.name = chunck.renderer.gameObject.name.Insert(0, $"{chunckPos} Srv Upd ");
+                chunck.blocksLoaded = true;
+
+                onComplete?.Invoke();
+            }
+            
         }
     }
 

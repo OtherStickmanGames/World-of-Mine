@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] public string serverAdress = "176.123.167.245";
     [SerializeField] public string hostName = "worldofmine.online";
+    [SerializeField] public string yandexMetricCounter = "99583935";
     [SerializeField] Worker workerPrefab;
     [SerializeField] public Transform workersParent;
     [SerializeField] bool autoSpawn;

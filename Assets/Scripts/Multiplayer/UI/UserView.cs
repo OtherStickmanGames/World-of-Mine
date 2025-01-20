@@ -92,7 +92,7 @@ public class UserView : MonoBehaviour
 
         static IEnumerator Delay()
         {
-            yield return new WaitForEndOfFrame();
+            yield return null;
 
             Cursor.lockState = CursorLockMode.None;
         }

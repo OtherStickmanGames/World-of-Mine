@@ -157,8 +157,15 @@ public class TutorialUI : MonoBehaviour
 
     private void BtnSkipTutor_Clicked()
     {
+        SetPlayerGamePosition();
         UnityEngine.SceneManagement.SceneManager.LoadScene("World");
         UserData.Owner.tutorialSkiped = true;
+    }
+
+    private void SetPlayerGamePosition()
+    {
+        playerBehaviour.transform.position += Vector3.up * 100;
+        UserData.Owner.position = playerBehaviour.transform.position;
     }
 
     private void PlayerPosition_Seted(MonoBehaviour player)
@@ -176,7 +183,7 @@ public class TutorialUI : MonoBehaviour
         mobileInput.gameObject.SetActive(false);
 
         resolutionFactorCurve = new();
-        resolutionFactorCurve.AddKey(new(720, 5));
+        resolutionFactorCurve.AddKey(new(720, 3));
         resolutionFactorCurve.AddKey(new(1080, 1));
 
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
@@ -748,7 +755,7 @@ public class TutorialUI : MonoBehaviour
 
     private void Tutorial_Completed()
     {
-        playerBehaviour.transform.position += Vector3.up * 70; ;
+        SetPlayerGamePosition();
         UnityEngine.SceneManagement.SceneManager.LoadScene("World");
     }
 

@@ -1,0 +1,2 @@
+Build path: C:/Users/User/Desktop/Noob Online/Build/WGL
+Build number: 5

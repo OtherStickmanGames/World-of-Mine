@@ -71,6 +71,10 @@ public class NetworkUserManager : NetworkBehaviour
 #if UNITY_STANDALONE && !UNITY_SERVER
             SendYGUserConnectedServerRpc(userData.userName, "878sdf78sd78f5");
 #endif
+
+#if UNITY_ANDROID
+            SendYGUserConnectedServerRpc(userData.userName, SystemInfo.deviceUniqueIdentifier);
+#endif
         }
     }
 

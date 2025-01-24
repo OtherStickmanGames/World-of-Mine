@@ -172,9 +172,16 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    float ebalaTimer;
+    float ebalaTimer, kostylTimer;
     private void CheckChuncksLoadedBlocks()
     {
+        kostylTimer += Time.deltaTime;
+        if(kostylTimer > 38)
+        {
+            thirdPersonController.AllowGravityLogic = true;
+            print("СРАБОТАЛ КОСТЫЛЬ");
+        }
+
         var pos = transform.position.ToGlobalRoundBlockPos();
         var viewDistance = 2;
         var size = WorldGenerator.size;
@@ -187,7 +194,7 @@ public class PlayerBehaviour : MonoBehaviour
                     var worldPos = new Vector3(x, y, z);
                     if (WorldGenerator.Inst.HasChunck(worldPos, out var key))
                     {
-                        if (!WorldGenerator.Inst.GetChunk(key).blocksLoaded)
+                        if (!WorldGenerator.Inst.chuncks[key].blocksLoaded)
                         {
                             //print("эсть не загруженные блоки");
                             return;

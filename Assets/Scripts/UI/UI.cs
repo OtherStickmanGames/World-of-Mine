@@ -17,6 +17,7 @@ public class UI : MonoBehaviour
     [SerializeField] Button btnServer;
     [SerializeField] Button btnClient;
     [SerializeField] Button btnPlay;
+    [SerializeField] NetcodeStatusView netcodeStatusView;
     [SerializeField] InventotyView inventoryView;
     [SerializeField] QuickInventoryView quickInventoryView;
     [SerializeField] CraftView craftView;
@@ -79,7 +80,10 @@ public class UI : MonoBehaviour
         btnDisableAll.onClick.AddListener(DisableAll_Clicked);
 
 #if !UNITY_SERVER
+        netcodeStatusView.Init();
+
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
+        NetworkManager.Singleton.OnConnectionEvent += ConnectionEvent_Invoked;
 #endif
 
         serverStatePanel.SetActive(false);
@@ -90,7 +94,11 @@ public class UI : MonoBehaviour
 #endif
     }
 
-   
+    private void ConnectionEvent_Invoked(NetworkManager networkManager, ConnectionEventData eventData)
+    {
+        print(eventData);
+    }
+
     private void PlayerBlock_Interacted(byte blockID)
     {
         mine.inventory.Open();

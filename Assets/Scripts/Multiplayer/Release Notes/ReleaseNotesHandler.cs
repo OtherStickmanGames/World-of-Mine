@@ -109,8 +109,13 @@ public class ReleaseNotesHandler : NetworkBehaviour
             {
                 Debug.Log("Found news file: " + filePath);
 
+                var uri = filePath;
+#if UNITY_STANDALONE_LINUX
+            uri = filePath.Insert(0, "file://");
+#endif
+
                 // Загружаем аудиофайл
-                using (UnityWebRequest request = UnityWebRequest.Get(filePath))
+                using (UnityWebRequest request = UnityWebRequest.Get(uri))
                 {
                     yield return request.SendWebRequest();
 

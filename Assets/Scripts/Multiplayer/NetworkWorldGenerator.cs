@@ -18,6 +18,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
 
     List<ChunckComponent> offlineBlocksSeted = new List<ChunckComponent>();
     List<ChunckComponent> pendingChuncks = new List<ChunckComponent>();
+    
     ChunckComponent currentPendingChunck;
 
     bool waitHandlingChunck;
@@ -261,6 +262,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
             {
                 pendingChuncks.Remove(currentPendingChunck);
             }
+
             waitHandlingChunck = false;
 
             //print("®¡¿ ???");
@@ -688,4 +690,11 @@ public class NetworkWorldGenerator : NetworkBehaviour
                 $"{eventArgs.ErrorContext.Error.Message} {eventArgs.ErrorContext.OriginalObject} {eventArgs.ErrorContext.Member}");
         }
     };
+
+    public struct SendedChunkTrackingData
+    {
+        public Vector3 chunkPos;
+        public ulong cliendId;
+        public float lifeTime;
+    }
 }

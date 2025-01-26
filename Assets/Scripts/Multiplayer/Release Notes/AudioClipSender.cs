@@ -47,9 +47,16 @@ public class AudioClipSender : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendVoicesServerRpc(ulong clienId, ServerRpcParams serverRpcParams = default)
     {
-        clientIdxAudioSending.Add(clienId, 0);
+        if (releaseNotesSounds.Count > 0)
+        {
+            clientIdxAudioSending.Add(clienId, 0);
 
-        SendAudioClip(releaseNotesSounds[0], clienId);
+            SendAudioClip(releaseNotesSounds[0], clienId);
+        }
+        else
+        {
+            print("Нет звука для отправки");
+        }
     }
 
     private void Server_Started()

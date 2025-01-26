@@ -70,6 +70,10 @@ public class GameManager : MonoBehaviour
         }
 #endif
 
+        if (!Application.isMobilePlatform)
+        {
+            // тут надо дистанцию чанков увеличить
+        }
 
     }
 

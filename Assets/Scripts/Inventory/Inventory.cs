@@ -86,7 +86,7 @@ public class Inventory
 
     public void Remove(Item item)
     {
-        Debug.Log($"Remove {item.view}:{item.count}");
+        //Debug.Log($"Remove {item.view}:{item.count}");
         item.count--;
         //onUpdateItem?.Invoke(item);
 

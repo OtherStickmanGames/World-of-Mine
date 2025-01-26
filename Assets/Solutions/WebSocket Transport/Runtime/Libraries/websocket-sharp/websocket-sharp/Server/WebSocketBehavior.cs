@@ -866,27 +866,30 @@ namespace WebSocketSharp.Server
     {
     }
 
-    /// <summary>
-    /// Sends the specified data to a client using the WebSocket connection.
-    /// </summary>
-    /// <param name="data">
-    /// An array of <see cref="byte"/> that represents the binary data to send.
-    /// </param>
-    /// <exception cref="InvalidOperationException">
-    /// The current state of the connection is not Open.
-    /// </exception>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="data"/> is <see langword="null"/>.
-    /// </exception>
-    protected void Send (byte[] data)
-    {
-      if (_websocket == null) {
-        var msg = "The current state of the connection is not Open.";
-        throw new InvalidOperationException (msg);
-      }
-
-      _websocket.Send (data);
-    }
+        /// <summary>
+        /// Sends the specified data to a client using the WebSocket connection.
+        /// </summary>
+        /// <param name="data">
+        /// An array of <see cref="byte"/> that represents the binary data to send.
+        /// </param>
+        /// <exception cref="InvalidOperationException">
+        /// The current state of the connection is not Open.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="data"/> is <see langword="null"/>.
+        /// </exception>
+        protected void Send(byte[] data)
+        {
+            if (_websocket == null)
+            {
+                var msg = "The current state of the connection is not Open.";
+                throw new InvalidOperationException(msg);
+            }
+            else 
+            {
+                _websocket.Send(data);
+            }
+        }
 
     /// <summary>
     /// Sends the specified file to a client using the WebSocket connection.

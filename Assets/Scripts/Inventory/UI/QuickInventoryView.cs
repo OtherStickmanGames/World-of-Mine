@@ -170,5 +170,12 @@ public class QuickInventoryView : MonoBehaviour
         }
     }
 
+    public void ClearSlots()
+    {
+        foreach (var slot in slots)
+        {
+            slot.RemoveItem();
+        }
+    }
     
 }

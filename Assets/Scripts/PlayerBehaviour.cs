@@ -25,6 +25,7 @@ public class PlayerBehaviour : MonoBehaviour
     public bool IsOwner { get; set; } = true;
     public bool MobileTestINput { get; set; } = false;
 
+
     public static UnityEvent<MonoBehaviour> onMineSpawn = new UnityEvent<MonoBehaviour>();
     public static UnityEvent<MonoBehaviour> onOwnerPositionSet = new UnityEvent<MonoBehaviour>();
     public UnityEvent<byte> onBlockInteract = new UnityEvent<byte>();
@@ -44,10 +45,11 @@ public class PlayerBehaviour : MonoBehaviour
 
         defaultBottomClamp = thirdPersonController.BottomClamp;
         defaultTopClamp = thirdPersonController.TopClamp;
-
+        
         if (IsOwner)
         {
             onMineSpawn?.Invoke(this);
+            
             WorldGenerator.Inst.AddPlayer(transform);
             EventsHolder.playerSpawnedMine?.Invoke(player);
             CameraStack.onCameraSwitch.AddListener(Camera_Switched);
@@ -172,9 +174,16 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    float ebalaTimer;
+    float ebalaTimer, kostylTimer;
     private void CheckChuncksLoadedBlocks()
     {
+        kostylTimer += Time.deltaTime;
+        if(kostylTimer > 18)
+        {
+            thirdPersonController.AllowGravityLogic = true;
+            print("СРАБОТАЛ КОСТЫЛЬ");
+        }
+
         var pos = transform.position.ToGlobalRoundBlockPos();
         var viewDistance = 2;
         var size = WorldGenerator.size;
@@ -187,7 +196,7 @@ public class PlayerBehaviour : MonoBehaviour
                     var worldPos = new Vector3(x, y, z);
                     if (WorldGenerator.Inst.HasChunck(worldPos, out var key))
                     {
-                        if (!WorldGenerator.Inst.GetChunk(key).blocksLoaded)
+                        if (!WorldGenerator.Inst.chuncks[key].blocksLoaded)
                         {
                             //print("эсть не загруженные блоки");
                             return;
@@ -699,7 +708,11 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void OnDestroy()
     {
-        onMineSpawn.RemoveAllListeners();
-        onOwnerPositionSet.RemoveAllListeners();
+        //onMineSpawn.RemoveAllListeners();
+        //onOwnerPositionSet.RemoveAllListeners();
     }
 }
+
+public class PlayerOwnerSpawn : UnityEvent<MonoBehaviour> { }
+
+

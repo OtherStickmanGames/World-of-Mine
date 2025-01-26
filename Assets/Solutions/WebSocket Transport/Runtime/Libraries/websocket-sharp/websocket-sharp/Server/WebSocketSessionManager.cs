@@ -71,7 +71,7 @@ namespace WebSocketSharp.Server
       _sessions = new Dictionary<string, IWebSocketSession> ();
       _state = ServerState.Ready;
       _sync = ((ICollection) _sessions).SyncRoot;
-      _waitTime = TimeSpan.FromSeconds (1);
+      _waitTime = TimeSpan.FromSeconds (3);
 
       setSweepTimer (60000);
     }

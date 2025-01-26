@@ -17,6 +17,7 @@ public class UI : MonoBehaviour
     [SerializeField] Button btnServer;
     [SerializeField] Button btnClient;
     [SerializeField] Button btnPlay;
+    [SerializeField] NetcodeStatusView netcodeStatusView;
     [SerializeField] InventotyView inventoryView;
     [SerializeField] QuickInventoryView quickInventoryView;
     [SerializeField] CraftView craftView;
@@ -79,7 +80,10 @@ public class UI : MonoBehaviour
         btnDisableAll.onClick.AddListener(DisableAll_Clicked);
 
 #if !UNITY_SERVER
+        netcodeStatusView.Init();
+
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
+        NetworkManager.Singleton.OnConnectionEvent += ConnectionEvent_Invoked;
 #endif
 
         serverStatePanel.SetActive(false);
@@ -90,7 +94,41 @@ public class UI : MonoBehaviour
 #endif
     }
 
-   
+    int countTryConnection = 0;
+    private void ConnectionEvent_Invoked(NetworkManager networkManager, ConnectionEventData eventData)
+    {
+        print($"{eventData.EventType} =-= {countTryConnection} -=-=-");
+
+        if (eventData.EventType == ConnectionEvent.ClientConnected)
+        {
+            countTryConnection = 0;
+            netcodeStatusView.HideStatus();
+        }
+
+        if (eventData.EventType == ConnectionEvent.ClientDisconnected)
+        {
+            if (countTryConnection < 3)
+            {
+                netcodeStatusView.ShowStatus("Пробую соедениться с сервером..");
+                countTryConnection++;
+                StartCoroutine(DelayConnect());
+            }
+            else
+            {
+                netcodeStatusView.ShowStatus("Не удалось соедениться с сервером, видимо он упал, попробуй позже :(");
+                //btnClient.gameObject.SetActive(true);
+                //netcodeStatusView.HideStatus();
+            }
+        }
+
+        IEnumerator DelayConnect()
+        {
+            yield return new WaitForSeconds(1f);
+
+            NetworkManager.Singleton.StartClient();
+        }
+    }
+
     private void PlayerBlock_Interacted(byte blockID)
     {
         mine.inventory.Open();
@@ -312,6 +350,8 @@ public class UI : MonoBehaviour
 
         //m_Transport.SetClientSecrets("worldofmine.online");
 
+        btnClient.gameObject.SetActive(false);
+        netcodeStatusView.ShowStatus();
         NetworkManager.Singleton.StartClient();
     }
 
@@ -338,10 +378,21 @@ public class UI : MonoBehaviour
         playerBeh.MobileTestINput = testMobileInput;
         playerBeh.onBlockInteract.AddListener(PlayerBlock_Interacted);
 
+        Character.onDisable.AddListener(Character_Destroyed);
+
         var thirdController = playerBeh.GetComponent<ThirdPersonController>();
         thirdController.AllowCameraRotation = false;
         InputLogic.Singleton.AvailableMouseScrollWorld = false;
 #endif
+    }
+
+    private void Character_Destroyed(Character character)
+    {
+        if (character == mine)
+        {
+            quickInventoryView.ClearSlots();
+            inventoryView.ClearSlotst();
+        }
     }
 
     private void BtnPlay_Clicked()

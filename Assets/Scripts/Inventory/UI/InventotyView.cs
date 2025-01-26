@@ -100,4 +100,12 @@ public class InventotyView : ViewUI
 
         base.Hide();
     }
+
+    public void ClearSlotst()
+    {
+        foreach (var slot in slots)
+        {
+            slot.RemoveItem();
+        }
+    }
 }

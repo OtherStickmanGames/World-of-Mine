@@ -347,8 +347,23 @@ public class UI : MonoBehaviour
         //var networkManager = NetworkManager.Singleton;
         //var m_Transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
         ////m_Transport.SetServerSecrets(MyGameServerCertificate, MyGameServerPrivateKey);
+        ////networkManager.StartServer();
+        //m_Transport.SetClientSecrets("devworldofmine.online");
+
+        //var networkManager = NetworkManager.Singleton;
+        //var m_Transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
+        ////m_Transport.SetServerSecrets(MyGameServerCertificate, MyGameServerPrivateKey);
 
         //m_Transport.SetClientSecrets("worldofmine.online");
+
+        var networkManager = NetworkManager.Singleton;
+        UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
+        transport.UseWebSockets = true;
+        transport.UseEncryption = true; // Для HTTPS соединений
+        transport.SetClientSecrets("devworldofmine.online");
+        transport.SetConnectionData("devworldofmine.online", 443); // Имя хоста и порт
+        //NetworkManager.Singleton.StartClient();
+
 
         btnClient.gameObject.SetActive(false);
         netcodeStatusView.ShowStatus();

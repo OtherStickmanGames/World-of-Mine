@@ -86,6 +86,7 @@ namespace Netcode.Transports.WebSocket
             }
         }
 
+        private static Queue<byte[]> _bufferPool = new Queue<byte[]>();
         public void Send(ArraySegment<byte> data)
         {
             if (ReadyState != WebSocketSharp.WebSocketState.Open)
@@ -113,6 +114,49 @@ namespace Netcode.Transports.WebSocket
                 throw new WebSocketException("Unknown error while sending the message", e);
             }
         }
+
+        //public void Send(ArraySegment<byte> data)
+        //{
+        //    if (ReadyState != WebSocketSharp.WebSocketState.Open)
+        //    {
+        //        throw new WebSocketException("Socket is not open");
+        //    }
+
+        //    try
+        //    {
+        //        if (data.Offset > 0 || data.Count < data.Array.Length)
+        //        {
+        //            byte[] buffer;
+
+        //            if (_bufferPool.Count > 0)
+        //            {
+        //                buffer = _bufferPool.Dequeue();
+        //                if (buffer.Length < data.Count)
+        //                {
+        //                    buffer = new byte[data.Count];  // Создать новый буфер, если старый слишком мал
+        //                }
+        //            }
+        //            else
+        //            {
+        //                buffer = new byte[data.Count];
+        //            }
+
+        //            // Безопасное копирование с учетом длины массива
+        //            Buffer.BlockCopy(data.Array, data.Offset, buffer, 0, data.Count);
+
+        //            Connection.Send(buffer);
+        //            _bufferPool.Enqueue(buffer);
+        //        }
+        //        else
+        //        {
+        //            Connection.Send(data.Array);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new WebSocketException("Unknown error while sending the message", e);
+        //    }
+        //}
 
         public WebSocketEvent Poll()
         {
@@ -181,14 +225,16 @@ namespace Netcode.Transports.WebSocket
             }
         }
 
+        private static byte[] _receiveBuffer = new byte[192];  // Фиксированный буфер
         public void OnMessage(object sender, MessageEventArgs e)
         {
             lock (ConnectionLock)
             {
+                //Array.Copy(e.RawData, _receiveBuffer, e.RawData.Length);
                 EventQueue.Enqueue(new WebSocketEvent()
                 {
                     ClientId = 0,
-                    Payload = e.RawData,
+                    Payload = e.RawData,//_receiveBuffer,
                     Type = WebSocketEvent.WebSocketEventType.Payload,
                     Error = null,
                     Reason = null,

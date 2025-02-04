@@ -124,8 +124,13 @@ public class NicknamesView : MonoBehaviour
 
     private void ReceiveNickname(string nickname)
     {
-        nicknames.Add(waitingNickname, nickname);
-        waitingNickname = null;
+        //print($"{waitingNickname} {nickname}");
+        // TO DO странная хуйня надо буде тразобраться
+        if (waitingNickname)
+        {
+            nicknames.Add(waitingNickname, nickname);
+            waitingNickname = null;
+        }
     }
 
     private bool IsVisible(Transform character)

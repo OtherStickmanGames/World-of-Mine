@@ -183,7 +183,7 @@ public class TutorialUI : MonoBehaviour
         mobileInput.gameObject.SetActive(false);
 
         resolutionFactorCurve = new();
-        resolutionFactorCurve.AddKey(new(720, 3));
+        resolutionFactorCurve.AddKey(new(720, 1));
         resolutionFactorCurve.AddKey(new(1080, 1));
 
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);

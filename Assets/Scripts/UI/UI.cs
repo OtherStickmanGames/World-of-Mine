@@ -347,8 +347,25 @@ public class UI : MonoBehaviour
         //var networkManager = NetworkManager.Singleton;
         //var m_Transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
         ////m_Transport.SetServerSecrets(MyGameServerCertificate, MyGameServerPrivateKey);
+        ////networkManager.StartServer();
+        //m_Transport.SetClientSecrets("devworldofmine.online");
 
-        //m_Transport.SetClientSecrets("worldofmine.online");
+        //var networkManager = NetworkManager.Singleton;
+        //var m_Transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
+        ////m_Transport.SetServerSecrets(MyGameServerCertificate, MyGameServerPrivateKey);
+
+        var networkManager = NetworkManager.Singleton;
+        UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
+        transport.UseWebSockets = true;
+        transport.UseEncryption = true; // Для HTTPS соединений
+
+        print(Application.absoluteURL + " ======-+-+-+-+-+-");
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        transport.SetConnectionData("devworldofmine.online", 443); // Имя хоста и порт
+#endif
+
+        transport.SetClientSecrets("devworldofmine.online");
 
         btnClient.gameObject.SetActive(false);
         netcodeStatusView.ShowStatus();
@@ -410,6 +427,8 @@ public class UI : MonoBehaviour
 
         quickInventoryView.gameObject.SetActive(true);
 
+        netcodeStatusView.HideStatus();
+
         if (Application.isMobilePlatform || testMobileInput)
         {
             mobileController.SetActive(true);
@@ -445,7 +464,7 @@ public class UI : MonoBehaviour
     private void InitResolutionCurveFactor()
     {
         resolutionFactorCurve = new();
-        resolutionFactorCurve.AddKey(new(720, 3));
+        resolutionFactorCurve.AddKey(new(720, 1));
         resolutionFactorCurve.AddKey(new(1080, 1));
     }
 

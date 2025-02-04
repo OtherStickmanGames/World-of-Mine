@@ -168,12 +168,14 @@ namespace Netcode.Transports.WebSocket
             }
         }
 
+        private static byte[] _receiveBuffer = new byte[192];  // Фиксированный буфер
         protected override void OnMessage(MessageEventArgs e)
         {
             lock (ConnectionLock)
             {
                 if (Clients.ContainsKey(ClientId))
                 {
+                    //Array.Copy(e.RawData, _receiveBuffer, e.RawData.Length);
                     EventQueue.Enqueue(new WebSocketEvent()
                     {
                         ClientId = ClientId,

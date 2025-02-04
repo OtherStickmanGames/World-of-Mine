@@ -36,6 +36,26 @@ public class ReleaseNotesHandler : NetworkBehaviour
         NetworkManager.OnServerStarted += Server_Started;
         audioClipSender.onVoiceReceive.AddListener(ClientNewsVoice_Received);
         audioClipSender.onVoiceEndPlay.AddListener(PlayVoice_Ended);
+
+        //StartCoroutine(TestLoad());
+    }
+
+
+    IEnumerator TestLoad()
+    {
+        var url = "https://disk.yandex.ru/d/99GH9OoVb_lQOw";
+
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            yield return request.SendWebRequest();
+
+            print($"{request.result}");
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                print($"{request.downloadHandler.text}");
+            }
+        }                
     }
 
     private void PlayVoice_Ended(AudioClip audio)

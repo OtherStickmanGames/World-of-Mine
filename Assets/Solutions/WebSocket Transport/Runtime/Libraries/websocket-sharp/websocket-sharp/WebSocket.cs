@@ -175,7 +175,7 @@ namespace WebSocketSharp
       _message = messages;
       _secure = context.IsSecureConnection;
       _stream = context.Stream;
-      _waitTime = TimeSpan.FromSeconds (1);
+      _waitTime = TimeSpan.FromSeconds (5);
 
       init ();
     }
@@ -191,7 +191,7 @@ namespace WebSocketSharp
       _message = messages;
       _secure = context.IsSecureConnection;
       _stream = context.Stream;
-      _waitTime = TimeSpan.FromSeconds (1);
+      _waitTime = TimeSpan.FromSeconds (5);
 
       init ();
     }
@@ -3360,6 +3360,7 @@ namespace WebSocketSharp
     /// <exception cref="ArgumentNullException">
     /// <paramref name="data"/> is <see langword="null"/>.
     /// </exception>
+    /// 
     public void Send (byte[] data)
     {
       if (_readyState != WebSocketState.Open) {

@@ -10,6 +10,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] public string serverAdress = "176.123.167.245";
+    [SerializeField] public string devServerAdress = "176.123.165.242";
     [SerializeField] public string hostName = "worldofmine.online";
     [SerializeField] public string yandexMetricCounter = "99583935";
     [SerializeField] Worker workerPrefab;

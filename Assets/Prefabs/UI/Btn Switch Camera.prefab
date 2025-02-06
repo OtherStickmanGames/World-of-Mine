@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7905822244475180093}
   - component: {fileID: 2422036143444198016}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: txt Camera View
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35,8 +35,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 44.445, y: -35}
-  m_SizeDelta: {x: 64.89, y: 60}
+  m_AnchoredPosition: {x: 53.025, y: -35}
+  m_SizeDelta: {x: 70.05, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3100769819633318866
 CanvasRenderer:
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -285,8 +285,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 12
-    m_Right: 12
+    m_Left: 18
+    m_Right: 18
     m_Top: 5
     m_Bottom: 5
   m_ChildAlignment: 0

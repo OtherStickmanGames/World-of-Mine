@@ -44,12 +44,14 @@ public class MobileInput : MonoBehaviour
 
         if (btnNoFall)
         {
+            btnNoFall.onClick.RemoveAllListeners();
             btnNoFall.onClick.AddListener(NoFall_Clicked);
             UpdateBtnNoFallView();
         }
 
         if (Application.isMobilePlatform)
         {
+            zoomCameraButtons.onZoomValue.RemoveAllListeners();
             zoomCameraButtons.onZoomValue.AddListener(ZoomCamera_Changed);
             
         }

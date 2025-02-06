@@ -25,6 +25,7 @@ public class UI : MonoBehaviour
     [SerializeField] ShowBuildingView showBuildingView;
     [SerializeField] Button btnSwitchCamera;
     [SerializeField] UserView userView;
+    [SerializeField] ChatView chatView;
     [SerializeField] GameObject mobileController;
     [SerializeField] FixedTouchField touchField;
     [SerializeField] MobileInput mobileInput;
@@ -123,7 +124,7 @@ public class UI : MonoBehaviour
 
         IEnumerator DelayConnect()
         {
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1f * countTryConnection);
 
             NetworkManager.Singleton.StartClient();
         }
@@ -175,6 +176,9 @@ public class UI : MonoBehaviour
         showBuildingView.gameObject.SetActive(false);
 
         hideShowCursorInfo.SetActive(false);
+        chatView.gameObject.SetActive(true);
+
+        chatView.Hide();
 
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
         SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
@@ -220,6 +224,8 @@ public class UI : MonoBehaviour
     private void BtnServer_Clicked()
     {
         NetworkManager.Singleton.StartServer();
+
+        chatView.Init("Host");
     }
 
     private void BuildingList_Showed()
@@ -236,6 +242,12 @@ public class UI : MonoBehaviour
 
     private void START_SERVER()
     {
+        //var networkManager = NetworkManager.Singleton;
+        //UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
+        //transport.UseWebSockets = true;
+        //transport.UseEncryption = false;
+        //transport.SetConnectionData("127.0.0.1", 7777); // Имя хоста и порт
+
         StartCoroutine(ASYNC_START());
 
         IEnumerator ASYNC_START()
@@ -243,6 +255,8 @@ public class UI : MonoBehaviour
             yield return null;
 
             NetworkManager.Singleton.StartServer();
+
+            chatView.Init("SERVER");
         }
     }
 
@@ -357,15 +371,19 @@ public class UI : MonoBehaviour
         var networkManager = NetworkManager.Singleton;
         UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
         transport.UseWebSockets = true;
-        transport.UseEncryption = true; // Для HTTPS соединений
 
-        print(Application.absoluteURL + " ======-+-+-+-+-+-");
+        var hostname = "worldofmine.online";
+        if (Application.absoluteURL.IndexOf("draft=true") > 0)
+        {
+            hostname = "devworldofmine.online";
+        }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-        transport.SetConnectionData("devworldofmine.online", 443); // Имя хоста и порт
+        transport.UseEncryption = true; // Для HTTPS соединений
+        transport.SetConnectionData(hostname, 443); // Имя хоста и порт
 #endif
 
-        transport.SetClientSecrets("devworldofmine.online");
+        transport.SetClientSecrets(hostname);
 
         btnClient.gameObject.SetActive(false);
         netcodeStatusView.ShowStatus();
@@ -400,6 +418,7 @@ public class UI : MonoBehaviour
         var thirdController = playerBeh.GetComponent<ThirdPersonController>();
         thirdController.AllowCameraRotation = false;
         InputLogic.Singleton.AvailableMouseScrollWorld = false;
+
 #endif
     }
 
@@ -444,6 +463,8 @@ public class UI : MonoBehaviour
         var thirdController = mine.GetComponent<ThirdPersonController>();
         thirdController.AllowCameraRotation = true;
         InputLogic.Singleton.AvailableMouseScrollWorld = true;
+
+        chatView.Init(UserData.Owner.userName);
     }
 
     private void InitInventoryView(Character player)

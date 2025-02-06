@@ -23,7 +23,10 @@ public class ViewUI : MonoBehaviour
 
     public virtual void Init()
     {
-        originPosition = transform.position;
+        if (originPosition == Vector2.zero)
+        {
+            originPosition = transform.position;
+        }
 
         canvasGroup = GetComponent<CanvasGroup>();
         uiTransform = transform as RectTransform;

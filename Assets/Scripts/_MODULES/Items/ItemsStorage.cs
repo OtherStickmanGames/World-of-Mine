@@ -6,6 +6,7 @@ public class ItemsStorage : MonoBehaviour
 {
     [SerializeField] ItemData[] itemsData;
     [Space(18)]
+    [Header("гдеяэ бяе пежеорш йпютрнб")]
     [SerializeField] ItemCraftableData[] itemsCraftableData;
     [Space(18)]
     [SerializeField] TurnableBlockData[] turnableBlockData;
@@ -313,12 +314,15 @@ public enum ItemID : byte
     LEAVES_BLOCK = 10,
     WOODEN_PLANK = 11,
     WOODEN_STAIR = 12,
-    STONE_8_3 = 14,
+    CLIFF = 14,
     COBBLESTONE_STAIR = 16,
     STONE_WORKBENCH = 50,
     SIMPLE_WOOD_WORKBENCH = 51,
+    COLUMN_COBBLESTONE = 60,
+    CLIFF_ROAD = 61,
     SAND = 90,
     INTERWOVEN_STONE = 94,
+    WINDOW_SIMPLE_WOODEN = 120,
 }
 
 public enum CraftingItemID : byte

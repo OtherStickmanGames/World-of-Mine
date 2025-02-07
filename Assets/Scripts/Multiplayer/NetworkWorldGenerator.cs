@@ -410,6 +410,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
 #endif
         SaveChangeChunck(blockPos, blockId, serverRpcParams);
         ReceiveBlockPlacedClientRpc(blockPos, blockId, serverRpcParams.Receive.SenderClientId);
+
+        NetworkUserManager.Instance.AddPlacedBlock(serverRpcParams.Receive.SenderClientId);
     }
 
     [ClientRpc]
@@ -469,6 +471,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
     private void RemoveTurnedBlockData(Vector3 blockPos)
     {
         var chunck = worldGenerator.GetChunk(blockPos);
+        print($"R.T.B.D: chunck {chunck} ###");
         var chunckFileName = GetChunckName(chunck);
         var path = $"{chuncksDirectory}{serverDirectory}{chunckFileName}.json";
         var localBlockPos = worldGenerator.ToLocalBlockPos(blockPos);
@@ -476,6 +479,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
         ChunckData jsonChunkData = GetChunckData(path, chunck);
         int idx = 0;
         var hasTurnedData = false;
+        print($"R.T.B.D: jsonChunkData {jsonChunkData} ###");
         foreach (var turnData in jsonChunkData.turnedBlocks)
         {
             if(turnData.Pos == localBlockPos)

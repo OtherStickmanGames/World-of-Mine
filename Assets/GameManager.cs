@@ -5,10 +5,13 @@ using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] public bool useDevServer;
     [SerializeField] public string serverAdress = "176.123.167.245";
     [SerializeField] public string devServerAdress = "176.123.165.242";
     [SerializeField] public string hostName = "worldofmine.online";
@@ -44,6 +47,15 @@ public class GameManager : MonoBehaviour
 
         //FindPathSystem.Instance.onPathComplete += FindPathBetweenBlocks_Completed;
         Character.onSpawn.AddListener(PlayerAny_Spawned);
+
+#if !UNITY_SERVER
+        if (!Application.isMobilePlatform)
+        {
+#if !UNITY_EDITOR
+            QualitySettings.SetQualityLevel(1);
+#endif
+        }
+#endif
     }
 
     private void PlayerOwner_Spawned(MonoBehaviour owner)
@@ -51,6 +63,7 @@ public class GameManager : MonoBehaviour
         playerOwner = owner as PlayerBehaviour;
     }
 
+    public UniversalRenderPipelineAsset withShadow;
     private IEnumerator Start()
     {
         updatables.Add(new BlockItemSpawner());
@@ -70,12 +83,10 @@ public class GameManager : MonoBehaviour
             LoadTutorialScene();
         }
 #endif
-
         if (!Application.isMobilePlatform)
         {
-            // тут надо дистанцию чанков увеличить
+            WorldGenerator.Inst.SetDistanceViewChunk(8);
         }
-
     }
 
     private void LoadTutorialScene()

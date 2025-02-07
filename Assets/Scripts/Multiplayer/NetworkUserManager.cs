@@ -199,6 +199,32 @@ public class NetworkUserManager : NetworkBehaviour
 #endif
     }
 
+    // TODO переделать, чтобы держать в оперативе все данные юзеров
+    public void AddPlacedBlock(ulong clienID)
+    {
+#if !UNITY_WEBGL
+        if (!playerIds.ContainsKey(clienID))
+            return;
+
+        var playerId = playerIds[clienID];
+        var fileName = $"{playerId}.json";
+        var path = $"{usersDataDirectory}{fileName}";
+        if (File.Exists(path))
+        {
+            var json = File.ReadAllText(path);
+            var userData = JsonConvert.DeserializeObject<GlobalUserData>(json);
+            var idxLastSession = userData.sessions.Count - 1;
+            var session = userData.sessions[idxLastSession];
+
+            session.countPlacedBlock++;
+            userData.sessions[idxLastSession] = session;
+
+            json = JsonConvert.SerializeObject(userData);
+            File.WriteAllText(path, json);
+        }
+#endif
+    }
+
     private void EndUserSession(string playerId)
     {
 #if !UNITY_WEBGL

@@ -82,6 +82,7 @@ public class UI : MonoBehaviour
 
 #if !UNITY_SERVER
         netcodeStatusView.Init();
+        netcodeStatusView.onConnectToReserveClick.AddListener(ConnectToReserve_Clicked);
 
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
         NetworkManager.Singleton.OnConnectionEvent += ConnectionEvent_Invoked;
@@ -116,15 +117,17 @@ public class UI : MonoBehaviour
             }
             else
             {
-                netcodeStatusView.ShowStatus("Не удалось соедениться с сервером, видимо он упал, попробуй позже :(");
-                //btnClient.gameObject.SetActive(true);
-                //netcodeStatusView.HideStatus();
+                netcodeStatusView.ShowStatus("Не удалось соедениться с основным сервером, видимо он упал, попробуй позже :(");
+#if !UNITY_WEBGL
+                netcodeStatusView.ShowBtnConnect();
+#endif
+                
             }
         }
 
         IEnumerator DelayConnect()
         {
-            yield return new WaitForSeconds(1f * countTryConnection);
+            yield return new WaitForSeconds(0.1f + (0.8f * countTryConnection));
 
             NetworkManager.Singleton.StartClient();
         }
@@ -377,6 +380,19 @@ public class UI : MonoBehaviour
         {
             hostname = "devworldofmine.online";
         }
+#if !UNITY_WEBGL || UNITY_EDITOR
+        if (GameManager.Inst.useDevServer)
+        {
+            transport.SetConnectionData(GameManager.Inst.devServerAdress, 443);
+
+            hostname = "devworldofmine.online";
+        }
+        else
+        {
+            transport.SetConnectionData(GameManager.Inst.serverAdress, 443);
+        }
+#endif
+
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         transport.UseEncryption = true; // Для HTTPS соединений
@@ -387,6 +403,20 @@ public class UI : MonoBehaviour
 
         btnClient.gameObject.SetActive(false);
         netcodeStatusView.ShowStatus();
+        NetworkManager.Singleton.StartClient();
+    }
+
+    private void ConnectToReserve_Clicked()
+    {
+        var networkManager = NetworkManager.Singleton;
+        UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
+        var hostname = "devworldofmine.online";
+        transport.SetClientSecrets(hostname);
+        transport.SetConnectionData(GameManager.Inst.devServerAdress, 443);
+
+        netcodeStatusView.HideBtnConnect();
+        netcodeStatusView.ShowStatus("Пробую подключиться к резервному сервер О_о");
+
         NetworkManager.Singleton.StartClient();
     }
 
@@ -611,6 +641,14 @@ public class UI : MonoBehaviour
         else
         {
             CurrentUIObject = null;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (NetworkManager.Singleton)
+        {
+            NetworkManager.Singleton.OnConnectionEvent -= ConnectionEvent_Invoked;
         }
     }
 

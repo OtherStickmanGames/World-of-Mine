@@ -655,7 +655,11 @@ public class PlayerBehaviour : MonoBehaviour
         var blockID = WorldGenerator.Inst.GetBlockID(blockablePos);
         if (blockID > 0)
         {
-            transform.position += Vector3.up;
+            var itemData = ItemsStorage.Singleton.GetItemData(blockID);
+            if (itemData.itemType != ItemType.BLOCKABLE)
+            {
+                transform.position += Vector3.up;
+            }
         }
         if (transform.position.y < -888)
         {

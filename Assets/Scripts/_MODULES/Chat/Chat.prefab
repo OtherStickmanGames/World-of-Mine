@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6605053099291174862}
   - component: {fileID: 4186245456220078154}
   m_Layer: 5
-  m_Name: InputField (TMP)
+  m_Name: Input Chat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1387,7 +1387,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.5019608}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.29803923}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1530,6 +1530,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: Message View
       objectReference: {fileID: 0}
+    - target: {fileID: 2720761294761643097, guid: 0819722fd19d92646a85a75459d354a6,
+        type: 3}
+      propertyPath: m_text
+      value: "<color=#FFFFFF>\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u044C\u043AO</color>
+        \u0432\u0433\u0448\u044B\u0448\u0433\u0432\u0438 "
+      objectReference: {fileID: 0}
     - target: {fileID: 7461021055726909583, guid: 0819722fd19d92646a85a75459d354a6,
         type: 3}
       propertyPath: m_Pivot.x
@@ -1613,7 +1619,7 @@ PrefabInstance:
     - target: {fileID: 7461021055726909583, guid: 0819722fd19d92646a85a75459d354a6,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -58.265
+      value: -42.8
       objectReference: {fileID: 0}
     - target: {fileID: 7461021055726909583, guid: 0819722fd19d92646a85a75459d354a6,
         type: 3}

@@ -20,6 +20,11 @@ public class ChatView : NetworkBehaviour
 
     public void Init(string username)
     {
+        if (IsClient)
+        {
+            SendUsernameServerRpc(username);
+        }
+
         if (inited)
             return;
 
@@ -30,25 +35,39 @@ public class ChatView : NetworkBehaviour
         if (IsServer)
         {
             usernames = new Dictionary<ulong, string>();
+            NetworkManager.OnClientDisconnectCallback += Client_Disconnected;
         }
         else
         {
             Show();
 
             messageInput.onSubmit.AddListener(Message_Submited);
-            SendUsernameServerRpc(username);
+            messageInput.onValueChanged.AddListener(InputValue_Changed);
 
             if (Application.isMobilePlatform)
             {
                 btnSend.onClick.AddListener(BtnSend_Clicked);
             }
-            else
-            {
-                btnSend.gameObject.SetActive(false);
-            }
 
+            btnSend.gameObject.SetActive(false);
         }
 
+    }
+
+    private void InputValue_Changed(string value)
+    {
+        if (Application.isMobilePlatform)
+        {
+            btnSend.gameObject.SetActive(value.Length > 0);
+        }
+    }
+
+    private void Client_Disconnected(ulong clientID)
+    {
+        if (usernames.ContainsKey(clientID))
+        {
+            usernames.Remove(clientID);
+        }
     }
 
     private void BtnSend_Clicked()
@@ -58,9 +77,13 @@ public class ChatView : NetworkBehaviour
 
     private void Message_Submited(string msg)
     {
+        if (msg.Length == 0)
+            return;
+
         SendMessageServerRpc(msg);
 
         messageInput.SetTextWithoutNotify(string.Empty);
+        btnSend.gameObject.SetActive(false);
     }
 
     [ServerRpc(RequireOwnership = false)]

@@ -83,6 +83,9 @@ public class PlayerBehaviour : MonoBehaviour
         {
             transform.position += Vector3.one + Vector3.up * 38;
             print($"Загружена дефолтная позиция");
+#if UNITY_ANDROID
+            transform.position += Vector3.right * 888;
+#endif
         }
         else
         {

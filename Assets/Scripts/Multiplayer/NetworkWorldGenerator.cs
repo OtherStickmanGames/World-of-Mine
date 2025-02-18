@@ -492,6 +492,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
 
         if (hasTurnedData)
         {
+            print($"R.T.B.D: jsonChunkData.turnedBlocks {jsonChunkData.turnedBlocks} ###");
             jsonChunkData.turnedBlocks.RemoveAt(idx);
 
             var json = JsonConvert.SerializeObject(jsonChunkData);

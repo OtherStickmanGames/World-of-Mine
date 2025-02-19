@@ -376,10 +376,12 @@ public class UI : MonoBehaviour
         transport.UseWebSockets = true;
 
         var hostname = "worldofmine.online";
+#if UNITY_WEBGL && !UNITY_EDITOR
         if (Application.absoluteURL.IndexOf("draft=true") > 0)
         {
             hostname = "devworldofmine.online";
         }
+#endif
 #if !UNITY_WEBGL || UNITY_EDITOR
         if (GameManager.Inst.useDevServer)
         {

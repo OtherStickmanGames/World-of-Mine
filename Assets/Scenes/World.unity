@@ -1788,7 +1788,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cbb70b30b293a749a7cb9a8f8afebc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useDevServer: 0
+  useDevServer: 1
   serverAdress: 176.123.167.245
   devServerAdress: 176.123.165.242
   hostName: worldofmine.online
@@ -3135,7 +3135,7 @@ MonoBehaviour:
     EnableNetworkLogs: 1
     OldPrefabList: []
   RunInBackground: 1
-  LogLevel: 1
+  LogLevel: 0
 --- !u!114 &647023264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4086,30 +4086,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a5b227a20855044e9f75626696e0719, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseType: 3
-  pauseMethod: 1
-  closingADValues:
-    timeScale: 1
-    audioPause: 0
-    cursorVisible: 0
-    cursorLockMode: 0
-  awakeSetValues: 0
-  awakeValues:
-    timeScale: 1
-    audioPause: 0
-    cursorVisible: 0
-    cursorLockMode: 0
-  customEvents:
-    OpenAd:
-      m_PersistentCalls:
-        m_Calls: []
-      m_CallsDirty: 1
-    CloseAd:
-      m_PersistentCalls:
-        m_Calls: []
-      m_CallsDirty: 1
-  logPause: 0
-  eventSystem: {fileID: 0}
 --- !u!114 &773190231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4123,65 +4099,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 404d6214ebdd58d43a94c7ed650dc2f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  infoYG: {fileID: 11400000, guid: 162644796a8b0d044bce3d6fda0641e3, type: 2}
-  singleton: 0
-  ResolvedAuthorization:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  RejectedAuthorization:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  OpenFullscreenAd:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  CloseFullscreenAd:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  ErrorFullscreenAd:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  OpenVideoAd:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  CloseVideoAd:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  RewardVideoAd:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  ErrorVideoAd:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  PurchaseSuccess:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  PurchaseFailed:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  PromptDo:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  PromptFail:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  ReviewDo:
-    m_PersistentCalls:
-      m_Calls: []
-    m_CallsDirty: 1
-  timeOnOpenRewardedAds: 0
 --- !u!4 &773190232
 Transform:
   m_ObjectHideFlags: 0

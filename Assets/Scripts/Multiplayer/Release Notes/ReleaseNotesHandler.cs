@@ -131,7 +131,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
 
                 var uri = filePath;
 #if UNITY_STANDALONE_LINUX
-            uri = filePath.Insert(0, "file://");
+                uri = filePath.Insert(0, "file://");
 #endif
 
                 // Загружаем аудиофайл
@@ -208,7 +208,17 @@ public class ReleaseNotesHandler : NetworkBehaviour
         newsData.date = DateTime.ParseExact(newsData.name, format, provider);
         clientNewsData.Add(newsData);
         clientNewsData = clientNewsData.OrderByDescending(n => n.date).ToList();
-        ClientReceivedNewsServerRpc();
+
+        StartCoroutine(Delay());
+
+        IEnumerator Delay()
+        {
+            yield return new WaitForSeconds(0.3f);
+
+            ClientReceivedNewsServerRpc();
+        }
+
+        
     }
 
     [ServerRpc(RequireOwnership = false)]

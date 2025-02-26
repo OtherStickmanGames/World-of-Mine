@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 using UnityEngine.Events;
 using System.Linq;
 using System.Globalization;
+using Newtonsoft.Json;
 #if !UNITY_WEBGL || UNITY_EDITOR
 using System.IO;
 #endif
@@ -23,8 +24,12 @@ public class ReleaseNotesHandler : NetworkBehaviour
     Dictionary<ulong, int> clientIdxNewsSending = new();
 
     public static UnityEvent<List<NetworkNewsData>> onNewsReceive = new();
+    public static UnityEvent<NetworkNewsData> onNoteReceive = new();
 
     public static ReleaseNotesHandler Singleton;
+
+    string format = "dd_MM_yyyy"; // Формат строки даты
+    CultureInfo provider = CultureInfo.InvariantCulture; // 
 
     private void Awake()
     {
@@ -60,7 +65,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
 
     private void PlayVoice_Ended(AudioClip audio)
     {
-        if (audio.name == "Start_Voice")
+        if (audio.name != "Start_Voice")
         {
             if (clientNewsData.Count == 0)
             {
@@ -104,13 +109,12 @@ public class ReleaseNotesHandler : NetworkBehaviour
     {
         NetworkManager.OnClientConnectedCallback += Client_Connected;
 
-        LoadReleaseNotes();
+        LoadReleaseNotesOnServer();
     }
 
-    string format = "dd_MM_yyyy"; // Формат строки даты
-    CultureInfo provider = CultureInfo.InvariantCulture; // 
+    
 
-    private void LoadReleaseNotes()
+    private void LoadReleaseNotesOnServer()
     {
 #if !UNITY_WEBGL || UNITY_EDITOR
         if (!Directory.Exists(releaseNotesDirectory))
@@ -118,13 +122,14 @@ public class ReleaseNotesHandler : NetworkBehaviour
             Directory.CreateDirectory(releaseNotesDirectory);
         }
 
-        var filePaths = Directory.GetFiles(releaseNotesDirectory, "*.txt");
+        StartCoroutine(LoadNoteFromFile());
 
-
-        StartCoroutine(LoadAudioFromFile(filePaths));
-
-        IEnumerator LoadAudioFromFile(string[] filePaths)
+        IEnumerator LoadNoteFromFile()
         {
+            var filePaths = Directory.GetFiles(releaseNotesDirectory, "*.json");
+
+            newsData.Clear();
+
             foreach (var filePath in filePaths)
             {
                 Debug.Log("Found news file: " + filePath);
@@ -133,31 +138,38 @@ public class ReleaseNotesHandler : NetworkBehaviour
 #if UNITY_STANDALONE_LINUX
                 uri = filePath.Insert(0, "file://");
 #endif
-
-                // Загружаем аудиофайл
                 using (UnityWebRequest request = UnityWebRequest.Get(uri))
                 {
                     yield return request.SendWebRequest();
 
                     if (request.result == UnityWebRequest.Result.Success)
                     {
-                        NetworkNewsData data = new();
-                        var news = request.downloadHandler.text;
-                        //print(news);
+                        var json = request.downloadHandler.text;
+                        var data = JsonConvert.DeserializeObject<NetworkNewsData>(json);
                         var name = Path.GetFileName(filePath);
                         name = name.Substring(0, name.IndexOf("."));
                         data.name = name;
-                        var idxText = news.IndexOf("text:"); 
-                        data.title = news.Substring
-                        (
-                            "title:".Length,
-                            idxText - "text:".Length - 2
-                        );
-                        data.text = news[(idxText + 5)..];
-                        
                         data.date = DateTime.ParseExact(name, format, provider);
-                        //print(data.date);
+                        data.survey ??= new NetworkSurveyData[] { };
                         newsData.Add(data);
+
+                        //NetworkNewsData data = new();
+                        //var news = request.downloadHandler.text;
+                        ////print(news);
+                        //var name = Path.GetFileName(filePath);
+                        //name = name.Substring(0, name.IndexOf("."));
+                        //data.name = name;
+                        //var idxText = news.IndexOf("text:"); 
+                        //data.title = news.Substring
+                        //(
+                        //    "title:".Length,
+                        //    idxText - "text:".Length - 2
+                        //);
+                        //data.text = news[(idxText + 5)..];
+                        
+                        //data.date = DateTime.ParseExact(name, format, provider);
+                        ////print(data.date);
+                        //newsData.Add(data);
                     }
                     else
                     {
@@ -165,6 +177,12 @@ public class ReleaseNotesHandler : NetworkBehaviour
                     }
                 }
             }
+
+            newsData = newsData.OrderByDescending(n => n.date).ToList();
+
+            yield return new WaitForSeconds(80);
+
+            StartCoroutine(LoadNoteFromFile());
         }
 #endif
     }
@@ -205,9 +223,10 @@ public class ReleaseNotesHandler : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveNewsDataClientRpc(NetworkNewsData newsData, ClientRpcParams clientRpcParams = default)
     {
-        newsData.date = DateTime.ParseExact(newsData.name, format, provider);
+        //newsData.date = DateTime.ParseExact(newsData.name, format, provider);
         clientNewsData.Add(newsData);
-        clientNewsData = clientNewsData.OrderByDescending(n => n.date).ToList();
+        onNoteReceive?.Invoke(newsData);
+        //clientNewsData = clientNewsData.OrderByDescending(n => n.date).ToList();
 
         StartCoroutine(Delay());
 
@@ -242,6 +261,19 @@ public class ReleaseNotesHandler : NetworkBehaviour
         {
             audioClipSender.PlayAudio(clientNewsData[0].voiceClip);
         }
+    }
+
+    private void CreateJsonTemplate()
+    {
+        NetworkNewsData data = new();
+        data.survey = new NetworkSurveyData[]
+        {
+            new NetworkSurveyData(),
+            new NetworkSurveyData()
+        };
+        var json = JsonConvert.SerializeObject(data);
+        var path = $"{releaseNotesDirectory}piso.json";
+        File.WriteAllText(path, json);
     }
 }
 

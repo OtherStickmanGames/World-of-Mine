@@ -66,9 +66,12 @@ public struct NetworkNewsData : INetworkSerializable
     public string name;
     public string title;
     public string text;
+    public NetworkSurveyData[] survey;
 
     // Не передаю по сети
+    //[NonSerialized]
     public AudioClip voiceClip;
+    //[NonSerialized]
     public DateTime date;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -76,6 +79,20 @@ public struct NetworkNewsData : INetworkSerializable
         serializer.SerializeValue(ref name);
         serializer.SerializeValue(ref title);
         serializer.SerializeValue(ref text);
+        serializer.SerializeValue(ref survey);
+    }
+}
+
+[Serializable]
+public struct NetworkSurveyData : INetworkSerializable
+{
+    public string title;
+    public int votes;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref title);
+        serializer.SerializeValue(ref votes);
     }
 }
 

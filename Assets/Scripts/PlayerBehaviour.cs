@@ -448,20 +448,22 @@ public class PlayerBehaviour : MonoBehaviour
                     }
                 }
 
-
+                var worldBlockPos = blockPosition + Vector3.right;
                 if (isTurnableBlock)
                 {
                     WorldGenerator.Inst.PlaceTurnedBlock
                     (
-                        blockPosition + Vector3.right,
+                        worldBlockPos,
                         item.id,
                         turnsData.ToArray()
                     );
                 }
                 else
                 {
-                    WorldGenerator.Inst.PlaceBlock(blockPosition + Vector3.right, item.id);
+                    WorldGenerator.Inst.PlaceBlock(worldBlockPos, item.id);
                 }
+
+                WorldSimulation.Single.PlaceBlock(chunck, worldBlockPos, item.id);
 
                 player.inventory.Remove(item);
             }

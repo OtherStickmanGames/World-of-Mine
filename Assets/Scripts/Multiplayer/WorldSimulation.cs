@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using static BLOCKS;
 
 public class WorldSimulation : MonoBehaviour
 {
     public static WorldSimulation Single;
+    public static UnityEvent<ChunckComponent, Vector3Int, byte> onPlaceBlock;
 
     public Dictionary<Vector3, SimulationChunkData> simulationsChunks = new();
 
@@ -25,10 +27,10 @@ public class WorldSimulation : MonoBehaviour
 
     public void PlaceBlock(ChunckComponent chunk, Vector3 worldBlockPos, byte blockID)
     {
-        if(blockID == DIRT)
+        if (blockID == DIRT)
         {
             var localBlockPos = WorldGenerator.Inst.ToLocalBlockPos(worldBlockPos);
-            
+            onPlaceBlock?.Invoke(chunk, localBlockPos, blockID);
         }
     }
 

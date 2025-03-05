@@ -11,9 +11,17 @@ public class ReleaseNotesView : MonoBehaviour
 
     public void Init()
     {
-        ReleaseNotesHandler.onNewsReceive.AddListener(NewsData_Received);
+        //ReleaseNotesHandler.onNewsReceive.AddListener(NewsData_Received);
+        ReleaseNotesHandler.onNoteReceive.AddListener(NoteDate_Received);
 
         Clear();
+    }
+
+    private void NoteDate_Received(NetworkNewsData data)
+    {
+        var view = Instantiate(noteViewPrefab, notesParent);
+        view.Init();
+        view.Fill(data.title, data.name.Replace("_", "."), data.text);
     }
 
     private void NewsData_Received(List<NetworkNewsData> newsData)
@@ -33,7 +41,7 @@ public class ReleaseNotesView : MonoBehaviour
             var view = Instantiate(noteViewPrefab, notesParent);
             view.Init();
             view.Fill(data.title, data.name.Replace("_", "."), data.text);
-            print(data.date);
+            //print(data.date);
         }
     }
 

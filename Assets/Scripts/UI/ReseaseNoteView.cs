@@ -12,6 +12,8 @@ public class ReseaseNoteView : MonoBehaviour
     [SerializeField] TMP_Text txtTitle;
     [SerializeField] TMP_Text txtDate;
     [SerializeField] TMP_Text txtDescription;
+    [SerializeField] SurveyVariantItem surveyVariantPrefab;
+    [SerializeField] Transform surveyParent;
 
     public void Init()
     {

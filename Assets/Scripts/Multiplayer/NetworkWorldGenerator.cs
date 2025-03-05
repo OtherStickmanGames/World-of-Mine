@@ -471,7 +471,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
     private void RemoveTurnedBlockData(Vector3 blockPos)
     {
         var chunck = worldGenerator.GetChunk(blockPos);
-        print($"R.T.B.D: chunck {chunck} ###");
+        //print($"R.T.B.D: chunck {chunck} ###");
         var chunckFileName = GetChunckName(chunck);
         var path = $"{chuncksDirectory}{serverDirectory}{chunckFileName}.json";
         var localBlockPos = worldGenerator.ToLocalBlockPos(blockPos);
@@ -479,19 +479,23 @@ public class NetworkWorldGenerator : NetworkBehaviour
         ChunckData jsonChunkData = GetChunckData(path, chunck);
         int idx = 0;
         var hasTurnedData = false;
-        print($"R.T.B.D: jsonChunkData {jsonChunkData} ###");
+        //print($"R.T.B.D: jsonChunkData {jsonChunkData} ###");
+        // «аглушка дл€ старых json в которых нет этого пол€
+        jsonChunkData.turnedBlocks ??= new List<ChunckData.JsonTurnedBlock>();
+
         foreach (var turnData in jsonChunkData.turnedBlocks)
         {
-            if(turnData.Pos == localBlockPos)
+            if (turnData.Pos == localBlockPos)
             {
                 hasTurnedData = true;
                 break;
             }
             idx++;
         }
-
+        
         if (hasTurnedData)
         {
+            print($"R.T.B.D: jsonChunkData.turnedBlocks {jsonChunkData.turnedBlocks} ###");
             jsonChunkData.turnedBlocks.RemoveAt(idx);
 
             var json = JsonConvert.SerializeObject(jsonChunkData);

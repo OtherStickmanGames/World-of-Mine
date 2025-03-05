@@ -163,7 +163,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.OtherStickmanGames.NoobOnline
-    Standalone: com.OtherStickmanGames.Noob
+    Standalone: com.OtherStickmanGames.NoobOnline
     iPhone: com.Unity-Technologies.com.unity.template.urp-blank
   buildNumber:
     Standalone: 0
@@ -829,7 +829,7 @@ PlayerSettings:
   webGLPowerPreference: 2
   scriptingDefineSymbols:
     Android: ENABLE_INPUT_SYSTEM;YG_PLUGIN_YANDEX_GAME
-    Standalone: ENABLE_INPUT_SYSTEM;UTP_TRANSPORT_2_0_ABOVE;YG_PLUGIN_YANDEX_GAME
+    Standalone: ENABLE_INPUT_SYSTEM;UTP_TRANSPORT_2_0_ABOVE
     WebGL: ENABLE_INPUT_SYSTEM;YG_PLUGIN_YANDEX_GAME;TMP_WEBGL_SUPPORT
   additionalCompilerArguments: {}
   platformArchitecture: {}

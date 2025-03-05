@@ -99,6 +99,9 @@ public class UI : MonoBehaviour
     int countTryConnection = 0;
     private void ConnectionEvent_Invoked(NetworkManager networkManager, ConnectionEventData eventData)
     {
+        if (networkManager.IsServer)
+            return;
+
         print($"{eventData.EventType} =-= {countTryConnection} -=-=-");
 
         if (eventData.EventType == ConnectionEvent.ClientConnected)
@@ -375,11 +378,23 @@ public class UI : MonoBehaviour
         UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
         transport.UseWebSockets = true;
 
+        if (GameManager.Inst.isLocalhost)
+        {
+            transport.SetConnectionData("127.0.0.1", 7777);
+            btnClient.gameObject.SetActive(false);
+            netcodeStatusView.ShowStatus();
+            NetworkManager.Singleton.StartClient();
+
+            return;
+        }
+
         var hostname = "worldofmine.online";
+#if UNITY_WEBGL && !UNITY_EDITOR
         if (Application.absoluteURL.IndexOf("draft=true") > 0)
         {
             hostname = "devworldofmine.online";
         }
+#endif
 #if !UNITY_WEBGL || UNITY_EDITOR
         if (GameManager.Inst.useDevServer)
         {

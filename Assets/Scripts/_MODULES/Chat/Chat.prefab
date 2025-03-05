@@ -1533,8 +1533,7 @@ PrefabInstance:
     - target: {fileID: 2720761294761643097, guid: 0819722fd19d92646a85a75459d354a6,
         type: 3}
       propertyPath: m_text
-      value: "<color=#FFFFFF>\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u044C\u043AO</color>
-        \u0432\u0433\u0448\u044B\u0448\u0433\u0432\u0438 "
+      value: "<color=#FFFFFF>\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u044C\u043AO</color>"
       objectReference: {fileID: 0}
     - target: {fileID: 7461021055726909583, guid: 0819722fd19d92646a85a75459d354a6,
         type: 3}
@@ -1619,7 +1618,7 @@ PrefabInstance:
     - target: {fileID: 7461021055726909583, guid: 0819722fd19d92646a85a75459d354a6,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -42.8
+      value: -27.34
       objectReference: {fileID: 0}
     - target: {fileID: 7461021055726909583, guid: 0819722fd19d92646a85a75459d354a6,
         type: 3}

@@ -37,11 +37,13 @@ public class AudioClipSender : NetworkBehaviour
 
     }
 
-    
+    /// <summary>
+    /// —тарт отправки озвучки, только после получени€ всех текстов новостей
+    /// </summary>
+    /// <param name="clienId"></param>
     public void StartSendNewsVoice(ulong clienId)
     {
         SendVoicesServerRpc(clienId);
-        
     }
 
     [ServerRpc(RequireOwnership = false)]

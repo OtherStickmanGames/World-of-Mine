@@ -23,6 +23,8 @@ public class WorldSimulation : MonoBehaviour
 
     public Dictionary<Vector3, SimulationChunkData> simulationsChunks = new();
 
+    HashSet<SimulationChunkData> queueToAddSimulationChunks = new();
+    [ReadOnlyField] public SimulationConfig config;
 
     private void Awake()
     {
@@ -33,8 +35,10 @@ public class WorldSimulation : MonoBehaviour
 
     private void Start()
     {
-
+        LoadOrCreateSimulationConfig();
     }
+
+    
 
     public void PlaceBlock(ChunckComponent chunk, Vector3 worldBlockPos, byte blockID)
     {
@@ -54,21 +58,114 @@ public class WorldSimulation : MonoBehaviour
         var fileName = GetChunckDataFileName(chunkPos);
         var path = $"{simulationDataDirectory}{fileName}.json";
 
-        SimulationChunkData simulationData;
+        SimulationChunkData simulationChunkData;
+        string json;
 
-        if (File.Exists(path))
+        if (simulationsChunks.ContainsKey(chunkPos))
         {
-            var json = File.ReadAllText(path);
-            simulationData = JsonConvert.DeserializeObject<SimulationChunkData>(json);
+            simulationChunkData = simulationsChunks[chunkPos];
         }
         else
         {
-            simulationData = new() { chunkPos = chunkPos, simulatableBlocks = new() };
+            if (File.Exists(path))
+            {
+                json = File.ReadAllText(path);
+                simulationChunkData = JsonConvert.DeserializeObject<SimulationChunkData>(json);
+            }
+            else
+            {
+                simulationChunkData = new() { ChunkPos = chunkPos, simulatableBlocks = new() };
+            }
+            queueToAddSimulationChunks.Add(simulationChunkData);
         }
 
-        if (!simulationData.simulatableBlocks.Contains(data))
+        
+        SimulatableBlockData found = default;
+        foreach (var block in simulationChunkData.simulatableBlocks)
         {
-            print("нихуааа");
+            if(block.localBlockPos == data.localBlockPos)
+            {
+                found = block;
+                break;
+            }
+        }
+        if (found.localBlockPos == default) 
+        {
+            simulationChunkData.simulatableBlocks.Add(data);
+        }
+        else
+        {
+            if (simulationChunkData.simulatableBlocks.Remove(found))
+            {
+                print("я хуй пойми как такая ситуация возможна, но я ремувнул");
+            }
+            else
+            {
+                print("бля, шо то вообще пошло не так 0_0");
+            }
+        }
+
+        json = JsonConvert.SerializeObject(simulationChunkData);
+        File.WriteAllText(path, json);
+    }
+
+    public void StartSimulation()
+    {
+        StartCoroutine(Async());
+
+        IEnumerator Async()
+        {
+            var chunkPoses = simulationsChunks.Keys;
+
+            foreach (var chunkPos in chunkPoses)
+            {
+                var simulationData = simulationsChunks[chunkPos];
+
+                SimulationChunk(simulationData);
+
+                yield return null;
+            }
+
+            yield return null;
+
+            CheckQueyeToAddSimulationChunks();
+
+            StartCoroutine(Async());
+        }
+    }
+
+    void SimulationChunk(SimulationChunkData simulationChunkData)
+    {
+        foreach (var blockData in simulationChunkData.simulatableBlocks)
+        {
+            var blockConfig = config.simulationBlockConfigs.Find(b => b.blockID == blockData.blockID);
+            if(blockConfig != null)
+            {
+                var elapsed = DateTime.Now - blockData.changed;
+                var seconds = elapsed.TotalSeconds;
+                print($"прошло времени {seconds}");
+                if(seconds > blockConfig.time)
+                {
+
+                }
+            }
+            else
+            {
+                Debug.Log($"Э, хуйло добавь конфиг {blockData.blockID}");
+            }
+        }
+    }
+
+    void CheckQueyeToAddSimulationChunks()
+    {
+        if (queueToAddSimulationChunks.Count > 0)
+        {
+            foreach (var item in queueToAddSimulationChunks)
+            {
+                simulationsChunks.Add(item.ChunkPos, item);
+            }
+
+            queueToAddSimulationChunks.Clear();
         }
     }
 
@@ -86,13 +183,56 @@ public class WorldSimulation : MonoBehaviour
         }
 #endif
     }
+
+    private void LoadOrCreateSimulationConfig()
+    {
+        CheckDirectory();
+        var fileName = "SimulationConfig.json";
+        var path = $"{Application.dataPath}/Data/Chuncks/{fileName}";
+        if (File.Exists(path))
+        {
+            var json = File.ReadAllText(path);
+            config = JsonConvert.DeserializeObject<SimulationConfig>(json);
+        }
+        else
+        {
+            config = new()
+            {
+                simulationBlockConfigs = new List<SimulationBlockConfig>()
+                {
+                    new SimulationBlockConfig()
+                    {
+                        name = "DIRT",
+                        blockID = 4,
+                        time = 60 * 3,
+                    }
+                }
+            };
+
+            var json = JsonConvert.SerializeObject(config);
+            File.WriteAllText(path, json);
+        }
+    }
 }
 
 [Serializable]
 public class SimulationChunkData
 {
-    public Vector3 chunkPos;
+    public float x, y, z;
     public HashSet<SimulatableBlockData> simulatableBlocks;
+
+    [JsonIgnore]
+    public Vector3 ChunkPos
+    {
+        get => new(x, y, z);
+        set
+        {
+            x = value.x;
+            y = value.y;
+            z = value.z;
+        }
+    }
+
 }
 
 [Serializable]

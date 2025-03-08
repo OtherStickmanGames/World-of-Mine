@@ -1,0 +1,11 @@
+{
+	"simulationBlockConfigs":
+	[
+		{
+			"name":"DIRT",
+			"blockID":4,
+			"time":180.0,
+			"maxTime":null
+		}
+	]
+}

@@ -10,6 +10,12 @@ public class NetworkWorldSimulation : NetworkBehaviour
     {
         NetworkManager.OnClientStarted += Client_Started;
         NetworkManager.OnClientStopped += Client_Stopped;
+        NetworkManager.OnServerStarted += Server_Started;
+    }
+
+    private void Server_Started()
+    {
+        WorldSimulation.Single.StartSimulation();
     }
 
     private void Client_Started()

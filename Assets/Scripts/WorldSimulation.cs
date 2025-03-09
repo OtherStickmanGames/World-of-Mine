@@ -18,6 +18,7 @@ public class WorldSimulation : MonoBehaviour
 {
     public static WorldSimulation Single;
     public static UnityEvent<ChunckComponent, Vector3Int, byte> onPlaceBlock = new();
+    public static UnityEvent<Vector3, Vector3Int, byte> onBlockChanged = new();
 
     static string simulationDataDirectory = $"{Application.dataPath}/Data/Chuncks/Simulation/";
 
@@ -55,7 +56,7 @@ public class WorldSimulation : MonoBehaviour
     {
         CheckDirectory();
 
-        var fileName = GetChunckDataFileName(chunkPos);
+        var fileName = GetChunkDataFileName(chunkPos);
         var path = $"{simulationDataDirectory}{fileName}.json";
 
         SimulationChunkData simulationChunkData;
@@ -136,23 +137,64 @@ public class WorldSimulation : MonoBehaviour
 
     void SimulationChunk(SimulationChunkData simulationChunkData)
     {
+        HashSet<SimulatableBlockData> needRemove = new();
         foreach (var blockData in simulationChunkData.simulatableBlocks)
         {
             var blockConfig = config.simulationBlockConfigs.Find(b => b.blockID == blockData.blockID);
-            if(blockConfig != null)
+            if (blockConfig != null)
             {
                 var elapsed = DateTime.Now - blockData.changed;
                 var seconds = elapsed.TotalSeconds;
-                print($"прошло времени {seconds}");
-                if(seconds > blockConfig.time)
+                //print($"прошло времени {seconds}");
+                if (seconds > blockConfig.time)
                 {
-
+                    InvokeBlockSimulation(blockData, simulationChunkData.ChunkPos, out var removeSimulationData);
+                    if (removeSimulationData)
+                    {
+                        needRemove.Add(blockData);
+                    }
                 }
             }
             else
             {
                 Debug.Log($"Э, хуйло добавь конфиг {blockData.blockID}");
             }
+        }
+
+        foreach (var expired in needRemove)
+        {
+            simulationChunkData.simulatableBlocks.Remove(expired);
+        }
+
+        if (needRemove.Count > 0)
+        {
+            SaveSimulationData(simulationChunkData);
+        }
+    }
+
+    void InvokeBlockSimulation(SimulatableBlockData blockData, Vector3 chunkPos, out bool removeSimulationData)
+    {
+        removeSimulationData = false;
+        switch (blockData.blockID)
+        {
+            case DIRT:
+                var chunckData = WorldData.GetChunkData(chunkPos);
+                var changedBlock = chunckData.changedBlocks.Find(b => b.Pos == blockData.localBlockPos);
+                if (changedBlock!= null)
+                {
+                    changedBlock.blockId = GRASS;
+                }
+                var x = blockData.localBlockPos.x;
+                var y = blockData.localBlockPos.y;
+                var z = blockData.localBlockPos.z;
+                chunckData.blocks[x, y, z] = GRASS;
+
+                onBlockChanged?.Invoke(chunkPos, blockData.localBlockPos, GRASS);
+
+                //print($"Есть шо {changedBlock}");
+                WorldData.SaveChunkData(chunckData, chunkPos);
+                removeSimulationData = true;
+                break;
         }
     }
 
@@ -169,7 +211,15 @@ public class WorldSimulation : MonoBehaviour
         }
     }
 
-    string GetChunckDataFileName(Vector3 chunckPos)
+    void SaveSimulationData(SimulationChunkData simulationChunkData)
+    {
+        var fileName = GetChunkDataFileName(simulationChunkData.ChunkPos);
+        var path = $"{simulationDataDirectory}{fileName}.json";
+        var json = JsonConvert.SerializeObject(simulationChunkData);
+        File.WriteAllText(path, json);
+    }
+
+    string GetChunkDataFileName(Vector3 chunckPos)
     {
         return $"{chunckPos.x}_{chunckPos.y}_{chunckPos.z}";
     }

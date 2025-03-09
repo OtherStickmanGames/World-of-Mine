@@ -28,6 +28,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     public static UnityEvent<MonoBehaviour> onMineSpawn = new UnityEvent<MonoBehaviour>();
     public static UnityEvent<MonoBehaviour> onOwnerPositionSet = new UnityEvent<MonoBehaviour>();
+    public static UnityEvent<MonoBehaviour> onAnyPlayerSpawn = new();
     public UnityEvent<byte> onBlockInteract = new UnityEvent<byte>();
 
     ThirdPersonController thirdPersonController;
@@ -45,7 +46,9 @@ public class PlayerBehaviour : MonoBehaviour
 
         defaultBottomClamp = thirdPersonController.BottomClamp;
         defaultTopClamp = thirdPersonController.TopClamp;
-        
+
+        onAnyPlayerSpawn?.Invoke(this);
+
         if (IsOwner)
         {
             onMineSpawn?.Invoke(this);

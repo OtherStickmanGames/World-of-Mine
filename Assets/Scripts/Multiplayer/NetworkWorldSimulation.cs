@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class NetworkWorldSimulation : NetworkBehaviour
 {
+    List<MonoBehaviour> players = new();
+
     private void Start()
     {
         NetworkManager.OnClientStarted += Client_Started;
@@ -16,6 +18,23 @@ public class NetworkWorldSimulation : NetworkBehaviour
     private void Server_Started()
     {
         WorldSimulation.Single.StartSimulation();
+        WorldSimulation.onBlockChanged.AddListener(Block_Changed);
+        PlayerBehaviour.onAnyPlayerSpawn.AddListener(AnyPlayer_Spawned);
+    }
+
+    private void AnyPlayer_Spawned(MonoBehaviour player)
+    {
+        players.Add(player);
+    }
+
+    private void Block_Changed(Vector3 chunkPos, Vector3Int localBlockPos, byte blockID)
+    {
+        foreach (var player in players)
+        {
+
+        }
+
+        print("ебаный...");
     }
 
     private void Client_Started()

@@ -254,7 +254,7 @@ public class WorldSimulation : MonoBehaviour
                     {
                         name = "DIRT",
                         blockID = 4,
-                        time = 60 * 3,
+                        time = 6 * 3,
                     }
                 }
             };

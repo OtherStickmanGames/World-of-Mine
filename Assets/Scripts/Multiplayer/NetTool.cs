@@ -13,6 +13,15 @@ public static class NetTool
         return clientRpcParams;
     }
 
+    public static ClientRpcParams GetTargetClientParams(params ulong[] clientId)
+    {
+        ClientRpcParams clientRpcParams = default;
+        clientRpcParams.Send.TargetClientIds = clientId;
+
+        return clientRpcParams;
+    }
+
+
     public static ClientRpcParams GetTargetClientParams(ulong clientId)
     {
         ClientRpcParams clientRpcParams = default;

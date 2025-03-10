@@ -29,12 +29,32 @@ public class NetworkWorldSimulation : NetworkBehaviour
 
     private void Block_Changed(Vector3 chunkPos, Vector3Int localBlockPos, byte blockID)
     {
+        List<ulong> clientIds = new();
         foreach (var player in players)
         {
+            if (!player)
+                continue;
 
+            var dist = Vector3.Distance(chunkPos, player.transform.position);
+            if (dist < WorldGenerator.size * 18)
+            {
+                var networkBeh = player.GetComponent<NetworkObject>();
+                clientIds.Add(networkBeh.OwnerClientId);
+            }
         }
+        var crp = NetTool.GetTargetClientParams(clientIds.ToArray());
+        //foreach (var item in crp.Send.TargetClientIds)
+        //{
+        //    print(item + " =-=-=-=-=-=-");
+        //}
+        ReceiveChangeBlockClientRpc(chunkPos, localBlockPos, blockID, crp);
+    }
 
-        print("ебаный...");
+    [ClientRpc(RequireOwnership = false)]
+    private void ReceiveChangeBlockClientRpc(Vector3 chunkPos, Vector3Int localBlockPos, byte blockID, ClientRpcParams clientRpcParams = default)
+    {
+        print($"ебать че получил {chunkPos}");
+        WorldGenerator.Inst.SetBlockAndUpdateChunck(chunkPos + localBlockPos, blockID);
     }
 
     private void Client_Started()

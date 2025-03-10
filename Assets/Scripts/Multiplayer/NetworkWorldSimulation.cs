@@ -53,13 +53,26 @@ public class NetworkWorldSimulation : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveChangeBlockClientRpc(Vector3 chunkPos, Vector3Int localBlockPos, byte blockID, ClientRpcParams clientRpcParams = default)
     {
-        print($"ебать че получил {chunkPos}");
+        //print($"ебать че получил {chunkPos}");
         WorldGenerator.Inst.SetBlockAndUpdateChunck(chunkPos + localBlockPos, blockID);
     }
 
     private void Client_Started()
     {
         WorldSimulation.onPlaceBlock.AddListener(Block_Placed);
+        WorldSimulation.onBlockMine.AddListener(Block_Mined);
+    }
+
+    private void Block_Mined(ChunckComponent chunk, Vector3Int localBlockPos)
+    {
+        SendRemoveSimulatableBlocServerRpc(chunk.pos, localBlockPos);
+    }
+
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SendRemoveSimulatableBlocServerRpc(Vector3 chunkPos, Vector3Int localBlockPos, ServerRpcParams serverRpcParams = default)
+    {
+        WorldSimulation.Single.RemoveSimulatableBlockData(chunkPos, localBlockPos);
     }
 
     private void Block_Placed(ChunckComponent chunk, Vector3Int blockLocalPos, byte blockId)
@@ -83,5 +96,7 @@ public class NetworkWorldSimulation : NetworkBehaviour
     private void Client_Stopped(bool isHost_)
     {
         WorldSimulation.onPlaceBlock.RemoveListener(Block_Placed);
+        WorldSimulation.onBlockMine.RemoveListener(Block_Mined);
+
     }
 }

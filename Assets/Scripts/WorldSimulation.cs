@@ -17,6 +17,7 @@ using System.IO;
 public class WorldSimulation : MonoBehaviour
 {
     public static WorldSimulation Single;
+    public static UnityEvent<ChunckComponent, Vector3Int> onBlockMine = new();
     public static UnityEvent<ChunckComponent, Vector3Int, byte> onPlaceBlock = new();
     public static UnityEvent<Vector3, Vector3Int, byte> onBlockChanged = new();
 
@@ -37,9 +38,9 @@ public class WorldSimulation : MonoBehaviour
     private void Start()
     {
         LoadOrCreateSimulationConfig();
-    }
 
-    
+        WorldGenerator.onBlockPick.AddListener(Block_Mined);
+    }
 
     public void PlaceBlock(ChunckComponent chunk, Vector3 worldBlockPos, byte blockID)
     {
@@ -48,8 +49,13 @@ public class WorldSimulation : MonoBehaviour
         if (blockID == DIRT)
         {
             var localBlockPos = WorldGenerator.Inst.ToLocalBlockPos(worldBlockPos);
-            onPlaceBlock?.Invoke(chunk, localBlockPos, blockID);
+            InvokePlaceSimulatableBlock(chunk, localBlockPos, blockID);
         }
+    }
+
+    void InvokePlaceSimulatableBlock(ChunckComponent chunk, Vector3Int localBlockPos, byte blockID)
+    {
+        onPlaceBlock?.Invoke(chunk, localBlockPos, blockID);
     }
 
     public void SimalatebleBlockPlaced(Vector3 chunkPos, SimulatableBlockData data)
@@ -108,6 +114,50 @@ public class WorldSimulation : MonoBehaviour
 
         json = JsonConvert.SerializeObject(simulationChunkData);
         File.WriteAllText(path, json);
+    }
+
+    public void RemoveSimulatableBlockData(Vector3 chunkPos, Vector3Int localBlockPos)
+    {
+        CheckDirectory();
+
+        var fileName = GetChunkDataFileName(chunkPos);
+        var path = $"{simulationDataDirectory}{fileName}.json";
+
+        SimulationChunkData simulationChunkData = null;
+        string json;
+
+        if (simulationsChunks.ContainsKey(chunkPos))
+        {
+            simulationChunkData = simulationsChunks[chunkPos];
+        }
+        else
+        {
+            if (File.Exists(path))
+            {
+                json = File.ReadAllText(path);
+                simulationChunkData = JsonConvert.DeserializeObject<SimulationChunkData>(json);
+            }
+        }
+
+        if (simulationChunkData != null)
+        {
+            SimulatableBlockData found = default;
+            foreach (var block in simulationChunkData.simulatableBlocks)
+            {
+                if (block.localBlockPos == localBlockPos)
+                {
+                    found = block;
+                    break;
+                }
+            }
+            if (found.localBlockPos != default)
+            {
+                simulationChunkData.simulatableBlocks.Remove(found);
+
+                json = JsonConvert.SerializeObject(simulationChunkData);
+                File.WriteAllText(path, json);
+            }
+        }
     }
 
     public void StartSimulation()
@@ -263,6 +313,26 @@ public class WorldSimulation : MonoBehaviour
             File.WriteAllText(path, json);
         }
     }
+
+    private void Block_Mined(BlockData blockData)
+    {
+        var isSimulatable = blockData.ID is DIRT;
+        if (isSimulatable)
+        {
+            var chunk = WorldGenerator.Inst.GetChunk(blockData.pos);
+            var localBlockPos = WorldGenerator.Inst.ToLocalBlockPos(blockData.pos);
+            onBlockMine?.Invoke(chunk, localBlockPos);
+        }
+
+        var bottomBlockPos = blockData.pos + Vector3Int.down;
+        var bottomBlockID = WorldGenerator.Inst.GetBlockID(bottomBlockPos);
+        if (bottomBlockID is DIRT)
+        {
+            var chunk = WorldGenerator.Inst.GetChunk(bottomBlockPos);
+            var localBlockPos = WorldGenerator.Inst.ToLocalBlockPos(bottomBlockPos);
+            InvokePlaceSimulatableBlock(chunk, localBlockPos, bottomBlockID);
+        }
+    }
 }
 
 [Serializable]
@@ -299,5 +369,7 @@ public struct SimulatableBlockData : INetworkSerializable
         serializer.SerializeValue(ref changed);
     }
 }
+
+
 
 

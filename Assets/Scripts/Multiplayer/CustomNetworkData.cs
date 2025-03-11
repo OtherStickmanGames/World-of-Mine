@@ -69,7 +69,7 @@ public struct NetworkNewsData : INetworkSerializable
     public NetworkSurveyData[] survey;
 
     // Не передаю по сети
-    //[NonSerialized]
+    [NonSerialized]
     public AudioClip voiceClip;
     //[NonSerialized]
     public DateTime date;

@@ -188,7 +188,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 233, y: -376.7}
+  m_AnchoredPosition: {x: 233, y: -372.2}
   m_SizeDelta: {x: 466, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &7729156876594555748
@@ -220,10 +220,10 @@ MonoBehaviour:
   m_Padding:
     m_Left: 0
     m_Right: 0
-    m_Top: 9
+    m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 8
+  m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
@@ -426,6 +426,9 @@ MonoBehaviour:
   txtTitle: {fileID: 1111457757144202950}
   txtDate: {fileID: 6990180300945540981}
   txtDescription: {fileID: 7505274120931876999}
+  surveyVariantPrefab: {fileID: 7568659603796573966, guid: 0fc4b611842b6f349b61ad25cf70db02,
+    type: 3}
+  surveyParent: {fileID: 777441101970644568}
 --- !u!222 &5061832785498323472
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1007,7 +1010,7 @@ PrefabInstance:
     - target: {fileID: 895539353281102913, guid: 0fc4b611842b6f349b61ad25cf70db02,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -37.93
+      value: -10
       objectReference: {fileID: 0}
     - target: {fileID: 2084151030215269892, guid: 0fc4b611842b6f349b61ad25cf70db02,
         type: 3}
@@ -1092,7 +1095,7 @@ PrefabInstance:
     - target: {fileID: 2084151030215269892, guid: 0fc4b611842b6f349b61ad25cf70db02,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -66.93
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 2084151030215269892, guid: 0fc4b611842b6f349b61ad25cf70db02,
         type: 3}
@@ -1113,6 +1116,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Survey Variant Item
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574561568402255120, guid: 0fc4b611842b6f349b61ad25cf70db02,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574561568402255120, guid: 0fc4b611842b6f349b61ad25cf70db02,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7174534579365464667, guid: 0fc4b611842b6f349b61ad25cf70db02,
         type: 3}

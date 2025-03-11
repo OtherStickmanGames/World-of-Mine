@@ -10,11 +10,14 @@ public class SurveyVariantItem : MonoBehaviour
 {
     [SerializeField] private Button btnItem;
     [SerializeField] private TMP_Text title;
+    [SerializeField] private TMP_Text labelPercent;
     [SerializeField] RectTransform bar;
     [SerializeField] GameObject markerNoSelect;
     [SerializeField] GameObject markerSelected;
 
     [HideInInspector] public UnityEvent<SurveyVariantItem> onClick;
+
+    public int Votes { get; private set; }
 
     public void Init(string text)
     {
@@ -27,9 +30,17 @@ public class SurveyVariantItem : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
     }
 
+    public void SetVotes(int value)
+    {
+        Votes = value;
+    }
+
     private void Item_Clicked()
     {
+        Votes++;
         onClick?.Invoke(this);
+       
+        Select();
     }
 
     public void NoChoose()
@@ -37,6 +48,7 @@ public class SurveyVariantItem : MonoBehaviour
         markerNoSelect.SetActive(true);
         markerSelected.SetActive(false);
         bar.gameObject.SetActive(false);
+        labelPercent.gameObject.SetActive(false);
     }
 
     public void NoSelect()
@@ -44,6 +56,7 @@ public class SurveyVariantItem : MonoBehaviour
         markerNoSelect.SetActive(false);
         markerSelected.SetActive(false);
         bar.gameObject.SetActive(true);
+        labelPercent.gameObject.SetActive(true);
     }
 
     public void Select()
@@ -51,5 +64,39 @@ public class SurveyVariantItem : MonoBehaviour
         markerNoSelect.SetActive(false);
         markerSelected.SetActive(true);
         bar.gameObject.SetActive(true);
+        labelPercent.gameObject.SetActive(true);
     }
+
+    internal void SetVotesPercent(float percent)
+    {
+        labelPercent.SetText($"{percent:F0}%");
+
+        SetWidthByPercentage(bar, percent);
+    }
+
+    /// <summary>
+    /// Устанавливает ширину RectTransform в процентах от ширины его родителя.
+    /// </summary>
+    /// <param name="rectTransform">RectTransform, ширину которого необходимо изменить.</param>
+    /// <param name="percentage">Процент от полной (100%) ширины родителя (от 0 до 100).</param>
+    public static void SetWidthByPercentage(RectTransform rectTransform, float percentage)
+    {
+        // Проверка наличия родительского RectTransform
+        RectTransform parentRect = rectTransform.parent as RectTransform;
+        if (parentRect == null)
+        {
+            Debug.LogError("RectTransform не имеет родителя или родитель не является RectTransform.");
+            return;
+        }
+
+        // Получаем ширину родителя
+        float parentWidth = parentRect.rect.width;
+
+        // Вычисляем новую ширину
+        float newWidth = parentWidth * (percentage / 100f);
+
+        // Устанавливаем новую ширину, учитывая текущие анчоры
+        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, newWidth);
+    }
+
 }

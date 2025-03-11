@@ -43,6 +43,8 @@ public class ReleaseNotesHandler : NetworkBehaviour
         audioClipSender.onVoiceEndPlay.AddListener(PlayVoice_Ended);
 
         //StartCoroutine(TestLoad());
+
+        //CreateJsonTemplate();
     }
 
 
@@ -61,6 +63,23 @@ public class ReleaseNotesHandler : NetworkBehaviour
                 print($"{request.downloadHandler.text}");
             }
         }                
+    }
+
+    public void SurveySelect(string date, int idx)
+    {
+        SendSurveySelectServerRpc(date, idx);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SendSurveySelectServerRpc(string date, int idx, ServerRpcParams serverRpcParams = default)
+    {
+        date = date.Replace(".", "_");
+        var found = newsData.Find(n => n.name == date);
+        found.survey[idx].votes++;
+        var json = JsonConvert.SerializeObject(found);
+        print(json);
+        var path = $"{releaseNotesDirectory}{date}.json";
+        File.WriteAllText(path, json);
     }
 
     private void PlayVoice_Ended(AudioClip audio)
@@ -145,8 +164,9 @@ public class ReleaseNotesHandler : NetworkBehaviour
                     if (request.result == UnityWebRequest.Result.Success)
                     {
                         var json = request.downloadHandler.text;
-                        var data = JsonConvert.DeserializeObject<NetworkNewsData>(json);
                         var name = Path.GetFileName(filePath);
+                        
+                        var data = JsonConvert.DeserializeObject<NetworkNewsData>(json, settings);
                         name = name.Substring(0, name.IndexOf("."));
                         data.name = name;
                         data.date = DateTime.ParseExact(name, format, provider);
@@ -173,14 +193,14 @@ public class ReleaseNotesHandler : NetworkBehaviour
                     }
                     else
                     {
-                        Debug.LogError($"Error loading audio file: {request.error}");
+                        Debug.LogError($"Error loading json file: {request.error}");
                     }
                 }
             }
 
             newsData = newsData.OrderByDescending(n => n.date).ToList();
 
-            yield return new WaitForSeconds(80);
+            yield return new WaitForSeconds(180);
 
             StartCoroutine(LoadNoteFromFile());
         }
@@ -275,6 +295,19 @@ public class ReleaseNotesHandler : NetworkBehaviour
         var path = $"{releaseNotesDirectory}piso.json";
         File.WriteAllText(path, json);
     }
+
+    public static readonly JsonSerializerSettings settings = new()
+    {
+        TypeNameHandling = TypeNameHandling.Auto,
+        ObjectCreationHandling = ObjectCreationHandling.Replace,
+        NullValueHandling = NullValueHandling.Ignore,
+        MissingMemberHandling = MissingMemberHandling.Ignore,
+        Error = (sender, eventArgs) =>
+        {
+            Debug.LogError(
+                $"{eventArgs.ErrorContext.Error.Message} {eventArgs.ErrorContext.OriginalObject} {eventArgs.ErrorContext.Member}");
+        }
+    };
 }
 
 

@@ -56,7 +56,7 @@ public class WorldData : MonoBehaviour
         return $"{chunckPos.x}_{chunckPos.y}_{chunckPos.z}";
     }
 
-    private static readonly JsonSerializerSettings settings = new()
+    public static readonly JsonSerializerSettings settings = new()
     {
         TypeNameHandling = TypeNameHandling.Auto,
         ObjectCreationHandling = ObjectCreationHandling.Replace,

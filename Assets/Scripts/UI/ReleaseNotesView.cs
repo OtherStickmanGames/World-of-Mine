@@ -22,6 +22,16 @@ public class ReleaseNotesView : MonoBehaviour
         var view = Instantiate(noteViewPrefab, notesParent);
         view.Init();
         view.Fill(data.title, data.name.Replace("_", "."), data.text);
+        if(data.survey.Length > 0)
+        {
+            view.FillSurvey(data.survey);
+            view.onSurveyClick.AddListener(Survey_Clicked);
+        }
+    }
+
+    private void Survey_Clicked(int surveyIdx)
+    {
+
     }
 
     private void NewsData_Received(List<NetworkNewsData> newsData)

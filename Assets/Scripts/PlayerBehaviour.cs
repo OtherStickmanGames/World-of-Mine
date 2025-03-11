@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
+using static BLOCKS;
 
 [DefaultExecutionOrder(108)]
 public class PlayerBehaviour : MonoBehaviour
@@ -395,6 +396,7 @@ public class PlayerBehaviour : MonoBehaviour
             
             if (player.inventory.CurrentSelectedItem != null)
             {
+                var worldBlockPos = blockPosition + Vector3.right;
 
                 var item = player.inventory.CurrentSelectedItem;
                 // зачем-то нужно прибавл€ть 1 по оси X, хз почему так, но именно так работает
@@ -451,7 +453,6 @@ public class PlayerBehaviour : MonoBehaviour
                     }
                 }
 
-                var worldBlockPos = blockPosition + Vector3.right;
                 if (isTurnableBlock)
                 {
                     WorldGenerator.Inst.PlaceTurnedBlock
@@ -472,6 +473,7 @@ public class PlayerBehaviour : MonoBehaviour
             }
         }
     }
+    
 
     public bool IsTurnableBlock(byte blockID)
     {

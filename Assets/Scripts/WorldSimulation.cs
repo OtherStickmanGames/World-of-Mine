@@ -50,6 +50,28 @@ public class WorldSimulation : MonoBehaviour
         {
             var localBlockPos = WorldGenerator.Inst.ToLocalBlockPos(worldBlockPos);
             InvokePlaceSimulatableBlock(chunk, localBlockPos, blockID);
+
+            var bottomBlockPos = worldBlockPos + Vector3Int.down;
+            var bottomBlockID = WorldGenerator.Inst.GetBlockID(bottomBlockPos);
+            if (bottomBlockID is DIRT)
+            {
+                var bottomChunk = WorldGenerator.Inst.GetChunk(bottomBlockPos);
+                var bottomLocalPos = WorldGenerator.Inst.ToLocalBlockPos(bottomBlockPos);
+                onBlockMine?.Invoke(bottomChunk, bottomLocalPos);
+            }
+        }
+
+        CheckBottomBlock(worldBlockPos, blockID);
+    }
+
+    void CheckBottomBlock(Vector3 worldBlockPos, byte blockID)
+    {
+        var bottomBlockPos = worldBlockPos + Vector3Int.down;
+        var bottomBlockID = WorldGenerator.Inst.GetBlockID(bottomBlockPos);
+        if (blockID is DIRT or GRASS && bottomBlockID is GRASS)
+        {
+            WorldGenerator.Inst.PlaceBlock(bottomBlockPos, DIRT);
+            WorldGenerator.Inst.SetBlockAndUpdateChunck(bottomBlockPos, DIRT);
         }
     }
 

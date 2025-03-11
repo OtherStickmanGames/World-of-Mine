@@ -252,9 +252,20 @@ public class WorldSimulation : MonoBehaviour
             case DIRT:
                 var chunckData = WorldData.GetChunkData(chunkPos);
                 var changedBlock = chunckData.changedBlocks.Find(b => b.Pos == blockData.localBlockPos);
-                if (changedBlock!= null)
+                if (changedBlock != null)
                 {
                     changedBlock.blockId = GRASS;
+                }
+                else
+                {
+                    changedBlock = new ChunckData.JsonBlockData()
+                    {
+                        blockId = GRASS,
+                        posX = blockData.localBlockPos.x,
+                        posY = blockData.localBlockPos.y,
+                        posZ = blockData.localBlockPos.z
+                    };
+                    chunckData.changedBlocks.Add(changedBlock);
                 }
                 var x = blockData.localBlockPos.x;
                 var y = blockData.localBlockPos.y;

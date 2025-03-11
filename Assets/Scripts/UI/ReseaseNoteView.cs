@@ -49,6 +49,29 @@ public class ReseaseNoteView : MonoBehaviour
 
             surveyItems.Add(view);
         }
+
+        var ppKey = txtDate.text;
+        if (PlayerPrefs.HasKey(ppKey))
+        {
+            var idx = PlayerPrefs.GetInt(ppKey);
+            var votes = surveyItems.Select(s => s.Votes).ToArray();
+            var votesPercentge = CalculatePercentageDistribution(votes);
+
+            for (int i = 0; i < surveyItems.Count; i++)
+            {
+                var view = surveyItems[i];
+                view.SetVotesPercent(votesPercentge[i]);
+
+                if (i == idx)
+                {
+                    view.Select();
+                }
+                else
+                {
+                    view.NoSelect();
+                }
+            }
+        }
     }
 
     private void Survey_Clicked(SurveyVariantItem surveyView)
@@ -70,6 +93,10 @@ public class ReseaseNoteView : MonoBehaviour
 
         var idxSurvey = surveyView.transform.GetSiblingIndex();
         ReleaseNotesHandler.Singleton.SurveySelect(txtDate.text, idxSurvey);
+
+        var ppKey = txtDate.text;
+        PlayerPrefs.SetInt(ppKey, idxSurvey);
+        PlayerPrefs.Save();
         //onSurveyClick?.Invoke(surveyView.transform.GetSiblingIndex());
     }
 

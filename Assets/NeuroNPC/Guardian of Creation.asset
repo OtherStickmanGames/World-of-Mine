@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42ee5d0a84f3ecb488f16984ba0f2bd2, type: 3}
+  m_Name: Guardian of Creation
+  m_EditorClassIdentifier: 
+  title: "\u0421\u0442\u0440\u0430\u0436 \u0421\u043E\u0437\u0438\u0434\u0430\u043D\u0438\u044F"
+  profType: 1
+  requirements:
+  - {fileID: 11400000, guid: c95c25d671a8cf1448bf732e8a0e5fcd, type: 2}
+  - {fileID: 11400000, guid: a2c1bf55d17816743af05573175c9105, type: 2}
+  - {fileID: 11400000, guid: fb2400564a5a14046be9da5d415a0020, type: 2}

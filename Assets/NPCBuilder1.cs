@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Ururu
+namespace ebalo
 {
     // Структура, описывающая данные блока в чертеже (локальная позиция и id блока)
     public struct BlockData
@@ -41,13 +41,16 @@ namespace Ururu
             {
                 blueprint.Add(new BlockData() { blockID = item.blockId, localPosition = item.Pos });
             }
-            Debug.Log("Блоков в чертеже: " + blueprint.Count);
+            print(blueprint.Count);
         }
 
         private void Update()
         {
             player ??= FindObjectOfType<PlayerBehaviour>();
             agent ??= GetComponent<NavMeshAgent>();
+
+            
+
 
             if (Input.GetKeyDown(KeyCode.J))
             {
@@ -57,17 +60,21 @@ namespace Ururu
                 {
                     agent.enabled = false;
                     transform.position = player.transform.position + (player.transform.forward * 3) + (Vector3.up * 3);
+
                     yield return null;
+
                     agent.enabled = true;
                 }
+
             }
             if (Input.GetKeyDown(KeyCode.K))
             {
+                 
                 agent.SetDestination(player.transform.position + player.transform.forward);
             }
+
             if (Input.GetKeyDown(KeyCode.B))
             {
-                // Вычисляем точку, откуда начнём строительство (можно задать по логике игры)
                 var playerNearPos = player.transform.position + player.transform.forward + Vector3.up;
                 StartCoroutine(BuildHouse(playerNearPos, blueprint));
             }
@@ -76,30 +83,25 @@ namespace Ururu
         // Главный метод строительства дома по чертежу (blueprint)
         public IEnumerator BuildHouse(Vector3 basePosition, List<BlockData> blueprint)
         {
-            // Создаём набор позиций, где будут строиться блоки (глобальные координаты)
-            HashSet<Vector3> blueprintPositions = new HashSet<Vector3>();
-            foreach (BlockData block in blueprint)
-            {
-                blueprintPositions.Add(basePosition + block.localPosition);
-            }
-
-            // Сортируем блоки по высоте (фундамент, затем стены, крыша и т.д.)
+            // Сортируем блоки по высоте (сначала фундамент, затем стены, крыша и т.д.)
             List<BlockData> orderedBlueprint = OrderBlueprint(blueprint);
 
             foreach (BlockData block in orderedBlueprint)
             {
+                // Вычисляем глобальную позицию блока: базовая точка + локальные координаты
                 Vector3 globalPos = basePosition + block.localPosition;
 
-                // 1. Если на месте уже есть блок, не соответствующий чертеже, очищаем место
+                // 1. Если на месте установки уже есть блок, который не соответствует чертежу, очищаем место
                 yield return StartCoroutine(ClearObstructionsAt(globalPos, block));
 
-                // 2. Если блок не пустой и под ним нет опоры, обеспечиваем доступ
+                // 2. Если блок не пустой и под ним нет опоры, нужно обеспечить доступ:
                 if (block.blockID != 0 && !IsSupported(globalPos))
                 {
-                    yield return StartCoroutine(BuildSmartScaffolding(globalPos, blueprintPositions));
+                    // Строим умное опорное сооружение (если зазор большой – лестницу, иначе – вертикальную колонну)
+                    yield return StartCoroutine(BuildSmartScaffolding(globalPos));
                 }
 
-                // 3. Находим точку подхода через NavMesh и перемещаемся туда
+                // 3. Находим подходящую точку для подхода к позиции установки с помощью NavMesh
                 Vector3 approachPos = FindApproachPosition(globalPos);
                 yield return StartCoroutine(MoveToPosition(approachPos));
 
@@ -113,19 +115,9 @@ namespace Ururu
                     Debug.LogWarning("NPC не смог подойти достаточно близко для установки блока: " + globalPos);
                 }
 
-                // Задержка для плавности строительства
+                // Небольшая задержка между установкой блоков для плавности
                 yield return new WaitForSeconds(0.2f);
             }
-
-           
-            // В конце метода BuildHouse, сразу после завершения установки всех блоков:
-            GetBuildingBounds(blueprint, basePosition, out Vector3 buildingCenter, out float buildingRadius);
-            Vector3 exitPos = FindExitPoint(buildingCenter, buildingRadius, 5f);
-            Debug.Log("Найден выход за постройкой: " + exitPos);
-            // Если NPC находится на крыше, то сначала построим лестницу для спуска:
-            yield return StartCoroutine(EnsureDescentLadder(exitPos));
-            // Затем переместимся к найденной точке выхода:
-            yield return StartCoroutine(MoveToPosition(exitPos));
         }
 
         // Сортировка блоков по высоте (от низших к высшим)
@@ -168,51 +160,37 @@ namespace Ururu
 
         // Построение умного опорного сооружения (scaffolding)
         // Если зазор невелик, строится вертикальная колонна, иначе – диагональная лестница
-        private IEnumerator BuildSmartScaffolding(Vector3 targetPos, HashSet<Vector3> blueprintPositions)
+        private IEnumerator BuildSmartScaffolding(Vector3 targetPos)
         {
             int gap = GetVerticalGap(targetPos);
             if (gap <= verticalGapThreshold)
             {
-                // Вертикальная колонна: идём вниз от targetPos
+                // Строим вертикальную колонну: ставим блоки непосредственно под целевым до обнаружения опоры
                 Vector3 scaffoldPos = targetPos + Vector3.down;
-                while (true)
+                while (!IsSupported(scaffoldPos))
                 {
-                    // Если данная позиция запланирована в чертеже, не ставим scaffolding
-                    if (blueprintPositions.Contains(scaffoldPos))
-                        break;
-
                     WorldGenerator.Inst.SetBlockAndUpdateChunck(scaffoldPos, scaffoldingBlockID);
-                    yield return null;
-
-                    // Если под следующим блоком уже есть опора, завершаем построение
-                    if (WorldGenerator.Inst.GetBlockID(scaffoldPos + Vector3.down) != 0)
-                        break;
-
+                    yield return null; // даем миру время обновиться
                     scaffoldPos += Vector3.down;
                 }
             }
             else
             {
-                // Диагональная лестница: выбираем оптимальное направление для построения
+                // Строим диагональную лестницу (широкую опору), чтобы NPC мог подъехать и спуститься
+                // Определяем оптимальное направление для строительства лестницы
                 Vector3 chosenDir = DetermineStairDirection(targetPos, gap);
                 if (chosenDir == Vector3.zero)
                 {
+                    // Если не удалось подобрать направление, используем стандартное (вперёд)
                     chosenDir = Vector3.forward;
                 }
                 Vector3 scaffoldPos = targetPos;
-                while (true)
+                // Строим до тех пор, пока не достигнем поддержки
+                while (!IsSupported(scaffoldPos))
                 {
                     scaffoldPos += (chosenDir + Vector3.down);
-
-                    // Если позиция scaffoldPos зарезервирована под будущий блок – прекращаем строительство опоры
-                    if (blueprintPositions.Contains(scaffoldPos))
-                        break;
-
                     WorldGenerator.Inst.SetBlockAndUpdateChunck(scaffoldPos, scaffoldingBlockID);
                     yield return null;
-
-                    if (WorldGenerator.Inst.GetBlockID(scaffoldPos + Vector3.down) != 0)
-                        break;
                 }
             }
         }
@@ -223,13 +201,13 @@ namespace Ururu
             Vector3 bestDir = Vector3.zero;
             float bestScore = float.MaxValue;
             List<Vector3> directions = new List<Vector3>
-            {
-                Vector3.forward, Vector3.back, Vector3.left, Vector3.right,
-                (Vector3.forward + Vector3.right).normalized,
-                (Vector3.forward + Vector3.left).normalized,
-                (Vector3.back + Vector3.right).normalized,
-                (Vector3.back + Vector3.left).normalized
-            };
+        {
+            Vector3.forward, Vector3.back, Vector3.left, Vector3.right,
+            (Vector3.forward + Vector3.right).normalized,
+            (Vector3.forward + Vector3.left).normalized,
+            (Vector3.back + Vector3.right).normalized,
+            (Vector3.back + Vector3.left).normalized
+        };
 
             foreach (Vector3 dir in directions)
             {
@@ -241,6 +219,7 @@ namespace Ururu
                     simPos += (dir + Vector3.down);
                     if (WorldGenerator.Inst.GetBlockID(simPos) != 0)
                     {
+                        // "Стоимость" направления – количество шагов до опоры
                         if (steps < bestScore)
                         {
                             bestScore = steps;
@@ -265,86 +244,15 @@ namespace Ururu
             return targetPos;
         }
 
-        // Перемещение NPC к заданной позиции с использованием NavMeshAgent с таймаутами и логированием
+        // Перемещение NPC к заданной позиции с использованием NavMeshAgent
         private IEnumerator MoveToPosition(Vector3 destination)
         {
             NavMeshAgent agent = GetComponent<NavMeshAgent>();
             agent.SetDestination(destination);
-            float timeout = 5f;
-            float timer = 0f;
             while (agent.pathPending || agent.remainingDistance > approachDistance)
             {
-                timer += Time.deltaTime;
-                if (timer > timeout)
-                {
-                    Debug.LogWarning("MoveToPosition: Таймаут при попытке добраться до " + destination);
-                    // Можно добавить здесь логику по построению временной лестницы
-                    break;
-                }
                 yield return null;
             }
         }
-
-        // Метод для вычисления габаритов постройки (bounding box) и центра постройки
-        private void GetBuildingBounds(List<BlockData> blueprint, Vector3 basePosition, out Vector3 buildingCenter, out float buildingRadius)
-        {
-            Vector3 minPos = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            Vector3 maxPos = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-            foreach (var block in blueprint)
-            {
-                Vector3 globalPos = basePosition + block.localPosition;
-                minPos = Vector3.Min(minPos, globalPos);
-                maxPos = Vector3.Max(maxPos, globalPos);
-            }
-            buildingCenter = (minPos + maxPos) * 0.5f;
-            Vector3 size = maxPos - minPos;
-            // Для выхода нас интересуют только горизонтальные размеры
-            buildingRadius = Mathf.Max(size.x, size.z) * 0.5f;
-        }
-
-        // Поиск точки выхода на NavMesh за пределами постройки, исходя из центра и радиуса постройки
-        private Vector3 FindExitPoint(Vector3 buildingCenter, float buildingRadius, float safeDistance = 5f)
-        {
-            const int tries = 16;
-            float stepAngle = 360f / tries;
-            float searchRadius = buildingRadius + safeDistance;
-
-            for (int i = 0; i < tries; i++)
-            {
-                float angle = stepAngle * i;
-                Vector3 dir = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), 0, Mathf.Sin(angle * Mathf.Deg2Rad));
-                Vector3 candidate = buildingCenter + dir * searchRadius;
-                NavMeshHit hit;
-                if (NavMesh.SamplePosition(candidate, out hit, safeDistance, NavMesh.AllAreas))
-                {
-                    return hit.position;
-                }
-            }
-            // Если не нашли подходящую точку, возвращаем центр постройки
-            return buildingCenter;
-        }
-
-        // Новый метод, который строит лестницу для спуска, если NPC находится выше точки выхода:
-        private IEnumerator EnsureDescentLadder(Vector3 exitPoint)
-        {
-            Debug.Log("Проверка необходимости строительства лестницы для спуска.");
-            // Пока разница по высоте больше 1 блока, строим ступеньки:
-            while (transform.position.y - exitPoint.y > 1f)
-            {
-                Vector3 nextStep = transform.position + Vector3.down;
-                // Если под NPC пусто, ставим временный блок для лестницы:
-                if (WorldGenerator.Inst.GetBlockID(nextStep) == 0)
-                {
-                    WorldGenerator.Inst.SetBlockAndUpdateChunck(nextStep, scaffoldingBlockID);
-                    Debug.Log("Установлен блок лестницы на " + nextStep);
-                }
-                // Перемещаем NPC на следующий шаг (к ближайшей доступной точке):
-                yield return StartCoroutine(MoveToPosition(nextStep));
-                yield return new WaitForSeconds(0.1f);
-            }
-            Debug.Log("Лестница для спуска построена, NPC теперь ниже.");
-            yield return null;
-        }
     }
 }
-

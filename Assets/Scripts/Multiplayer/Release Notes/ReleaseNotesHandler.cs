@@ -279,7 +279,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
     {
         if (Input.GetKeyDown(KeyCode.V))
         {
-            audioClipSender.PlayAudio(clientNewsData[0].voiceClip);
+            audioClipSender?.PlayAudio(clientNewsData[0].voiceClip);
         }
     }
 

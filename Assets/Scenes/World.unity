@@ -786,7 +786,7 @@ MonoBehaviour:
   approachDistance: 1
   scaffoldingBlockID: 92
   verticalGapThreshold: 5
-  buildingData: {fileID: 4900000, guid: 89e101deff4d5c749940ad41c45f4c20, type: 3}
+  buildingData: {fileID: 4900000, guid: afb51391ef0fa4f408950e48121c104a, type: 3}
 --- !u!1 &328820647
 GameObject:
   m_ObjectHideFlags: 0

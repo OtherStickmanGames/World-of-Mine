@@ -21,6 +21,11 @@ namespace Ururu
         List<BlockData> blueprint;
 
         private Vector3 currentBuildingBasePosition;
+        private HashSet<Vector3> currentBlueprintPositions;
+        // Новое приватное поле для хранения позиций чертежа
+
+
+
 
 
         private void Start()
@@ -31,6 +36,8 @@ namespace Ururu
             {
                 blueprint.Add(new BlockData() { blockID = item.blockId, localPosition = item.Pos });
             }
+            blueprint = BlockUtils.FillBoundingBox(blueprint);
+
             Debug.Log("Блоков в чертеже: " + blueprint.Count);
         }
 
@@ -75,6 +82,9 @@ namespace Ururu
             {
                 blueprintPositions.Add(basePosition + block.localPosition);
             }
+            currentBlueprintPositions = blueprintPositions; // сохраняем для поиска пути
+
+           
 
             // Сортируем блоки по высоте (фундамент, затем стены, крыша и т.д.)
             List<BlockData> orderedBlueprint = OrderBlueprint(blueprint);
@@ -237,16 +247,6 @@ namespace Ururu
             }
 
             dir.y = (transform.position.y - 1) < ladderBase.y ? -1 : 1;
-
-
-            WorldGenerator.Inst.SetBlockAndUpdateChunck(ladderBase, 61);
-
-            WorldGenerator.Inst.SetBlockAndUpdateChunck(startLadderPos, 92);
-            yield return new WaitForSeconds(1f); // Задержка между шагами
-
-            Debug.LogError(height);
-
-            yield break;
 
             while (Vector3.Distance(ladderBase, startLadderPos) > 0.3f)
             {
@@ -432,45 +432,34 @@ namespace Ururu
 
         //}
 
-
-
-
         private IEnumerator MoveToPosition(Vector3 destination, bool canBuildLadder = true)
         {
             NavMeshAgent agent = GetComponent<NavMeshAgent>();
 
-            // Сначала пробуем построить путь
             NavMeshPath path = new NavMeshPath();
             agent.CalculatePath(destination, path);
 
-            // Если путь не полный и мы ещё не пробовали строить лестницу — строим
             if (canBuildLadder && path.status != NavMeshPathStatus.PathComplete)
             {
-                Debug.Log($"MoveToPosition: Путь до {destination} не найден (PathComplete = {path.status}). Пытаемся построить лестницу.");
-                yield return StartCoroutine(BuildLadderForBlock(destination));
-
-                // После строительства лестницы пробуем ещё раз, но уже без повторного строительства
+                Debug.Log($"MoveToPosition: Путь до {destination} не найден через NavMesh (PathComplete = {path.status}). Запускаем построение scaffolding.");
+                yield return StartCoroutine(BuildPathScaffolding(destination));
                 yield return StartCoroutine(MoveToPosition(destination, false));
                 yield break;
             }
 
-            // Устанавливаем путь
             agent.SetPath(path);
 
-            // Локальные переменные для проверки "застревания"
-            float noMovementTimeout = 5f;       // Время, после которого считаем, что NPC «застрял» физически (не двигается)
-            float noProgressTimeout = 5f;       // Время, после которого считаем, что NPC «застрял по прогрессу» (движется, но не становится ближе)
-            float stuckTimer = 0f;             // Счётчик для физического застревания
-            float progressTimer = 0f;          // Счётчик для отсутствия прогресса
+            float noMovementTimeout = 5f;
+            float noProgressTimeout = 5f;
+            float stuckTimer = 0f;
+            float progressTimer = 0f;
             Vector3 lastPosition = agent.transform.position;
             float lastDistanceToDest = (path.corners.Length > 0)
                 ? Vector3.Distance(agent.transform.position, path.corners[path.corners.Length - 1])
                 : Vector3.Distance(agent.transform.position, destination);
 
-            // Цикл ожидания, пока агент не достигнет цели
             while (agent.pathPending || agent.remainingDistance > approachDistance)
             {
-                // 1) Проверка «физического» движения (не стоит ли агент на месте)
                 float distanceMoved = Vector3.Distance(agent.transform.position, lastPosition);
                 bool isMoving = distanceMoved > 0.01f;
                 if (!isMoving)
@@ -478,12 +467,10 @@ namespace Ururu
                     stuckTimer += Time.deltaTime;
                     if (stuckTimer > noMovementTimeout)
                     {
-                        Debug.Log($"MoveToPosition: Агент физически застрял у {agent.transform.position}, не двигается к {destination}.");
-
-                        // Если можем строить лестницу — пробуем
+                        Debug.Log($"MoveToPosition: Агент физически застрял у {agent.transform.position}.");
                         if (canBuildLadder)
                         {
-                            yield return StartCoroutine(BuildLadderForBlock(destination));
+                            yield return StartCoroutine(BuildPathScaffolding(destination));
                             yield return StartCoroutine(MoveToPosition(destination, false));
                         }
                         yield break;
@@ -494,20 +481,16 @@ namespace Ururu
                     stuckTimer = 0f;
                 }
 
-                // 2) Проверка «прогресса» (сокращается ли расстояние до конечной точки)
-                float currentDistanceToDest = agent.remainingDistance; // или вычислять по path.corners
+                float currentDistanceToDest = agent.remainingDistance;
                 if (currentDistanceToDest >= lastDistanceToDest - 0.05f)
                 {
-                    // Расстояние не уменьшилось (или даже увеличилось)
                     progressTimer += Time.deltaTime;
                     if (progressTimer > noProgressTimeout)
                     {
                         Debug.Log($"MoveToPosition: Агент не приближается к {destination}, текущее расстояние = {currentDistanceToDest}");
-
-                        // Если можем строить лестницу — пробуем
                         if (canBuildLadder)
                         {
-                            yield return StartCoroutine(BuildLadderForBlock(destination));
+                            yield return StartCoroutine(BuildPathScaffolding(destination));
                             yield return StartCoroutine(MoveToPosition(destination, false));
                         }
                         yield break;
@@ -515,15 +498,104 @@ namespace Ururu
                 }
                 else
                 {
-                    // Есть прогресс — сбрасываем таймер
                     progressTimer = 0f;
                 }
                 lastDistanceToDest = currentDistanceToDest;
                 lastPosition = agent.transform.position;
-
                 yield return null;
             }
         }
+
+
+        //private IEnumerator MoveToPosition(Vector3 destination, bool canBuildLadder = true)
+        //{
+        //    NavMeshAgent agent = GetComponent<NavMeshAgent>();
+
+        //    // Сначала пробуем построить путь
+        //    NavMeshPath path = new NavMeshPath();
+        //    agent.CalculatePath(destination, path);
+
+        //    // Если путь не полный и мы ещё не пробовали строить лестницу — строим
+        //    if (canBuildLadder && path.status != NavMeshPathStatus.PathComplete)
+        //    {
+        //        Debug.Log($"MoveToPosition: Путь до {destination} не найден (PathComplete = {path.status}). Пытаемся построить лестницу.");
+        //        yield return StartCoroutine(BuildLadderForBlock(destination));
+
+        //        // После строительства лестницы пробуем ещё раз, но уже без повторного строительства
+        //        yield return StartCoroutine(MoveToPosition(destination, false));
+        //        yield break;
+        //    }
+
+        //    // Устанавливаем путь
+        //    agent.SetPath(path);
+
+        //    // Локальные переменные для проверки "застревания"
+        //    float noMovementTimeout = 5f;       // Время, после которого считаем, что NPC «застрял» физически (не двигается)
+        //    float noProgressTimeout = 5f;       // Время, после которого считаем, что NPC «застрял по прогрессу» (движется, но не становится ближе)
+        //    float stuckTimer = 0f;             // Счётчик для физического застревания
+        //    float progressTimer = 0f;          // Счётчик для отсутствия прогресса
+        //    Vector3 lastPosition = agent.transform.position;
+        //    float lastDistanceToDest = (path.corners.Length > 0)
+        //        ? Vector3.Distance(agent.transform.position, path.corners[path.corners.Length - 1])
+        //        : Vector3.Distance(agent.transform.position, destination);
+
+        //    // Цикл ожидания, пока агент не достигнет цели
+        //    while (agent.pathPending || agent.remainingDistance > approachDistance)
+        //    {
+        //        // 1) Проверка «физического» движения (не стоит ли агент на месте)
+        //        float distanceMoved = Vector3.Distance(agent.transform.position, lastPosition);
+        //        bool isMoving = distanceMoved > 0.01f;
+        //        if (!isMoving)
+        //        {
+        //            stuckTimer += Time.deltaTime;
+        //            if (stuckTimer > noMovementTimeout)
+        //            {
+        //                Debug.Log($"MoveToPosition: Агент физически застрял у {agent.transform.position}, не двигается к {destination}.");
+
+        //                // Если можем строить лестницу — пробуем
+        //                if (canBuildLadder)
+        //                {
+        //                    yield return StartCoroutine(BuildLadderForBlock(destination));
+        //                    yield return StartCoroutine(MoveToPosition(destination, false));
+        //                }
+        //                yield break;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            stuckTimer = 0f;
+        //        }
+
+        //        // 2) Проверка «прогресса» (сокращается ли расстояние до конечной точки)
+        //        float currentDistanceToDest = agent.remainingDistance; // или вычислять по path.corners
+        //        if (currentDistanceToDest >= lastDistanceToDest - 0.05f)
+        //        {
+        //            // Расстояние не уменьшилось (или даже увеличилось)
+        //            progressTimer += Time.deltaTime;
+        //            if (progressTimer > noProgressTimeout)
+        //            {
+        //                Debug.Log($"MoveToPosition: Агент не приближается к {destination}, текущее расстояние = {currentDistanceToDest}");
+
+        //                // Если можем строить лестницу — пробуем
+        //                if (canBuildLadder)
+        //                {
+        //                    yield return StartCoroutine(BuildLadderForBlock(destination));
+        //                    yield return StartCoroutine(MoveToPosition(destination, false));
+        //                }
+        //                yield break;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            // Есть прогресс — сбрасываем таймер
+        //            progressTimer = 0f;
+        //        }
+        //        lastDistanceToDest = currentDistanceToDest;
+        //        lastPosition = agent.transform.position;
+
+        //        yield return null;
+        //    }
+        //}
 
 
         private void GetBuildingBounds(List<BlockData> blueprint, Vector3 basePosition, out Vector3 buildingCenter, out float buildingRadius, out Vector3 size)
@@ -559,6 +631,507 @@ namespace Ururu
             }
             return buildingCenter;
         }
+
+        private IEnumerator BuildPathScaffolding(Vector3 destination)
+        {
+            // Получаем целочисленные позиции агента и цели
+            Vector3Int agentPos = new Vector3Int(
+                Mathf.FloorToInt(transform.position.x),
+                Mathf.FloorToInt(transform.position.y-1.1f),
+                Mathf.FloorToInt(transform.position.z)
+            );
+            Vector3Int destPos = new Vector3Int(
+                Mathf.FloorToInt(destination.x),
+                Mathf.FloorToInt(destination.y),// !!!!!!
+                Mathf.FloorToInt(destination.z)
+            );
+
+            // Смещаем обе позиции на один блок вниз
+            //agentPos.y -= 1;
+            //destPos.y -= 1;
+
+            List<Vector3Int> path = null;
+            if (agentPos.y != destPos.y)
+            {
+                Debug.Log("Высоты отличаются – ищем путь ступеньками через AStarPath3D.");
+                yield return StartCoroutine(AStarPath3DCoroutine(agentPos, destPos, currentBlueprintPositions, result => path = result));
+            }
+            else
+            {
+                Debug.Log("Высоты совпадают – ищем горизонтальный путь для моста.");
+                yield return StartCoroutine(AStarPathCoroutine(agentPos, destPos, currentBlueprintPositions, result => path = result));
+            }
+
+            if (path == null)
+            {
+                Debug.Log("Не удалось найти путь для scaffolding.");
+                yield break;
+            }
+
+            Debug.Log("Найден путь для scaffolding, длина: " + path.Count);
+            foreach (Vector3Int cell in path)
+            {
+                // Если в ячейке пусто – ставим scaffolding-блок
+                if (WorldGenerator.Inst.GetBlockID(cell) == 0)
+                {
+                    WorldGenerator.Inst.SetBlockAndUpdateChunck(cell, scaffoldingBlockID);
+                    Debug.Log("Поставлен scaffolding блок на " + cell);
+                    //yield return StartCoroutine(MoveToPosition(cell, false));
+                    yield return new WaitForSeconds(0.1f);
+                }
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(1f);
+
+            // После построения scaffolding, перемещаемся к цели,
+            // смещённой также на один блок вниз
+            Vector3 destinationOffset = destination + Vector3.down;
+            yield return StartCoroutine(MoveToPosition(destinationOffset, false));
+        }
+
+
+        private IEnumerator BuildBridgeToPoint(Vector3Int start, Vector3Int goal)
+        {
+            // Для моста фиксируем высоту start.y
+            Vector3Int s = new Vector3Int(start.x, start.y, start.z);
+            Vector3Int g = new Vector3Int(goal.x, start.y, goal.z);
+
+            List<Vector3Int> path = null;
+            yield return StartCoroutine(AStarPathCoroutine(s, g, currentBlueprintPositions, result => path = result));
+
+            if (path == null)
+            {
+                Debug.Log("Не удалось найти горизонтальный путь для моста.");
+                yield break;
+            }
+
+            Debug.Log("Горизонтальный путь найден для моста, длина: " + path.Count);
+            foreach (Vector3Int cell in path)
+            {
+                if (WorldGenerator.Inst.GetBlockID(cell) == 0)
+                {
+                    WorldGenerator.Inst.SetBlockAndUpdateChunck(cell, scaffoldingBlockID);
+                    Debug.Log("Поставлен блок моста на " + cell);
+                    yield return new WaitForSeconds(0.1f);
+                }
+                yield return null;
+            }
+
+            Debug.Log("Мост построен от " + s + " до " + g);
+        }
+
+
+        private IEnumerator BuildStairsToPoint(Vector3Int start, Vector3Int goal)
+        {
+            Vector3Int current = start;
+            // Определяем направление по Y: если агент выше цели, нужно спускаться, иначе подниматься
+            int verticalStep = (current.y > goal.y) ? -1 : 1;
+
+            int maxSteps = 100;
+            int steps = 0;
+
+            while ((current.x != goal.x || current.z != goal.z || current.y != goal.y) && steps < maxSteps)
+            {
+                // Вычисляем горизонтальное направление от current к goal
+                int dx = goal.x - current.x;
+                int dz = goal.z - current.z;
+                int stepX = (dx == 0) ? 0 : (dx > 0 ? 1 : -1);
+                int stepZ = (dz == 0) ? 0 : (dz > 0 ? 1 : -1);
+
+                // Для ступенек будем пытаться двигаться диагонально: горизонтальное смещение + вертикальное изменение
+                Vector3Int next = new Vector3Int(current.x + stepX, current.y + verticalStep, current.z + stepZ);
+
+                // Если по какой-либо оси разница равна нулю, оставляем без смещения
+                if (dx == 0) next.x = current.x;
+                if (dz == 0) next.z = current.z;
+
+                // Если следующий шаг входит в ячейку постройки, попробуем только горизонтальный сдвиг
+                Vector3 nextF = new Vector3(next.x, next.y, next.z);
+                if (currentBlueprintPositions.Contains(nextF))
+                {
+                    Vector3Int alt = new Vector3Int(current.x + stepX, current.y, current.z + stepZ);
+                    next = alt;
+                }
+
+                // Ставим блок, если ячейка пуста
+                if (WorldGenerator.Inst.GetBlockID(next) == 0)
+                {
+                    WorldGenerator.Inst.SetBlockAndUpdateChunck(next, scaffoldingBlockID);
+                    Debug.Log("Установлен блок ступеньки на " + next);
+                    yield return new WaitForSeconds(0.1f);
+                }
+
+                current = next;
+                steps++;
+                yield return null;
+            }
+
+            Debug.Log("Ступеньки построены от " + start + " до " + goal);
+        }
+
+        private IEnumerator AStarPath3DCoroutine(Vector3Int start, Vector3Int goal, HashSet<Vector3> blueprintPositions, System.Action<List<Vector3Int>> callback)
+        {
+            // Разрешённые направления: все комбинации dx,dy,dz из {-1,0,1}, кроме (0,0,0)
+            // и исключаем чисто вертикальные ходы (dy != 0, dx==0 и dz==0), чтобы агент не двигался просто по вертикали.
+            List<Vector3Int> allowedDirections = new List<Vector3Int>();
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    for (int dz = -1; dz <= 1; dz++)
+                    {
+                        if (dx == 0 && dy == 0 && dz == 0)
+                            continue;
+                        if (dy != 0 && dx == 0 && dz == 0)
+                            continue;
+                        allowedDirections.Add(new Vector3Int(dx, dy, dz));
+                    }
+                }
+            }
+
+            Dictionary<Vector3Int, Node> openSet = new Dictionary<Vector3Int, Node>();
+            HashSet<Vector3Int> closedSet = new HashSet<Vector3Int>();
+
+            Node startNode = new Node(start);
+            startNode.gCost = 0;
+            startNode.hCost = ManhattanDistance(start, goal);
+            openSet.Add(start, startNode);
+
+            int iterations = 0;
+            int maxIterations = 10000;
+            while (openSet.Count > 0)
+            {
+                iterations++;
+                if (iterations % 50 == 0)
+                    yield return null; // даём время корутине
+
+                if (iterations > maxIterations)
+                {
+                    Debug.LogWarning("AStarPath3DCoroutine: достигнут максимум итераций, возможный цикл.");
+                    callback(null);
+                    yield break;
+                }
+
+                // Берём узел с минимальным fCost
+                Node current = openSet.Values.OrderBy(n => n.fCost).First();
+                if (current.position == goal)
+                {
+                    List<Vector3Int> path = new List<Vector3Int>();
+                    while (current != null)
+                    {
+                        path.Add(current.position);
+                        current = current.parent;
+                    }
+                    path.Reverse();
+                    callback(path);
+                    yield break;
+                }
+
+                openSet.Remove(current.position);
+                closedSet.Add(current.position);
+
+                foreach (var dir in allowedDirections)
+                {
+                    Vector3Int neighborPos = current.position + dir;
+                    if (closedSet.Contains(neighborPos))
+                        continue;
+
+                    Vector3 neighborF = new Vector3(neighborPos.x, neighborPos.y, neighborPos.z);
+                    // Если ячейка не входит в blueprint и занята (не пуста), пропускаем её
+                    if (!blueprintPositions.Contains(neighborF) && WorldGenerator.Inst.GetBlockID(neighborPos) != 0)
+                        continue;
+
+                    // Проверяем, что над ячейкой свободно две ячейки
+                    if (WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up) != 0 ||
+                        WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 2) != 0)
+                        continue;
+
+                    float tentativeG = current.gCost + 1f;
+                    Node neighbor;
+                    if (openSet.TryGetValue(neighborPos, out neighbor))
+                    {
+                        if (tentativeG < neighbor.gCost)
+                        {
+                            neighbor.gCost = tentativeG;
+                            neighbor.parent = current;
+                        }
+                    }
+                    else
+                    {
+                        neighbor = new Node(neighborPos);
+                        neighbor.gCost = tentativeG;
+                        neighbor.hCost = ManhattanDistance(neighborPos, goal);
+                        neighbor.parent = current;
+                        openSet.Add(neighborPos, neighbor);
+                    }
+                }
+
+
+                //foreach (var dir in allowedDirections)
+                //{
+                //    Vector3Int neighborPos = current.position + dir;
+                //    if (closedSet.Contains(neighborPos))
+                //        continue;
+
+                //    // Если ячейка занята чертежом, пропускаем её
+                //    Vector3 neighborFloat = new Vector3(neighborPos.x, neighborPos.y, neighborPos.z);
+                //    if (blueprintPositions.Contains(neighborFloat))
+                //        continue;
+
+                //    // Проверяем проходимость: ячейка и ячейка сверху должны быть пустыми
+                //    if (WorldGenerator.Inst.GetBlockID(neighborPos) != 0 ||
+                //        WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up) != 0
+                //        || WorldGenerator.Inst.GetBlockID(neighborPos + (Vector3Int.up *2)) != 0)
+                //        continue;
+
+                //    float tentativeG = current.gCost + 1f;
+                //    Node neighbor;
+                //    if (openSet.TryGetValue(neighborPos, out neighbor))
+                //    {
+                //        if (tentativeG < neighbor.gCost)
+                //        {
+                //            neighbor.gCost = tentativeG;
+                //            neighbor.parent = current;
+                //        }
+                //    }
+                //    else
+                //    {
+                //        neighbor = new Node(neighborPos);
+                //        neighbor.gCost = tentativeG;
+                //        neighbor.hCost = ManhattanDistance(neighborPos, goal);
+                //        neighbor.parent = current;
+                //        openSet.Add(neighborPos, neighbor);
+                //    }
+                //}
+            }
+            callback(null);
+            yield break;
+        }
+
+        private float ManhattanDistance(Vector3Int a, Vector3Int b)
+        {
+            return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y) + Mathf.Abs(a.z - b.z);
+        }
+
+        private class Node
+        {
+            public Vector3Int position;
+            public float gCost;
+            public float hCost;
+            public float fCost { get { return gCost + hCost; } }
+            public Node parent;
+            public Node(Vector3Int pos) { position = pos; }
+        }
+
+
+        //private class Node
+        //{
+        //    public Vector3Int position;
+        //    public float gCost;
+        //    public float hCost;
+        //    public float fCost { get { return gCost + hCost; } }
+        //    public Node parent;
+
+        //    public Node(Vector3Int pos) { position = pos; }
+        //}
+
+        //private IEnumerator AStarPathCoroutine(Vector3Int start, Vector3Int goal, HashSet<Vector3> blueprintPositions, System.Action<List<Vector3Int>> callback)
+        //{
+        //    List<Vector3Int> directions = new List<Vector3Int>
+        //    {
+        //        new Vector3Int(1, 0, 0),
+        //        new Vector3Int(-1, 0, 0),
+        //        new Vector3Int(0, 0, 1),
+        //        new Vector3Int(0, 0, -1)
+        //    };
+
+        //    Dictionary<Vector3Int, Node> openSet = new Dictionary<Vector3Int, Node>();
+        //    HashSet<Vector3Int> closedSet = new HashSet<Vector3Int>();
+
+        //    Node startNode = new Node(start);
+        //    startNode.gCost = 0;
+        //    startNode.hCost = Vector3Int.Distance(start, goal);
+        //    openSet.Add(start, startNode);
+
+        //    int iterations = 0;
+        //    int maxIterations = 10000;
+
+        //    while (openSet.Count > 0)
+        //    {
+        //        iterations++;
+        //        if (iterations % 50 == 0)
+        //            yield return null; // даём время корутине
+
+        //        if (iterations > maxIterations)
+        //        {
+        //            Debug.LogWarning("AStarPathCoroutine: достигнут максимум итераций, возможный цикл.");
+        //            callback(null);
+        //            yield break;
+        //        }
+
+        //        Node current = openSet.Values.OrderBy(n => n.fCost).First();
+        //        if (current.position == goal)
+        //        {
+        //            List<Vector3Int> path = new List<Vector3Int>();
+        //            while (current != null)
+        //            {
+        //                path.Add(current.position);
+        //                current = current.parent;
+        //            }
+        //            path.Reverse();
+        //            callback(path);
+        //            yield break;
+        //        }
+
+        //        openSet.Remove(current.position);
+        //        closedSet.Add(current.position);
+
+        //        foreach (var dir in directions)
+        //        {
+        //            Vector3Int neighborPos = current.position + dir;
+        //            if (closedSet.Contains(neighborPos))
+        //                continue;
+        //            Vector3 neighborF = new Vector3(neighborPos.x, neighborPos.y, neighborPos.z);
+        //            if (blueprintPositions.Contains(neighborF))
+        //                continue;
+        //            if (WorldGenerator.Inst.GetBlockID(neighborPos) != 0)
+        //                continue;
+
+        //            float tentativeG = current.gCost + 1f;
+        //            Node neighbor;
+        //            if (openSet.TryGetValue(neighborPos, out neighbor))
+        //            {
+        //                if (tentativeG < neighbor.gCost)
+        //                {
+        //                    neighbor.gCost = tentativeG;
+        //                    neighbor.parent = current;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                neighbor = new Node(neighborPos);
+        //                neighbor.gCost = tentativeG;
+        //                neighbor.hCost = Vector3Int.Distance(neighborPos, goal);
+        //                neighbor.parent = current;
+        //                openSet.Add(neighborPos, neighbor);
+        //            }
+        //        }
+        //    }
+        //    callback(null);
+        //    yield break;
+        //}
+
+        private IEnumerator AStarPathCoroutine(Vector3Int start, Vector3Int goal, HashSet<Vector3> blueprintPositions, System.Action<List<Vector3Int>> callback)
+        {
+            List<Vector3Int> directions = new List<Vector3Int>
+            {
+                new Vector3Int(1, 0, 0),
+                new Vector3Int(-1, 0, 0),
+                new Vector3Int(0, 0, 1),
+                new Vector3Int(0, 0, -1)
+            };
+
+            Dictionary<Vector3Int, Node> openSet = new Dictionary<Vector3Int, Node>();
+            HashSet<Vector3Int> closedSet = new HashSet<Vector3Int>();
+
+            Node startNode = new Node(start);
+            startNode.gCost = 0;
+            startNode.hCost = Vector3Int.Distance(start, goal);
+            openSet.Add(start, startNode);
+
+            int iterations = 0;
+            int maxIterations = 10000;
+
+            while (openSet.Count > 0)
+            {
+                iterations++;
+                if (iterations % 50 == 0)
+                    yield return null; // даём время корутине
+
+                if (iterations > maxIterations)
+                {
+                    Debug.LogWarning("AStarPathCoroutine: достигнут максимум итераций, возможный цикл.");
+                    callback(null);
+                    yield break;
+                }
+
+                Node current = openSet.Values.OrderBy(n => n.fCost).First();
+                if (current.position == goal)
+                {
+                    List<Vector3Int> path = new List<Vector3Int>();
+                    while (current != null)
+                    {
+                        path.Add(current.position);
+                        current = current.parent;
+                    }
+                    path.Reverse();
+                    callback(path);
+                    yield break;
+                }
+
+                openSet.Remove(current.position);
+                closedSet.Add(current.position);
+
+                foreach (var dir in directions)
+                {
+                    Vector3Int neighborPos = current.position + dir;
+                    if (closedSet.Contains(neighborPos))
+                        continue;
+
+                    Vector3 neighborF = new Vector3(neighborPos.x, neighborPos.y, neighborPos.z);
+
+                    // Если ячейка входит в blueprint, считаем её проходимой при условии, что над ней свободно 2 ячейки
+                    if (blueprintPositions.Contains(neighborF))
+                    {
+                        if (WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up) != 0 ||
+                            WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 2) != 0)
+                            continue;
+                    }
+                    else
+                    {
+                        // Если ячейка не входит в blueprint, она должна быть полностью пустой,
+                        // а над ней – свободно две ячейки
+                        if (WorldGenerator.Inst.GetBlockID(neighborPos) != 0)
+                            continue;
+                        if (WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up) != 0 ||
+                            WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 2) != 0)
+                            continue;
+                    }
+
+                    float tentativeG = current.gCost + 1f;
+                    Node neighbor;
+                    if (openSet.TryGetValue(neighborPos, out neighbor))
+                    {
+                        if (tentativeG < neighbor.gCost)
+                        {
+                            neighbor.gCost = tentativeG;
+                            neighbor.parent = current;
+                        }
+                    }
+                    else
+                    {
+                        neighbor = new Node(neighborPos);
+                        neighbor.gCost = tentativeG;
+                        neighbor.hCost = Vector3Int.Distance(neighborPos, goal);
+                        neighbor.parent = current;
+                        openSet.Add(neighborPos, neighbor);
+                    }
+                }
+            }
+            callback(null);
+            yield break;
+        }
+
+
+
+        private bool IsBlueprintCell(Vector3Int cell, HashSet<Vector3> blueprintPositions)
+        {
+            // Приводим cell к Vector3 (целочисленный) и сравниваем
+            Vector3 cellF = new Vector3(cell.x, cell.y, cell.z);
+            return blueprintPositions.Contains(cellF);
+        }
+
 
     }
 }

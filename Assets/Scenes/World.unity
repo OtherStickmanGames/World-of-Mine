@@ -786,7 +786,8 @@ MonoBehaviour:
   approachDistance: 1
   scaffoldingBlockID: 92
   verticalGapThreshold: 5
-  buildingData: {fileID: 4900000, guid: afb51391ef0fa4f408950e48121c104a, type: 3}
+  buildingData: {fileID: 4900000, guid: 352cacf4fc2bcb949a3e9800196945cc, type: 3}
+  allowedDirections: []
 --- !u!1 &328820647
 GameObject:
   m_ObjectHideFlags: 0
@@ -11873,6 +11874,31 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 772186730867675440, guid: 635c03d88c5a6734ba6dfb445f262067,
+        type: 3}
+      propertyPath: m_Height
+      value: 1.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 772186730867675440, guid: 635c03d88c5a6734ba6dfb445f262067,
+        type: 3}
+      propertyPath: m_Radius
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 772186730867675440, guid: 635c03d88c5a6734ba6dfb445f262067,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 772186730867675440, guid: 635c03d88c5a6734ba6dfb445f262067,
+        type: 3}
+      propertyPath: m_BaseOffset
+      value: 0.91
+      objectReference: {fileID: 0}
+    - target: {fileID: 1292217786998093186, guid: 635c03d88c5a6734ba6dfb445f262067,
+        type: 3}
+      propertyPath: m_Height
+      value: 1.8
+      objectReference: {fileID: 0}
     - target: {fileID: 8356942478678974383, guid: 635c03d88c5a6734ba6dfb445f262067,
         type: 3}
       propertyPath: m_Name

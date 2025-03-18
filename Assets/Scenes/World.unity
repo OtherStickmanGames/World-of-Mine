@@ -786,7 +786,9 @@ MonoBehaviour:
   approachDistance: 1
   scaffoldingBlockID: 92
   verticalGapThreshold: 5
-  buildingData: {fileID: 4900000, guid: 352cacf4fc2bcb949a3e9800196945cc, type: 3}
+  buildingData: {fileID: 4900000, guid: 3fe56912fa2da4d48aaf9d07d26a97ed, type: 3}
+  ebobo: 0
+  withPause: 0
   allowedDirections: []
 --- !u!1 &328820647
 GameObject:

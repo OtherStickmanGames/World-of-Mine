@@ -25,7 +25,7 @@ namespace Ururu
         // Новое приватное поле для хранения позиций чертежа
 
         public bool ebobo;
-
+        public bool withPause;
 
 
         private IEnumerator Start()
@@ -45,7 +45,7 @@ namespace Ururu
                 yield return null;
             }
 
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(3.5f);
 
             agent.enabled = false;
             transform.position = player.transform.position + (player.transform.forward * 3) + (Vector3.up * 3);
@@ -93,9 +93,18 @@ namespace Ururu
             if (Input.GetKeyDown(KeyCode.L))
             {
                 ebobo = !ebobo;
+
+                var agentIntPos = transform.position.ToIntPos();
+                agentIntPos.x++;
+
+                //WorldGenerator.Inst.SetBlockAndUpdateChunck(agentIntPos, 10);
+            }
+
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                withPause = !withPause;
             }
         }
-
         // Главный метод строительства дома по чертежу (blueprint)
         public IEnumerator BuildHouse(Vector3 basePosition, List<BlockData> blueprint)
         {
@@ -146,7 +155,7 @@ namespace Ururu
                 }
 
                 // Задержка для плавности строительства
-                yield return new WaitForSeconds(0.8f);
+                yield return new WaitForSeconds(1.3f);
             }
 
         }
@@ -170,7 +179,8 @@ namespace Ururu
             {
                 return hit.position;
             }
-            
+
+            Debug.Log("Не нашел точки на навмеше");
             return targetPos;
         }
 
@@ -468,7 +478,8 @@ namespace Ururu
                 {
                     yield return StartCoroutine(Pause());
                 }
-                
+
+                yield return StartCoroutine(MoveToPosition(destination, false));// Чисто проверить
                 yield return StartCoroutine(BuildPathScaffolding(destination));
                 yield return StartCoroutine(MoveToPosition(destination, false));
                 yield break;
@@ -675,26 +686,39 @@ namespace Ururu
                 Mathf.FloorToInt(destination.z)
             );
 
-            WorldGenerator.Inst.SetBlockAndUpdateChunck(agentPos, 90);
-            WorldGenerator.Inst.SetBlockAndUpdateChunck(destPos, 61);
+            if (WorldGenerator.Inst.GetBlockID(destPos + Vector3Int.up) != 0)
+                destPos.y++;
 
-            yield return StartCoroutine(Pause());
+            if (withPause)
+            {
+                WorldGenerator.Inst.SetBlockAndUpdateChunck(agentPos, 90);
+                WorldGenerator.Inst.SetBlockAndUpdateChunck(destPos, 61);
+
+                yield return StartCoroutine(Pause());
+            }
+            else
+            {
+                yield return new WaitForSeconds(0.5f);
+            }
 
             // Смещаем обе позиции на один блок вниз
             //agentPos.y -= 1;
             //destPos.y -= 1;
 
             List<Vector3Int> path = null;
-            if (agentPos.y != destPos.y)
-            {
-                Debug.Log("Высоты отличаются – ищем путь ступеньками через AStarPath3D.");
-                yield return StartCoroutine(AStarPath3DCoroutine(agentPos, destPos, currentBlueprintPositions, result => path = result));
-            }
-            else
-            {
-                Debug.Log("Высоты совпадают – ищем горизонтальный путь для моста.");
-                yield return StartCoroutine(AStarPathCoroutine(agentPos, destPos, currentBlueprintPositions, result => path = result));
-            }
+            Debug.Log("Высоты отличаются – ищем путь ступеньками через AStarPath3D.");
+            yield return StartCoroutine(AStarPath3DCoroutine(agentPos, destPos, currentBlueprintPositions, result => path = result));
+
+            //if (agentPos.y != destPos.y)
+            //{
+            //    Debug.Log("Высоты отличаются – ищем путь ступеньками через AStarPath3D.");
+            //    yield return StartCoroutine(AStarPath3DCoroutine(agentPos, destPos, currentBlueprintPositions, result => path = result));
+            //}
+            //else
+            //{
+            //    Debug.Log("Высоты совпадают – ищем горизонтальный путь для моста.");
+            //    yield return StartCoroutine(AStarPathCoroutine(agentPos, destPos, currentBlueprintPositions, result => path = result));
+            //}
 
             if (path == null)
             {
@@ -711,14 +735,17 @@ namespace Ururu
                     WorldGenerator.Inst.SetBlockAndUpdateChunck(cell, scaffoldingBlockID);
                     //Debug.Log("Поставлен scaffolding блок на " + cell);
                     //yield return StartCoroutine(MoveToPosition(cell, false));
-                    yield return new WaitForSeconds(0.1f);
+                    yield return new WaitForSeconds(0.3f);
                 }
                 yield return null;
             }
 
-            yield return StartCoroutine(Pause());
+            if (withPause)
+            {
+                yield return StartCoroutine(Pause());
+            }
 
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1.5f);
 
             // После построения scaffolding, перемещаемся к цели,
             // смещённой также на один блок вниз
@@ -810,31 +837,45 @@ namespace Ururu
         public List<Vector3Int> allowedDirections;
 
         /// <summary>
-        /// Этот метод реализует алгоритм A* для поиска пути в 3D-воксельном пространстве с 
-        /// некоторыми особенностями для нашей игры. Вот как он работает, шаг за шагом:
+        /// Этот метод реализует алгоритм A* для поиска пути в 3D-воксельном
+        /// пространстве с некоторыми особенностями для нашей игры. 
+        /// Вот как он работает, шаг за шагом:
         /// Определение допустимых направлений:
-        /// Метод перебирает все комбинации изменений по осям(dx, dy, dz) от -1 до 1, кроме случая,
-        /// когда все изменения равны нулю(то есть, когда нет движения).
-        /// Кроме того, исключаются «чисто вертикальные» перемещения, когда изменяется только 
-        /// высота(dy ≠ 0, а dx и dz равны 0). Это нужно, чтобы агент не двигался просто вверх или вниз без горизонтального компонента.
-        ///В результате получается список направлений (всего до 26 возможных, но с вертикальными ограничениями – меньше).
-        ///Инициализация структур поиска:
+        /// Метод перебирает все комбинации изменений по осям(dx, dy, dz)
+        /// от -1 до 1, кроме случая, когда все изменения равны нулю
+        /// (то есть, когда нет движения). Кроме того, исключаются
+        /// «чисто вертикальные» перемещения, когда изменяется только 
+        /// высота(dy ≠ 0, а dx и dz равны 0). Это нужно, чтобы агент 
+        /// не двигался просто вверх или вниз без горизонтального компонента.
+        /// В результате получается список направлений (всего до 26 возможных,
+        /// но с вертикальными ограничениями – меньше).
+        /// Инициализация структур поиска:
+        /// Создаются две структуры:
+        /// openSet – словарь, где хранятся узлы(ячейки), которые ещё предстоит
+        /// обработать.В начале сюда кладётся стартовая ячейка (start) 
+        /// с нулевой стоимостью пути (gCost).
+        /// closedSet – множество уже обработанных узлов.
+        /// Основной цикл поиска:
 
-        ///Создаются две структуры:
-        ///openSet – словарь, где хранятся узлы(ячейки), которые ещё предстоит обработать.В начале сюда кладётся стартовая ячейка (start) с нулевой стоимостью пути (gCost).
-        ///closedSet – множество уже обработанных узлов.
-        ///Основной цикл поиска:
 
-
-        ///Пока openSet не пуст, метод выбирает узел с наименьшей суммарной стоимостью fCost (fCost = gCost + hCost, где hCost – эвристическая оценка расстояния до цели, здесь используется манхэттенское расстояние).
-        ///Если выбранный узел совпадает с целевой ячейкой(goal), то путь найден.Метод восстанавливает путь, начиная от цели и двигаясь по родительским узлам до старта, переворачивает его и передаёт через callback.
-        ///Обработка соседних ячеек(расширение текущего узла) :
-
-        ///Для каждого из допустимых направлений метод вычисляет позицию соседа(current.position + dir). Если эта ячейка уже обработана(находится в closedSet), то её пропускают.
-        ///Затем соседнюю ячейку переводят в формат Vector3(целочисленные координаты) для сравнения с blueprintPositions.
-        ///Если соседняя ячейка не входит в набор blueprintPositions и в ней уже стоит блок (то есть она занята), то она пропускается.
-        ///Далее проверяется, что над этой ячейкой свободно две ячейки – это нужно, чтобы агент высотой 2 блока мог пройти по ней(проверяются соседняя ячейка, соседняя сверху и ещё один уровень сверху).
-        ///Обновление стоимости и добавление в openSet:
+        /// Пока openSet не пуст, метод выбирает узел с наименьшей суммарной 
+        /// стоимостью fCost (fCost = gCost + hCost, где hCost – эвристическая
+        /// оценка расстояния до цели, здесь используется манхэттенское расстояние).
+        /// Если выбранный узел совпадает с целевой ячейкой(goal), то путь найден.
+        /// Метод восстанавливает путь, начиная от цели и двигаясь по родительским
+        /// узлам до старта, переворачивает его и передаёт через callback.
+        /// Обработка соседних ячеек(расширение текущего узла) :
+        /// Для каждого из допустимых направлений метод вычисляет позицию
+        /// соседа(current.position + dir). Если эта ячейка уже обработана
+        /// (находится в closedSet), то её пропускают. 
+        /// Затем соседнюю ячейку переводят в формат Vector3
+        /// (целочисленные координаты) для сравнения с blueprintPositions.
+        /// Если соседняя ячейка не входит в набор blueprintPositions и в ней
+        /// уже стоит блок (то есть она занята), то она пропускается.
+        /// Далее проверяется, что над этой ячейкой свободно две ячейки – это нужно,
+        /// чтобы агент высотой 2 блока мог пройти по ней
+        /// (проверяются соседняя ячейка, соседняя сверху и ещё один уровень сверху).
+        /// Обновление стоимости и добавление в openSet:
 
         ///Если соседняя ячейка удовлетворяет всем условиям, рассчитывается tentativeG – стоимость пути до соседа через текущий узел(это просто текущая стоимость + 1).
         ///Если сосед уже есть в openSet, то проверяется, можно ли улучшить его стоимость(т.е.tentativeG меньше его текущего gCost). Если да, то обновляются gCost и родительский узел.
@@ -880,6 +921,8 @@ namespace Ururu
             Dictionary<Vector3Int, Node> openSet = new Dictionary<Vector3Int, Node>();
             HashSet<Vector3Int> closedSet = new HashSet<Vector3Int>();
 
+            List<Vector3Int> ebos = new();
+
             Node startNode = new Node(start);
             startNode.gCost = 0;
             startNode.hCost = ManhattanDistance(start, goal);
@@ -911,7 +954,23 @@ namespace Ururu
                         current = current.parent;
                     }
                     path.Reverse();
-                    
+
+                    if (ebobo)
+                    {
+                        Debug.Log("Путь готов и ты тоже");
+
+                        yield return StartCoroutine(Pause());
+
+                        foreach (var item in ebos)
+                        {
+                            WorldGenerator.Inst.SetBlockAndUpdateChunck(item, 0);
+                        }
+                        foreach (var item in path)
+                        {
+                            WorldGenerator.Inst.SetBlockAndUpdateChunck(item, 94);
+                        }
+                    }
+
                     callback(path);
                     yield break;
                 }
@@ -919,23 +978,75 @@ namespace Ururu
                 openSet.Remove(current.position);
                 closedSet.Add(current.position);
 
+                if (ebobo)
+                {
+                    WorldGenerator.Inst.SetBlockAndUpdateChunck(current.position, 94);
+                }
+
                 foreach (var dir in allowedDirections)
                 {
                     Vector3Int neighborPos = current.position + dir;
                     if (closedSet.Contains(neighborPos))
                         continue;
 
-       
+                    if (current == startNode)
+                    {
+                        var up3Pos = current.position + (Vector3Int.up * 3);
+                        if (WorldGenerator.Inst.GetBlockID(up3Pos) != 0)
+                        {
+                            if (dir.y > 0)
+                            {
+                                Debug.Log("Ну да ебать");
+                                continue;
+                            }
+                        }
+                    }
 
-                    Vector3 neighborF = new Vector3(neighborPos.x, neighborPos.y, neighborPos.z);
-                    // Если ячейка не входит в blueprint и занята (не пуста), пропускаем её
-                    if (!blueprintPositions.Contains(neighborF) && WorldGenerator.Inst.GetBlockID(neighborPos) != 0)
-                        continue;
+                    var upBlockID = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up);
+                    var up2BlockID = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 2);
+                    var up3BlockID = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 3);
+
+                    if (up2BlockID == 10 || up2BlockID == 94)
+                        up2BlockID = 0;
+                    if (upBlockID == 10 || upBlockID == 94)
+                        upBlockID = 0;
+                    //Vector3 neighborF = new Vector3(neighborPos.x, neighborPos.y, neighborPos.z);
+                    //// Если ячейка не входит в blueprint и занята (не пуста), пропускаем её
+                    //if (!blueprintPositions.Contains(neighborF) && WorldGenerator.Inst.GetBlockID(neighborPos) != 0)
+                    //    continue;
+
+                    if (upBlockID == scaffoldingBlockID)
+                    {
+                        WorldGenerator.Inst.SetBlockAndUpdateChunck(neighborPos + Vector3Int.up, 0);
+                        upBlockID = 0;
+                    }
+                    if (up2BlockID == scaffoldingBlockID)
+                    {
+                        WorldGenerator.Inst.SetBlockAndUpdateChunck(neighborPos + (Vector3Int.up * 2), 0);
+                        up2BlockID = 0;
+                    }
+                    if (up3BlockID == scaffoldingBlockID)
+                    {
+                        WorldGenerator.Inst.SetBlockAndUpdateChunck(neighborPos + (Vector3Int.up * 3), 0);
+                        up3BlockID = 0;
+                    }
 
                     // Проверяем, что над ячейкой свободно две ячейки
-                    if (WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up) != 0 ||
-                        WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 2) != 0)
+                    if (upBlockID != 0 || up2BlockID != 0 || up3BlockID != 0)
                         continue;
+
+                    var agentIntPos = transform.position.ToIntPos();
+                    agentIntPos.x++;
+
+                    if (agentIntPos + Vector3Int.up == neighborPos || agentIntPos + (Vector3Int.up*2) == neighborPos)
+                    {
+                        //Debug.Log("еба че нашел");
+                        //yield return StartCoroutine(Pause());
+                        //WorldGenerator.Inst.SetBlockAndUpdateChunck(agentIntPos, 94);
+                        //yield return StartCoroutine(Pause());
+
+                        continue;
+                    }
 
                     float tentativeG = current.gCost + 1f;
                     Node neighbor;
@@ -958,7 +1069,7 @@ namespace Ururu
                         if (ebobo)
                         {
                             WorldGenerator.Inst.SetBlockAndUpdateChunck(neighborPos, 10);
-
+                            ebos.Add(neighborPos);
                             yield return StartCoroutine(Pause());
                         }
                     }
@@ -1005,6 +1116,7 @@ namespace Ururu
             callback(null);
             yield break;
         }
+
 
         private float ManhattanDistance(Vector3Int a, Vector3Int b)
         {

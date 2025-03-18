@@ -469,7 +469,26 @@ namespace Ururu
             NavMeshAgent agent = GetComponent<NavMeshAgent>();
 
             NavMeshPath path = new NavMeshPath();
-            agent.CalculatePath(destination, path);
+            //agent.CalculatePath(destination, path);
+
+            agent.SetDestination(destination);
+            agent.isStopped = true;
+
+            // Ждем, пока путь не будет вычислен:
+            while (agent.pathPending)
+            {
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(0.5f);
+
+            path = agent.path;
+            // Теперь можно получить agent.path или выполнить дополнительные действия
+            // ...
+
+            // Когда будете готовы, чтобы агент начал движение по вычисленному пути:
+            agent.isStopped = false;
+
 
             if (canBuildLadder && path.status != NavMeshPathStatus.PathComplete)
             {
@@ -1034,6 +1053,14 @@ namespace Ururu
                     // Проверяем, что над ячейкой свободно две ячейки
                     if (upBlockID != 0 || up2BlockID != 0 || up3BlockID != 0)
                         continue;
+
+                    // Новая проверка: если уже в openSet или closedSet есть нода на две клетки вверх от кандидата, пропускаем его
+                    Vector3Int aboveCandidate = neighborPos + Vector3Int.up * 2;
+                    if (openSet.ContainsKey(aboveCandidate) || closedSet.Contains(aboveCandidate))
+                    {
+                        //Debug.Log("Возможно стоит убрать эту проверку");
+                        continue;
+                    }
 
                     var agentIntPos = transform.position.ToIntPos();
                     agentIntPos.x++;

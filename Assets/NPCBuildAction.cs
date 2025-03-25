@@ -154,7 +154,7 @@ namespace Ururu
                 yield return StartCoroutine(agentMove.MoveToPosition(approachPos, true, 1.5f));
 
                 // 4. Если NPC достаточно близко, устанавливаем блок
-                if (Vector3.Distance(transform.position, globalPos) <= buildRange)
+                if (Vector3.Distance(transform.position, globalPos + offset) <= buildRange)
                 {
                     WorldGenerator.Inst.SetBlockAndUpdateChunck(globalPos, block.blockID);
                 }

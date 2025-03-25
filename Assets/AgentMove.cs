@@ -30,9 +30,10 @@ public class AgentMove : MonoBehaviour
 
     public IEnumerator MoveToPosition(Vector3 destination, bool canBuildLadder = true, float approachDistance = .3f)
     {
-        var distance = Vector3.Distance(transform.position, destination);
-        if (distance < approachDistance)
+        var distance = Vector3.Distance(agent.transform.position + Vector3.down, destination);
+        if (distance < approachDistance - .1f)
         {
+            print("уже на месте");
             yield break;
         }
 

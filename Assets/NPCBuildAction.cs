@@ -135,10 +135,16 @@ namespace Ururu
                 if (blockID == block.blockID)
                     continue;
 
+                yield return StartCoroutine(agentMove.CheckMeshToFixNavError(globalPos));
 
                 var offset = new Vector3(-0.5f, 0.1f, 0.5f);
                 // 3. Находим точку подхода через NavMesh и перемещаемся туда
-                Vector3 approachPos = FindApproachPosition(globalPos + offset);
+                Vector3 approachPos = NavigationTool.FindApproachPositionOnBlock(globalPos, out var founded); //FindApproachPosition(globalPos + offset);
+
+                if (!founded)
+                {
+                    approachPos.y--;
+                }
 
                 yield return StartCoroutine(agentMove.MoveToPosition(approachPos, true, 1.7f));
 
@@ -154,6 +160,8 @@ namespace Ururu
 
                 yield return new WaitForSeconds(0.8f);
             }
+
+            agentMove.SetBlueprint(null);
         }
 
         // Главный метод строительства дома по чертежу (blueprint)

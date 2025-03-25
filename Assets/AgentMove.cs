@@ -52,27 +52,33 @@ public class AgentMove : MonoBehaviour
         
         agent.isStopped = false;
         agent.stoppingDistance = approachDistance - 0.05f;
-        
-        var ignoreBuildLadder = false;
+
+        var lastCorner = path.corners[path.corners.Length - 1];
+        var lastCornerEnough = false;
         if (path.corners.Length > 0)
         {
-            var distLastCornerToDest = Vector3.Distance(destination, path.corners[path.corners.Length - 1]);
+            var distLastCornerToDest = Vector3.Distance(destination, lastCorner);
             if (distLastCornerToDest - 0.05f < approachDistance)
             {
-                ignoreBuildLadder = true;
+                lastCornerEnough = true;
             }
         }
 
-        if (canBuildLadder && path.status != NavMeshPathStatus.PathComplete && !ignoreBuildLadder)
+        if (canBuildLadder && path.status != NavMeshPathStatus.PathComplete)
         {
-            Debug.Log($"MoveToPosition: Путь до {destination} не найден через NavMesh (PathComplete = {path.status}). Запускаем построение scaffolding.");
+            Debug.Log($"MoveToPosition: Путь до {destination} не найден через NavMesh (PathComplete = {path.status}). Запускаем построение scaffolding. lastCornerEnough = {lastCornerEnough}");
             if (path.status is NavMeshPathStatus.PathInvalid)
             {
                 yield return StartCoroutine(Pause());
             }
 
+            var scaffoldingDestination = destination;
+            if (lastCornerEnough)
+            {
+                scaffoldingDestination = lastCorner;
+            }
             yield return StartCoroutine(MoveToPosition(destination, false));// Чисто проверить
-            yield return StartCoroutine(BuildPathScaffolding(destination));
+            yield return StartCoroutine(BuildPathScaffolding(scaffoldingDestination));
             yield return StartCoroutine(MoveToPosition(destination, false));
             yield break;
         }
@@ -227,6 +233,8 @@ public class AgentMove : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
+        //yield return StartCoroutine(Pause());
+
         // Получаем целочисленные позиции агента и цели
         Vector3Int agentPos = new Vector3Int(
             Mathf.FloorToInt(transform.position.x + 1),
@@ -254,10 +262,10 @@ public class AgentMove : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
-        //go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        //go.transform.position = destPos;
-        //go.transform.localScale *= 0.3f;
-        //go.name = "лырвиыуаыуа";
+        go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        go.transform.position = destPos;
+        go.transform.localScale *= 0.3f;
+        go.name = "лырвиыуаыуа";
 
         List<Vector3Int> path = null;
         Debug.Log("Высоты отличаются – ищем путь ступеньками через AStarPath3D.");
@@ -307,7 +315,7 @@ public class AgentMove : MonoBehaviour
                     }
                 }
 
-                //yield return StartCoroutine(Pause());
+                yield return StartCoroutine(Pause());
 
                 //Debug.Log("Поставлен scaffolding блок на " + cell);
                 //yield return StartCoroutine(MoveToPosition(cell, false));
@@ -563,7 +571,7 @@ public class AgentMove : MonoBehaviour
         {
             var pos = allScaffoldingPositions[i - idxOffset];
             var dist = Vector3.Distance(agent.transform.position, pos + offset);
-            if (dist > 1)
+            if (dist > 1.1f)
             {
                 agent.isStopped = true;
                 print("застопал");
@@ -667,4 +675,40 @@ public class AgentMove : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Hot Fix, так как навмеш генерится неверное если у нас есть подвисшие 
+    /// в воздухе два\три блока, генерится навмеш сетка внутри блока
+    /// </summary>
+    /// <param name="blockPos"></param>
+    public IEnumerator CheckMeshToFixNavError(Vector3 blockPos)
+    {
+        var pos1Up = blockPos + Vector3.up;
+        var pos2Up = blockPos + (Vector3.up * 2);
+
+        var blockId = WorldGenerator.Inst.GetBlockID(blockPos);
+        var id1Up = WorldGenerator.Inst.GetBlockID(pos1Up);
+        var id2Up = WorldGenerator.Inst.GetBlockID(pos2Up);
+
+        if (blockId == 0 && id1Up != 0 && id2Up != 0)
+        {
+            var fixGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            fixGo.transform.position = pos1Up + new Vector3(-0.5f, 0.3f, 0.5f);
+            fixGo.transform.localScale *= .7f;
+
+            var chunk = WorldGenerator.Inst.GetChunk(pos1Up + new Vector3(-0.5f, -0.1f, 0.5f));
+            fixGo.transform.SetParent(chunk.renderer.transform);
+            fixGo.layer = chunk.renderer.gameObject.layer;
+
+            yield return wait01;
+
+            WorldGenerator.Inst.UpdateMesh(chunk);
+            //yield return StartCoroutine(WorldGenerator.Inst.DelayableUpdateNavMesh(chunk));
+
+            //yield return wait01;
+            yield return wait01;
+            yield return new WaitForSeconds(1.5f);
+
+            Destroy(fixGo);
+        }
+    }
 }

@@ -2065,6 +2065,7 @@ MonoBehaviour:
   generateNavLinks: 1
   viewChunck: 5
   navMeshVoxelSize: 0.1
+  navMeshTileSize: 128
   testoMesh: {fileID: 0}
   testos: {fileID: 0}
   testosCollider: {fileID: 0}

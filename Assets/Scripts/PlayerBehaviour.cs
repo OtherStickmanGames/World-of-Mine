@@ -139,11 +139,11 @@ public class PlayerBehaviour : MonoBehaviour
         //    print(World.Instance.towerPos.position.ToGlobalBlockPos());
         //}
 
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            //print(targetPos);
-            FindPathSystem.Instance.Find(transform.position.ToGlobalBlockPos(), targetPos);
-        }
+        //if (Input.GetKeyDown(KeyCode.P))
+        //{
+        //    //print(targetPos);
+        //    FindPathSystem.Instance.Find(transform.position.ToGlobalBlockPos(), targetPos);
+        //}
 
         if (Input.GetKeyDown(KeyCode.U))
         {

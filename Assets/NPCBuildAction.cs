@@ -15,6 +15,7 @@ namespace Ururu
         public int verticalGapThreshold = 5;  // Если зазор меньше или равен этому порогу, строим вертикальную колонну
 
         [SerializeField] TextAsset buildingData;
+        [SerializeField] AgentMove agentMove;
 
         PlayerBehaviour player;
         NavMeshAgent agent;
@@ -109,7 +110,7 @@ namespace Ururu
         public IEnumerator BuildHouse(Vector3 basePosition, List<BlockData> blueprint)
         {
             currentBuildingBasePosition = basePosition; // Сохраняем базовую позицию для расчёта габаритов постройки
-
+            
 
             // Создаём набор позиций, где будут строиться блоки (глобальные координаты)
             HashSet<Vector3> blueprintPositions = new HashSet<Vector3>();
@@ -119,7 +120,12 @@ namespace Ururu
             }
             currentBlueprintPositions = blueprintPositions; // сохраняем для поиска пути
 
-           
+            agentMove.SetBlueprint(new
+            (
+                currentBlueprintPositions,
+                basePosition
+            ));
+
 
             // Сортируем блоки по высоте (фундамент, затем стены, крыша и т.д.)
             List<BlockData> orderedBlueprint = OrderBlueprint(blueprint);
@@ -136,12 +142,16 @@ namespace Ururu
                 //{
                 //    yield return StartCoroutine(BuildSmartScaffolding(globalPos, blueprintPositions));
                 //}
+                //var go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                //go.transform.position = globalPos;
+                //go.transform.localScale *= 0.38f;
+                //go.name = "УССССС";
 
+                var offset = new Vector3(-0.5f, 0.1f, 0.5f);
                 // 3. Находим точку подхода через NavMesh и перемещаемся туда
-                Vector3 approachPos = FindApproachPosition(globalPos);
+                Vector3 approachPos = FindApproachPosition(globalPos + offset);
 
-                var offset = new Vector3(0.3f, 0.01f, 0.3f);
-                yield return StartCoroutine(MoveToPosition(approachPos));
+                yield return StartCoroutine(agentMove.MoveToPosition(approachPos, true, 1.5f));
 
                 // 4. Если NPC достаточно близко, устанавливаем блок
                 if (Vector3.Distance(transform.position, globalPos) <= buildRange)
@@ -157,6 +167,8 @@ namespace Ururu
                 // Задержка для плавности строительства
                 yield return new WaitForSeconds(1.3f);
             }
+
+            agentMove.SetBlueprint(null);
 
         }
 
@@ -976,7 +988,7 @@ namespace Ururu
 
                     if (ebobo)
                     {
-                        Debug.Log("Путь готов и ты тоже");
+                        Debug.Log($"Путь готов и ты тоже: Итераций {iterations}");
 
                         yield return StartCoroutine(Pause());
 
@@ -1021,58 +1033,57 @@ namespace Ururu
                         }
                     }
 
-                    var upBlockID = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up);
-                    var up2BlockID = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 2);
-                    var up3BlockID = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 3);
-
-                    if (up2BlockID == 10 || up2BlockID == 94)
-                        up2BlockID = 0;
-                    if (upBlockID == 10 || upBlockID == 94)
-                        upBlockID = 0;
-                    //Vector3 neighborF = new Vector3(neighborPos.x, neighborPos.y, neighborPos.z);
-                    //// Если ячейка не входит в blueprint и занята (не пуста), пропускаем её
-                    //if (!blueprintPositions.Contains(neighborF) && WorldGenerator.Inst.GetBlockID(neighborPos) != 0)
-                    //    continue;
-
-                    if (upBlockID == scaffoldingBlockID)
+                    if (neighborPos != goal)
                     {
-                        WorldGenerator.Inst.SetBlockAndUpdateChunck(neighborPos + Vector3Int.up, 0);
-                        upBlockID = 0;
-                    }
-                    if (up2BlockID == scaffoldingBlockID)
-                    {
-                        WorldGenerator.Inst.SetBlockAndUpdateChunck(neighborPos + (Vector3Int.up * 2), 0);
-                        up2BlockID = 0;
-                    }
-                    if (up3BlockID == scaffoldingBlockID)
-                    {
-                        WorldGenerator.Inst.SetBlockAndUpdateChunck(neighborPos + (Vector3Int.up * 3), 0);
-                        up3BlockID = 0;
-                    }
+                        var upBlockID = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up);
+                        var up2BlockID = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 2);
+                        var up3BlockID = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 3);
 
-                    // Проверяем, что над ячейкой свободно две ячейки
-                    if (upBlockID != 0 || up2BlockID != 0 || up3BlockID != 0)
-                        continue;
+                        if (up2BlockID == 10 || up2BlockID == 94)
+                            up2BlockID = 0;
+                        if (upBlockID == 10 || upBlockID == 94)
+                            upBlockID = 0;
+                        //Vector3 neighborF = new Vector3(neighborPos.x, neighborPos.y, neighborPos.z);
+                        //// Если ячейка не входит в blueprint и занята (не пуста), пропускаем её
+                        //if (!blueprintPositions.Contains(neighborF) && WorldGenerator.Inst.GetBlockID(neighborPos) != 0)
+                        //    continue;
 
-                    // Новая проверка: если уже в openSet или closedSet есть нода на две клетки вверх от кандидата, пропускаем его
-                    Vector3Int aboveCandidate = neighborPos + Vector3Int.up * 2;
-                    if (openSet.ContainsKey(aboveCandidate) || closedSet.Contains(aboveCandidate))
-                    {
-                        //Debug.Log("Возможно стоит убрать эту проверку");
-                        continue;
-                    }
+                        if (upBlockID == scaffoldingBlockID)
+                        {
+                            WorldGenerator.Inst.SetBlockAndUpdateChunck(neighborPos + Vector3Int.up, 0);
+                            upBlockID = 0;
+                        }
+                        if (up2BlockID == scaffoldingBlockID)
+                        {
+                            WorldGenerator.Inst.SetBlockAndUpdateChunck(neighborPos + (Vector3Int.up * 2), 0);
+                            up2BlockID = 0;
+                        }
+                        if (up3BlockID == scaffoldingBlockID)
+                        {
+                            WorldGenerator.Inst.SetBlockAndUpdateChunck(neighborPos + (Vector3Int.up * 3), 0);
+                            up3BlockID = 0;
+                        }
 
-                    var agentIntPos = transform.position.ToIntPos();
-                    agentIntPos.x++;
+                        // Проверяем, что над ячейкой свободно две ячейки
+                        if (upBlockID != 0 || up2BlockID != 0 || up3BlockID != 0)
+                            continue;
 
-                    if (agentIntPos + Vector3Int.up == neighborPos || agentIntPos + (Vector3Int.up*2) == neighborPos)
-                    {
-                        //Debug.Log("еба че нашел");
-                        //yield return StartCoroutine(Pause());
-                        //WorldGenerator.Inst.SetBlockAndUpdateChunck(agentIntPos, 94);
-                        //yield return StartCoroutine(Pause());
+                        // Новая проверка: если уже в openSet или closedSet есть нода на две клетки вверх от кандидата, пропускаем его
+                        Vector3Int aboveCandidate = neighborPos + Vector3Int.up * 2;
+                        if (openSet.ContainsKey(aboveCandidate) || closedSet.Contains(aboveCandidate))
+                        {
+                            //Debug.Log("Возможно стоит убрать эту проверку");
+                            continue;
+                        }
 
-                        continue;
+
+                        var agentIntPos = transform.position.ToIntPos();
+                        agentIntPos.x++;
+
+                        if (agentIntPos + Vector3Int.up == neighborPos || agentIntPos + (Vector3Int.up * 2) == neighborPos)
+                        {
+                            continue;
+                        }
                     }
 
                     float tentativeG = current.gCost + 1f;
@@ -1287,7 +1298,7 @@ namespace Ururu
 
                 if (iterations > maxIterations)
                 {
-                    Debug.LogWarning("AStarPathCoroutine: достигнут максимум итераций, возможный цикл.");
+                    Debug.Log("AStarPathCoroutine: достигнут максимум итераций, возможный цикл.");
                     callback(null);
                     yield break;
                 }

@@ -105,7 +105,57 @@ namespace Ururu
             {
                 withPause = !withPause;
             }
+
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                StartCoroutine(RestoreBuilding(currentBuildingBasePosition, blueprint));
+            }
         }
+
+        public IEnumerator RestoreBuilding(Vector3 basePosition, List<BlockData> blueprint)
+        {
+            HashSet<Vector3> blueprintPositions = new HashSet<Vector3>();
+            foreach (BlockData block in blueprint)
+            {
+                blueprintPositions.Add(basePosition + block.localPosition);
+            }
+
+            agentMove.SetBlueprint(new
+            (
+                blueprintPositions,
+                basePosition
+            ));
+
+            foreach (BlockData block in blueprint)
+            {
+                Vector3 globalPos = basePosition + block.localPosition;
+
+                var blockID = WorldGenerator.Inst.GetBlockID(globalPos);
+
+                if (blockID == block.blockID)
+                    continue;
+
+
+                var offset = new Vector3(-0.5f, 0.1f, 0.5f);
+                // 3. Находим точку подхода через NavMesh и перемещаемся туда
+                Vector3 approachPos = FindApproachPosition(globalPos + offset);
+
+                yield return StartCoroutine(agentMove.MoveToPosition(approachPos, true, 1.7f));
+
+                // 4. Если NPC достаточно близко, устанавливаем блок
+                if (Vector3.Distance(agent.transform.position, globalPos + offset) <= buildRange)
+                {
+                    WorldGenerator.Inst.SetBlockAndUpdateChunck(globalPos, block.blockID);
+                }
+                else
+                {
+                    Debug.Log("NPC не смог подойти достаточно близко для восстановления блока: " + globalPos);
+                }
+
+                yield return new WaitForSeconds(0.8f);
+            }
+        }
+
         // Главный метод строительства дома по чертежу (blueprint)
         public IEnumerator BuildHouse(Vector3 basePosition, List<BlockData> blueprint)
         {

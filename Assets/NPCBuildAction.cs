@@ -139,7 +139,7 @@ namespace Ururu
 
                 var offset = new Vector3(-0.5f, 0.1f, 0.5f);
                 // 3. Находим точку подхода через NavMesh и перемещаемся туда
-                Vector3 approachPos = NavigationTool.FindApproachPositionOnBlock(globalPos, out var founded); //FindApproachPosition(globalPos + offset);
+                Vector3 approachPos = NavigationTool.FindApproachPositionOnBlock(globalPos, out var founded, 1.5f); //FindApproachPosition(globalPos + offset);
 
                 if (!founded)
                 {

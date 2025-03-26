@@ -12,11 +12,15 @@ public class AgentMove : MonoBehaviour
     //[SerializeField] float approachDistance = 1.0f; // Допустимое расстояние при подходе к точке установки
     [SerializeField] byte scaffoldingBlockID = 1;   // ID временного блока для опоры (scaffolding)
     [SerializeField] int verticalGapThreshold = 5;  // Если зазор меньше или равен этому порогу, строим вертикальную колонну
+    [SerializeField] GameObject markerPrefab;
 
+    public bool skipContine;
+    public bool withDebug;
     public bool withPause;
     public List<Vector3Int> allowedDirections;
-
     public List<Vector3Int> allScaffoldingPositions = new();
+
+    List<GameObject> markers = new List<GameObject>();
 
     private void Update()
     {
@@ -356,6 +360,7 @@ public class AgentMove : MonoBehaviour
 
     private IEnumerator AStarPath3DCoroutine(Vector3Int start, Vector3Int goal, Action<List<Vector3Int>> callback)
     {
+        print($"Id goal блока {WorldGenerator.Inst.GetBlockID(goal)}");
         // Разрешаем движения, исключая диагональные переходы в горизонтальной плоскости.
         // Разрешаем только движения, в которых либо dx == 0, либо dz == 0 (но не оба ненулевые).
         // Также исключаем чисто вертикальные ходы (когда dx и dz равны 0, а dy не равен 0).
@@ -454,10 +459,12 @@ public class AgentMove : MonoBehaviour
                     var up2BlockID = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 2);
                     var up3BlockID = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.up * 3);
 
-                    //if (up2BlockID == 10 || up2BlockID == 94)
-                    //    up2BlockID = 0;
-                    //if (upBlockID == 10 || upBlockID == 94)
-                    //    upBlockID = 0;
+                    if (up2BlockID == 10 || up2BlockID == 94)
+                        up2BlockID = 0;
+                    if (upBlockID == 10 || upBlockID == 94)
+                        upBlockID = 0;
+                    if (up3BlockID == 10 || up3BlockID == 94)
+                        up3BlockID = 0;
 
                     //Vector3 neighborF = new Vector3(neighborPos.x, neighborPos.y, neighborPos.z);
                     //// Если ячейка не входит в blueprint и занята (не пуста), пропускаем её
@@ -482,7 +489,18 @@ public class AgentMove : MonoBehaviour
 
                     // Проверяем, что над ячейкой свободно три ячейки
                     if (upBlockID != 0 || up2BlockID != 0 || up3BlockID != 0)
+                    {
+                        if (withDebug)
+                        {
+                            var offset = new Vector3(-0.5f, 0.5f, 0.5f);
+                            var marker = Instantiate(markerPrefab, neighborPos + offset, Quaternion.identity);
+                            markers.Add(marker);
+
+                            yield return StartCoroutine(Pause($"Скипнул по первой {upBlockID != 0} || {up2BlockID != 0} || {up3BlockID != 0}"));
+                        }
+
                         continue;
+                    }
 
                     //if (dir.y > 0)
                     //{
@@ -497,11 +515,32 @@ public class AgentMove : MonoBehaviour
                     //}
 
                     // если уже в openSet или closedSet есть нода на две клетки вверх от кандидата, пропускаем его
-                    Vector3Int aboveCandidate = neighborPos + Vector3Int.up * 2;
-                    if (openSet.ContainsKey(aboveCandidate) || closedSet.Contains(aboveCandidate))
+                    Vector3Int aboveCandidate = neighborPos + (Vector3Int.up * 2);
+                    //if (aboveCandidate != start && (openSet.ContainsKey(aboveCandidate) || closedSet.Contains(aboveCandidate)))
+                    if (IsAboveInPath(current, aboveCandidate))
                     {
+                        if (withDebug)
+                        {
+                            var offset = new Vector3(-0.5f, 0.5f, 0.5f);
+                            var marker = Instantiate(markerPrefab, neighborPos + offset, Quaternion.identity);
+                            markers.Add(marker);
+
+                            yield return StartCoroutine(Pause($"Скипнул по второй {openSet.ContainsKey(aboveCandidate)} || {closedSet.Contains(aboveCandidate)}"));
+                        }
                         //Debug.Log("Возможно стоит убрать эту проверку");
                         continue;
+                    }
+
+                    bool IsAboveInPath(Node node, Vector3Int aboveCandidate)
+                    {
+                        Node current = node;
+                        while (current != null)
+                        {
+                            if (current.position == aboveCandidate)
+                                return true;
+                            current = current.parent;
+                        }
+                        return false;
                     }
 
                     // если уже в openSet или closedSet есть нода ниже
@@ -518,9 +557,35 @@ public class AgentMove : MonoBehaviour
 
                     if (agentIntPos + Vector3Int.up == neighborPos || agentIntPos + (Vector3Int.up * 2) == neighborPos)
                     {
-                        continue;
+                        if (withDebug)
+                        {
+                            var offset = new Vector3(-0.5f, 0.5f, 0.5f);
+                            var marker = Instantiate(markerPrefab, neighborPos + offset, Quaternion.identity);
+                            markers.Add(marker);
+
+                            yield return StartCoroutine(Pause($"Скипнул по third "));
+                        }
+
+                        if (!skipContine)
+                            continue;
                     }
                 }
+                else
+                {
+                    print($"-=-=-= есть гофл =-=-=-");
+                }
+
+                //if (withDebug)
+                //{
+                //    //WorldGenerator.Inst.SetBlockAndUpdateChunck(neighborPos, 94);
+
+                //    var offset = new Vector3(-0.5f, 0.5f, 0.5f);
+                //    var marker = Instantiate(markerPrefab, neighborPos + offset, Quaternion.identity);
+                //    markers.Add(marker);
+
+                //    yield return StartCoroutine(Pause($"{dir}"));
+                //}
+
 
                 float tentativeG = current.gCost + 1f;
                 Node neighbor;
@@ -598,10 +663,10 @@ public class AgentMove : MonoBehaviour
 
 
     bool isPaused = false;
-    private IEnumerator Pause()
+    private IEnumerator Pause(string msg = "")
     {
         isPaused = true;
-        print($"{gameObject} На паузе...");
+        print($"{gameObject} На паузе... {msg}");
 
         while (isPaused)
         {

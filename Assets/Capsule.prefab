@@ -73,11 +73,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 772186730867675440}
-  approachDistance: 1
   scaffoldingBlockID: 92
   verticalGapThreshold: 5
+  markerPrefab: {fileID: 2963334470075645007, guid: 1b528fa1de7c1b34093670802e190116,
+    type: 3}
+  skipContine: 0
+  withDebug: 0
   withPause: 0
   allowedDirections: []
+  allScaffoldingPositions: []
 --- !u!114 &8508895714542046468
 MonoBehaviour:
   m_ObjectHideFlags: 0

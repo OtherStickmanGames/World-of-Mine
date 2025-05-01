@@ -203,7 +203,7 @@ namespace Ururu
 
             yield return new WaitForSeconds(0.1f);
 
-            yield return StartCoroutine(Pause());
+            //yield return StartCoroutine(Pause());
 
             foreach (var chunk in chunksToUpdate)
             {
@@ -212,14 +212,14 @@ namespace Ururu
 
             yield return new WaitForSeconds(0.1f);
 
-            yield return StartCoroutine(Pause());
+            //yield return StartCoroutine(Pause());
 
             foreach (var item in fixables)
             {
                 Destroy(item);
             }
 
-            yield return StartCoroutine(Pause());
+            //yield return StartCoroutine(Pause());
 
             print("вроде фиксанул");
         } 

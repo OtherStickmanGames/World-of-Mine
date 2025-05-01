@@ -41,17 +41,20 @@ public class NetworkBuildingManager : NetworkBehaviour
         ShuffleBuildingList();
     }
 
-    private void SaveBuilding_Clicked(List<BlockData> blocksData, string nameBuilding)
+    private void SaveBuilding_Clicked(List<BlockData> blocksData, List<JsonTurnedBlock> turnedBlocks, string nameBuilding)
     {
         Vector3[] positions = blocksData.Select(b => b.pos).ToArray();
         byte[] blockIDs = blocksData.Select(b => b.ID).ToArray();
 
-        SaveBuildingServerRpc(positions, blockIDs, nameBuilding);
+        var networkTurnedBlockData = NetworkWorldGenerator.ToNetworkTurnedBlocksData(turnedBlocks);
+
+        SaveBuildingServerRpc(positions, blockIDs, networkTurnedBlockData, nameBuilding);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SaveBuildingServerRpc(Vector3[] positions, byte[] blockIDs, string nameBuilding, ServerRpcParams serverRpcParams = default )
+    private void SaveBuildingServerRpc(Vector3[] positions, byte[] blockIDs, NetworkTurnedBlockData[] turnedBlocks, string nameBuilding, ServerRpcParams serverRpcParams = default )
     {
+        print($"{turnedBlocks.Length} _+_+_+_+_+_+_+");
 #if !UNITY_WEBGL
         UserChunckData buildData = new UserChunckData()
         {

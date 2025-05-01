@@ -190,7 +190,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
         ReceivePendingChunkTurnedBlocksDataClientRpc(networkTurnedBlocksData, chunckPos, clientRpcParams);
     }
 
-    private NetworkTurnedBlockData[] ToNetworkTurnedBlocksData(List<ChunckData.JsonTurnedBlock> turnedBlocks)
+    public static NetworkTurnedBlockData[] ToNetworkTurnedBlocksData(List<ChunckData.JsonTurnedBlock> turnedBlocks)
     {
         var length = turnedBlocks.Count;
         NetworkTurnedBlockData[] result = new NetworkTurnedBlockData[length];

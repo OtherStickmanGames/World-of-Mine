@@ -277,6 +277,9 @@ public struct ItemCraftableData
 [System.Serializable]
 public struct TurnableBlockData
 {
+#if UNITY_EDITOR
+    public string name;
+#endif
     public ItemID itemID;
     public ItemTypeID itemTypeID;
     public RotationAxis rotationAxis;

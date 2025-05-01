@@ -390,9 +390,8 @@ public class PlayerBehaviour : MonoBehaviour
             //}
             //print($"Май ось вращенька {zaebis}");
 
-            var axis = WorldGenerator.Inst.turnableBlocks[(byte)ItemID.STONE_WORKBENCH];
-
-            bool axisXY = (axis & (RotationAxis.X | RotationAxis.Y)) == (RotationAxis.X | RotationAxis.Y);
+            //var axis = WorldGenerator.Inst.turnableBlocks[(byte)ItemID.STONE_WORKBENCH];
+            //bool axisXY = (axis & (RotationAxis.X | RotationAxis.Y)) == (RotationAxis.X | RotationAxis.Y);
             
             if (player.inventory.CurrentSelectedItem != null)
             {
@@ -621,29 +620,21 @@ public class PlayerBehaviour : MonoBehaviour
                 turnData.angle = turnBlockAngle;
 
                 turns.Add(turnData);
-                //chunk.AddTurnBlock
-                //(
-                //    blockLocalpos,
-                //    (int)turnData.angle,
-                //    turnData.axis
-                //);
+                
                 //Debug.Log($"Повернул {turnData.axis} :: {turnData.angle}");
             }
 
-
             // Округляем направление до ближайшего кратного 90 градусов значения (-1, 0, 1)
-
-
         }
 
         foreach (var item in turns)
         {
             chunk.AddTurnBlock
-                (
-                    blockLocalPos,
-                    (int)item.angle,
-                    item.axis
-                );
+            (
+                blockLocalPos,
+                (int)item.angle,
+                item.axis
+            );
             //Debug.Log($"Повернул {item.axis} :: {item.angle}");
         }
         

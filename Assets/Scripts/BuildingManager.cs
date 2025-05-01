@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.Events;
+using static ChunckData;
 
 public class BuildingManager : MonoBehaviour
 {
@@ -22,7 +23,7 @@ public class BuildingManager : MonoBehaviour
     public UnityEvent onBuildingListHide;
     public UnityEvent onBuildingListEnded;
     public UnityEvent<int> onCountBuildingsReceive;
-    public UnityEvent<List<BlockData>, string> onSaveBuilding;
+    public UnityEvent<List<BlockData>, List<JsonTurnedBlock>, string> onSaveBuilding;
     public UnityEvent<BuildPreviewData, BuildingServerData> onLoadedPreviewBuild;
     public UnityEvent<string> onBuildingLike;
 
@@ -32,6 +33,7 @@ public class BuildingManager : MonoBehaviour
 
     List<Transform> highlights = new List<Transform>();
     List<BlockData> blocksData = new List<BlockData>();
+    List<JsonTurnedBlock> turnedBlocks = new List<JsonTurnedBlock>();
     PlayerBehaviour playerBehaviour;
     
 
@@ -93,18 +95,20 @@ public class BuildingManager : MonoBehaviour
                         pos.y = y;
                         pos.z = z;
 
-                        var blockID = WorldGenerator.Inst.GetBlockID(pos + Vector3.right);
+                        var worldBlockPos = pos + Vector3.right;
+                        var blockID = WorldGenerator.Inst.GetBlockID(worldBlockPos);
                         if (blockID == 0)
                         {
                             continue;
                         }
 
-                        BlockData blockData = new BlockData
-                        {
-                            pos = pos,
-                            ID = blockID
-                        };
+                        BlockData blockData = new() { pos = pos, ID = blockID };
                         blocksData.Add(blockData);
+
+                        // Потом можно оптимизировать
+                        
+                        CheckToAddTurnBlockData(worldBlockPos);
+
 
                         var highlight = Instantiate(highlightBlockPrefab, pos, Quaternion.identity);
                         highlights.Add(highlight);
@@ -112,6 +116,27 @@ public class BuildingManager : MonoBehaviour
                 }
 
                 yield return null;
+            }
+        }
+    }
+
+    private void CheckToAddTurnBlockData(Vector3 worldBlockPos)
+    {
+        var chunk = WorldGenerator.Inst.GetChunk(worldBlockPos);
+        var localBlockPos = WorldGenerator.Inst.ToLocalBlockPos(worldBlockPos);
+        var localPoses = chunk.turnedBlocks.Keys;
+        foreach (var localPos in localPoses)
+        {
+            if (localPos == localBlockPos)
+            {
+                var turnsData = chunk.turnedBlocks[localPos];
+                var jsonTurnData = new JsonTurnedBlock
+                (
+                    localPos,
+                    turnsData.ToArray()
+                );
+
+                turnedBlocks.Add(jsonTurnData);
             }
         }
     }
@@ -196,7 +221,7 @@ public class BuildingManager : MonoBehaviour
 
     internal void SaveBuilding(string nameBuilding)
     {
-        onSaveBuilding?.Invoke(blocksData, nameBuilding);
+        onSaveBuilding?.Invoke(blocksData, turnedBlocks, nameBuilding);
     }
 
     public void ClearHighlights()

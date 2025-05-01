@@ -81,7 +81,7 @@ public class NetworkWorldSimulation : NetworkBehaviour
         {
             blockID = blockId,
             localBlockPos = blockLocalPos,
-            changed = DateTime.Now
+            changed = DateTime.UtcNow
         };
 
         SendSimulatableBlockDataServerRpc(chunk.pos, data);

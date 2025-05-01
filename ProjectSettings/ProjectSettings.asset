@@ -830,7 +830,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     Android: ENABLE_INPUT_SYSTEM;YG_PLUGIN_YANDEX_GAME
     Standalone: ENABLE_INPUT_SYSTEM;UTP_TRANSPORT_2_0_ABOVE
-    WebGL: ENABLE_INPUT_SYSTEM;YG_PLUGIN_YANDEX_GAME;TMP_WEBGL_SUPPORT
+    WebGL: ENABLE_INPUT_SYSTEM;TMP_WEBGL_SUPPORT
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

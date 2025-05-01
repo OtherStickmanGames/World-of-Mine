@@ -126,6 +126,8 @@ namespace Ururu
                 basePosition
             ));
 
+            yield return StartCoroutine(CreateNavMeshFixableObjs(basePosition, blueprint));
+
             foreach (BlockData block in blueprint)
             {
                 Vector3 globalPos = basePosition + block.localPosition;
@@ -135,7 +137,7 @@ namespace Ururu
                 if (blockID == block.blockID)
                     continue;
 
-                yield return StartCoroutine(agentMove.CheckMeshToFixNavError(globalPos));
+                //yield return StartCoroutine(agentMove.CheckMeshToFixNavError(globalPos));
 
                 var offset = new Vector3(-0.5f, 0.1f, 0.5f);
                 // 3. Находим точку подхода через NavMesh и перемещаемся туда
@@ -163,6 +165,64 @@ namespace Ururu
 
             agentMove.SetBlueprint(null);
         }
+
+        IEnumerator CreateNavMeshFixableObjs(Vector3 basePosition, List<BlockData> blueprint)
+        {
+            List<ChunckComponent> chunksToUpdate = new();
+            List<GameObject> fixables = new();
+
+            foreach (BlockData block in blueprint)
+            {
+                Vector3 globalPos = basePosition + block.localPosition;
+
+                var pos1Up = globalPos + Vector3.up;
+                var pos2Up = globalPos + (Vector3.up * 2);
+
+                var blockId = WorldGenerator.Inst.GetBlockID(globalPos);
+                var id1Up = WorldGenerator.Inst.GetBlockID(pos1Up);
+                var id2Up = WorldGenerator.Inst.GetBlockID(pos2Up);
+
+                if (blockId == 0 && id1Up != 0 && id2Up != 0)
+                {
+                    var fixGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    fixGo.transform.position = pos1Up + new Vector3(-0.5f, 0.3f, 0.5f);
+                    fixGo.transform.localScale *= .7f;
+
+                    var chunk = WorldGenerator.Inst.GetChunk(pos1Up + new Vector3(-0.5f, -0.1f, 0.5f));
+                    fixGo.transform.SetParent(chunk.renderer.transform);
+                    fixGo.layer = chunk.renderer.gameObject.layer;
+
+                    if (!chunksToUpdate.Contains(chunk))
+                    {
+                        chunksToUpdate.Add(chunk);
+                    }
+
+                    fixables.Add(fixGo);
+                }
+            }
+
+            yield return new WaitForSeconds(0.1f);
+
+            yield return StartCoroutine(Pause());
+
+            foreach (var chunk in chunksToUpdate)
+            {
+                WorldGenerator.Inst.UpdateMesh(chunk);
+            }
+
+            yield return new WaitForSeconds(0.1f);
+
+            yield return StartCoroutine(Pause());
+
+            foreach (var item in fixables)
+            {
+                Destroy(item);
+            }
+
+            yield return StartCoroutine(Pause());
+
+            print("вроде фиксанул");
+        } 
 
         // Главный метод строительства дома по чертежу (blueprint)
         public IEnumerator BuildHouse(Vector3 basePosition, List<BlockData> blueprint)
@@ -1438,9 +1498,10 @@ namespace Ururu
         }
 
         bool isPaused = false;
-        private IEnumerator Pause()
+        private IEnumerator Pause(string msg = "")
         {
             isPaused = true;
+            print($"{gameObject} пазуза ... {msg}");
 
             while (isPaused)
             {

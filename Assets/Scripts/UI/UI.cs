@@ -381,6 +381,7 @@ public class UI : MonoBehaviour
         if (GameManager.Inst.isLocalhost)
         {
             transport.SetConnectionData("127.0.0.1", 7777);
+            transport.UseEncryption = false;
             btnClient.gameObject.SetActive(false);
             netcodeStatusView.ShowStatus();
             NetworkManager.Singleton.StartClient();
@@ -388,6 +389,7 @@ public class UI : MonoBehaviour
             return;
         }
 
+        transport.UseEncryption = true;
         var hostname = "worldofmine.online";
 #if UNITY_WEBGL && !UNITY_EDITOR
         if (Application.absoluteURL.IndexOf("draft=true") > 0)
@@ -395,7 +397,7 @@ public class UI : MonoBehaviour
             hostname = "devworldofmine.online";
         }
 #endif
-#if !UNITY_WEBGL || UNITY_EDITOR
+#if UNITY_WEBGL
         if (GameManager.Inst.useDevServer)
         {
             transport.SetConnectionData(GameManager.Inst.devServerAdress, 443);

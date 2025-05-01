@@ -91,6 +91,7 @@ public class WorldSimulation : MonoBehaviour
 
     public void SimalatebleBlockPlaced(Vector3 chunkPos, SimulatableBlockData data)
     {
+#if !UNITY_WEBGL
         CheckDirectory();
 
         var fileName = GetChunkDataFileName(chunkPos);
@@ -145,10 +146,12 @@ public class WorldSimulation : MonoBehaviour
 
         json = JsonConvert.SerializeObject(simulationChunkData);
         File.WriteAllText(path, json);
+#endif
     }
 
     public void RemoveSimulatableBlockData(Vector3 chunkPos, Vector3Int localBlockPos)
     {
+#if !UNITY_WEBGL
         CheckDirectory();
 
         var fileName = GetChunkDataFileName(chunkPos);
@@ -189,6 +192,7 @@ public class WorldSimulation : MonoBehaviour
                 File.WriteAllText(path, json);
             }
         }
+#endif
     }
 
     public void StartSimulation()
@@ -202,7 +206,7 @@ public class WorldSimulation : MonoBehaviour
             foreach (var chunkPos in chunkPoses)
             {
                 var simulationData = simulationsChunks[chunkPos];
-
+                //print($"симулируем {chunkPos} === {simulationData.simulatableBlocks.Count}");
                 SimulationChunk(simulationData);
 
                 yield return null;
@@ -224,9 +228,9 @@ public class WorldSimulation : MonoBehaviour
             var blockConfig = config.simulationBlockConfigs.Find(b => b.blockID == blockData.blockID);
             if (blockConfig != null)
             {
-                var elapsed = DateTime.Now - blockData.changed;
+                var elapsed = DateTime.UtcNow - blockData.changed;
                 var seconds = elapsed.TotalSeconds;
-                //print($"прошло времени {seconds}");
+                //print($"прошло времени {seconds} ### {blockConfig.time}");
                 if (seconds > blockConfig.time)
                 {
                     InvokeBlockSimulation(blockData, simulationChunkData.ChunkPos, out var removeSimulationData);
@@ -305,10 +309,12 @@ public class WorldSimulation : MonoBehaviour
 
     void SaveSimulationData(SimulationChunkData simulationChunkData)
     {
+#if !UNITY_WEBGL
         var fileName = GetChunkDataFileName(simulationChunkData.ChunkPos);
         var path = $"{simulationDataDirectory}{fileName}.json";
         var json = JsonConvert.SerializeObject(simulationChunkData);
         File.WriteAllText(path, json);
+#endif
     }
 
     string GetChunkDataFileName(Vector3 chunckPos)
@@ -328,6 +334,7 @@ public class WorldSimulation : MonoBehaviour
 
     private void LoadOrCreateSimulationConfig()
     {
+#if !UNITY_WEBGL
         CheckDirectory();
         var fileName = "SimulationConfig.json";
         var path = $"{Application.dataPath}/Data/Chuncks/{fileName}";
@@ -354,6 +361,7 @@ public class WorldSimulation : MonoBehaviour
             var json = JsonConvert.SerializeObject(config);
             File.WriteAllText(path, json);
         }
+#endif
     }
 
     private void Block_Mined(BlockData blockData)

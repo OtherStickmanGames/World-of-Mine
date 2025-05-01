@@ -89,7 +89,7 @@ public class UserData
         owner = JsonUtility.FromJson<UserData>(json);
 #endif
 
-#if UNITY_WEBGL
+#if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
         owner.userName = YG.YandexGame.savesData.nickname;
         owner.tutorialComplete = YG.YandexGame.savesData.tutorialComplete;
         owner.tutorialSkiped = YG.YandexGame.savesData.tutorialSkiped;

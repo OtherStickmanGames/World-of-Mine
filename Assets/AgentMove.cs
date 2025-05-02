@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Linq;
 using System;
+using Unity.AI.Navigation;
 
 public class AgentMove : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class AgentMove : MonoBehaviour
     //[SerializeField] float approachDistance = 1.0f; // Допустимое расстояние при подходе к точке установки
     [SerializeField] byte scaffoldingBlockID = 1;   // ID временного блока для опоры (scaffolding)
     [SerializeField] int verticalGapThreshold = 5;  // Если зазор меньше или равен этому порогу, строим вертикальную колонну
+    [SerializeField] ItemID[] excludePathfindingBlocks;
     [SerializeField] GameObject markerPrefab;
 
     public bool skipContine;
@@ -282,6 +284,16 @@ public class AgentMove : MonoBehaviour
             yield break;
         }
 
+
+        var startItemId = (ItemID)WorldGenerator.Inst.GetBlockID(agentPos);
+        if (excludePathfindingBlocks.Contains(startItemId))
+        {
+            var linkGo = new GameObject("-= LINKO =-");
+            var link = linkGo.AddComponent<NavMeshLink>();
+            link.transform.position = agentPos;
+            link.width = 0.9f;
+        }
+
         Debug.Log("Найден путь для scaffolding, длина: " + path.Count);
         List<Vector3Int> scaffoldingPositions = new();
         foreach (Vector3Int cell in path)
@@ -292,14 +304,16 @@ public class AgentMove : MonoBehaviour
                 WorldGenerator.Inst.SetBlockAndUpdateChunck(cell, scaffoldingBlockID);
                 yield return new WaitForSeconds(0.3f);
 
-                //var go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                //go.transform.position = cell;
-                //go.transform.localScale *= 0.3f;
-                //go.name = "ыыыыыы";
+                //var pathPart = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                //pathPart.transform.position = cell + new Vector3(-0.5f, 0.3f, 0.5f);
+                //pathPart.transform.localScale *= 0.5f;
+                //pathPart.name = "-= Часть пути =-";
 
                 var approachCellPos = NavigationTool.FindApproachPositionOnBlock(cell);
 
                 yield return StartCoroutine(SimpleMoveToPosition(approachCellPos));
+
+                print("продвинулся вродь");
 
                 scaffoldingPositions.Add(cell);
 
@@ -360,7 +374,7 @@ public class AgentMove : MonoBehaviour
 
     private IEnumerator AStarPath3DCoroutine(Vector3Int start, Vector3Int goal, Action<List<Vector3Int>> callback)
     {
-        print($"Id goal блока {WorldGenerator.Inst.GetBlockID(goal)}");
+        print($"Id goal блока {(ItemID)WorldGenerator.Inst.GetBlockID(goal)}");
         // Разрешаем движения, исключая диагональные переходы в горизонтальной плоскости.
         // Разрешаем только движения, в которых либо dx == 0, либо dz == 0 (но не оба ненулевые).
         // Также исключаем чисто вертикальные ходы (когда dx и dz равны 0, а dy не равен 0).
@@ -399,6 +413,8 @@ public class AgentMove : MonoBehaviour
         startNode.hCost = ManhattanDistance(start, goal);
         openSet.Add(start, startNode);
 
+        print($"{(ItemID)WorldGenerator.Inst.GetBlockID(startNode.position)} Стартовая ---");
+
         int iterations = 0;
         int maxIterations = 10000;
         while (openSet.Count > 0)
@@ -435,12 +451,20 @@ public class AgentMove : MonoBehaviour
             openSet.Remove(current.position);
             closedSet.Add(current.position);
 
+            
             // --=-- Перебор соседних узлов --=--
             foreach (var dir in allowedDirections)
             {
                 Vector3Int neighborPos = current.position + dir;
                 if (closedSet.Contains(neighborPos))
                     continue;
+
+                var neighborId = WorldGenerator.Inst.GetBlockID(neighborPos);
+                if (excludePathfindingBlocks.Contains((ItemID)neighborId))
+                {
+                    //print("=-=-=-=-=-=-=-");
+                    continue;
+                }
 
                 // Проверка, которая исключает ноду, если агент стоит под блоками
                 // и нода ведет вверх, агент не сможет сразу начать подъем

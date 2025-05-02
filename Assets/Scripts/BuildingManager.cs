@@ -123,14 +123,12 @@ public class BuildingManager : MonoBehaviour
     private void CheckToAddTurnBlockData(Vector3 worldBlockPos)
     {
         var chunk = WorldGenerator.Inst.GetChunk(worldBlockPos);
-        var localBlockPos = WorldGenerator.Inst.ToLocalBlockPos(worldBlockPos);
         var localPoses = chunk.turnedBlocks.Keys;
         foreach (var localPos in localPoses)
         {
             //print($"{localPos + chunk.pos - Vector3.right} === {worldBlockPos}");
             if (localPos + chunk.pos - Vector3.right == worldBlockPos)
             {
-                //print($"=-=-=-=-=-=-=-");
                 var turnsData = chunk.turnedBlocks[localPos];
                 // Да там есть конструктор, но он принимает локальную позицию блока
                 // а в данном случае нам нужна глобальная позиция, так как потом

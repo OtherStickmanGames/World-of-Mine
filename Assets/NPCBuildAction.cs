@@ -279,13 +279,19 @@ namespace Ururu
                 {
                     var hasTurned = turnedBlocks.Find(t => t.Pos == block.localPosition);
 
-                    print(hasTurned.turnsBlockData != null);
+                    // Потом переделать на другие методы, эти не сохраняют инфу на серевере
+                    if (hasTurned.turnsBlockData != null)
+                    {
+                        var chunk = WorldGenerator.Inst.GetChunk(globalPos);
+                        var blockLocalPos = (globalPos - chunk.pos).ToVecto3Int();
+                        chunk.AddTurnBlock(blockLocalPos, hasTurned.turnsBlockData);
+                    }
 
                     WorldGenerator.Inst.SetBlockAndUpdateChunck(globalPos, block.blockID);
                 }
                 else
                 {
-                    
+
                     Debug.Log("NPC не смог подойти достаточно близко для установки блока: " + globalPos);
                 }
 

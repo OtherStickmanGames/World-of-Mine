@@ -2062,7 +2062,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   generateNavMesh: 1
-  generateNavLinks: 0
+  generateNavLinks: 1
   viewChunck: 5
   navMeshVoxelSize: 0.1
   navMeshTileSize: 128
@@ -2979,7 +2979,7 @@ PrefabInstance:
     - target: {fileID: 4795892551876565928, guid: 3f89f95edf2d1004a8213b9f9999a968,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000022888184
+      value: 0.0000076293945
       objectReference: {fileID: 0}
     - target: {fileID: 5070144687136410380, guid: 3f89f95edf2d1004a8213b9f9999a968,
         type: 3}
@@ -11851,11 +11851,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1828219939968166787, guid: 635c03d88c5a6734ba6dfb445f262067,
+        type: 3}
+      propertyPath: scaffoldingBlockID
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 1828219939968166787, guid: 635c03d88c5a6734ba6dfb445f262067,
+        type: 3}
+      propertyPath: excludePathfindingBlocks.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1828219939968166787, guid: 635c03d88c5a6734ba6dfb445f262067,
+        type: 3}
+      propertyPath: excludePathfindingBlocks.Array.data[0]
+      value: 120
+      objectReference: {fileID: 0}
     - target: {fileID: 7069488748676929806, guid: 635c03d88c5a6734ba6dfb445f262067,
         type: 3}
       propertyPath: buildingData
       value: 
-      objectReference: {fileID: 4900000, guid: 95722ba1b23bcdf4f81839f08d3f6ae0, type: 3}
+      objectReference: {fileID: 4900000, guid: 53de735816581924383d0f27c13c1a99, type: 3}
     - target: {fileID: 7069488748676929806, guid: 635c03d88c5a6734ba6dfb445f262067,
         type: 3}
       propertyPath: scaffoldingBlockID

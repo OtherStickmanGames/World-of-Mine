@@ -1378,8 +1378,307 @@
             }
         ]
     },
-    "createDate": "2025-05-01T20:54:42.6980962+03:00",
-    "nameBuilding": "НУс",
-    "guid": "120ef4f9-eec8-486a-81ea-aadadd55838f",
-    "playersLiked": null
+    "createDate": "2025-05-02T23:02:18.1139181+03:00",
+    "nameBuilding": "Шедеврище - 2",
+    "guid": "9f1cfa31-7c22-4739-a1b0-c9309c35e9f4",
+    "playersLiked": null,
+    "turnedBlocks": [
+        {
+            "posX": 1.0,
+            "posY": 2.0,
+            "posZ": 3.0,
+            "turnsBlockData": [
+                {
+                    "angle": -90.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 1.0,
+            "posY": 2.0,
+            "posZ": 4.0,
+            "turnsBlockData": [
+                {
+                    "angle": -90.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 1.0,
+            "posY": 3.0,
+            "posZ": 3.0,
+            "turnsBlockData": [
+                {
+                    "angle": -90.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 1.0,
+            "posY": 3.0,
+            "posZ": 4.0,
+            "turnsBlockData": [
+                {
+                    "angle": -90.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 2.0,
+            "posY": 5.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 2.0,
+            "posY": 6.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 2.0,
+            "posY": 7.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 3.0,
+            "posY": 0.0,
+            "posZ": 0.0,
+            "turnsBlockData": [
+                {
+                    "angle": 180.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 3.0,
+            "posY": 2.0,
+            "posZ": 6.0,
+            "turnsBlockData": [
+                {
+                    "angle": 180.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 3.0,
+            "posY": 3.0,
+            "posZ": 6.0,
+            "turnsBlockData": [
+                {
+                    "angle": 180.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 3.0,
+            "posY": 5.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 3.0,
+            "posY": 6.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 3.0,
+            "posY": 7.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 4.0,
+            "posY": 0.0,
+            "posZ": 0.0,
+            "turnsBlockData": [
+                {
+                    "angle": 180.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 4.0,
+            "posY": 2.0,
+            "posZ": 6.0,
+            "turnsBlockData": [
+                {
+                    "angle": 180.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 4.0,
+            "posY": 3.0,
+            "posZ": 6.0,
+            "turnsBlockData": [
+                {
+                    "angle": 180.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 4.0,
+            "posY": 5.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 4.0,
+            "posY": 6.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 4.0,
+            "posY": 7.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 5.0,
+            "posY": 1.0,
+            "posZ": 5.0,
+            "turnsBlockData": [
+                {
+                    "angle": 180.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 5.0,
+            "posY": 5.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 5.0,
+            "posY": 6.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 5.0,
+            "posY": 7.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 6.0,
+            "posY": 2.0,
+            "posZ": 3.0,
+            "turnsBlockData": [
+                {
+                    "angle": 90.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 6.0,
+            "posY": 2.0,
+            "posZ": 4.0,
+            "turnsBlockData": [
+                {
+                    "angle": 90.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 6.0,
+            "posY": 3.0,
+            "posZ": 3.0,
+            "turnsBlockData": [
+                {
+                    "angle": 90.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 6.0,
+            "posY": 3.0,
+            "posZ": 4.0,
+            "turnsBlockData": [
+                {
+                    "angle": 90.0,
+                    "axis": 2
+                }
+            ]
+        }
+    ]
 }

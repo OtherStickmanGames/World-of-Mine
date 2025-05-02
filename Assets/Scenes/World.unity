@@ -2062,7 +2062,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   generateNavMesh: 1
-  generateNavLinks: 1
+  generateNavLinks: 0
   viewChunck: 5
   navMeshVoxelSize: 0.1
   navMeshTileSize: 128

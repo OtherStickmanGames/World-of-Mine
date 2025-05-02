@@ -290,9 +290,23 @@ public class AgentMove : MonoBehaviour
         {
             var linkGo = new GameObject("-= LINKO =-");
             var link = linkGo.AddComponent<NavMeshLink>();
-            link.transform.position = agentPos;
+            link.transform.position = agentPos + new Vector3(-0.5f, 1f, 0.5f);
             link.width = 0.9f;
+            link.autoUpdate = true;
+            
+
+            var firstPathNode = path[1];
+            var dir = firstPathNode - agentPos;
+            print(dir + " ###########");
+            if (dir.x != 0)
+            {
+                linkGo.transform.rotation = Quaternion.Euler(0, 90 * dir.x, 0);
+            }
+            link.endPoint = new Vector3(0, dir.y, 1);
+            link.startPoint = Vector3.zero;
         }
+
+        yield return new WaitForSeconds(0.5f);
 
         Debug.Log("Найден путь для scaffolding, длина: " + path.Count);
         List<Vector3Int> scaffoldingPositions = new();

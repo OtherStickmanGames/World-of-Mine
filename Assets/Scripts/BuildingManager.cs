@@ -130,12 +130,17 @@ public class BuildingManager : MonoBehaviour
             if (localPos == localBlockPos)
             {
                 var turnsData = chunk.turnedBlocks[localPos];
-                var jsonTurnData = new JsonTurnedBlock
-                (
-                    localPos,
-                    turnsData.ToArray()
-                );
-
+                // Да там есть конструктор, но он принимает локальную позицию блока
+                // а в данном случае нам нужна глобальная позиция, так как потом
+                // ещё будем нормализовывать
+                var jsonTurnData = new JsonTurnedBlock()
+                {
+                    posX = worldBlockPos.x,
+                    posY = worldBlockPos.y,
+                    posZ = worldBlockPos.z,
+                    turnsBlockData = turnsData.ToArray()
+                };
+                
                 turnedBlocks.Add(jsonTurnData);
             }
         }
@@ -195,7 +200,7 @@ public class BuildingManager : MonoBehaviour
     {
         ClearHighlights();
 
-        MeshGenerator.NormalizeBlocksPositions(blocksData);
+        MeshGenerator.NormalizeBlocksPositions(blocksData, turnedBlocks);
 
         var mesh = MeshGenerator.Single.GenerateMesh(blocksData);
         var building = new GameObject($"BUILDING PREVIEW");

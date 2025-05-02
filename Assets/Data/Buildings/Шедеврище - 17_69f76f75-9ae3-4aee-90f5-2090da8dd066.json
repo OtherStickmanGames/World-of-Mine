@@ -1,0 +1,48 @@
+{
+    "blocksData": {
+        "userName": "Скиталец 754",
+        "changedBlocks": [
+            {
+                "posX": 0.0,
+                "posY": 0.0,
+                "posZ": 0.0,
+                "blockId": 1
+            },
+            {
+                "posX": 0.0,
+                "posY": 0.0,
+                "posZ": 1.0,
+                "blockId": 1
+            },
+            {
+                "posX": 0.0,
+                "posY": 1.0,
+                "posZ": 0.0,
+                "blockId": 16
+            },
+            {
+                "posX": 0.0,
+                "posY": 1.0,
+                "posZ": 1.0,
+                "blockId": 16
+            },
+            {
+                "posX": 1.0,
+                "posY": 0.0,
+                "posZ": 0.0,
+                "blockId": 1
+            },
+            {
+                "posX": 1.0,
+                "posY": 0.0,
+                "posZ": 1.0,
+                "blockId": 1
+            }
+        ]
+    },
+    "createDate": "2025-05-02T03:44:49.4915668+03:00",
+    "nameBuilding": "Шедеврище - 17",
+    "guid": "69f76f75-9ae3-4aee-90f5-2090da8dd066",
+    "playersLiked": null,
+    "turnedBlocks": []
+}

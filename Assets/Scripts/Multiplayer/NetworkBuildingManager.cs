@@ -54,7 +54,8 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SaveBuildingServerRpc(Vector3[] positions, byte[] blockIDs, NetworkTurnedBlockData[] turnedBlocks, string nameBuilding, ServerRpcParams serverRpcParams = default )
     {
-        print($"{turnedBlocks.Length} _+_+_+_+_+_+_+");
+        var jsonTurnedBlocks = ConvertTools.ToJsonTurnedBlock(turnedBlocks);
+        print($"{jsonTurnedBlocks.Count} _+_+_+_+_+_+_+");
 #if !UNITY_WEBGL
         UserChunckData buildData = new UserChunckData()
         {
@@ -77,6 +78,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             createDate = DateTime.Now,
             nameBuilding = nameBuilding,
             guid = guid,
+            turnedBlocks = jsonTurnedBlocks,
         };
 
         var json = JsonConvert.SerializeObject(data);
@@ -328,6 +330,7 @@ public struct SaveBuildingData
     public string nameBuilding;
     public string guid;
     public List<string> playersLiked;
+    public List<JsonTurnedBlock> turnedBlocks;
 }
 
 

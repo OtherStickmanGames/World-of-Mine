@@ -1,0 +1,143 @@
+{
+    "blocksData": {
+        "userName": "Скиталец 754",
+        "changedBlocks": [
+            {
+                "posX": 0.0,
+                "posY": 0.0,
+                "posZ": 0.0,
+                "blockId": 1
+            },
+            {
+                "posX": 0.0,
+                "posY": 0.0,
+                "posZ": 1.0,
+                "blockId": 1
+            },
+            {
+                "posX": 0.0,
+                "posY": 0.0,
+                "posZ": 2.0,
+                "blockId": 1
+            },
+            {
+                "posX": 0.0,
+                "posY": 0.0,
+                "posZ": 3.0,
+                "blockId": 1
+            },
+            {
+                "posX": 1.0,
+                "posY": 0.0,
+                "posZ": 0.0,
+                "blockId": 1
+            },
+            {
+                "posX": 1.0,
+                "posY": 0.0,
+                "posZ": 1.0,
+                "blockId": 1
+            },
+            {
+                "posX": 1.0,
+                "posY": 0.0,
+                "posZ": 2.0,
+                "blockId": 1
+            },
+            {
+                "posX": 1.0,
+                "posY": 0.0,
+                "posZ": 3.0,
+                "blockId": 1
+            },
+            {
+                "posX": 1.0,
+                "posY": 1.0,
+                "posZ": 0.0,
+                "blockId": 16
+            },
+            {
+                "posX": 1.0,
+                "posY": 1.0,
+                "posZ": 1.0,
+                "blockId": 16
+            },
+            {
+                "posX": 2.0,
+                "posY": 0.0,
+                "posZ": 0.0,
+                "blockId": 1
+            },
+            {
+                "posX": 2.0,
+                "posY": 0.0,
+                "posZ": 1.0,
+                "blockId": 1
+            },
+            {
+                "posX": 2.0,
+                "posY": 0.0,
+                "posZ": 2.0,
+                "blockId": 1
+            },
+            {
+                "posX": 2.0,
+                "posY": 0.0,
+                "posZ": 3.0,
+                "blockId": 1
+            },
+            {
+                "posX": 3.0,
+                "posY": 0.0,
+                "posZ": 0.0,
+                "blockId": 1
+            },
+            {
+                "posX": 3.0,
+                "posY": 0.0,
+                "posZ": 1.0,
+                "blockId": 1
+            },
+            {
+                "posX": 3.0,
+                "posY": 0.0,
+                "posZ": 2.0,
+                "blockId": 1
+            },
+            {
+                "posX": 3.0,
+                "posY": 0.0,
+                "posZ": 3.0,
+                "blockId": 1
+            }
+        ]
+    },
+    "createDate": "2025-05-02T03:49:23.1882125+03:00",
+    "nameBuilding": "Шедеврище - 19",
+    "guid": "b97d28de-54fc-419f-a107-670bc5a8b18d",
+    "playersLiked": null,
+    "turnedBlocks": [
+        {
+            "posX": 2.0,
+            "posY": 1.0,
+            "posZ": 0.0,
+            "turnsBlockData": [
+                {
+                    "angle": 180.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 2.0,
+            "posY": 1.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 0.0,
+                    "axis": 2
+                }
+            ]
+        }
+    ]
+}

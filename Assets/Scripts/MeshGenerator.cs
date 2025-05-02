@@ -30,7 +30,7 @@ public class MeshGenerator : MonoBehaviour
         InitTriangulos();
     }
 
-    public static void NormalizeBlocksPositions(List<BlockData> blocksData)
+    public static void NormalizeBlocksPositions(List<BlockData> blocksData, List<ChunckData.JsonTurnedBlock> turnedBlocks)
     {
         var minX = float.MaxValue;
         var minY = float.MaxValue;
@@ -57,6 +57,15 @@ public class MeshGenerator : MonoBehaviour
             blockData.pos.x -= minX;
             blockData.pos.y -= minY;
             blockData.pos.z -= minZ;
+        }
+
+        for (int i = 0; i < turnedBlocks.Count; i++)
+        {
+            var turnData = turnedBlocks[i];
+            turnData.posX -= minX;
+            turnData.posY -= minY;
+            turnData.posZ -= minZ;
+            turnedBlocks[i] = turnData;
         }
     }
 

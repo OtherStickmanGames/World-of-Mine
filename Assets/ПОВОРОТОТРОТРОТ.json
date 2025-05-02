@@ -1,0 +1,76 @@
+{
+    "blocksData": {
+        "userName": "КУБАЧЕЛО 3000",
+        "changedBlocks": [
+            {
+                "posX": 0.0,
+                "posY": 0.0,
+                "posZ": 1.0,
+                "blockId": 16
+            },
+            {
+                "posX": 1.0,
+                "posY": 0.0,
+                "posZ": 0.0,
+                "blockId": 16
+            },
+            {
+                "posX": 1.0,
+                "posY": 0.0,
+                "posZ": 1.0,
+                "blockId": 63
+            },
+            {
+                "posX": 1.0,
+                "posY": 1.0,
+                "posZ": 1.0,
+                "blockId": 63
+            },
+            {
+                "posX": 2.0,
+                "posY": 0.0,
+                "posZ": 1.0,
+                "blockId": 16
+            }
+        ]
+    },
+    "createDate": "2025-05-02T22:39:33.9158164+03:00",
+    "nameBuilding": "Шедеврище - 2",
+    "guid": "c9c45dbb-d657-44a6-8ebd-8b1c0f40b724",
+    "playersLiked": null,
+    "turnedBlocks": [
+        {
+            "posX": 0.0,
+            "posY": 0.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": 90.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 1.0,
+            "posY": 0.0,
+            "posZ": 0.0,
+            "turnsBlockData": [
+                {
+                    "angle": 180.0,
+                    "axis": 2
+                }
+            ]
+        },
+        {
+            "posX": 2.0,
+            "posY": 0.0,
+            "posZ": 1.0,
+            "turnsBlockData": [
+                {
+                    "angle": -90.0,
+                    "axis": 2
+                }
+            ]
+        }
+    ]
+}

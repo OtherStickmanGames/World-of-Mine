@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
+using static ChunckData;
 
 namespace Ururu
 {
@@ -20,6 +21,7 @@ namespace Ururu
         PlayerBehaviour player;
         NavMeshAgent agent;
         List<BlockData> blueprint;
+        List<JsonTurnedBlock> turnedBlocks;
 
         private Vector3 currentBuildingBasePosition;
         private HashSet<Vector3> currentBlueprintPositions;
@@ -37,6 +39,7 @@ namespace Ururu
             {
                 blueprint.Add(new BlockData() { blockID = item.blockId, localPosition = item.Pos });
             }
+            turnedBlocks = savedBuilding.turnedBlocks;
             //blueprint = BlockUtils.FillBoundingBox(blueprint);
 
             Debug.Log("Блоков в чертеже: " + blueprint.Count);
@@ -274,6 +277,10 @@ namespace Ururu
                 // 4. Если NPC достаточно близко, устанавливаем блок
                 if (Vector3.Distance(transform.position, globalPos + offset) <= buildRange)
                 {
+                    var hasTurned = turnedBlocks.Find(t => t.Pos == block.localPosition);
+
+                    print(hasTurned.turnsBlockData != null);
+
                     WorldGenerator.Inst.SetBlockAndUpdateChunck(globalPos, block.blockID);
                 }
                 else

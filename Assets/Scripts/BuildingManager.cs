@@ -73,6 +73,7 @@ public class BuildingManager : MonoBehaviour
             ClearHighlights();
 
             blocksData.Clear();
+            turnedBlocks.Clear();
 
             startPos = startPos.ToGlobalBlockPos();
             endPos = endPos.ToGlobalBlockPos();
@@ -95,8 +96,7 @@ public class BuildingManager : MonoBehaviour
                         pos.y = y;
                         pos.z = z;
 
-                        var worldBlockPos = pos + Vector3.right;
-                        var blockID = WorldGenerator.Inst.GetBlockID(worldBlockPos);
+                        var blockID = WorldGenerator.Inst.GetBlockID(pos + Vector3.right);
                         if (blockID == 0)
                         {
                             continue;
@@ -107,7 +107,7 @@ public class BuildingManager : MonoBehaviour
 
                         // Потом можно оптимизировать
                         
-                        CheckToAddTurnBlockData(worldBlockPos);
+                        CheckToAddTurnBlockData(pos);
 
 
                         var highlight = Instantiate(highlightBlockPrefab, pos, Quaternion.identity);
@@ -127,8 +127,10 @@ public class BuildingManager : MonoBehaviour
         var localPoses = chunk.turnedBlocks.Keys;
         foreach (var localPos in localPoses)
         {
-            if (localPos == localBlockPos)
+            //print($"{localPos + chunk.pos - Vector3.right} === {worldBlockPos}");
+            if (localPos + chunk.pos - Vector3.right == worldBlockPos)
             {
+                //print($"=-=-=-=-=-=-=-");
                 var turnsData = chunk.turnedBlocks[localPos];
                 // Да там есть конструктор, но он принимает локальную позицию блока
                 // а в данном случае нам нужна глобальная позиция, так как потом
@@ -301,6 +303,7 @@ public class BuildingManager : MonoBehaviour
     public void CreateBuildingPreview(BuildingServerData buildingServerData)
     {
         blocksData.Clear();
+        turnedBlocks.Clear();
 
         var length = buildingServerData.blockIDs.Length;
         for (int i = 0; i < length; i++)

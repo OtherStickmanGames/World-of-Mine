@@ -55,7 +55,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     private void SaveBuildingServerRpc(Vector3[] positions, byte[] blockIDs, NetworkTurnedBlockData[] turnedBlocks, string nameBuilding, ServerRpcParams serverRpcParams = default )
     {
         var jsonTurnedBlocks = ConvertTools.ToJsonTurnedBlock(turnedBlocks);
-        print($"{jsonTurnedBlocks.Count} _+_+_+_+_+_+_+");
+        
 #if !UNITY_WEBGL
         UserChunckData buildData = new UserChunckData()
         {

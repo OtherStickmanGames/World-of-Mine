@@ -284,26 +284,14 @@ public class AgentMove : MonoBehaviour
             yield break;
         }
 
+        List<GameObject> toAfterDestroy = new();
 
         var startItemId = (ItemID)WorldGenerator.Inst.GetBlockID(agentPos);
+        
         if (excludePathfindingBlocks.Contains(startItemId))
         {
-            var linkGo = new GameObject("-= LINKO =-");
-            var link = linkGo.AddComponent<NavMeshLink>();
-            link.transform.position = agentPos + new Vector3(-0.5f, 1f, 0.5f);
-            link.width = 0.9f;
-            link.autoUpdate = true;
-            
-
-            var firstPathNode = path[1];
-            var dir = firstPathNode - agentPos;
-            print(dir + " ###########");
-            if (dir.x != 0)
-            {
-                linkGo.transform.rotation = Quaternion.Euler(0, 90 * dir.x, 0);
-            }
-            link.endPoint = new Vector3(0, dir.y, 1);
-            link.startPoint = Vector3.zero;
+            var pathLink = CreatePathNavMeshLink(agentPos, path[1]);
+            toAfterDestroy.Add(pathLink);
         }
 
         yield return new WaitForSeconds(0.5f);
@@ -340,6 +328,7 @@ public class AgentMove : MonoBehaviour
                     var prevScaffolding = scaffoldingPositions[prevIdx];
                     //if (IsPositionInsideBuilding(blocks, prevScaffolding, start))
                     {
+                        print("уебу");
                         WorldGenerator.Inst.SetBlockAndUpdateChunck(prevScaffolding, 0);
                         scaffoldingPositions.RemoveAt(prevIdx);
 
@@ -370,6 +359,33 @@ public class AgentMove : MonoBehaviour
         yield return StartCoroutine(MoveToPosition(destination, false));
 
         Destroy(go);
+        foreach (var item in toAfterDestroy)
+        {
+            Destroy(item);
+        }
+    }
+
+    GameObject CreatePathNavMeshLink(Vector3 start, Vector3 end)
+    {
+        var linkGo = new GameObject("-= PATH LINK =-");
+        var link = linkGo.AddComponent<NavMeshLink>();
+        link.transform.position = start + new Vector3(-0.5f, 1f, 0.5f);
+        link.width = 0.97f;
+        link.autoUpdate = true;
+
+        var dir = end - start;
+
+        if ((int)dir.x != 0)
+        {
+            linkGo.transform.rotation = Quaternion.Euler(0, 90 * dir.x, 0);
+        }
+        if ((int)dir.z != 0 && dir.z < 0)
+        {
+            linkGo.transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+        link.endPoint = new Vector3(0, dir.y, 1);
+        link.startPoint = Vector3.zero;
+        return linkGo;
     }
 
     public IEnumerator StopAgent()
@@ -680,8 +696,20 @@ public class AgentMove : MonoBehaviour
                 print("застопал");
                 
                 yield return wait01;
-
-                WorldGenerator.Inst.SetBlockAndUpdateChunck(pos, 0);
+                // TO DO, вообще тут такое дело, что так как в метод построения
+                // лестницы, мы не передаем конечную точку где поставить блок, 
+                // а только ближайшую точку на навмеше, то иногда NPC ставит 
+                // сначала лестницу на том месте где должен быть блок,
+                // затем нужный блок, а потом удаляет нужный блок, так как думает,
+                // что это часть лестницы. 
+                // Варианты: либо проверять длинну пути, типа если 1,
+                // то не ставить лестницу, либо передавать точку в которой
+                // должен быть блок
+                // Пока просто проверяю, чтобы удаляемый блок являлся лестницей
+                if (WorldGenerator.Inst.GetBlockID(pos) == scaffoldingBlockID)
+                {
+                    WorldGenerator.Inst.SetBlockAndUpdateChunck(pos, 0);
+                }
 
                 if (!allScaffoldingPositions.Remove(pos))
                 {

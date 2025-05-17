@@ -309,6 +309,7 @@ namespace Ururu
             byte currentID = WorldGenerator.Inst.GetBlockID(globalPos);
             if (currentID != 0 && currentID != targetBlock.blockID)
             {
+                print("ды ебать");
                 WorldGenerator.Inst.SetBlockAndUpdateChunck(globalPos, 0);
                 yield return new WaitForSeconds(0.3f);
             }
@@ -1125,6 +1126,7 @@ namespace Ururu
 
                         foreach (var item in ebos)
                         {
+                            print("шо за нах");
                             WorldGenerator.Inst.SetBlockAndUpdateChunck(item, 0);
                         }
                         foreach (var item in path)

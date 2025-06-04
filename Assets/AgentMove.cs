@@ -235,7 +235,7 @@ public class AgentMove : MonoBehaviour
         var go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         go.transform.position = destination;
         go.transform.localScale *= 0.3f;
-        go.name = "ыыыыыы";
+        go.name = "Destination Как Есть";
 
         yield return new WaitForSeconds(0.5f);
 
@@ -271,7 +271,7 @@ public class AgentMove : MonoBehaviour
         go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         go.transform.position = destPos;
         go.transform.localScale *= 0.3f;
-        go.name = "лырвиыуаыуа";
+        go.name = "Нормализованный Destionation";
 
         List<Vector3Int> path = null;
         Debug.Log("Высоты отличаются – ищем путь ступеньками через AStarPath3D.");

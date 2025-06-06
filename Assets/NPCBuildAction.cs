@@ -319,7 +319,7 @@ namespace Ururu
         private Vector3 FindApproachPosition(Vector3 targetPos)
         {
             NavMeshHit hit;
-            if (NavMesh.SamplePosition(targetPos, out hit, buildRange, NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(targetPos, out hit, buildRange - 0.5f, NavMesh.AllAreas))
             {
                 return hit.position;
             }

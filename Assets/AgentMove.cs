@@ -236,6 +236,7 @@ public class AgentMove : MonoBehaviour
         go.transform.position = destination;
         go.transform.localScale *= 0.3f;
         go.name = "Destination Как Есть";
+        Destroy(go.GetComponent<Collider>());
 
         yield return new WaitForSeconds(0.5f);
 
@@ -272,6 +273,7 @@ public class AgentMove : MonoBehaviour
         go.transform.position = destPos;
         go.transform.localScale *= 0.3f;
         go.name = "Нормализованный Destionation";
+        Destroy(go.GetComponent<Collider>());
 
         List<Vector3Int> path = null;
         Debug.Log("Высоты отличаются – ищем путь ступеньками через AStarPath3D.");
@@ -490,11 +492,7 @@ public class AgentMove : MonoBehaviour
                     continue;
 
                 var neighborId = WorldGenerator.Inst.GetBlockID(neighborPos);
-                if (excludePathfindingBlocks.Contains((ItemID)neighborId))
-                {
-                    //print("=-=-=-=-=-=-=-");
-                    continue;
-                }
+
 
                 // Проверка, которая исключает ноду, если агент стоит под блоками
                 // и нода ведет вверх, агент не сможет сразу начать подъем
@@ -503,7 +501,7 @@ public class AgentMove : MonoBehaviour
                     var up3Pos = current.position + (Vector3Int.up * 3);
                     if (WorldGenerator.Inst.GetBlockID(up3Pos) != 0)
                     {
-                        continue;                 
+                        continue;
                     }
                 }
 
@@ -595,6 +593,18 @@ public class AgentMove : MonoBehaviour
                             current = current.parent;
                         }
                         return false;
+                    }
+
+                    if (excludePathfindingBlocks.Contains((ItemID)neighborId))
+                    {
+                        //print("=-=-=-=-=-=-=-");
+                        continue;
+                    }
+
+                    var neighborDownId = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.down);
+                    if (excludePathfindingBlocks.Contains((ItemID)neighborDownId))
+                    {
+                        continue;
                     }
 
                     // если уже в openSet или closedSet есть нода ниже

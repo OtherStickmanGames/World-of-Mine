@@ -30,6 +30,11 @@ public class AgentMove : MonoBehaviour
         {
             isPaused = false;
         }
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            print($"{agent.isOnNavMesh} === {agent.isOnOffMeshLink}");
+        }
     }
 
     
@@ -156,6 +161,8 @@ public class AgentMove : MonoBehaviour
 
     public IEnumerator SimpleMoveToPosition(Vector3 destination, float approachDistance = 0.1f)
     {
+        //print($"ыыы === {agent.isOnOffMeshLink}");
+
         var distance = Vector3.Distance(transform.position, destination);
         if (distance < approachDistance)
         {
@@ -223,6 +230,8 @@ public class AgentMove : MonoBehaviour
             lastDistanceToDest = currentDistanceToDest;
             lastPosition = agent.transform.position;
             yield return null;
+
+            print($"премся === {agent.isOnOffMeshLink}");
         }
 
         yield return StartCoroutine(StopAgent());
@@ -316,7 +325,7 @@ public class AgentMove : MonoBehaviour
                 var approachCellPos = NavigationTool.FindApproachPositionOnBlock(cell);
 
                 yield return StartCoroutine(SimpleMoveToPosition(approachCellPos));
-
+                //print($"=== {agent.isOnOffMeshLink} &&& {agent.isOnNavMesh}");
                 print("продвинулся вродь");
 
                 scaffoldingPositions.Add(cell);
@@ -367,6 +376,13 @@ public class AgentMove : MonoBehaviour
         }
     }
 
+
+    // Иногда возникает ситуация, при которой НавЛинк создается рядом с блоком
+    // на котором невозможно создать Нав Меш, и иногда для Нав Линка не строится
+    // геометрия и агент не может пройти по этому линку. В методе Update на
+    // клавишу Т есть дебаг, стоит ли агент на навмеше и стоит ли он возле 
+    // нав линка. Идея в том, что либо перемешать агент на навмеш в таких 
+    // ситуациях и уже из него строить путь, либо вручную перемещать по линку
     GameObject CreatePathNavMeshLink(Vector3 start, Vector3 end)
     {
         var linkGo = new GameObject("-= PATH LINK =-");
@@ -601,11 +617,11 @@ public class AgentMove : MonoBehaviour
                         continue;
                     }
 
-                    var neighborDownId = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.down);
-                    if (excludePathfindingBlocks.Contains((ItemID)neighborDownId))
-                    {
-                        continue;
-                    }
+                    //var neighborDownId = WorldGenerator.Inst.GetBlockID(neighborPos + Vector3Int.down);
+                    //if (excludePathfindingBlocks.Contains((ItemID)neighborDownId))
+                    //{
+                    //    continue;
+                    //}
 
                     // если уже в openSet или closedSet есть нода ниже
                     // от кандидата, пропускаем её

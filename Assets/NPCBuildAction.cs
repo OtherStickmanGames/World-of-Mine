@@ -270,6 +270,11 @@ namespace Ururu
 
                 var offset = new Vector3(-0.5f, 0.1f, 0.5f);
                 // 3. Находим точку подхода через NavMesh и перемещаемся туда
+
+                // Есть проблема при потсройки зданий, агент при строительстве крыши может
+                // стремится дойти до точки на подоконнике, а не на самой крыше, она почему-то
+                // помечается как ближайшая, есть смысл пробовать давать разные точки в метод
+                // FindApproachPosition
                 Vector3 approachPos = FindApproachPosition(globalPos + offset);
 
                 yield return StartCoroutine(agentMove.MoveToPosition(approachPos, true, 1.5f));

@@ -159,6 +159,7 @@ public class UI : MonoBehaviour
 
     private void Start()
     {
+        chatView.gameObject.SetActive(true);
 #if UNITY_SERVER
         START_SERVER();
 #else
@@ -182,7 +183,7 @@ public class UI : MonoBehaviour
         showBuildingView.gameObject.SetActive(false);
 
         hideShowCursorInfo.SetActive(false);
-        chatView.gameObject.SetActive(true);
+        
 
         chatView.Hide();
 

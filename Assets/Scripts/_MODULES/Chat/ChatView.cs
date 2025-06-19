@@ -95,6 +95,7 @@ public class ChatView : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendMessageServerRpc(string message, ServerRpcParams serverRpcParams = default)
     {
+        print($"пришел мсг {message}");
         var clientID = serverRpcParams.Receive.SenderClientId;
         var username = "Кусок Травы";
         if (usernames.ContainsKey(clientID))

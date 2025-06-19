@@ -20,7 +20,7 @@ public class NicknamesView : MonoBehaviour
     public void Init()
     {
         Character.onSpawn.AddListener(AnyCharacter_Spawned);
-        Character.onDisable.AddListener(AnyCharacter_Disabled);
+        Character.onAnyDestroy.AddListener(AnyCharacter_Disabled);
         PlayerBehaviour.onMineSpawn.AddListener(MinePlayer_Spawned);
     }
 

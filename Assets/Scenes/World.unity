@@ -1792,7 +1792,7 @@ MonoBehaviour:
   isLocalhost: 1
   serverAdress: 176.123.167.245
   devServerAdress: 176.123.165.242
-  hostName: worldofmine.online
+  hostName: devworldofmine.online
   yandexMetricCounter: 99583935
   workerPrefab: {fileID: 0}
   workersParent: {fileID: 0}
@@ -3919,7 +3919,7 @@ MonoBehaviour:
   m_MaxConnectAttempts: 60
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
-    Address: 127.0.01
+    Address: 127.0.0.1
     Port: 7777
     ServerListenAddress: 0.0.0.0
   DebugSimulator:
@@ -11884,7 +11884,7 @@ PrefabInstance:
     - target: {fileID: 8356942478678974383, guid: 635c03d88c5a6734ba6dfb445f262067,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8789551433373272277, guid: 635c03d88c5a6734ba6dfb445f262067,
         type: 3}

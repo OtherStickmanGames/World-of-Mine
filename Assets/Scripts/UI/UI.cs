@@ -391,6 +391,12 @@ public class UI : MonoBehaviour
 
         transport.UseEncryption = true;
         var hostname = "worldofmine.online";
+        if (GameManager.Inst.useDevServer)
+        {
+            transport.SetConnectionData(GameManager.Inst.devServerAdress, 443);
+
+            hostname = "devworldofmine.online";
+        }
 #if UNITY_WEBGL && !UNITY_EDITOR
         if (Application.absoluteURL.IndexOf("draft=true") > 0)
         {
@@ -460,7 +466,7 @@ public class UI : MonoBehaviour
         playerBeh.MobileTestINput = testMobileInput;
         playerBeh.onBlockInteract.AddListener(PlayerBlock_Interacted);
 
-        Character.onDisable.AddListener(Character_Destroyed);
+        Character.onAnyDestroy.AddListener(Character_Destroyed);
 
         var thirdController = playerBeh.GetComponent<ThirdPersonController>();
         thirdController.AllowCameraRotation = false;

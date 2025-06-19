@@ -73,6 +73,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendSurveySelectServerRpc(string date, int idx, ServerRpcParams serverRpcParams = default)
     {
+#if !UNITY_WEBGL || UNITY_EDITOR
         date = date.Replace(".", "_");
         var found = newsData.Find(n => n.name == date);
         found.survey[idx].votes++;
@@ -80,6 +81,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
         print(json);
         var path = $"{releaseNotesDirectory}{date}.json";
         File.WriteAllText(path, json);
+#endif
     }
 
     private void PlayVoice_Ended(AudioClip audio)
@@ -285,6 +287,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
 
     private void CreateJsonTemplate()
     {
+#if !UNITY_WEBGL || UNITY_EDITOR
         NetworkNewsData data = new();
         data.survey = new NetworkSurveyData[]
         {
@@ -294,6 +297,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
         var json = JsonConvert.SerializeObject(data);
         var path = $"{releaseNotesDirectory}piso.json";
         File.WriteAllText(path, json);
+#endif
     }
 
     public static readonly JsonSerializerSettings settings = new()

@@ -34,9 +34,16 @@ public class CraftView : ViewUI
 
         player = character;
 
+        player.onDestroy.AddListener(Player_Destroyed);
         btnClose.onClick.AddListener(Close_Clicked);
         btnCraft.onClick.AddListener(Craft_Clicked);
         countCraftItems.Init();
+    }
+
+    private void Player_Destroyed()
+    {
+        btnCraft.onClick.RemoveListener(Craft_Clicked);
+        btnClose.onClick.RemoveListener(Close_Clicked);
     }
 
     private void Craft_Clicked()

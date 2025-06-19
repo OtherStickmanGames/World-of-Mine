@@ -1449,7 +1449,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7207017354971080454}
-  - component: {fileID: 1469545216109074659}
+  - component: {fileID: 929141924828510657}
   - component: {fileID: 5480103646710688747}
   m_Layer: 5
   m_Name: Chat
@@ -1478,7 +1478,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1469545216109074659
+--- !u!114 &929141924828510657
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1490,8 +1490,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3852542458
-  InScenePlacedSourceGlobalObjectIdHash: 3852542458
+  GlobalObjectIdHash: 172015183
+  InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
   ActiveSceneSynchronization: 0

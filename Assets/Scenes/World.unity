@@ -10107,15 +10107,20 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 690583769}
     m_Modifications:
+    - target: {fileID: 929141924828510657, guid: 0a087b4fc1ae94f41a63f89ea661c3af,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 391749588
+      objectReference: {fileID: 0}
+    - target: {fileID: 929141924828510657, guid: 0a087b4fc1ae94f41a63f89ea661c3af,
+        type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 172015183
+      objectReference: {fileID: 0}
     - target: {fileID: 993608621647939765, guid: 0a087b4fc1ae94f41a63f89ea661c3af,
         type: 3}
       propertyPath: m_SizeDelta.y
       value: 54.68
-      objectReference: {fileID: 0}
-    - target: {fileID: 1469545216109074659, guid: 0a087b4fc1ae94f41a63f89ea661c3af,
-        type: 3}
-      propertyPath: GlobalObjectIdHash
-      value: 457656988
       objectReference: {fileID: 0}
     - target: {fileID: 2787638106306568610, guid: 0a087b4fc1ae94f41a63f89ea661c3af,
         type: 3}

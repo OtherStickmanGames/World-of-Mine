@@ -6,6 +6,7 @@ public class WebGLInputList : MonoBehaviour
     public TMP_InputField[] inputFields; // Array of TMP InputFields
     private TouchScreenKeyboard[] keyboards; // Array of TouchScreenKeyboards
 
+#if UNITY_WEBGL
     void Start()
     {
         // Initialize the keyboards array to the same length as inputFields
@@ -14,6 +15,9 @@ public class WebGLInputList : MonoBehaviour
 
     void Update()
     {
+        //if (!Application.isMobilePlatform)
+        //    return;
+
         for (int i = 0; i < inputFields.Length; i++)
         {
             // Check if the current input field is focused and the keyboard is not already open
@@ -30,4 +34,5 @@ public class WebGLInputList : MonoBehaviour
             }
         }
     }
+#endif
 }

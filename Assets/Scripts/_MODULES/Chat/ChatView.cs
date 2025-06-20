@@ -4,13 +4,13 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using UnityEngine;
 using TMPro;
-using System;
 
 public class ChatView : NetworkBehaviour
 {
     [SerializeField] MessageView messagePrefab;
     [SerializeField] Transform messagesParent;
     [SerializeField] TMP_InputField messageInput;
+    [SerializeField] Scrollbar scrollbar;
     [SerializeField] Button btnSend;
     [SerializeField] GameObject view;
 
@@ -111,6 +111,10 @@ public class ChatView : NetworkBehaviour
     {
         var view = Instantiate(messagePrefab, messagesParent);
         view.Init(username, message);
+        LeanTween.value(gameObject, v =>
+        {
+            scrollbar.value = v;
+        }, scrollbar.value, 0, 0.3f).setEaseOutQuad();
     }
 
     private void Clear()

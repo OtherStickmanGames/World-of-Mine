@@ -50,6 +50,10 @@ public class UI : MonoBehaviour
 
     [SerializeField] Button btnReset;
 
+    [Header("Enable / Disable by Device Type")]
+    [SerializeField] List<GameObject> mobileDisable;
+    [SerializeField] List<GameObject> desktopDisable;
+
     [Header("DEV POEBOTA")]
     [SerializeField] Button btnDisableAll;
 
@@ -490,7 +494,7 @@ public class UI : MonoBehaviour
         InventoryParent.SetActive(true);
         ReleaseNotesParent.SetActive(false);
         btnPlay.gameObject.SetActive(false);
-        mobileInput.gameObject.SetActive(true);
+        
 
         btnSwitchCamera.gameObject.SetActive(true);
         btnInventory.gameObject.SetActive(true);
@@ -506,6 +510,7 @@ public class UI : MonoBehaviour
         {
             mobileController.SetActive(true);
             touchField.gameObject.SetActive(true);
+            mobileInput.gameObject.SetActive(true);
             hideShowCursorInfo.SetActive(false);
         }
         else
@@ -513,6 +518,8 @@ public class UI : MonoBehaviour
             touchField.gameObject.SetActive(false);
             hideShowCursorInfo.SetActive(true);
         }
+
+        DisableByDeviceType();
 
         var thirdController = mine.GetComponent<ThirdPersonController>();
         thirdController.AllowCameraRotation = true;
@@ -673,6 +680,24 @@ public class UI : MonoBehaviour
         if (NetworkManager.Singleton)
         {
             NetworkManager.Singleton.OnConnectionEvent -= ConnectionEvent_Invoked;
+        }
+    }
+
+    void DisableByDeviceType()
+    {
+        if (!Application.isMobilePlatform)
+        {
+            foreach (var go in mobileDisable)
+            {
+                go.SetActive(false);
+            }
+        }
+        else
+        {
+            foreach (var go in desktopDisable)
+            {
+                go.SetActive(false);
+            }
         }
     }
 

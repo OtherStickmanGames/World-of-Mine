@@ -7,7 +7,7 @@ using TMPro;
 public class MessageView : MonoBehaviour
 {
     [SerializeField] TMP_Text txtMessage;
-    [SerializeField] Image outline;
+    [SerializeField] Image[] showEffects;
 
     public void Init(string username, string message)
     {
@@ -15,11 +15,26 @@ public class MessageView : MonoBehaviour
         txtMessage.SetText(msg);
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
 
-        LeanTween.value(gameObject, a => 
+        var seq = LeanTween.sequence();
+
+        seq.append(LeanTween.value(gameObject, a =>
         {
-            var c = outline.color;
-            c.a = a;
-            outline.color = c;
-        }, 1, 0, 0.8f).setEaseOutQuad();
+            foreach (var image in showEffects)
+            {
+                var c = image.color;
+                c.a = a;
+                image.color = c;
+            }
+        }, 0, 1, 0.15f).setEaseOutQuad());
+
+        seq.append(LeanTween.value(gameObject, a => 
+        {
+            foreach (var image in showEffects)
+            {
+                var c = image.color;
+                c.a = a;
+                image.color = c;
+            }
+        }, 1, 0, 0.8f).setEaseOutQuad());
     }
 }

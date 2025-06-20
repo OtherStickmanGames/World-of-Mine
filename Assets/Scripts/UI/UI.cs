@@ -519,7 +519,7 @@ public class UI : MonoBehaviour
             hideShowCursorInfo.SetActive(true);
         }
 
-        DisableByDeviceType();
+        //DisableByDeviceType();
 
         var thirdController = mine.GetComponent<ThirdPersonController>();
         thirdController.AllowCameraRotation = true;
@@ -685,12 +685,13 @@ public class UI : MonoBehaviour
 
     void DisableByDeviceType()
     {
-        if (!Application.isMobilePlatform)
+        if (Application.isMobilePlatform || testMobileInput)
         {
             foreach (var go in mobileDisable)
             {
                 go.SetActive(false);
             }
+            
         }
         else
         {

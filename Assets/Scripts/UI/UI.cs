@@ -38,6 +38,8 @@ public class UI : MonoBehaviour
     [SerializeField] ReleaseNotesView releaseNotesView;
     [SerializeField] NicknamesView nicknames;
     [SerializeField] TMP_Text positionInfo;
+    [SerializeField] ControlSettingsView controlSettingsView;
+    [SerializeField] TMP_Text lblWorldGenerationInfo;
 
     [Space]
 
@@ -62,6 +64,7 @@ public class UI : MonoBehaviour
 
     Character mine;
     Transform player;
+    PlayerBehaviour playerBehaviour;
     AnimationCurve resolutionFactorCurve;
 
     bool needResetPlayerPosition;
@@ -90,6 +93,8 @@ public class UI : MonoBehaviour
 
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
         NetworkManager.Singleton.OnConnectionEvent += ConnectionEvent_Invoked;
+
+        lblWorldGenerationInfo.gameObject.SetActive(false);
 #endif
 
         serverStatePanel.SetActive(false);
@@ -178,6 +183,7 @@ public class UI : MonoBehaviour
         quickInventoryView.gameObject.SetActive(false);
         mobileController.SetActive(false);
         mobileInput.gameObject.SetActive(false);
+        controlSettingsView.gameObject.SetActive(false);
 
         inventoryView.gameObject.SetActive(false);
         craftView.gameObject.SetActive(false);
@@ -451,11 +457,14 @@ public class UI : MonoBehaviour
     private void PlayerMine_Spawned(MonoBehaviour player)
     {
 #if !UNITY_SERVER
-        var playerBeh = player as PlayerBehaviour;
+        playerBehaviour = player as PlayerBehaviour;
 
-        btnPlay.gameObject.SetActive(true);
+        playerBehaviour.onStartAllowGravity.AddListener(StartGravity_Allowed);
 
-        mobileInput.Init(playerBeh);
+        lblWorldGenerationInfo.gameObject.SetActive(true);
+
+        mobileInput.Init(playerBehaviour);
+        controlSettingsView.Init(playerBehaviour);
 
         btnClient.gameObject.SetActive(false);
         btnServer.gameObject.SetActive(false);
@@ -468,16 +477,23 @@ public class UI : MonoBehaviour
 
         this.player = player.transform;
 
-        playerBeh.MobileTestINput = testMobileInput;
-        playerBeh.onBlockInteract.AddListener(PlayerBlock_Interacted);
+        playerBehaviour.MobileTestINput = testMobileInput;
+        playerBehaviour.onBlockInteract.AddListener(PlayerBlock_Interacted);
 
         Character.onAnyDestroy.AddListener(Character_Destroyed);
 
-        var thirdController = playerBeh.GetComponent<ThirdPersonController>();
+        var thirdController = playerBehaviour.GetComponent<ThirdPersonController>();
         thirdController.AllowCameraRotation = false;
         InputLogic.Singleton.AvailableMouseScrollWorld = false;
 
 #endif
+    }
+
+    private void StartGravity_Allowed()
+    {
+        lblWorldGenerationInfo.gameObject.SetActive(false);
+
+        btnPlay.gameObject.SetActive(true);
     }
 
     private void Character_Destroyed(Character character)
@@ -506,6 +522,8 @@ public class UI : MonoBehaviour
 
         netcodeStatusView.HideStatus();
 
+        controlSettingsView.gameObject.SetActive(true);
+
         if (Application.isMobilePlatform || testMobileInput)
         {
             mobileController.SetActive(true);
@@ -521,11 +539,16 @@ public class UI : MonoBehaviour
 
         //DisableByDeviceType();
 
-        var thirdController = mine.GetComponent<ThirdPersonController>();
-        thirdController.AllowCameraRotation = true;
+        playerBehaviour.thirdPersonController.AllowCameraRotation = true;
+
+        CameraStack.Instance.SwitchToFirstPerson();
+
         InputLogic.Singleton.AvailableMouseScrollWorld = true;
 
         chatView.Init(UserData.Owner.userName);
+
+        Cursor.lockState = CursorLockMode.Locked;
+
     }
 
     private void InitInventoryView(Character player)

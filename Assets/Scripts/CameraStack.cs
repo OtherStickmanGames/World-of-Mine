@@ -6,6 +6,7 @@ using Cinemachine;
 
 public class CameraStack : MonoBehaviour
 {
+    [SerializeField] CinemachineVirtualCamera startCamera;
     [SerializeField] CinemachineVirtualCamera thirdPersonCamera;
     [SerializeField] CinemachineVirtualCamera firstPersonCamera;
     [SerializeField] CinemachineVirtualCamera freeTopDownCamera;
@@ -48,6 +49,7 @@ public class CameraStack : MonoBehaviour
 
         AddCamera
         (
+            startCamera,
             thirdPersonCamera,
             firstPersonCamera,
             freeTopDownCamera,
@@ -78,6 +80,7 @@ public class CameraStack : MonoBehaviour
     private void OwnerPlayer_Spawned(MonoBehaviour owner)
     {
         player = owner.GetComponent<PlayerBehaviour>();
+        //player.onStartAllowGravity.AddListener(StartGravity_Allowed);
 
         if (thirdPersonCamera)
         {
@@ -87,6 +90,23 @@ public class CameraStack : MonoBehaviour
         {
             firstPersonCamera.Follow = player.cameraTarget;
         }
+
+        if (!GameManager.IsTutorialScene())
+        {
+            startCamera.Follow = player.cameraTarget;
+
+            SetPriorityAllCams(deactivePriority);
+            startCamera.Priority = activePriority;
+            player.thirdPersonController.AllowCameraRotation = false;
+            player.cameraTarget.rotation = Quaternion.Euler(5, -150, 0);
+        }
+    }
+
+    private void StartGravity_Allowed()
+    {
+        SwitchToFirstPerson();
+
+        player.thirdPersonController.AllowCameraRotation = true;
     }
 
     public void SwitchToThirdPerson()
@@ -113,18 +133,7 @@ public class CameraStack : MonoBehaviour
 
     public void SwitchToFirstPerson()
     {
-        if (topDownCamera)
-        {
-            topDownCamera.Priority = deactivePriority;
-        }
-        if (freeTopDownCamera)
-        {
-            freeTopDownCamera.Priority = deactivePriority;
-        }
-        if (thirdPersonCamera)
-        {
-            thirdPersonCamera.Priority = deactivePriority;
-        }
+        SetPriorityAllCams(deactivePriority);
 
         firstPersonCamera.Priority = 10;
 

@@ -108,6 +108,8 @@ namespace StarterAssets
 #endif
         [SerializeField]
         private Animator _animator;
+        [SerializeField] AutoJumpComponent autoJump;
+        [SerializeField] public float autoJumpSpeed = 1.1f;
         private CharacterController _controller;
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
@@ -131,9 +133,11 @@ namespace StarterAssets
 
         public float CurrentSpeed => _speed;
         public bool IsOwner { get; set; } = true;
+        [field:SerializeField]
         public bool AllowCameraRotation { get; set; } = true;
         public bool AllowGravityLogic { get; set; } = true;
         public bool NoFall { get; set; } = false;
+        public bool AutoJump { get; set; } = true;
 
         private void Awake()
         {
@@ -238,6 +242,8 @@ namespace StarterAssets
                 _cinemachineTargetYaw, 0.0f);
         }
 
+        public bool useSprint;
+
         private void Move()
         {
             // set target speed based on move speed, sprint speed and if sprint is pressed
@@ -298,13 +304,26 @@ namespace StarterAssets
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime;
 
             var pendingPos = transform.position + move;
-            Vector3 spherePosition = new Vector3
-            (
-                pendingPos.x,
-                pendingPos.y - GroundedOffset,
-                pendingPos.z
-            );
+            //Vector3 spherePosition = new Vector3
+            //(
+            //    pendingPos.x,
+            //    pendingPos.y - GroundedOffset,
+            //    pendingPos.z
+            //);
 
+            if (AutoJump && autoJump.HandleAutoJump(move))
+            {
+                if (useSprint)
+                {
+                    move.y = Mathf.Sqrt(autoJumpSpeed * targetSpeed * -2f * Gravity) * Time.deltaTime;
+                }
+                else
+                {
+                    move.y = Mathf.Sqrt(autoJumpSpeed * MoveSpeed * -2f * Gravity) * Time.deltaTime;
+
+                }
+                //_animator.SetBool(_animIDJump, true);
+            }
 
             if (NoFall)
             {

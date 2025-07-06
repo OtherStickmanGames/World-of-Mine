@@ -145,10 +145,10 @@ public class MoveComponent : MonoBehaviour
         GroundedCheck();
         Move();
 
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            Jump = true;
-        }
+        //if (Input.GetKeyDown(KeyCode.J))
+        //{
+        //    Jump = true;
+        //}
     }
 
     private void Move()

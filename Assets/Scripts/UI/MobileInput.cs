@@ -14,10 +14,6 @@ public class MobileInput : MonoBehaviour
     [SerializeField] RectTransform innerMineIcon;
     [SerializeField] float mineTime = 1.5f;
     [SerializeField] RectTransform TouchTest;
-    [SerializeField] Button btnNoFall;
-    [SerializeField] GameObject noFallOutline;
-    [SerializeField] Color noFallActiveColor;
-    [SerializeField] TMP_Text noFallTitle;
     [SerializeField] LayerMask layer;
     [SerializeField] TMP_Text txtDebuga;
 
@@ -41,13 +37,6 @@ public class MobileInput : MonoBehaviour
         this.player = player;
         character = player.GetComponent<Character>();
         thirdPersonController = player.GetComponent<ThirdPersonController>();
-
-        if (btnNoFall)
-        {
-            btnNoFall.onClick.RemoveAllListeners();
-            btnNoFall.onClick.AddListener(NoFall_Clicked);
-            UpdateBtnNoFallView();
-        }
 
         if (Application.isMobilePlatform)
         {
@@ -92,25 +81,6 @@ public class MobileInput : MonoBehaviour
         CameraStack.Instance.ZoomThirdPersonCamera(zoomValue * zoomFactor * Time.deltaTime);
     }
 
-    public void NoFall_Clicked()
-    {
-        thirdPersonController.NoFall = !thirdPersonController.NoFall;
-        UpdateBtnNoFallView();
-    }
-
-    private void UpdateBtnNoFallView()
-    {
-        if (thirdPersonController.NoFall)
-        {
-            noFallOutline.SetActive(true);
-            noFallTitle.color = noFallActiveColor;
-        }
-        else
-        {
-            noFallOutline.SetActive(false);
-            noFallTitle.color = Color.white;
-        }
-    }
 
     private void Update()
     {

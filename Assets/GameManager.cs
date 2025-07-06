@@ -23,6 +23,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] int countWorkers = 50;
     public List<Character> players = new();
 
+    [Space]
+
+    [SerializeField] public string tutorialSceneName = "Tutorial";
+
     [Header("Глобальные Настройки Рабочих")]
     public float JumpTopThresold = 0.8f;
     public float JumpLowThresold = 0.5f;
@@ -92,8 +96,7 @@ public class GameManager : MonoBehaviour
 
     private void LoadTutorialScene()
     {
-        var tutorialSceneName = "Tutorial";
-        if (SceneManager.GetActiveScene().name != tutorialSceneName)
+        if (!IsTutorialScene())
         {
             if (!UserData.Owner.tutorialComplete && !UserData.Owner.tutorialSkiped)
             {
@@ -150,6 +153,17 @@ public class GameManager : MonoBehaviour
         {
             World.Instance.notMineable.AddRange(data.explored);
         }
+    }
+
+    static bool? isTutorial = null;
+    public static bool IsTutorialScene()
+    {
+        if (isTutorial == null)
+        {
+            isTutorial = SceneManager.GetActiveScene().name == Inst.tutorialSceneName;
+        }
+
+        return isTutorial.Value;
     }
 
     private void OnDestroy()

@@ -21,6 +21,7 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] int sizeMainInventory = 0;
 
     [ReadOnlyField] public Transform blockHighlight;
+    [ReadOnlyField] public ThirdPersonController thirdPersonController;
 
     public Character Character => player;
     public bool IsOwner { get; set; } = true;
@@ -31,9 +32,10 @@ public class PlayerBehaviour : MonoBehaviour
     public static UnityEvent<MonoBehaviour> onOwnerPositionSet = new UnityEvent<MonoBehaviour>();
     public static UnityEvent<MonoBehaviour> onAnyPlayerSpawn = new();
     public UnityEvent<byte> onBlockInteract = new UnityEvent<byte>();
+    public UnityEvent onStartAllowGravity = new UnityEvent();
 
-    ThirdPersonController thirdPersonController;
     Character player;
+    Vector3 camRootOffset;
     float defaultBottomClamp;
     float defaultTopClamp;
     float deltaTime;
@@ -76,6 +78,10 @@ public class PlayerBehaviour : MonoBehaviour
             {
                 player.inventory.SetMainInventorySize(sizeMainInventory);
             }
+
+            camRootOffset = cameraTarget.position - transform.position;
+
+            //cameraTarget.SetParent(null);
         }
     }
 
@@ -85,7 +91,7 @@ public class PlayerBehaviour : MonoBehaviour
         //print($"{UserData.Owner.userName} ### {UserData.Owner.position}");
         if (userDataPosition == Vector3.zero)
         {
-            transform.position += Vector3.one + Vector3.up * 38;
+            transform.position += Vector3.one + Vector3.up * 18;
             print($"Çàãðóæåíà äåôîëòíàÿ ïîçèöèÿ");
 #if UNITY_ANDROID
             transform.position += Vector3.right * 888;
@@ -165,7 +171,11 @@ public class PlayerBehaviour : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.X))
         {
-            FindObjectOfType<MobileInput>().NoFall_Clicked();
+            FindObjectOfType<ControlSettingsView>().NoFall_Clicked();
+        }
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            FindObjectOfType<ControlSettingsView>().AutoJump_Clicked();
         }
 
         if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.E))
@@ -181,14 +191,17 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
+  
+
     float ebalaTimer, kostylTimer;
     private void CheckChuncksLoadedBlocks()
     {
         kostylTimer += Time.deltaTime;
-        if(kostylTimer > 18)
+        if(kostylTimer > 8)
         {
             thirdPersonController.AllowGravityLogic = true;
             print("ÑÐÀÁÎÒÀË ÊÎÑÒÛËÜ");
+            onStartAllowGravity?.Invoke();
         }
 
         var pos = transform.position.ToGlobalRoundBlockPos();
@@ -218,10 +231,11 @@ public class PlayerBehaviour : MonoBehaviour
         }
         
         ebalaTimer += Time.deltaTime;
-        if (ebalaTimer > 3.0f)
+        if (ebalaTimer > 1.8f)
         {
             thirdPersonController.AllowGravityLogic = true;
             print("×ÀÍÊÈ ÇÀÃÐÓÆÅÍÛ");
+            onStartAllowGravity?.Invoke();
         }
     }
 
@@ -642,9 +656,24 @@ public class PlayerBehaviour : MonoBehaviour
         return turns;
     }
 
+    Vector3 velocity;
+    public float smoothTime = 0.3f;
+
     private void LateUpdate()
     {
         CheckPosition();
+
+        //if (IsOwner)
+        //{
+        //    var target = transform.position + camRootOffset;
+        //    cameraTarget.position = Vector3.SmoothDamp
+        //    (
+        //        cameraTarget.position, 
+        //        target,
+        //        ref velocity,
+        //        smoothTime
+        //    );
+        //}
     }
 
     void CheckPosition()

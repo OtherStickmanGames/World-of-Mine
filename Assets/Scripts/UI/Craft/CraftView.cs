@@ -35,7 +35,7 @@ public class CraftView : ViewUI
         player = character;
 
         player.onDestroy.AddListener(Player_Destroyed);
-        btnClose.onClick.AddListener(Close_Clicked);
+        btnClose.onClick.AddListener(Close);
         btnCraft.onClick.AddListener(Craft_Clicked);
         countCraftItems.Init();
     }
@@ -43,7 +43,7 @@ public class CraftView : ViewUI
     private void Player_Destroyed()
     {
         btnCraft.onClick.RemoveListener(Craft_Clicked);
-        btnClose.onClick.RemoveListener(Close_Clicked);
+        btnClose.onClick.RemoveListener(Close);
     }
 
     private void Craft_Clicked()
@@ -192,7 +192,7 @@ public class CraftView : ViewUI
         }
     }
 
-    private void Close_Clicked()
+    public void Close()
     {
         Hide();
         onClose?.Invoke();

@@ -155,15 +155,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    static bool? isTutorial = null;
+    bool? isTutorial = null;
     public static bool IsTutorialScene()
     {
-        if (isTutorial == null)
+        if (Inst.isTutorial == null)
         {
-            isTutorial = SceneManager.GetActiveScene().name == Inst.tutorialSceneName;
+            Inst.isTutorial = SceneManager.GetActiveScene().name == Inst.tutorialSceneName;
         }
 
-        return isTutorial.Value;
+        return Inst.isTutorial.Value;
     }
 
     private void OnDestroy()

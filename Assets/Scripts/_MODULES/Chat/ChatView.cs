@@ -43,6 +43,9 @@ public class ChatView : NetworkBehaviour
 
             messageInput.onSubmit.AddListener(Message_Submited);
             messageInput.onValueChanged.AddListener(InputValue_Changed);
+            messageInput.onSelect.AddListener(Input_Selected);
+            messageInput.onDeselect.AddListener(Input_Deselected);
+
 
             if (Application.isMobilePlatform)
             {
@@ -52,6 +55,19 @@ public class ChatView : NetworkBehaviour
             btnSend.gameObject.SetActive(false);
         }
 
+    }
+
+    private void Input_Deselected(string inputValue)
+    {
+        InputLogic.Single.BlockPlayerControl = false;
+        InputLogic.HideCursor();
+        InputLogic.LockPlayerDigging();
+    }
+
+    private void Input_Selected(string inputValue)
+    {
+        InputLogic.Single.BlockPlayerControl = true;
+        InputLogic.LockPlayerDigging();
     }
 
     private void InputValue_Changed(string value)

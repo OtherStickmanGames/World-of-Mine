@@ -91,6 +91,8 @@ public class InventotyView : ViewUI
     {
         IsShowed = true;
 
+        InputLogic.ShowCursor();
+
         base.Show();
     }
 
@@ -98,10 +100,12 @@ public class InventotyView : ViewUI
     {
         IsShowed = false;
 
+        InputLogic.HideCursor();
+
         base.Hide();
     }
 
-    public void ClearSlotst()
+    public void ClearSlots()
     {
         foreach (var slot in slots)
         {

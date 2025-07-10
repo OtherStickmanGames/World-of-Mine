@@ -111,13 +111,14 @@ public class UserView : MonoBehaviour
             }
         }
 
+#if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Y))
         {
             
             UserData.LoadData();
             Debug.Log(UserData.Owner.userName + " +++++++++", this);
         }
-
+#endif
         //if (Input.GetKeyDown(KeyCode.H))
         //{
         //    print(UserData.Owner.userName + " ----------");

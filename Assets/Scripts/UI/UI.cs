@@ -39,13 +39,14 @@ public class UI : MonoBehaviour
     [SerializeField] NicknamesView nicknames;
     [SerializeField] TMP_Text positionInfo;
     [SerializeField] ControlSettingsView controlSettingsView;
-    [SerializeField] TMP_Text lblWorldGenerationInfo;
+    [SerializeField] TMP_Text lblWaitForPlay;
 
     [Space]
 
     [SerializeField] GameObject InventoryParent;
     [SerializeField] GameObject ReleaseNotesParent;
     [SerializeField] GameObject hideShowCursorInfo;
+    [SerializeField] GameObject webglClickOnScreen;
 
     [Header("Output")]
     public StarterAssetsInputs starterAssetsInputs;
@@ -58,9 +59,6 @@ public class UI : MonoBehaviour
 
     [Header("DEV POEBOTA")]
     [SerializeField] Button btnDisableAll;
-
-    public static UnityEvent onInventoryOpen = new UnityEvent();
-    public static UnityEvent onInventoryClose = new UnityEvent();
 
     Character mine;
     Transform player;
@@ -94,7 +92,7 @@ public class UI : MonoBehaviour
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
         NetworkManager.Singleton.OnConnectionEvent += ConnectionEvent_Invoked;
 
-        lblWorldGenerationInfo.gameObject.SetActive(false);
+        lblWaitForPlay.gameObject.SetActive(false);
 #endif
 
         serverStatePanel.SetActive(false);
@@ -121,6 +119,7 @@ public class UI : MonoBehaviour
 
         if (eventData.EventType == ConnectionEvent.ClientDisconnected)
         {
+            btnPlay.gameObject.SetActive(false);
             if (countTryConnection < 3)
             {
                 netcodeStatusView.ShowStatus("Пробую соедениться с сервером..");
@@ -139,6 +138,17 @@ public class UI : MonoBehaviour
 
         IEnumerator DelayConnect()
         {
+            lblWaitForPlay.SetText("Радуюсь твоему возвращению");
+
+            InventoryParent.SetActive(false);
+            btnSwitchCamera.gameObject.SetActive(false);
+            btnInventory.gameObject.SetActive(false);
+            saveBuildingView.gameObject.SetActive(false);
+            showBuildingView.gameObject.SetActive(false);
+            quickInventoryView.gameObject.SetActive(false);
+            hideShowCursorInfo.gameObject.SetActive(false);
+            chatView.Hide();
+
             yield return new WaitForSeconds(0.1f + (0.8f * countTryConnection));
 
             NetworkManager.Singleton.StartClient();
@@ -193,7 +203,7 @@ public class UI : MonoBehaviour
         showBuildingView.gameObject.SetActive(false);
 
         hideShowCursorInfo.SetActive(false);
-        
+        webglClickOnScreen.SetActive(false);
 
         chatView.Hide();
 
@@ -341,6 +351,17 @@ public class UI : MonoBehaviour
         {
             positionInfo.gameObject.SetActive(false);
         }
+
+        if (webglClickOnScreen.activeSelf)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                webglClickOnScreen.SetActive(false);
+            }
+        }
+
+        //var sss = webglClickOnScreen.GetComponentInChildren<TMP_Text>();
+        //sss.text = $"{Application.isFocused} === {Cursor.lockState} ===";
     }
 
     void TouchUpdate()
@@ -461,7 +482,7 @@ public class UI : MonoBehaviour
 
         playerBehaviour.onStartAllowGravity.AddListener(StartGravity_Allowed);
 
-        lblWorldGenerationInfo.gameObject.SetActive(true);
+        lblWaitForPlay.gameObject.SetActive(true);
 
         mobileInput.Init(playerBehaviour);
         controlSettingsView.Init(playerBehaviour);
@@ -482,16 +503,16 @@ public class UI : MonoBehaviour
 
         Character.onAnyDestroy.AddListener(Character_Destroyed);
 
-        var thirdController = playerBehaviour.GetComponent<ThirdPersonController>();
-        thirdController.AllowCameraRotation = false;
-        InputLogic.Singleton.AvailableMouseScrollWorld = false;
+        InputLogic.Single.AvailableMouseScrollWorld = false;
+        InputLogic.ShowCursor();
 
 #endif
     }
 
+
     private void StartGravity_Allowed()
     {
-        lblWorldGenerationInfo.gameObject.SetActive(false);
+        lblWaitForPlay.gameObject.SetActive(false);
 
         btnPlay.gameObject.SetActive(true);
     }
@@ -501,7 +522,7 @@ public class UI : MonoBehaviour
         if (character == mine)
         {
             quickInventoryView.ClearSlots();
-            inventoryView.ClearSlotst();
+            inventoryView.ClearSlots();
         }
     }
 
@@ -543,12 +564,17 @@ public class UI : MonoBehaviour
 
         CameraStack.Instance.SwitchToFirstPerson();
 
-        InputLogic.Singleton.AvailableMouseScrollWorld = true;
-
         chatView.Init(UserData.Owner.userName);
 
-        Cursor.lockState = CursorLockMode.Locked;
+#if UNITY_WEBGL
+        if (!Application.isMobilePlatform)
+        {
+            webglClickOnScreen.SetActive(true);
+        }
+#endif
 
+        InputLogic.Single.AvailableMouseScrollWorld = true;
+        InputLogic.HideCursor();
     }
 
     private void InitInventoryView(Character player)
@@ -559,12 +585,15 @@ public class UI : MonoBehaviour
         }
         quickInventoryView.Init(player.inventory);
 
-        onInventoryOpen.AddListener(player.inventory.Open);
-        onInventoryClose.AddListener(player.inventory.Close);
+        mine.inventory.onClose += Inventory_Closed;
 
         craftView.Init(mine);
     }
 
+    private void Inventory_Closed()
+    {
+        craftView.Close();
+    }
 
     private void InitResolutionCurveFactor()
     {

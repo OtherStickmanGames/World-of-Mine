@@ -24,6 +24,9 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
 		{
+			if (InputLogic.Single.BlockPlayerControl)
+				return;
+
 			MoveInput(value.Get<Vector2>());
 		}
 
@@ -38,6 +41,9 @@ namespace StarterAssets
 
 		public void OnJump(InputValue value)
 		{
+			if (InputLogic.Single.BlockPlayerControl)
+				return;
+
 			JumpInput(value.isPressed);
 		}
 
@@ -69,7 +75,6 @@ namespace StarterAssets
 
 		public void SprintInput(bool newSprintState)
 		{
-
 			sprint = newSprintState;
 		}
 		
@@ -80,20 +85,19 @@ namespace StarterAssets
 
 		private void Update()
 		{
-			if (Input.GetKeyDown(KeyCode.Escape))
-			{
-				SetCursorState(false);
-			}
+			
 
 			if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.LeftControl))
 			{
                 switch (Cursor.lockState)
                 {
                     case CursorLockMode.None:
-						SetCursorState(true);
+						//SetCursorState(true);
+						InputLogic.HideCursor();
 						break;
                     case CursorLockMode.Locked:
-						SetCursorState(false);
+						//SetCursorState(false);
+						InputLogic.ShowCursor();
 						break;
                     case CursorLockMode.Confined:
 						SetCursorState(false);
@@ -105,7 +109,10 @@ namespace StarterAssets
 
         private void SetCursorState(bool newState)
 		{
+			cursorInputForLook = newState;
+			LookInput(Vector2.zero);
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
+			
 		}
 	}
 	

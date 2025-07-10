@@ -94,7 +94,7 @@ public class ShowBuildingView : MonoBehaviour
     {
         buildingsView.SetActive(false);
         BuildingManager.Singleton.InvokeBuildingListHide();
-        InputLogic.Singleton.AvailableMouseScrollWorld = true;
+        InputLogic.Single.AvailableMouseScrollWorld = true;
     }
 
     private void ShowBuildings_Clicked()
@@ -103,7 +103,7 @@ public class ShowBuildingView : MonoBehaviour
 
         BuildingManager.Singleton.InvokeBuildingListShow();
         LoadItems();
-        InputLogic.Singleton.AvailableMouseScrollWorld = false;
+        InputLogic.Single.AvailableMouseScrollWorld = false;
     }
 
     private void LoadItems()

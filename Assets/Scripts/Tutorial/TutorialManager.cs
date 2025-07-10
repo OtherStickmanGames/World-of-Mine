@@ -8,15 +8,15 @@ public class TutorialManager : MonoBehaviour
 
     private IEnumerator Start()
     {
-        var deb = GameObject.FindGameObjectWithTag("TxtDebugo").GetComponent<TMPro.TMP_Text>();
-        deb.text += $"Ûûûûûû\n";
+        //var deb = GameObject.FindGameObjectWithTag("TxtDebugo").GetComponent<TMPro.TMP_Text>();
+        //deb.text += $"Ûûûûûû\n";
 
         PlayerPrefs.DeleteKey("inventory");
 
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.18f);
 
         var player = Instantiate(playerPrefab);
-        deb.text += $"{player} ===\n";
+        //deb.text += $"{player} ===\n";
 
         Destroy(player.GetComponent<NetworkPlayer>());
 
@@ -24,9 +24,9 @@ public class TutorialManager : MonoBehaviour
 
     }
 
-    private void Update()
-    {
-        var deb = GameObject.FindGameObjectWithTag("TxtDebugo").GetComponent<TMPro.TMP_Text>();
-        deb.text += $"{Time.deltaTime}\n";
-    }
+    //private void Update()
+    //{
+    //    var deb = GameObject.FindGameObjectWithTag("TxtDebugo").GetComponent<TMPro.TMP_Text>();
+    //    deb.text += $"{Time.deltaTime}\n";
+    //}
 }

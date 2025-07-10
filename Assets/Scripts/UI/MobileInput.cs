@@ -93,6 +93,9 @@ public class MobileInput : MonoBehaviour
 
     private void MineInputHandler()
     {
+        if (!thirdPersonController)
+            return;
+
         mineIconPos.x = -888;
         mineIconPos.y = -888;
 

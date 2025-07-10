@@ -178,20 +178,20 @@ public class PlayerBehaviour : MonoBehaviour
             FindObjectOfType<ControlSettingsView>().AutoJump_Clicked();
         }
 
-        if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.E))
-        {
-            if (player.inventory.IsOpen)
-            {
-                player.inventory.Close();
-            }
-            else
-            {
-                player.inventory.Open();
-            }
-        }
+        
     }
 
-  
+    public void OpenCloseInventory()
+    {
+        if (player.inventory.IsOpen)
+        {
+            player.inventory.Close();
+        }
+        else
+        {
+            player.inventory.Open();
+        }
+    }
 
     float ebalaTimer, kostylTimer;
     private void CheckChuncksLoadedBlocks()
@@ -744,6 +744,7 @@ public class PlayerBehaviour : MonoBehaviour
     {
         //onMineSpawn.RemoveAllListeners();
         //onOwnerPositionSet.RemoveAllListeners();
+        Destroy(blockHighlight.gameObject);
     }
 }
 

@@ -177,7 +177,7 @@ public class CameraStack : MonoBehaviour
         if (Input.mouseScrollDelta.y == 0)
             return;
 
-        if (!InputLogic.Singleton.AvailableMouseScrollWorld)
+        if (!InputLogic.Single.AvailableMouseScrollWorld)
             return;
 
         if (topDownCamera)

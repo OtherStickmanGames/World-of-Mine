@@ -208,7 +208,7 @@ public class UI : MonoBehaviour
         chatView.Hide();
 
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
-        SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
+        SaveBuildingView.onClose.AddListener(SaveBuilding_Closed);
         BuildingManager.Singleton.onBuildingListShow.AddListener(BuildingList_Showed);
         BuildingManager.Singleton.onBuildingListHide.AddListener(BuildingList_Hided);
 
@@ -299,14 +299,18 @@ public class UI : MonoBehaviour
         }
     }
 
-    private void Building_Saved()
+    private void SaveBuilding_Closed()
     {
         mobileController.SetActive(true);
+        controlSettingsView.gameObject.SetActive(true);
+
     }
 
     private void SaveBuilding_Clicked()
     {
         mobileController.SetActive(false);
+        controlSettingsView.gameObject.SetActive(false);
+        mine.inventory.Close();
     }
 
     private void BtnReset_Clicked()

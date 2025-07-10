@@ -9,6 +9,7 @@ using TMPro;
 public class SaveBuildingView : MonoBehaviour
 {
     [SerializeField] Button btnSaveBuilding;
+    [SerializeField] Button btnCancel;
     [SerializeField] Button btnAccept;
     [SerializeField] RectTransform selectionBox;
     [SerializeField] GameObject selectingArea;
@@ -55,6 +56,7 @@ public class SaveBuildingView : MonoBehaviour
 
     public static UnityEvent onSaveBuildingClick = new UnityEvent();
     public static UnityEvent onBuildingSave = new UnityEvent();
+    public static UnityEvent onClose = new UnityEvent();
 
     public AcceptMode CurSelectionMode { get; set; }
 
@@ -69,8 +71,10 @@ public class SaveBuildingView : MonoBehaviour
         panelPreview.SetActive(false);
         inputNameBuilding.SetActive(false);
         buildingSavedNotify.SetActive(false);
+        btnCancel.gameObject.SetActive(false);
 
         btnSaveBuilding.onClick.AddListener(SaveBuilding_Clicked);
+        btnCancel.onClick.AddListener(Cancel_Clicked);
         btnAccept.onClick.AddListener(Accept_Clicked);
         btnSavedOk.onClick.AddListener(SavedOk_Clicked);
 
@@ -82,13 +86,26 @@ public class SaveBuildingView : MonoBehaviour
         CameraStack.onCameraSwitch.AddListener(Camera_Switched);
     }
 
+    private void Cancel_Clicked()
+    {
+        CloseSaveBuilding();
+    }
+
     public void SavedOk_Clicked()
     {
-        panelPreview.SetActive(false);
-        CameraStack.Instance.SwitchToThirdPerson();
-        Destroy(buildPreviewData.view);
-        SetVisibleBtnSaveBuilding(true);
+        CloseSaveBuilding();
         onBuildingSave?.Invoke();
+    }
+
+    void CloseSaveBuilding()
+    {
+        panelPreview.SetActive(false);
+        selectingArea.SetActive(false);
+        btnCancel.gameObject.SetActive(false);
+        CameraStack.Instance.SwitchToPreviousCamera();
+        Destroy(buildPreviewData?.view);
+        SetVisibleBtnSaveBuilding(true);
+        onClose?.Invoke();
     }
 
     private void Building_Saved()
@@ -156,6 +173,7 @@ public class SaveBuildingView : MonoBehaviour
         inputNameBuilding.SetActive(false);
         buildingSavedNotify.SetActive(false);
         moveCamJoystick.gameObject.SetActive(true);
+        btnCancel.gameObject.SetActive(true);
 
         cropHandleLeftTop.SetPos(new Vector2(Screen.width * UI.ScaleFactor * 0.2f, 830));
         cropHandleRightBottom.SetPos(new Vector2(Screen.width * UI.ScaleFactor * 0.8f, 200));

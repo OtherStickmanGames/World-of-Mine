@@ -18,6 +18,7 @@ public class CameraStack : MonoBehaviour
     [SerializeField] float speedTarget = 5f;
 
     public CameraType CurrentType { get; set; } = CameraType.Third;
+    [field:SerializeField] public CameraType PreviousType { get; set; }
     public Camera Main;
     public List<CinemachineVirtualCamera> cameras;
 
@@ -102,13 +103,6 @@ public class CameraStack : MonoBehaviour
         }
     }
 
-    private void StartGravity_Allowed()
-    {
-        SwitchToFirstPerson();
-
-        player.thirdPersonController.AllowCameraRotation = true;
-    }
-
     public void SwitchToThirdPerson()
     {
         if (topDownCamera)
@@ -125,7 +119,8 @@ public class CameraStack : MonoBehaviour
         }
         
         thirdPersonCamera.Priority = 10;
-        
+
+        PreviousType = CurrentType;
         CurrentType = CameraType.Third;
 
         onCameraSwitch?.Invoke(CurrentType);
@@ -137,6 +132,7 @@ public class CameraStack : MonoBehaviour
 
         firstPersonCamera.Priority = 10;
 
+        PreviousType = CurrentType;
         CurrentType = CameraType.First;
 
         onCameraSwitch?.Invoke(CurrentType);
@@ -170,6 +166,29 @@ public class CameraStack : MonoBehaviour
         CurrentType = CameraType.FreeTopDown;
 
         onCameraSwitch?.Invoke(CurrentType);
+    }
+
+    public void SwitchToPreviousCamera()
+    {
+        switch (PreviousType)
+        {
+            case CameraType.Loading:
+                break;
+            case CameraType.Free:
+                break;
+            case CameraType.Third:
+                SwitchToThirdPerson();
+                break;
+            case CameraType.First:
+                SwitchToFirstPerson();
+                break;
+            case CameraType.TopDown:
+                break;
+            case CameraType.FreeTopDown:
+                break;
+            case CameraType.SaveBuilding:
+                break;
+        }
     }
 
     private void TopDownZoom()
@@ -263,6 +282,8 @@ public class CameraStack : MonoBehaviour
     {
         if (selectionMode == AcceptMode.Horizontal)
         {
+            PreviousType = CurrentType;
+            CurrentType = CameraType.SaveBuilding;
             SetPriorityAllCams(deactivePriority);
 
             var blendDuration = 1f;
@@ -345,6 +366,7 @@ public class CameraStack : MonoBehaviour
 
     public enum CameraType
     {
+        Loading,
         Free,
         Third,
         First,

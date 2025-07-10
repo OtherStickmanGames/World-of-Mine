@@ -14,6 +14,7 @@ public class InputLogic : MonoBehaviour
     public bool AvailableMouseScrollUI { get; set; } = true;
     public bool AvailableMouseMoveWorld { get; set; } = true;
     public bool BlockPlayerControl { get; set; } = false;
+    public bool DontHideCursor { get; set; } = false;
 
     PlayerBehaviour playerBehaviour;
     StarterAssetsInputs starterAssetsInputs;
@@ -25,6 +26,8 @@ public class InputLogic : MonoBehaviour
         Single = this;
 
         PlayerBehaviour.onMineSpawn.AddListener(PlayerMine_Spawned);
+        SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
+        SaveBuildingView.onClose.AddListener(SaveBuilding_Closed);
     }
 
     private void Start()
@@ -56,14 +59,15 @@ public class InputLogic : MonoBehaviour
         {
             if (Cursor.lockState is CursorLockMode.None)
             {
-                if (!UI.ClickOnUI())
-                {
-                    HideCursor();
-                }
-
-#if UNITY_WEBGL
                 if (playerBehaviour)
                 {
+                    if (!UI.ClickOnUI())
+                    {
+                        HideCursor();
+                    }
+
+#if UNITY_WEBGL
+
                     if (!Application.isMobilePlatform)
                     {
                         needUserGesture = true;
@@ -92,6 +96,16 @@ public class InputLogic : MonoBehaviour
 #endif
     }
 
+    private void SaveBuilding_Clicked()
+    {
+        DontHideCursor = true;
+    }
+
+    private void SaveBuilding_Closed()
+    {
+        DontHideCursor = false;
+    }
+
     public static void ShowCursor()
     {
         Cursor.lockState = CursorLockMode.None;
@@ -104,23 +118,25 @@ public class InputLogic : MonoBehaviour
         print("----- Курсор Показан -----");
     }
 
-    public static void HideCursor(bool allowDigging = true)
+    public static void HideCursor()
     {
+        if (Single.DontHideCursor)
+            return;
+
         Cursor.lockState = CursorLockMode.Locked;
         Single.starterAssetsInputs.cursorInputForLook = true;
         Single.starterAssetsInputs.look = Vector2.zero;
 
-        if (!Single.needUserGesture && allowDigging)
+        if (!Single.needUserGesture)
         {
             Single.StartCoroutine(DelayedUnlockDigging());
         }
-        
-        //print("=====================");
+
+        print("======= Курсор Скрыт ========");
     }
 
     static IEnumerator DelayedUnlockDigging()
     {
-        print("maramramrmar");
         yield return null;
 
         if (Single.playerBehaviour)
@@ -136,7 +152,6 @@ public class InputLogic : MonoBehaviour
             yield return null;
             yield return null;
             yield return null;
-            yield return new WaitForSeconds(0.3f);
 
             LockPlayerDigging();
         }

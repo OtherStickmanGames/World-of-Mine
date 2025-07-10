@@ -38,6 +38,9 @@ public class Inventory
 
     public void Close()
     {
+        if (!IsOpen)
+            return;
+
         IsOpen = false;
         onClose?.Invoke();
     }

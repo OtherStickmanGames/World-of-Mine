@@ -968,7 +968,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 500.00003, y: -45}
-  m_SizeDelta: {x: 216.08, y: 70}
+  m_SizeDelta: {x: 215.69, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6031312461305354245
 CanvasRenderer:
@@ -1634,7 +1634,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 0.1
   m_Viewport: {fileID: 7738781603600009607}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 7263360527335132456}

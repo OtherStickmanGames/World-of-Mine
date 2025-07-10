@@ -100,20 +100,13 @@ namespace StarterAssets
 						InputLogic.ShowCursor();
 						break;
                     case CursorLockMode.Confined:
-						SetCursorState(false);
+						print("opto");
 						break;
                     
                 }
             }
 		}
 
-        private void SetCursorState(bool newState)
-		{
-			cursorInputForLook = newState;
-			LookInput(Vector2.zero);
-			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
-			
-		}
 	}
 	
 }

@@ -19,8 +19,8 @@ public class AudioClipSender : NetworkBehaviour
     Dictionary<ulong, int> clientIdxAudioSending = new();
     public List<AudioClip> releaseNotesSounds;
 
-    public UnityEvent<AudioClip> onVoiceReceive;
-    public UnityEvent<AudioClip> onVoiceEndPlay;
+    [HideInInspector] public UnityEvent<AudioClip> onVoiceReceive;
+    [HideInInspector] public UnityEvent<AudioClip> onVoiceEndPlay;
 
     AudioSource audioSource;
 

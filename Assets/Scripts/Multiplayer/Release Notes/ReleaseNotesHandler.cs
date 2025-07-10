@@ -22,6 +22,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
     public List<NetworkNewsData> clientNewsData = new();
 
     Dictionary<ulong, int> clientIdxNewsSending = new();
+    HashSet<string> receivedAudioClipNames = new(); 
 
     public static UnityEvent<List<NetworkNewsData>> onNewsReceive = new();
     public static UnityEvent<NetworkNewsData> onNoteReceive = new();
@@ -106,9 +107,14 @@ public class ReleaseNotesHandler : NetworkBehaviour
 
     private void ClientNewsVoice_Received(AudioClip audio)
     {
-        if (audio.name == "Start_Voice")
+        var audioName = audio.name;
+        if (audioName == "Start_Voice")
         {
-            audioClipSender.PlayAudio(audio);
+            if (!receivedAudioClipNames.Contains(audioName))
+            {
+                audioClipSender.PlayAudio(audio);
+                receivedAudioClipNames.Add(audioName);
+            }
         }
         else
         {

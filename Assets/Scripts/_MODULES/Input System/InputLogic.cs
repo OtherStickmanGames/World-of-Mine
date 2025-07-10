@@ -75,8 +75,9 @@ public class InputLogic : MonoBehaviour
                         print("*** нужен жест ***");
                         StartCoroutine(DelayedLockPlayerDigging());
                     }
-                }
 #endif
+
+                }
             }
 
         }
@@ -142,6 +143,7 @@ public class InputLogic : MonoBehaviour
         if (Single.playerBehaviour)
         {
             UnlockPlayerDigging();
+            Single.needUserGesture = false;
         }
     }
 

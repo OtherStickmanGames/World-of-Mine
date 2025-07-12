@@ -193,11 +193,16 @@ public class CameraStack : MonoBehaviour
 
     private void TopDownZoom()
     {
+        // TO DO на Модульность
         if (Input.mouseScrollDelta.y == 0)
             return;
 
         if (!InputLogic.Single.AvailableMouseScrollWorld)
             return;
+
+        if (!Input.GetKey(KeyCode.LeftControl))
+            return;
+
 
         if (topDownCamera)
         {

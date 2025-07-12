@@ -414,6 +414,11 @@ public class SaveBuildingView : MonoBehaviour
         }
     }
 
+    public void HideBtnCancel()
+    {
+        btnCancel.gameObject.SetActive(false); 
+    }
+
     public void SetBuildingName(string value)
     {
         nameInput.text = value;

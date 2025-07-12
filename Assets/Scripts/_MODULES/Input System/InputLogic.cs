@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Возиожно стоит переименовать в Input System
@@ -14,12 +15,13 @@ public class InputLogic : MonoBehaviour
     public bool AvailableMouseScrollUI { get; set; } = true;
     public bool AvailableMouseMoveWorld { get; set; } = true;
     public bool BlockPlayerControl { get; set; } = false;
-    public bool DontHideCursor { get; set; } = false;
+    [field:SerializeField]
+    public bool DontHideCursor { get; set; } = true;
 
     PlayerBehaviour playerBehaviour;
     StarterAssetsInputs starterAssetsInputs;
 
-    bool needUserGesture;
+    [ReadOnlyField] public bool needUserGesture;
 
     private void Awake()
     {
@@ -48,11 +50,20 @@ public class InputLogic : MonoBehaviour
             {
                 playerBehaviour?.OpenCloseInventory();
             }
+
+            if (Input.GetKeyDown(KeyCode.X))
+            {
+                UI.Single.controlSettingsView.NoFall_Clicked();
+            }
+            if (Input.GetKeyDown(KeyCode.J))
+            {
+                UI.Single.controlSettingsView.AutoJump_Clicked();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            ShowCursor();
+            //ShowCursor();
         }
 
         if (Input.GetMouseButtonDown(0))
@@ -63,20 +74,24 @@ public class InputLogic : MonoBehaviour
                 {
                     if (!UI.ClickOnUI())
                     {
+                        //LeanTween.delayedCall(0.5f, HideCursor);
                         HideCursor();
+                        //DelayedHideCursor();
                     }
+                    else
+                    {
 
 #if UNITY_WEBGL
 
-                    if (!Application.isMobilePlatform)
-                    {
-                        needUserGesture = true;
-                        LockPlayerDigging();
-                        print("*** нужен жест ***");
-                        StartCoroutine(DelayedLockPlayerDigging());
-                    }
+                        if (!Application.isMobilePlatform)
+                        {
+                            needUserGesture = true;
+                            LockPlayerDigging();
+                            print("*** нужен жест ***");
+                            StartCoroutine(DelayedLockPlayerDigging());
+                        }
 #endif
-
+                    }
                 }
             }
 
@@ -95,7 +110,42 @@ public class InputLogic : MonoBehaviour
             }
         }
 #endif
+
+        //var deb = GameObject.FindGameObjectWithTag("TxtDebugo").GetComponent<TMPro.TMP_Text>();
+        //deb.text = $"{Cursor.lockState}";
+
+        QuickSlotSwitcher();
+
     }
+
+    void QuickSlotSwitcher()
+    {
+        if (CameraStack.Instance.CurrentType is CameraStack.CameraType.Third)
+        {
+            if (Input.GetKey(KeyCode.LeftControl))
+                return;
+        }
+
+        var currentSlot = UI.Single.quickInventoryView.Selected;
+        // TO DO на один раз при старте
+        var slotCount = UI.Single.quickInventoryView.SlotCount;
+        var scrollValue = Mouse.current.scroll.y.ReadValue();
+        if (scrollValue < 0f)
+            currentSlot = (currentSlot + 1) % slotCount;
+        else if (scrollValue > 0f)
+            currentSlot = (currentSlot - 1 + slotCount) % slotCount;
+
+        if (scrollValue != 0f)
+        {
+            OnSlotChanged(currentSlot);
+        }
+    }
+
+    void OnSlotChanged(int value)
+    {
+        UI.Single.quickInventoryView.SelectSlot(value);
+    }
+
 
     private void SaveBuilding_Clicked()
     {
@@ -136,6 +186,18 @@ public class InputLogic : MonoBehaviour
         print("======= Курсор Скрыт ========");
     }
 
+    public void DelayedHideCursor()
+    {
+        StartCoroutine(Delay());
+
+        static IEnumerator Delay()
+        {
+            yield return null;
+
+            HideCursor();
+        }
+    }
+
     static IEnumerator DelayedUnlockDigging()
     {
         yield return null;
@@ -169,5 +231,20 @@ public class InputLogic : MonoBehaviour
     {
         Single.playerBehaviour.allowDigging = true;
         print("+++ копат да +++");
+    }
+
+    private void OnApplicationFocus(bool focus)
+    {
+        print($"фокус {focus}");
+    }
+
+    private void OnApplicationPause(bool pause)
+    {
+        print($"пауза {pause}");
+    }
+
+    public void OnEscapePressed()
+    {
+        ShowCursor();
     }
 }

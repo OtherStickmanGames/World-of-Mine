@@ -122,6 +122,13 @@
             FocusGame();
         });
 
+        document.addEventListener('pointerlockchange', function() {
+            if (!document.pointerLockElement) {
+                // курсор вышел из lock‑режима
+                myGameInstance.SendMessage('InputSystem', 'OnEscapePressed');
+            }
+        });
+
         document.addEventListener('visibilitychange', function () {
             if (ysdk !== null && initGame == true) {
                 if (document.hidden) {
@@ -135,6 +142,8 @@
                 }
             }
         });
+
+
 
         function ResumeGame() {
             if (myGameInstance && myGameInstance.Module) {

@@ -8,6 +8,7 @@ public class QuickInventoryView : MonoBehaviour
     [SerializeField] List<InventorySlot> slots;
 
     public int Selected { get; set; } = 0;
+    public int SlotCount { get; private set; }
 
     Action<Item> setSelectedItem;
 
@@ -19,6 +20,8 @@ public class QuickInventoryView : MonoBehaviour
         inventory.onUpdateItem += Item_Updated;
         inventory.onItemsSet += Items_Seted;
         this.inventory = inventory;
+
+        SlotCount = slots.Count;
 
         foreach (var slot in slots)
         {

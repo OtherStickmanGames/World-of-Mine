@@ -68,6 +68,7 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] MovePointerTutorial rightBottomMovePointerTutorial;
     [SerializeField] Button btnComplete;
     [SerializeField] Button btnSkipTutor;
+    [SerializeField] GameObject zoomButtons;
 
     Canvas canvasMine;
     Character mine;
@@ -191,6 +192,7 @@ public class TutorialUI : MonoBehaviour
 
         buildingPos = startPos + (Vector3.down * 24) + (Vector3.right * 1) + (Vector3.forward * 9);
 
+        InputLogic.Single.DontHideCursor = false;
     }
 
     private void Building_Saved()
@@ -696,7 +698,7 @@ public class TutorialUI : MonoBehaviour
                 ShowTutorial(horizontalPlaneAcceptZone);
             }
 
-            // Система сохранения постройки после отпускания указателя выбора обалсти
+            // Система сохранения постройки после отпускания указателя выбора области
             // включает отображение кнопки, поэтому мы ее тут постоянно скрываем
             saveBuildingView.SetVisibleBtnAccept(false);
         }
@@ -821,7 +823,7 @@ public class TutorialUI : MonoBehaviour
             }
 
             lookToBuildingTimer += Time.deltaTime;
-            if (lookToBuildingTimer > 3.5f)
+            if (lookToBuildingTimer > 1.89f)
             {
                 needCameraLookToBuilding = false;
                 thirdPersonController.AllowCameraRotation = true;

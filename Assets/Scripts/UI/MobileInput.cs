@@ -202,13 +202,14 @@ public class MobileInput : MonoBehaviour
         var pos = blockPosition + raycastHit.normal + Vector3.right;
         var item = character.inventory.CurrentSelectedItem;
         var blockID = item.id;
+        var chunk = WorldGenerator.Inst.GetChunk(pos);
+
 
         List<TurnBlockData> turnsData = new List<TurnBlockData>();
         var isTurnableBlock = player.IsTurnableBlock(item.id);
         if (isTurnableBlock)
         {
             var localBlockPos = WorldGenerator.Inst.ToLocalBlockPos(pos);
-            var chunk = WorldGenerator.Inst.GetChunk(pos);
             turnsData = player.TurnBlockCalculation(blockID, chunk, localBlockPos);
         }
 
@@ -227,6 +228,9 @@ public class MobileInput : MonoBehaviour
         {
             WorldGenerator.Inst.PlaceBlock(pos, blockID);
         }
+
+        WorldSimulation.Single.PlaceBlock(chunk, pos, item.id);
+
         //WorldGenerator.Inst.PlaceBlock(pos, blockID);
         character.inventory.Remove(item);
     }

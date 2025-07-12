@@ -169,14 +169,7 @@ public class PlayerBehaviour : MonoBehaviour
         {
             thirdPersonController.NoFall = false;
         }
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            FindObjectOfType<ControlSettingsView>().NoFall_Clicked();
-        }
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            FindObjectOfType<ControlSettingsView>().AutoJump_Clicked();
-        }
+        
 
         
     }
@@ -410,6 +403,8 @@ public class PlayerBehaviour : MonoBehaviour
             if (player.inventory.CurrentSelectedItem != null)
             {
                 var worldBlockPos = blockPosition + Vector3.right;
+                if (BlockInHeadPosition(worldBlockPos))
+                    return;
 
                 var item = player.inventory.CurrentSelectedItem;
                 // зачем-то нужно прибавл€ть 1 по оси X, хз почему так, но именно так работает
@@ -486,7 +481,14 @@ public class PlayerBehaviour : MonoBehaviour
             }
         }
     }
-    
+
+    private bool BlockInHeadPosition(Vector3 blockWorldPos)
+    {
+        var posPlayer = transform.position.ToGlobalBlockPos();
+        posPlayer.x += 1;
+        posPlayer.y += 2;
+        return blockWorldPos == posPlayer;
+    }
 
     public bool IsTurnableBlock(byte blockID)
     {
@@ -747,7 +749,5 @@ public class PlayerBehaviour : MonoBehaviour
         Destroy(blockHighlight.gameObject);
     }
 }
-
-public class PlayerOwnerSpawn : UnityEvent<MonoBehaviour> { }
 
 

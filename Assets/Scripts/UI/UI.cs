@@ -19,7 +19,7 @@ public class UI : MonoBehaviour
     [SerializeField] Button btnPlay;
     [SerializeField] NetcodeStatusView netcodeStatusView;
     [SerializeField] InventotyView inventoryView;
-    [SerializeField] QuickInventoryView quickInventoryView;
+    [SerializeField] public QuickInventoryView quickInventoryView;
     [SerializeField] CraftView craftView;
     [SerializeField] SaveBuildingView saveBuildingView;
     [SerializeField] ShowBuildingView showBuildingView;
@@ -38,7 +38,7 @@ public class UI : MonoBehaviour
     [SerializeField] ReleaseNotesView releaseNotesView;
     [SerializeField] NicknamesView nicknames;
     [SerializeField] TMP_Text positionInfo;
-    [SerializeField] ControlSettingsView controlSettingsView;
+    [SerializeField] public ControlSettingsView controlSettingsView;
     [SerializeField] TMP_Text lblWaitForPlay;
 
     [Space]
@@ -60,6 +60,8 @@ public class UI : MonoBehaviour
     [Header("DEV POEBOTA")]
     [SerializeField] Button btnDisableAll;
 
+    public static UI Single;
+
     Character mine;
     Transform player;
     PlayerBehaviour playerBehaviour;
@@ -69,6 +71,8 @@ public class UI : MonoBehaviour
 
     private void Awake()
     {
+        Single = this;
+
         btnClient.onClick.AddListener(BtnClient_Clicked);
         btnServer.onClick.AddListener(BtnServer_Clicked);
 
@@ -211,6 +215,7 @@ public class UI : MonoBehaviour
         SaveBuildingView.onClose.AddListener(SaveBuilding_Closed);
         BuildingManager.Singleton.onBuildingListShow.AddListener(BuildingList_Showed);
         BuildingManager.Singleton.onBuildingListHide.AddListener(BuildingList_Hided);
+        InputLogic.Single.DontHideCursor = true;
 
         InitResolutionCurveFactor();
 
@@ -576,7 +581,7 @@ public class UI : MonoBehaviour
             webglClickOnScreen.SetActive(true);
         }
 #endif
-
+        InputLogic.Single.DontHideCursor = false;
         InputLogic.Single.AvailableMouseScrollWorld = true;
         InputLogic.HideCursor();
     }

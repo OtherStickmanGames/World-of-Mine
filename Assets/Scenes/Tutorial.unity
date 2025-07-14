@@ -1869,6 +1869,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1251e3ef1d8ea4444a1b5be2d09fec18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <DontHideCursor>k__BackingField: 1
+  needUserGesture: 0
 --- !u!1 &552805674
 GameObject:
   m_ObjectHideFlags: 0
@@ -2435,7 +2437,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   testMobileInput: 1
   countBuildingsBlocks: 0
-  speedCamRot: 1.8
+  speedCamRot: 3
   debugTexto: {fileID: 392650052}
   quickInventoryView: {fileID: 19006467}
   saveBuildingView: {fileID: 529839304}
@@ -6149,40 +6151,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 967701882460138770, guid: 258a558792913ec4aae9964d5b91b2e3,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4135252009649324916, guid: 258a558792913ec4aae9964d5b91b2e3,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -330
-      objectReference: {fileID: 0}
-    - target: {fileID: 4135252009649324916, guid: 258a558792913ec4aae9964d5b91b2e3,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7103345993683112735, guid: 258a558792913ec4aae9964d5b91b2e3,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -430
-      objectReference: {fileID: 0}
-    - target: {fileID: 7103345993683112735, guid: 258a558792913ec4aae9964d5b91b2e3,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 65
-      objectReference: {fileID: 0}
     - target: {fileID: 7420400851485380647, guid: 258a558792913ec4aae9964d5b91b2e3,
         type: 3}
       propertyPath: m_Name
       value: Tutorial
-      objectReference: {fileID: 0}
-    - target: {fileID: 9166952756401121159, guid: 258a558792913ec4aae9964d5b91b2e3,
-        type: 3}
-      propertyPath: m_fontSize
-      value: 70
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

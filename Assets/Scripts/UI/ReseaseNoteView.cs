@@ -46,6 +46,7 @@ public class ReseaseNoteView : MonoBehaviour
             view.Init(surveyItem.title);
             view.SetVotes(surveyItem.votes);
             view.onClick.AddListener(Survey_Clicked);
+            view.onDeselect.AddListener(Survey_Deselected);
 
             surveyItems.Add(view);
         }
@@ -72,6 +73,12 @@ public class ReseaseNoteView : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void Survey_Deselected(SurveyVariantItem surveyView)
+    {
+        var idxSurvey = surveyView.transform.GetSiblingIndex();
+        ReleaseNotesHandler.Singleton.SurveyDeselect(txtDate.text, idxSurvey);
     }
 
     private void Survey_Clicked(SurveyVariantItem surveyView)

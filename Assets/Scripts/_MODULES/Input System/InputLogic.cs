@@ -235,14 +235,17 @@ public class InputLogic : MonoBehaviour
 
     private void OnApplicationFocus(bool focus)
     {
-        print($"фокус {focus}");
+        //print($"фокус {focus}");
     }
 
     private void OnApplicationPause(bool pause)
     {
-        print($"пауза {pause}");
+        //print($"пауза {pause}");
     }
 
+    /// <summary>
+    /// Вызывакается из Индекс.шатал
+    /// </summary>
     public void OnEscapePressed()
     {
         ShowCursor();

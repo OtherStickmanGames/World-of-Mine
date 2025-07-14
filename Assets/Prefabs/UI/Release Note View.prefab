@@ -35,7 +35,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 233, y: -224.065}
+  m_AnchoredPosition: {x: 233, y: -204.065}
   m_SizeDelta: {x: 466, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6590167727076858504
@@ -188,7 +188,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 233, y: -372.2}
+  m_AnchoredPosition: {x: 233, y: -324.27002}
   m_SizeDelta: {x: 466, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &7729156876594555748
@@ -305,8 +305,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4294111706
+  m_fontColor: {r: 0.85499996, g: 0.9447222, b: 0.95, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -323,8 +323,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -333,7 +333,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 3
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -429,6 +429,9 @@ MonoBehaviour:
   surveyVariantPrefab: {fileID: 7568659603796573966, guid: 0fc4b611842b6f349b61ad25cf70db02,
     type: 3}
   surveyParent: {fileID: 777441101970644568}
+  onSurveyClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!222 &5061832785498323472
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -809,10 +812,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 3557778035226149140}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -80, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 50, y: -6}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!222 &4406407799491152897
 CanvasRenderer:
@@ -934,7 +937,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 70}
+  m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6192542975701256986
 CanvasRenderer:
@@ -1010,7 +1013,7 @@ PrefabInstance:
     - target: {fileID: 895539353281102913, guid: 0fc4b611842b6f349b61ad25cf70db02,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -10
+      value: -37.93
       objectReference: {fileID: 0}
     - target: {fileID: 2084151030215269892, guid: 0fc4b611842b6f349b61ad25cf70db02,
         type: 3}
@@ -1095,7 +1098,7 @@ PrefabInstance:
     - target: {fileID: 2084151030215269892, guid: 0fc4b611842b6f349b61ad25cf70db02,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0
+      value: -57.93
       objectReference: {fileID: 0}
     - target: {fileID: 2084151030215269892, guid: 0fc4b611842b6f349b61ad25cf70db02,
         type: 3}

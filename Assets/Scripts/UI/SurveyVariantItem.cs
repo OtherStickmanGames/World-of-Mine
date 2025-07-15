@@ -40,6 +40,9 @@ public class SurveyVariantItem : MonoBehaviour
 
     private void Item_Clicked()
     {
+        if (state is State.Select)
+            return;
+
         Votes++;
         onClick?.Invoke(this);
        
@@ -57,7 +60,7 @@ public class SurveyVariantItem : MonoBehaviour
 
     public void NoSelect()
     {
-        if(state is State.Select)
+        if (state is State.Select)
         {
             Votes--;
             onDeselect?.Invoke(this);

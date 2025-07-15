@@ -2726,7 +2726,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useDevServer: 1
-  isLocalhost: 1
+  isLocalhost: 0
   serverAdress: 176.123.167.245
   devServerAdress: 176.123.165.242
   hostName: devworldofmine.online
@@ -3918,7 +3918,7 @@ PrefabInstance:
     - target: {fileID: 4795892551876565928, guid: 3f89f95edf2d1004a8213b9f9999a968,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000019073486
+      value: 0.000009536743
       objectReference: {fileID: 0}
     - target: {fileID: 5070144687136410380, guid: 3f89f95edf2d1004a8213b9f9999a968,
         type: 3}

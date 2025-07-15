@@ -44,6 +44,7 @@ public class InputLogic : MonoBehaviour
 
     private void Update()
     {
+#if !UNITY_SERVER
         if (!BlockPlayerControl)
         {
             if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.E))
@@ -115,7 +116,7 @@ public class InputLogic : MonoBehaviour
         //deb.text = $"{Cursor.lockState}";
 
         QuickSlotSwitcher();
-
+#endif
     }
 
     void QuickSlotSwitcher()
@@ -124,6 +125,11 @@ public class InputLogic : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.LeftControl))
                 return;
+        }
+
+        if (!playerBehaviour)
+        {
+            return;
         }
 
         var currentSlot = UI.Single.quickInventoryView.Selected;

@@ -83,6 +83,11 @@ public class ReseaseNoteView : MonoBehaviour
 
     private void Survey_Clicked(SurveyVariantItem surveyView)
     {
+        var previousVote = surveyItems.Find(s => s.state is SurveyVariantItem.State.Select && s != surveyView);
+        if (previousVote)
+        {
+            previousVote.NoSelect();
+        }
         var votes = surveyItems.Select(s => s.Votes).ToArray();
         var votesPercentge = CalculatePercentageDistribution(votes);
 

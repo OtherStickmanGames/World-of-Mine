@@ -93,7 +93,15 @@ public class ReleaseNotesHandler : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendSurveyDeselectServerRpc(string date, int idx, ServerRpcParams serverRpcParams = default)
     {
-        print($"{date} =-=- {idx}");
+#if !UNITY_WEBGL || UNITY_EDITOR
+        date = date.Replace(".", "_");
+        var found = newsData.Find(n => n.name == date);
+        found.survey[idx].votes--;
+        var json = JsonConvert.SerializeObject(found);
+        print(json);
+        var path = $"{releaseNotesDirectory}{date}.json";
+        File.WriteAllText(path, json);
+#endif
     }
 
     private void PlayVoice_Ended(AudioClip audio)

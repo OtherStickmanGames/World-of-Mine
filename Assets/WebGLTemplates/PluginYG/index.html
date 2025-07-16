@@ -210,6 +210,14 @@
 
                 // Additional init modules
 
+                ysdk.getPlayer().then(_player => {
+                    player = _player;
+                }).catch(err => {
+                    console.error('Ошибка при инициализации объекта Player: ', err);
+                });
+
+
+
             } catch (e) {
                 console.error('CRASH Initialization SDK: ', e);
             }
@@ -224,6 +232,8 @@
             if (nowFullAdOpen == true && myGameInstance != null) {
                 myGameInstance.SendMessage('YandexGame', 'OpenFullAd');
             }
+
+            myGameInstance.SendMessage('[# GAME #]', 'SetYGPlayerID', player.getUniqueID().toString());
 
             // Additional start modules
         }

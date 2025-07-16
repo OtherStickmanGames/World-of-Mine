@@ -170,6 +170,8 @@ public class CameraStack : MonoBehaviour
 
     public void SwitchToPreviousCamera()
     {
+        ChangeCameraSwitchSpeed();
+
         switch (PreviousType)
         {
             case CameraType.Loading:
@@ -190,6 +192,20 @@ public class CameraStack : MonoBehaviour
                 break;
         }
     }
+
+    void ChangeCameraSwitchSpeed()
+    {
+        var blendDuration = 1f;
+        var originTime = cinemachineBrain.m_DefaultBlend.m_Time;
+        cinemachineBrain.m_DefaultBlend.m_Time = blendDuration;
+
+        LeanTween.delayedCall(blendDuration,
+            () =>
+            {
+                cinemachineBrain.m_DefaultBlend.m_Time = originTime;
+            });
+    }
+
 
     private void TopDownZoom()
     {

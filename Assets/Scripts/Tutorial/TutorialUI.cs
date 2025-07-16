@@ -580,6 +580,8 @@ public class TutorialUI : MonoBehaviour
             {
                 ShowTutorial(moveSaveCameraTutorial);
 
+                saveBuildingView.HideBtnCancel();
+
                 LeanTween.delayedCall(0.1f, SetCamPos);
 
                 void SetCamPos()
@@ -621,6 +623,7 @@ public class TutorialUI : MonoBehaviour
 
         if (!moveSaveCameraComplete && openSaveBuildingComplete)
         {
+            saveBuildingView.HideBtnCancel();
             var camPos = Camera.main.transform.position;
             var camPos2D = new Vector2(camPos.x, camPos.z);
             var buildingPos2D = new Vector2(buildingPos.x, buildingPos.z);
@@ -636,6 +639,7 @@ public class TutorialUI : MonoBehaviour
 
         if (!zoomSaveCameraComplete && moveSaveCameraComplete)
         {
+            saveBuildingView.HideBtnCancel();
             var targetPos = buildingPos + (Vector3.one * 0.5f);
             var camPos = CameraStack.Instance.GetSaveBuildingCameraPosition();
             targetPos.y = camPos.y;
@@ -657,6 +661,7 @@ public class TutorialUI : MonoBehaviour
 
         if (!leftCropHandleMoveComplete && zoomSaveCameraComplete)
         {
+            saveBuildingView.HideBtnCancel();
             var leftHandle = saveBuildingView.GetLeftTopCropHandle();
             var startPos = (leftHandle.transform as RectTransform).anchoredPosition;
             var endPos = Camera.main.WorldToScreenPoint(buildingPos + new Vector3(-1.5f, 1, 2.5f)) * UI.ScaleFactor;
@@ -674,13 +679,14 @@ public class TutorialUI : MonoBehaviour
                 leftCropHandleMoveComplete = true;
             }
 
-            // Система сохранения постройки после отпускания указателя выбора обалсти
+            // Система сохранения постройки после отпускания указателя выбора области
             // включает отображение кнопки, поэтому мы ее тут постоянно скрываем
             saveBuildingView.SetVisibleBtnAccept(false);
         }
 
         if (!rightCropHandleMoveComplete && leftCropHandleMoveComplete)
         {
+            saveBuildingView.HideBtnCancel();
             var rightHandle = saveBuildingView.GetRightBottomCropHandle();
             var startPos = (rightHandle.transform as RectTransform).anchoredPosition;
             var endPos = Camera.main.WorldToScreenPoint(buildingPos + new Vector3(2.5f, 1, -1.5f)) * UI.ScaleFactor;
@@ -705,6 +711,7 @@ public class TutorialUI : MonoBehaviour
 
         if (!horizontalPlaneAcceptComplete && rightCropHandleMoveComplete)
         {
+            saveBuildingView.HideBtnCancel();
             if (saveBuildingView.CurSelectionMode == AcceptMode.Vertical)
             {
                 horizontalPlaneAcceptZone.SetActive(false);
@@ -715,6 +722,7 @@ public class TutorialUI : MonoBehaviour
 
         if (!verticalPlaneAcceptComplete && horizontalPlaneAcceptComplete)
         {
+            saveBuildingView.HideBtnCancel();
             if (saveBuildingView.CurSelectionMode == AcceptMode.Preview)
             {
                 verticalPlaneAcceptTutorial.SetActive(false);
@@ -725,6 +733,7 @@ public class TutorialUI : MonoBehaviour
 
         if (!previewBuildingComplete && verticalPlaneAcceptComplete)
         {
+            saveBuildingView.HideBtnCancel();
             if (saveBuildingView.CurSelectionMode == AcceptMode.Name)
             {
                 saveBuildingView.SetBuildingName("Неведомое х..");
@@ -737,6 +746,7 @@ public class TutorialUI : MonoBehaviour
 
         if (!nameBuildingComplete && previewBuildingComplete)
         {
+            saveBuildingView.HideBtnCancel();
             if (saveBuildingView.CurSelectionMode == AcceptMode.Save)
             {
                 nameBuildingTutorial.SetActive(false);
@@ -747,6 +757,7 @@ public class TutorialUI : MonoBehaviour
 
         if (nameBuildingComplete && !UserData.Owner.tutorialComplete)
         {
+            saveBuildingView.HideBtnCancel();
             LeanTween.delayedCall(1f, () => saveBuildingView.SavedOk_Clicked());
             UserData.Owner.tutorialComplete = true;
             UserData.Owner.SaveData();

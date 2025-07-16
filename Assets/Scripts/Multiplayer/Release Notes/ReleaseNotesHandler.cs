@@ -227,7 +227,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
 
             newsData = newsData.OrderByDescending(n => n.date).ToList();
 
-            yield return new WaitForSeconds(180);
+            yield return new WaitForSeconds(1800);
 
             StartCoroutine(LoadNoteFromFile());
         }

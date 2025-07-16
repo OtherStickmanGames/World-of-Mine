@@ -55,7 +55,7 @@ public class ReleaseNotesView : MonoBehaviour
         }
     }
 
-    private void Clear()
+    public void Clear()
     {
         foreach (Transform item in notesParent)
         {

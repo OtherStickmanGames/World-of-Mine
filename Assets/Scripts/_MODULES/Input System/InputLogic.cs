@@ -64,7 +64,9 @@ public class InputLogic : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            //ShowCursor();
+#if !UNITY_WEBGL || UNITY_EDITOR
+            ShowCursor();
+#endif
         }
 
         if (Input.GetMouseButtonDown(0))
@@ -117,7 +119,7 @@ public class InputLogic : MonoBehaviour
 
         QuickSlotSwitcher();
 #endif
-    }
+        }
 
     void QuickSlotSwitcher()
     {
@@ -256,4 +258,8 @@ public class InputLogic : MonoBehaviour
     {
         ShowCursor();
     }
+
+    
+
+    
 }

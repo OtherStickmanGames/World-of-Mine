@@ -496,6 +496,8 @@ public class UI : MonoBehaviour
         mobileInput.Init(playerBehaviour);
         controlSettingsView.Init(playerBehaviour);
 
+        releaseNotesView.Clear();
+
         btnClient.gameObject.SetActive(false);
         btnServer.gameObject.SetActive(false);
 

@@ -46,7 +46,9 @@ public class WorldSimulation : MonoBehaviour
     {
         // —начала провер€ем на  лиенте есть ли смысл передавать на сервер информацию
         // о поставленном блоке дл€ симул€ции мира
-        if (blockID == DIRT)
+        var topBlockPos = worldBlockPos + Vector3Int.up;
+        var topBlockID = WorldGenerator.Inst.GetBlockID(topBlockPos);
+        if (blockID == DIRT && topBlockID != DIRT && topBlockID != GRASS)
         {
             var localBlockPos = WorldGenerator.Inst.ToLocalBlockPos(worldBlockPos);
             InvokePlaceSimulatableBlock(chunk, localBlockPos, blockID);

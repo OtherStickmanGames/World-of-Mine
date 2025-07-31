@@ -242,6 +242,13 @@ MonoBehaviour:
       \u0434\u043E\u043C\u0438\u043A\u0430"
     view: {fileID: 0}
     colliderMesh: {fileID: 0}
+  - name: "\u0412\u043E\u0437\u0434\u0443\u0445"
+    itemID: 0
+    itemTypeID: 0
+    itemType: 1
+    description: "\u042D\u0442\u043E \u0432\u043E\u0437\u0434\u0443\u0445, \u0435\u0431\u0430\u0442\u044C"
+    view: {fileID: 0}
+    colliderMesh: {fileID: 0}
   itemsCraftableData:
   - name: "\u0414\u043E\u0441\u043A\u0438"
     description: "\u0418\u0437 \u043E\u0434\u043D\u043E\u0433\u043E \u0431\u043B\u043E\u043A\u0430

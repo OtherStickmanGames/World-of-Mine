@@ -259,7 +259,19 @@ public class InputLogic : MonoBehaviour
         ShowCursor();
     }
 
-    
+    // Выключить звук
+    public void MuteSound()
+    {
+        AudioListener.pause = true;
+        print("звук вырубил !!!");
+    }
 
-    
+    // Включить звук
+    public void UnmuteSound()
+    {
+        AudioListener.pause = false;
+        print("звук да !!!");
+    }
+
+
 }

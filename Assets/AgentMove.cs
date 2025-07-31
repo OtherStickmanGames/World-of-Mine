@@ -80,6 +80,7 @@ public class AgentMove : MonoBehaviour
             Debug.Log($"MoveToPosition: Путь до {destination} не найден через NavMesh (PathComplete = {path.status}). Запускаем построение scaffolding. lastCornerEnough = {lastCornerEnough}");
             if (path.status is NavMeshPathStatus.PathInvalid)
             {
+                print("ЭЭ, путоь не валидо");
                 yield return StartCoroutine(Pause());
             }
 
@@ -263,6 +264,31 @@ public class AgentMove : MonoBehaviour
             Mathf.FloorToInt(destination.z)
         );
 
+        var agentPos2 = new Vector3Int
+        (
+            Mathf.RoundToInt(transform.position.x + 1),
+            Mathf.RoundToInt(transform.position.y - 1.1f),
+            Mathf.RoundToInt(transform.position.z)
+        );
+        var agentPos3 = new Vector3Int
+        (
+            Mathf.FloorToInt(transform.position.x),
+            Mathf.FloorToInt(transform.position.y - 1.1f),
+            Mathf.FloorToInt(transform.position.z)
+        );
+
+        var startBlockID = WorldGenerator.Inst.GetBlockID(agentPos);
+        var startItemID = ItemsStorage.Singleton.GetItemData(startBlockID).itemID;
+        if (excludePathfindingBlocks.Contains(startItemID))
+        {
+            print("------ewofnwoenfoweofbwuoebfwuebfuwbe");
+        }
+
+        var id2 = WorldGenerator.Inst.GetBlockID(agentPos2);
+        var id3 = WorldGenerator.Inst.GetBlockID(agentPos3);
+
+        //print($"###=== {ItemsStorage.Singleton.GetItemData(id1).name} === {ItemsStorage.Singleton.GetItemData(id2).name} ### {ItemsStorage.Singleton.GetItemData(id3).name}");
+
         if (WorldGenerator.Inst.GetBlockID(destPos + Vector3Int.up) != 0)
             destPos.y++;
 
@@ -288,6 +314,7 @@ public class AgentMove : MonoBehaviour
         Debug.Log("Высоты отличаются – ищем путь ступеньками через AStarPath3D.");
         yield return StartCoroutine(AStarPath3DCoroutine(agentPos, destPos, result => path = result));
 
+        
 
         if (path == null)
         {

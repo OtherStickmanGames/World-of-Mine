@@ -418,7 +418,7 @@ public class NetworkUserManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// From Index.hatal
+    /// From Index.Shatal
     /// </summary>
     /// <param name="value"></param>
     public void SetYGPlayerID(string value)

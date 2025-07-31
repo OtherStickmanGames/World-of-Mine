@@ -828,7 +828,7 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Android: ENABLE_INPUT_SYSTEM
+    Android: ENABLE_INPUT_SYSTEM;YG_PLUGIN_YANDEX_GAME
     Standalone: ENABLE_INPUT_SYSTEM;UTP_TRANSPORT_2_0_ABOVE;YG_PLUGIN_YANDEX_GAME
     WebGL: ENABLE_INPUT_SYSTEM;TMP_WEBGL_SUPPORT;YG_PLUGIN_YANDEX_GAME
   additionalCompilerArguments: {}

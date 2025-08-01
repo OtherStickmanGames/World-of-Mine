@@ -224,14 +224,14 @@ public class CameraStack : MonoBehaviour
         {
             var topDownComponent = topDownCamera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
             topDownComponent.CameraDistance -= Input.mouseScrollDelta.y;
-            topDownComponent.CameraDistance = Mathf.Clamp(topDownComponent.CameraDistance, 1, 18);
+            topDownComponent.CameraDistance = Mathf.Clamp(topDownComponent.CameraDistance, 1, 50);
         }
 
         if (freeTopDownCamera)
         {
             var component = freeTopDownCamera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
             component.CameraDistance -= Input.mouseScrollDelta.y;
-            component.CameraDistance = Mathf.Clamp(component.CameraDistance, 1, 15);
+            component.CameraDistance = Mathf.Clamp(component.CameraDistance, 1, 50);
 
         }
     }

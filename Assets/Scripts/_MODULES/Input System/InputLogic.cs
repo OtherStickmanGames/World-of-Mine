@@ -118,8 +118,9 @@ public class InputLogic : MonoBehaviour
         //deb.text = $"{Cursor.lockState}";
 
         QuickSlotSwitcher();
+        LeftControlLogic();
 #endif
-        }
+    }
 
     void QuickSlotSwitcher()
     {
@@ -146,6 +147,29 @@ public class InputLogic : MonoBehaviour
         if (scrollValue != 0f)
         {
             OnSlotChanged(currentSlot);
+        }
+    }
+
+    bool leftCtrlPressed;
+    float leftCtrlPressTimer;
+    void LeftControlLogic()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            leftCtrlPressed = true;
+        }
+        if (leftCtrlPressed)
+        {
+            leftCtrlPressTimer += Time.deltaTime;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            if (leftCtrlPressTimer < 0.18f)
+            {
+                SwitchShowHideCursor();
+            }
+            leftCtrlPressed = false;
+            leftCtrlPressTimer = 0;
         }
     }
 
@@ -239,6 +263,24 @@ public class InputLogic : MonoBehaviour
     {
         Single.playerBehaviour.allowDigging = true;
         print("+++ копат да +++");
+    }
+
+    public void SwitchShowHideCursor()
+    {
+        switch (Cursor.lockState)
+        {
+            case CursorLockMode.None:
+                HideCursor();
+                break;
+
+            case CursorLockMode.Locked:
+                ShowCursor();
+                break;
+
+            case CursorLockMode.Confined:
+                print("opto");
+                break;
+        }
     }
 
     private void OnApplicationFocus(bool focus)

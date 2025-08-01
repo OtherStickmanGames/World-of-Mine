@@ -264,28 +264,46 @@ public class AgentMove : MonoBehaviour
             Mathf.FloorToInt(destination.z)
         );
 
-        var agentPos2 = new Vector3Int
-        (
-            Mathf.RoundToInt(transform.position.x + 1),
-            Mathf.RoundToInt(transform.position.y - 1.1f),
-            Mathf.RoundToInt(transform.position.z)
-        );
-        var agentPos3 = new Vector3Int
-        (
-            Mathf.FloorToInt(transform.position.x),
-            Mathf.FloorToInt(transform.position.y - 1.1f),
-            Mathf.FloorToInt(transform.position.z)
-        );
 
         var startBlockID = WorldGenerator.Inst.GetBlockID(agentPos);
         var startItemID = ItemsStorage.Singleton.GetItemData(startBlockID).itemID;
+        // Если стартовая позиция агента находится на блоке, в котором невозможно
+        // построить NavMesh путь, то проверяем альтернативные (соседние) блоки
         if (excludePathfindingBlocks.Contains(startItemID))
         {
-            print("------ewofnwoenfoweofbwuoebfwuebfuwbe");
+            var agentPos2 = new Vector3Int
+            (
+                Mathf.RoundToInt(transform.position.x + 1),
+                Mathf.RoundToInt(transform.position.y - 1.1f),
+                Mathf.RoundToInt(transform.position.z)
+            );
+            var id2 = WorldGenerator.Inst.GetBlockID(agentPos2);
+            var itemID2 = ItemsStorage.Singleton.GetItemData(id2).itemID;
+            if (id2 == 0 || excludePathfindingBlocks.Contains(itemID2))
+            {
+                var agentPos3 = new Vector3Int
+                (
+                    Mathf.FloorToInt(transform.position.x),
+                    Mathf.FloorToInt(transform.position.y - 1.1f),
+                    Mathf.FloorToInt(transform.position.z)
+                );
+                var id3 = WorldGenerator.Inst.GetBlockID(agentPos3);
+                var itemID3 = ItemsStorage.Singleton.GetItemData(id3).itemID;
+                if (id3 != 0 && !excludePathfindingBlocks.Contains(itemID3))
+                {
+                    agentPos = agentPos3;
+                    print($"-!-!- Заменили на 3 вариант стартовой позиции");
+                }
+            }
+            else
+            {
+                agentPos = agentPos2;
+                print($"-!-!- Заменили на 2 вариант стартовой позиции");
+            }
         }
 
-        var id2 = WorldGenerator.Inst.GetBlockID(agentPos2);
-        var id3 = WorldGenerator.Inst.GetBlockID(agentPos3);
+        
+        
 
         //print($"###=== {ItemsStorage.Singleton.GetItemData(id1).name} === {ItemsStorage.Singleton.GetItemData(id2).name} ### {ItemsStorage.Singleton.GetItemData(id3).name}");
 

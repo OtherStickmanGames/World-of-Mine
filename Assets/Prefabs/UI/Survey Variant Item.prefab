@@ -218,6 +218,7 @@ MonoBehaviour:
   onClick:
     m_PersistentCalls:
       m_Calls: []
+  state: 0
 --- !u!222 &83694092708791814
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -487,7 +488,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 90, y: -37.93}
+  m_AnchoredPosition: {x: 90, y: -31.23}
   m_SizeDelta: {x: 366, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &2859353896097585445
@@ -546,8 +547,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 38
+  m_fontSizeBase: 38
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

@@ -85,9 +85,7 @@ namespace StarterAssets
 
 		private void Update()
 		{
-			
-
-			if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.LeftControl))
+			if (Input.GetKeyDown(KeyCode.F))
 			{
                 switch (Cursor.lockState)
                 {

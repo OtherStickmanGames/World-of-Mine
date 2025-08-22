@@ -8,6 +8,9 @@ using Newtonsoft.Json;
 #if !UNITY_WEBGL
 using System.IO;
 #endif
+#if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
+using YG;
+#endif
 
 
 public class NetworkUserManager : NetworkBehaviour
@@ -23,6 +26,7 @@ public class NetworkUserManager : NetworkBehaviour
 
     static string usersDataDirectory = $"{Application.dataPath}/Data/Users/";
 
+    string ygPlayerID = "COMPUCTER";
 
     private void Awake()
     {
@@ -65,7 +69,7 @@ public class NetworkUserManager : NetworkBehaviour
             SendUserNameServerRpc(userData.userName);
 
 #if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
-            SendYGUserConnectedServerRpc(userData.userName, YG.YandexGame.playerId);
+            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID);
 #endif
 
 #if UNITY_STANDALONE && !UNITY_SERVER
@@ -249,6 +253,194 @@ public class NetworkUserManager : NetworkBehaviour
         }
 #endif
     }
+
+    private GlobalUserData GetUserData(string playerId)
+    {
+#if !UNITY_WEBGL
+        var fileName = $"{playerId}.json";
+        var path = $"{usersDataDirectory}{fileName}";
+        if (File.Exists(path))
+        {
+            var json = File.ReadAllText(path);
+            return JsonConvert.DeserializeObject<GlobalUserData>(json);
+        }
+        else
+        {
+            print($"чё за хуйня блять... нет данных юзера {playerId}");
+            
+        }
+#endif
+        return null;
+    }
+
+    private SessionData GetLastSession(GlobalUserData userData)
+    {
+        var idxLastSession = userData.sessions.Count - 1;
+        return userData.sessions[idxLastSession];
+    }
+
+    private void SetLastSession(GlobalUserData userData, SessionData sessionData)
+    {
+        var idxLastSession = userData.sessions.Count - 1;
+        userData.sessions[idxLastSession] = sessionData;
+    }
+
+    private void SaveUserData(GlobalUserData userData)
+    {
+#if !UNITY_WEBGL
+        var fileName = $"{userData.playerID}.json";
+        var path = $"{usersDataDirectory}{fileName}";
+        var json = JsonConvert.SerializeObject(userData);
+        File.WriteAllText(path, json);
+#endif
+    }
+
+
+    [Header("Буфер последних значений FPS")]
+    [Tooltip("Сколько последних кадров учитывать при расчёте среднего")]
+    [SerializeField] private int bufferSize = 100;
+
+    private Queue<float> fpsBuffer = new Queue<float>();
+    private Queue<float> fpsMinBuffer = new Queue<float>();
+    private float sumFps = 0f;
+    private float sumMinFps = 0f;
+    private float sendTimer;
+    private float minFpsTimer;
+    private int minFps = 60;
+
+    void Update()
+    {
+        if (NetworkManager.IsConnectedClient)
+        {
+            // 1) Текущее значение FPS
+            float currentFps = 1f / Time.deltaTime;
+
+            // 2) Добавляем в буфер и обновляем сумму
+            fpsBuffer.Enqueue(currentFps);
+            sumFps += currentFps;
+
+            
+
+            // 3) Если превысили размер буфера — убираем самое старое
+            if (fpsBuffer.Count > bufferSize)
+                sumFps -= fpsBuffer.Dequeue();
+
+            // 4) Считаем среднее по тому, что осталось в буфере
+            float averageFps = sumFps / fpsBuffer.Count;
+
+
+            // 5) Вывод / отправка
+            sendTimer += Time.deltaTime;
+            if (sendTimer > 10)
+            {
+                SendAverageFps(averageFps, minFps);
+                sendTimer = 0;
+            }
+
+            minFpsTimer += Time.deltaTime;
+            if (minFpsTimer > 3 && appFocus)
+            {
+                fpsMinBuffer.Enqueue(currentFps);
+                sumMinFps += currentFps;
+
+                if (fpsMinBuffer.Count > 8)
+                {
+                    sumMinFps -= fpsMinBuffer.Dequeue();
+                    var avgMinFps = sumMinFps / fpsMinBuffer.Count;
+
+                    if (minFps > avgMinFps)
+                    { 
+                        minFps = Mathf.FloorToInt(avgMinFps);
+                    }
+
+                }
+            }
+            
+            
+
+        }
+
+    }
+
+    private void SendAverageFps(float avgFps, int minFps)
+    {
+        // Вставьте сюда ваш код отправки на сервер или в аналитику
+        //Debug.Log($"Скользящее среднее FPS (последние {fpsBuffer.Count} кадров): {avgFps:F1} min: {minFps}");
+#if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
+        DeviceType deviceType = DeviceType.Desktopo;
+        if (YandexGame.EnvironmentData.isMobile)
+        {
+            deviceType = DeviceType.Mobilo;
+        }
+        else
+        if (YandexGame.EnvironmentData.isTablet)
+        {
+            deviceType = DeviceType.Tableto;
+        }
+
+        SendAvgFpsServerRpc
+        (
+            ygPlayerID,
+            Mathf.RoundToInt(avgFps),
+            minFps,
+            deviceType
+        );
+#endif
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SendAvgFpsServerRpc(string playerID, int fps, int minFps, DeviceType deviceType, ServerRpcParams serverRpcParams = default)
+    {
+        //print($"avg: {fps} min: {minFps} ### {deviceType} : {playerID} #");
+        var data = GetUserData(playerID);
+        var session = GetLastSession(data);
+
+        // TO DO Отправлять девайс тип вместе со стартом сессии
+        session.deviceType = deviceType;
+
+        var needSave = false;
+        if (session.avgFps != fps)
+        {
+            session.avgFps = fps;
+            needSave = true;
+        }
+        if (session.minFps != minFps)
+        {
+            needSave = true;
+            session.minFps = fps;
+        }
+
+        if (needSave)
+        {
+            SetLastSession(data, session);
+            SaveUserData(data);
+        }
+    }
+
+    /// <summary>
+    /// From Index.Shatal
+    /// </summary>
+    /// <param name="value"></param>
+    public void SetYGPlayerID(string value)
+    {
+        ygPlayerID = value;
+    }
+
+    private bool appFocus;
+    private void OnApplicationFocus(bool focus)
+    {
+        appFocus = focus;
+        minFpsTimer = 0.5f;
+        fpsMinBuffer.Clear();
+        //print($"фокус {appFocus}");
+    }
+
+    public enum DeviceType
+    {
+        Desktopo,
+        Mobilo,
+        Tableto
+    }
 }
 
 [Serializable]
@@ -263,6 +455,9 @@ public struct SessionData
     public int countTakedBlock;
     public bool isActive;
     public ulong clientID;
+    public NetworkUserManager.DeviceType deviceType;
+    public int avgFps;
+    public int minFps;
 }
 
 [Serializable]

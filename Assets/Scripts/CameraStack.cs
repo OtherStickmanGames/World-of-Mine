@@ -170,6 +170,8 @@ public class CameraStack : MonoBehaviour
 
     public void SwitchToPreviousCamera()
     {
+        ChangeCameraSwitchSpeed();
+
         switch (PreviousType)
         {
             case CameraType.Loading:
@@ -191,6 +193,20 @@ public class CameraStack : MonoBehaviour
         }
     }
 
+    void ChangeCameraSwitchSpeed()
+    {
+        var blendDuration = 1f;
+        var originTime = cinemachineBrain.m_DefaultBlend.m_Time;
+        cinemachineBrain.m_DefaultBlend.m_Time = blendDuration;
+
+        LeanTween.delayedCall(blendDuration,
+            () =>
+            {
+                cinemachineBrain.m_DefaultBlend.m_Time = originTime;
+            });
+    }
+
+
     private void TopDownZoom()
     {
         // TO DO на Модульность
@@ -208,14 +224,14 @@ public class CameraStack : MonoBehaviour
         {
             var topDownComponent = topDownCamera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
             topDownComponent.CameraDistance -= Input.mouseScrollDelta.y;
-            topDownComponent.CameraDistance = Mathf.Clamp(topDownComponent.CameraDistance, 1, 18);
+            topDownComponent.CameraDistance = Mathf.Clamp(topDownComponent.CameraDistance, 1, 50);
         }
 
         if (freeTopDownCamera)
         {
             var component = freeTopDownCamera.GetCinemachineComponent(0) as Cinemachine3rdPersonFollow;
             component.CameraDistance -= Input.mouseScrollDelta.y;
-            component.CameraDistance = Mathf.Clamp(component.CameraDistance, 1, 15);
+            component.CameraDistance = Mathf.Clamp(component.CameraDistance, 1, 50);
 
         }
     }

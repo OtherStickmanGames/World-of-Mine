@@ -17,6 +17,7 @@ public class ShowBuildingView : MonoBehaviour
     [SerializeField] Transform parent;
     [SerializeField] BuildingPreviewItem previewItemPrefab;
     [SerializeField] ScrollRect scrollRect;
+    [SerializeField] RectTransform pageSwitcherLayoutGroup;
    
 
     List<BuildingPreviewItem> buildingItems = new List<BuildingPreviewItem>();
@@ -63,6 +64,8 @@ public class ShowBuildingView : MonoBehaviour
             previewItem.onBuildingClick.AddListener(Building_Clicked);
             buildingItems.Add(previewItem);
         }
+
+        UpdatePageBtnsView();
     }
 
     private void Building_Clicked(BuildingPreviewItem buildingItem)
@@ -118,14 +121,16 @@ public class ShowBuildingView : MonoBehaviour
 
         labelPage.SetText($"Страница {page + 1}");
 
-        StartCoroutine(Async());
+        LayoutRebuilder.ForceRebuildLayoutImmediate(pageSwitcherLayoutGroup);
+
+        //StartCoroutine(Async());
 
         IEnumerator Async()
         {
             yield return null;
 
-            LayoutRebuilder.ForceRebuildLayoutImmediate(labelPage.transform.parent as RectTransform);
-            LayoutRebuilder.ForceRebuildLayoutImmediate(labelPage.transform as RectTransform);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(pageSwitcherLayoutGroup);
+            //LayoutRebuilder.ForceRebuildLayoutImmediate(labelPage.transform as RectTransform);
 
         }
     }

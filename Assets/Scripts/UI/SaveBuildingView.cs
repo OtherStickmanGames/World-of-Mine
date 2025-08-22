@@ -101,8 +101,10 @@ public class SaveBuildingView : MonoBehaviour
     {
         panelPreview.SetActive(false);
         selectingArea.SetActive(false);
+        btnAccept.gameObject.SetActive(false);
         btnCancel.gameObject.SetActive(false);
         CameraStack.Instance.SwitchToPreviousCamera();
+        BuildingManager.Singleton.ClearHighlights();
         Destroy(buildPreviewData?.view);
         SetVisibleBtnSaveBuilding(true);
         onClose?.Invoke();

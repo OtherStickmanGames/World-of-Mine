@@ -92,6 +92,16 @@ public class GameManager : MonoBehaviour
         {
             WorldGenerator.Inst.SetDistanceViewChunk(8);
         }
+
+        //var blocksData = new FantasyTreeGenerator().GenerateTree();
+        //var mesh = MeshGenerator.Single.GenerateMesh(blocksData);
+        //var building = new GameObject($"еанюююрнрэ депебнюрЭ");
+        //var renderer = building.AddComponent<MeshRenderer>();
+        //var meshFilter = building.AddComponent<MeshFilter>();
+        //var collider = building.AddComponent<MeshCollider>();
+        //renderer.material = WorldGenerator.Inst.mat;
+        //meshFilter.mesh = mesh;
+        //collider.sharedMesh = mesh;
     }
 
     private void LoadTutorialScene()

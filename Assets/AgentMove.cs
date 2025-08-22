@@ -80,6 +80,7 @@ public class AgentMove : MonoBehaviour
             Debug.Log($"MoveToPosition: ѕуть до {destination} не найден через NavMesh (PathComplete = {path.status}). «апускаем построение scaffolding. lastCornerEnough = {lastCornerEnough}");
             if (path.status is NavMeshPathStatus.PathInvalid)
             {
+                print("ЁЁ, путоь не валидо");
                 yield return StartCoroutine(Pause());
             }
 
@@ -263,6 +264,49 @@ public class AgentMove : MonoBehaviour
             Mathf.FloorToInt(destination.z)
         );
 
+
+        var startBlockID = WorldGenerator.Inst.GetBlockID(agentPos);
+        var startItemID = ItemsStorage.Singleton.GetItemData(startBlockID).itemID;
+        // ≈сли стартова€ позици€ агента находитс€ на блоке, в котором невозможно
+        // построить NavMesh путь, то провер€ем альтернативные (соседние) блоки
+        if (excludePathfindingBlocks.Contains(startItemID))
+        {
+            var agentPos2 = new Vector3Int
+            (
+                Mathf.RoundToInt(transform.position.x + 1),
+                Mathf.RoundToInt(transform.position.y - 1.1f),
+                Mathf.RoundToInt(transform.position.z)
+            );
+            var id2 = WorldGenerator.Inst.GetBlockID(agentPos2);
+            var itemID2 = ItemsStorage.Singleton.GetItemData(id2).itemID;
+            if (id2 == 0 || excludePathfindingBlocks.Contains(itemID2))
+            {
+                var agentPos3 = new Vector3Int
+                (
+                    Mathf.FloorToInt(transform.position.x),
+                    Mathf.FloorToInt(transform.position.y - 1.1f),
+                    Mathf.FloorToInt(transform.position.z)
+                );
+                var id3 = WorldGenerator.Inst.GetBlockID(agentPos3);
+                var itemID3 = ItemsStorage.Singleton.GetItemData(id3).itemID;
+                if (id3 != 0 && !excludePathfindingBlocks.Contains(itemID3))
+                {
+                    agentPos = agentPos3;
+                    print($"-!-!- «аменили на 3 вариант стартовой позиции");
+                }
+            }
+            else
+            {
+                agentPos = agentPos2;
+                print($"-!-!- «аменили на 2 вариант стартовой позиции");
+            }
+        }
+
+        
+        
+
+        //print($"###=== {ItemsStorage.Singleton.GetItemData(id1).name} === {ItemsStorage.Singleton.GetItemData(id2).name} ### {ItemsStorage.Singleton.GetItemData(id3).name}");
+
         if (WorldGenerator.Inst.GetBlockID(destPos + Vector3Int.up) != 0)
             destPos.y++;
 
@@ -288,6 +332,7 @@ public class AgentMove : MonoBehaviour
         Debug.Log("¬ысоты отличаютс€ Ц ищем путь ступеньками через AStarPath3D.");
         yield return StartCoroutine(AStarPath3DCoroutine(agentPos, destPos, result => path = result));
 
+        
 
         if (path == null)
         {

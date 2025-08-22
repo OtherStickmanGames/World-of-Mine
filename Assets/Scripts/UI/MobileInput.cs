@@ -160,7 +160,7 @@ public class MobileInput : MonoBehaviour
             // Сброс логики нажатия на экран
             if (Input.touches.Length == 0 && !UI.ClickOnUI(exclude))
             {
-                if (touchTimer > 0 && touchTimer < 0.3f && lastBlockRaycast && !touchWasMoved)
+                if (touchTimer > 0 && touchTimer < 0.18f && lastBlockRaycast && !touchWasMoved)
                 {
                     // Надо переделать, и в плеер бехе и тут одинаковый код
                     var lookBlockID = WorldGenerator.Inst.GetBlockID(blockPosition + Vector3.right);

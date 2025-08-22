@@ -46,6 +46,7 @@ public class ReseaseNoteView : MonoBehaviour
             view.Init(surveyItem.title);
             view.SetVotes(surveyItem.votes);
             view.onClick.AddListener(Survey_Clicked);
+            view.onDeselect.AddListener(Survey_Deselected);
 
             surveyItems.Add(view);
         }
@@ -74,8 +75,19 @@ public class ReseaseNoteView : MonoBehaviour
         }
     }
 
+    private void Survey_Deselected(SurveyVariantItem surveyView)
+    {
+        var idxSurvey = surveyView.transform.GetSiblingIndex();
+        ReleaseNotesHandler.Singleton.SurveyDeselect(txtDate.text, idxSurvey);
+    }
+
     private void Survey_Clicked(SurveyVariantItem surveyView)
     {
+        var previousVote = surveyItems.Find(s => s.state is SurveyVariantItem.State.Select && s != surveyView);
+        if (previousVote)
+        {
+            previousVote.NoSelect();
+        }
         var votes = surveyItems.Select(s => s.Votes).ToArray();
         var votesPercentge = CalculatePercentageDistribution(votes);
 

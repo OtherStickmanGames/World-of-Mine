@@ -130,6 +130,15 @@ public class MeshGenerator : MonoBehaviour
             }
         }
 
+        if (vertices.Count > 65535)
+        {
+            mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        }
+        else
+        {
+            mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt16;
+        }
+
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangulos.ToArray();
         mesh.uv = uvs.ToArray();

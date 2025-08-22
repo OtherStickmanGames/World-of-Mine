@@ -44,6 +44,7 @@ public class InputLogic : MonoBehaviour
 
     private void Update()
     {
+#if !UNITY_SERVER
         if (!BlockPlayerControl)
         {
             if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.E))
@@ -63,7 +64,9 @@ public class InputLogic : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            //ShowCursor();
+#if !UNITY_WEBGL || UNITY_EDITOR
+            ShowCursor();
+#endif
         }
 
         if (Input.GetMouseButtonDown(0))
@@ -115,7 +118,8 @@ public class InputLogic : MonoBehaviour
         //deb.text = $"{Cursor.lockState}";
 
         QuickSlotSwitcher();
-
+        LeftControlLogic();
+#endif
     }
 
     void QuickSlotSwitcher()
@@ -124,6 +128,11 @@ public class InputLogic : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.LeftControl))
                 return;
+        }
+
+        if (!playerBehaviour)
+        {
+            return;
         }
 
         var currentSlot = UI.Single.quickInventoryView.Selected;
@@ -138,6 +147,29 @@ public class InputLogic : MonoBehaviour
         if (scrollValue != 0f)
         {
             OnSlotChanged(currentSlot);
+        }
+    }
+
+    bool leftCtrlPressed;
+    float leftCtrlPressTimer;
+    void LeftControlLogic()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            leftCtrlPressed = true;
+        }
+        if (leftCtrlPressed)
+        {
+            leftCtrlPressTimer += Time.deltaTime;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            if (leftCtrlPressTimer < 0.18f)
+            {
+                SwitchShowHideCursor();
+            }
+            leftCtrlPressed = false;
+            leftCtrlPressTimer = 0;
         }
     }
 
@@ -233,18 +265,55 @@ public class InputLogic : MonoBehaviour
         print("+++ копат да +++");
     }
 
+    public void SwitchShowHideCursor()
+    {
+        switch (Cursor.lockState)
+        {
+            case CursorLockMode.None:
+                HideCursor();
+                break;
+
+            case CursorLockMode.Locked:
+                ShowCursor();
+                break;
+
+            case CursorLockMode.Confined:
+                print("opto");
+                break;
+        }
+    }
+
     private void OnApplicationFocus(bool focus)
     {
-        print($"фокус {focus}");
+        //print($"фокус {focus}");
     }
 
     private void OnApplicationPause(bool pause)
     {
-        print($"пауза {pause}");
+        //print($"пауза {pause}");
     }
 
+    /// <summary>
+    /// Вызывакается из Индекс.шатал
+    /// </summary>
     public void OnEscapePressed()
     {
         ShowCursor();
     }
+
+    // Выключить звук
+    public void MuteSound()
+    {
+        AudioListener.pause = true;
+        print("звук вырубил !!!");
+    }
+
+    // Включить звук
+    public void UnmuteSound()
+    {
+        AudioListener.pause = false;
+        print("звук да !!!");
+    }
+
+
 }

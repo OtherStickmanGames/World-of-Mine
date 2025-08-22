@@ -18,8 +18,8 @@ public class ReleaseNotesHandler : NetworkBehaviour
 
     [SerializeField] AudioClipSender audioClipSender;
 
-    public List<NetworkNewsData> newsData = new();
-    public List<NetworkNewsData> clientNewsData = new();
+    [ReadOnlyField] public List<NetworkNewsData> newsData = new();
+    [ReadOnlyField] public List<NetworkNewsData> clientNewsData = new();
 
     Dictionary<ulong, int> clientIdxNewsSending = new();
     HashSet<string> receivedAudioClipNames = new(); 
@@ -78,6 +78,25 @@ public class ReleaseNotesHandler : NetworkBehaviour
         date = date.Replace(".", "_");
         var found = newsData.Find(n => n.name == date);
         found.survey[idx].votes++;
+        var json = JsonConvert.SerializeObject(found);
+        print(json);
+        var path = $"{releaseNotesDirectory}{date}.json";
+        File.WriteAllText(path, json);
+#endif
+    }
+
+    internal void SurveyDeselect(string date, int idxSurvey)
+    {
+        SendSurveyDeselectServerRpc(date, idxSurvey);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SendSurveyDeselectServerRpc(string date, int idx, ServerRpcParams serverRpcParams = default)
+    {
+#if !UNITY_WEBGL || UNITY_EDITOR
+        date = date.Replace(".", "_");
+        var found = newsData.Find(n => n.name == date);
+        found.survey[idx].votes--;
         var json = JsonConvert.SerializeObject(found);
         print(json);
         var path = $"{releaseNotesDirectory}{date}.json";
@@ -208,7 +227,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
 
             newsData = newsData.OrderByDescending(n => n.date).ToList();
 
-            yield return new WaitForSeconds(180);
+            yield return new WaitForSeconds(1800);
 
             StartCoroutine(LoadNoteFromFile());
         }

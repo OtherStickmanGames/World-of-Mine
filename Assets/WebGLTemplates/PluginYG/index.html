@@ -129,6 +129,8 @@
             }
         });
 
+        
+
         document.addEventListener('visibilitychange', function () {
             if (ysdk !== null && initGame == true) {
                 if (document.hidden) {
@@ -143,6 +145,44 @@
             }
         });
 
+        canvas.addEventListener("mousedown", onMouseDown, false);
+
+        function onMouseDown(event) {
+            window.focus();
+        }
+
+        var focusChangedOnHas = true;
+        var focusChangedOnNot = true;
+
+        function checkWindowFocused() {
+            if (player != null) {
+                var anything_is_focused = (
+                    document.hasFocus()
+                    || (document.activeElement !== null
+                        && document.visibilityState === 'visible')
+                );
+
+                if (anything_is_focused) {
+                    focusChangedOnNot = false;
+                    if (!focusChangedOnHas) {
+                        //console.log('Has Focus');
+                        focusChangedOnHas = true;
+                        myGameInstance.SendMessage('InputSystem', 'UnmuteSound');
+                    }
+                }
+                else {
+                    focusChangedOnHas = false;
+                    if (!focusChangedOnNot) {
+                        //console.log('Does NOT have Focus');
+                        focusChangedOnNot = true;
+                        myGameInstance.SendMessage('InputSystem', 'MuteSound');
+                    }
+                }
+            }
+        }
+
+        document.addEventListener('visibilitychange', checkWindowFocused);
+        setInterval(checkWindowFocused, 1000);
 
 
         function ResumeGame() {
@@ -210,6 +250,14 @@
 
                 // Additional init modules
 
+                ysdk.getPlayer().then(_player => {
+                    player = _player;
+                }).catch(err => {
+                    console.error('Ошибка при инициализации объекта Player: ', err);
+                });
+
+
+
             } catch (e) {
                 console.error('CRASH Initialization SDK: ', e);
             }
@@ -224,6 +272,8 @@
             if (nowFullAdOpen == true && myGameInstance != null) {
                 myGameInstance.SendMessage('YandexGame', 'OpenFullAd');
             }
+
+            myGameInstance.SendMessage('[# GAME #]', 'SetYGPlayerID', player.getUniqueID().toString());
 
             // Additional start modules
         }

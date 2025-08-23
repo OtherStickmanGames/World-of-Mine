@@ -138,7 +138,11 @@ public class NetworkUserManager : NetworkBehaviour
             Directory.CreateDirectory(usersDataDirectory);
         }
 
-        playerIds.Add(serverRpcParams.Receive.SenderClientId, playerId);
+        
+        if(!playerIds.TryAdd(serverRpcParams.Receive.SenderClientId, playerId))
+        {
+            print($"Почему-то не добавился player ID {playerId}");
+        }
 
         var fileName = $"{playerId}.json";
         var path = $"{usersDataDirectory}{fileName}";
@@ -393,27 +397,31 @@ public class NetworkUserManager : NetworkBehaviour
     {
         //print($"avg: {fps} min: {minFps} ### {deviceType} : {playerID} #");
         var data = GetUserData(playerID);
-        var session = GetLastSession(data);
-
-        // TO DO Отправлять девайс тип вместе со стартом сессии
-        session.deviceType = deviceType;
-
-        var needSave = false;
-        if (session.avgFps != fps)
+        // ЕСТЬ ЯВНАЯ ПРОБЛЕМОС !!!!!!
+        if (data != null)
         {
-            session.avgFps = fps;
-            needSave = true;
-        }
-        if (session.minFps != minFps)
-        {
-            needSave = true;
-            session.minFps = fps;
-        }
+            var session = GetLastSession(data);
 
-        if (needSave)
-        {
-            SetLastSession(data, session);
-            SaveUserData(data);
+            // TO DO Отправлять девайс тип вместе со стартом сессии
+            session.deviceType = deviceType;
+
+            var needSave = false;
+            if (session.avgFps != fps)
+            {
+                session.avgFps = fps;
+                needSave = true;
+            }
+            if (session.minFps != minFps)
+            {
+                needSave = true;
+                session.minFps = fps;
+            }
+
+            if (needSave)
+            {
+                SetLastSession(data, session);
+                SaveUserData(data);
+            }
         }
     }
 

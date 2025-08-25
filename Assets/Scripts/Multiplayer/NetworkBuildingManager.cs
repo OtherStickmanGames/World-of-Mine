@@ -167,15 +167,16 @@ public class NetworkBuildingManager : NetworkBehaviour
         {
             var skip = page * pageSize;
             var buildingsPaged = buildingsServerData.Skip(skip).Take(pageSize).ToList();
+            var username = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
 
-            //foreach (var data in buildingsPaged)
             for (int i = 0; i < buildingsPaged.Count; i++)
             {
                 var data = buildingsPaged[i];
-                var username = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
                 data.liked = data.playersLiked != null && data.playersLiked.Find(p => p == username) != null;
                 ReceiveBuildingDataClientRpc(data, GetTargetClientParams(serverRpcParams));
                 //FindObjectOfType<UI>().txtPizdos.text += $" #{buildingData.nameBuilding}";
+                yield return null;
+                yield return null;
                 yield return null;
             }
 

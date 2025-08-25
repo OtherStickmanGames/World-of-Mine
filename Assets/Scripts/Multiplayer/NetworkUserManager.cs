@@ -56,7 +56,7 @@ public class NetworkUserManager : NetworkBehaviour
             }
             else
             {
-                Debug.Log($"Надо поразбираться шо за шляпа с дисконектом без конекта");
+                Debug.Log($"Надо поразбираться шо за шляпа с дисконектом без конекта: client id {clientId}");
             }
         }
     }
@@ -120,7 +120,14 @@ public class NetworkUserManager : NetworkBehaviour
     {
         var crp = NetTool.GetTargetClientParams(serverRpcParams);
 
-        ReceiveNicknameClientRpc(users[ownerID], crp);
+        if (users.TryGetValue(ownerID, out var user))
+        {
+            ReceiveNicknameClientRpc(user, crp);
+        }
+        else
+        {
+            Debug.Log($"Нет юзера {ownerID}");
+        }
     }
 
     [ClientRpc(RequireOwnership = false)]
@@ -138,6 +145,7 @@ public class NetworkUserManager : NetworkBehaviour
             Directory.CreateDirectory(usersDataDirectory);
         }
 
+        playerId = playerId.Replace("/", "_");
         
         if(!playerIds.TryAdd(serverRpcParams.Receive.SenderClientId, playerId))
         {
@@ -236,6 +244,7 @@ public class NetworkUserManager : NetworkBehaviour
     private void EndUserSession(string playerId)
     {
 #if !UNITY_WEBGL
+        playerId = playerId.Replace("/", "_");
         var fileName = $"{playerId}.json";
         var path = $"{usersDataDirectory}{fileName}";
         if (File.Exists(path))
@@ -261,6 +270,7 @@ public class NetworkUserManager : NetworkBehaviour
     private GlobalUserData GetUserData(string playerId)
     {
 #if !UNITY_WEBGL
+        playerId = playerId.Replace("/", "_");
         var fileName = $"{playerId}.json";
         var path = $"{usersDataDirectory}{fileName}";
         if (File.Exists(path))

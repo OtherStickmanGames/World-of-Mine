@@ -2665,7 +2665,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useDevServer: 1
-  isLocalhost: 0
+  isLocalhost: 1
   serverAdress: 176.123.167.245
   devServerAdress: 176.123.165.242
   hostName: devworldofmine.online
@@ -4856,16 +4856,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ProtocolType: 0
   m_UseWebSockets: 1
-  m_UseEncryption: 1
-  m_MaxPacketQueueSize: 8192
-  m_MaxPayloadSize: 32768
+  m_UseEncryption: 0
+  m_MaxPacketQueueSize: 1024
+  m_MaxPayloadSize: 8192
   m_HeartbeatTimeoutMS: 500
   m_ConnectTimeoutMS: 1000
   m_MaxConnectAttempts: 60
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
-    Address: 176.123.165.242
-    Port: 443
+    Address: 127.0.0.01
+    Port: 7777
     ServerListenAddress: 0.0.0.0
   DebugSimulator:
     PacketDelayMS: 0

@@ -33,6 +33,8 @@ public class AudioFragmentHandler : NetworkBehaviour
                 //}
 
                 yield return null;
+                yield return null;
+                yield return null;
             }
         }
     }

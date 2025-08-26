@@ -697,7 +697,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59f446cd9bae860428608b801d62bb48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FragmentSize: 256
+  FragmentSize: 1024
   onDataReceive:
     m_PersistentCalls:
       m_Calls: []
@@ -2664,11 +2664,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cbb70b30b293a749a7cb9a8f8afebc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useDevServer: 0
+  useDevServer: 1
   isLocalhost: 0
   serverAdress: 176.123.167.245
   devServerAdress: 176.123.165.242
-  hostName: worldofmine.online
+  hostName: devworldofmine.online
   yandexMetricCounter: 99583935
   workerPrefab: {fileID: 0}
   workersParent: {fileID: 0}
@@ -4857,14 +4857,14 @@ MonoBehaviour:
   m_ProtocolType: 0
   m_UseWebSockets: 1
   m_UseEncryption: 1
-  m_MaxPacketQueueSize: 1024
-  m_MaxPayloadSize: 8192
+  m_MaxPacketQueueSize: 8192
+  m_MaxPayloadSize: 32768
   m_HeartbeatTimeoutMS: 500
   m_ConnectTimeoutMS: 1000
   m_MaxConnectAttempts: 60
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
-    Address: 176.123.167.245
+    Address: 176.123.165.242
     Port: 443
     ServerListenAddress: 0.0.0.0
   DebugSimulator:

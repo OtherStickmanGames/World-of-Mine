@@ -274,11 +274,11 @@ public class UI : MonoBehaviour
 
     private void START_SERVER()
     {
-        //var networkManager = NetworkManager.Singleton;
-        //UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
-        //transport.UseWebSockets = true;
-        //transport.UseEncryption = false;
-        //transport.SetConnectionData("127.0.0.1", 7777); // Имя хоста и порт
+        var networkManager = NetworkManager.Singleton;
+        UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
+        transport.UseWebSockets = true;
+        transport.UseEncryption = false;
+        transport.SetConnectionData("127.0.0.1", 7777); // Имя хоста и порт
 
         StartCoroutine(ASYNC_START());
 

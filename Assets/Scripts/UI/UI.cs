@@ -112,8 +112,9 @@ public class UI : MonoBehaviour
     {
         if (networkManager.IsServer)
             return;
-
+#if UNITY_EDITOR
         print($"{eventData.EventType} =-= {countTryConnection} -=-=-");
+#endif
 
         if (eventData.EventType == ConnectionEvent.ClientConnected)
         {

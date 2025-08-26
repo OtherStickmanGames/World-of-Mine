@@ -152,7 +152,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         //print("Отправил запрос на постройки");
     }
 
-
+    long rpcId = 0;
     /// <summary>
     /// Сервер получает и отправляет список построек
     /// </summary>
@@ -173,7 +173,8 @@ public class NetworkBuildingManager : NetworkBehaviour
             {
                 var data = buildingsPaged[i];
                 data.liked = data.playersLiked != null && data.playersLiked.Find(p => p == username) != null;
-                ReceiveBuildingDataClientRpc(data, GetTargetClientParams(serverRpcParams));
+                ReceiveBuildingDataClientRpc(rpcId, data, GetTargetClientParams(serverRpcParams));
+                rpcId++;
                 //FindObjectOfType<UI>().txtPizdos.text += $" #{buildingData.nameBuilding}";
                 yield return null;
                 yield return null;
@@ -185,6 +186,22 @@ public class NetworkBuildingManager : NetworkBehaviour
                 ReceiveEndOfPagesClientRpc(GetTargetClientParams(serverRpcParams));
             }
         }
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void ReceiveBuildingDataClientRpc(long rpcId, BuildingServerData data, ClientRpcParams clientRpcParams = default)
+    {
+        //Debug.Log($"{data.nameBuilding}  {data.guid}");
+        BuildingManager.Singleton.CreateBuildingPreview(data);
+
+        AckClientReceivedBuildingServerRpc(rpcId);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void AckClientReceivedBuildingServerRpc(long rpcId, ServerRpcParams serverRpcParams = default)
+    {
+        
+        Debug.Log($"клиент уебатор {rpcId}");
     }
 
     private void UpdateBuildingsList()
@@ -260,12 +277,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     }
 
 
-    [ClientRpc(RequireOwnership = false)]
-    private void ReceiveBuildingDataClientRpc(BuildingServerData data, ClientRpcParams clientRpcParams = default)
-    {
-        //Debug.Log($"{data.nameBuilding}  {data.guid}");
-        BuildingManager.Singleton.CreateBuildingPreview(data);
-    }
+    
 
     /// <summary>
     /// Метод который вызыватся на клиенте, означающий конец списка построек

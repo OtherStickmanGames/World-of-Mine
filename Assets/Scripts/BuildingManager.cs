@@ -223,6 +223,7 @@ public class BuildingManager : MonoBehaviour
     }
 
 
+    public float savingProgress;
 
     internal void SaveBuilding(string nameBuilding)
     {

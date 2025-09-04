@@ -107,6 +107,7 @@ public class ShowBuildingView : MonoBehaviour
         BuildingManager.Singleton.InvokeBuildingListShow();
         LoadItems();
         InputLogic.Single.AvailableMouseScrollWorld = false;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(pageSwitcherLayoutGroup);
     }
 
     private void LoadItems()

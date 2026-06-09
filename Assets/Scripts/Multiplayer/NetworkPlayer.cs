@@ -51,11 +51,7 @@ public class NetworkPlayer : NetworkBehaviour
             // Safe spawn for new players
             if (UserData.Owner.position == Vector3.zero)
             {
-                var netWorldGen = FindObjectOfType<NetworkWorldGenerator>();
-                if (netWorldGen != null)
-                {
-                    netWorldGen.RequestSafeSpawnServerRpc();
-                }
+                NetworkSpawnManager.Instance.RequestSafeSpawnServerRpc();
             }
 #endif
             player?.SetLoadedPosition();

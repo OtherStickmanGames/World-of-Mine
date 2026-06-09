@@ -328,20 +328,20 @@ public class NetworkUserManager : NetworkBehaviour
     private float sumMinFps = 0f;
     private float sendTimer;
     private float minFpsTimer;
-    private int minFps = 60;
+    private int minFps = int.MaxValue;
 
     void Update()
     {
-        if (NetworkManager.IsConnectedClient)
+        if (NetworkManager.IsConnectedClient && appFocus)
         {
-            // 1)   FPS
-            float currentFps = 1f / Time.deltaTime;
+            // 1)   FPS (using unscaledDeltaTime for real performance)
+            float dt = Time.unscaledDeltaTime;
+            if (dt <= 0) dt = 0.016f; // Safety check
+            float currentFps = 1f / dt;
 
             // 2)      
             fpsBuffer.Enqueue(currentFps);
             sumFps += currentFps;
-
-            
 
             // 3)        
             if (fpsBuffer.Count > bufferSize)
@@ -360,7 +360,7 @@ public class NetworkUserManager : NetworkBehaviour
             }
 
             minFpsTimer += Time.deltaTime;
-            if (minFpsTimer > 3 && appFocus)
+            if (minFpsTimer > 3)
             {
                 fpsMinBuffer.Enqueue(currentFps);
                 sumMinFps += currentFps;
@@ -377,11 +377,7 @@ public class NetworkUserManager : NetworkBehaviour
 
                 }
             }
-            
-            
-
         }
-
     }
 
     private void SendAverageFps(float avgFps, int minFps)
@@ -437,7 +433,7 @@ public class NetworkUserManager : NetworkBehaviour
             if (session.minFps != minFps)
             {
                 needSave = true;
-                session.minFps = fps;
+                session.minFps = minFps;
             }
 
             if (needSave)
@@ -463,6 +459,9 @@ public class NetworkUserManager : NetworkBehaviour
         appFocus = focus;
         minFpsTimer = 0.5f;
         fpsMinBuffer.Clear();
+        fpsBuffer.Clear();
+        sumFps = 0;
+        sumMinFps = 0;
         //print($" {appFocus}");
     }
 

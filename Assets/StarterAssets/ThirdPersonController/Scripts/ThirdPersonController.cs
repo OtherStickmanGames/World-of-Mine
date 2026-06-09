@@ -243,8 +243,8 @@ namespace StarterAssets
 #if UNITY_WEBGL && !UNITY_EDITOR
             // FALLBACK: New Input System in WebGL often has bugs with Pointer Lock and DPI.
             // Using legacy Input.GetAxis is much more stable in many browsers.
-            lookX = Input.GetAxis("Mouse X") * 2.0f; // Reduced sensitivity
-            lookY = -Input.GetAxis("Mouse Y") * 2.0f; // Fixed inversion
+            lookX = Input.GetAxis("Mouse X") * 1.6f; // Reduced sensitivity (down by 20%)
+            lookY = -Input.GetAxis("Mouse Y") * 1.6f; // Fixed inversion (down by 20%)
 
             // WebGL Outlier Rejection: Ignore huge spikes caused by browser events or DPI scaling glitches.
             // A delta larger than 25 in one frame is physically impossible for normal mouse movement.

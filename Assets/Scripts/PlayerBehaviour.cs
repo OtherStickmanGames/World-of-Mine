@@ -98,16 +98,7 @@ public class PlayerBehaviour : MonoBehaviour
             searchStartPos += Vector3.right * 888;
     #endif
 
-            var netWorldGen = FindObjectOfType<NetworkWorldGenerator>();
-            if (netWorldGen != null)
-            {
-                netWorldGen.RequestSafeSpawnServerRpc(searchStartPos);
-            }
-            else
-            {
-                // Fallback if networking is not ready
-                transform.position = searchStartPos;
-            }
+            NetworkSpawnManager.Instance.RequestSafeSpawnServerRpc(searchStartPos);
         }
         else
         {

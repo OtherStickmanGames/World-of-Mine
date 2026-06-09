@@ -28,12 +28,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
 
     bool waitHandlingChunck;
 
-    private Queue<Vector3> safeSpawnPool = new Queue<Vector3>();
-    private int currentSpiralRadius = 0;
-    private int currentSpiralX = 0;
-    private int currentSpiralZ = 0;
-    private int spiralStep = 0; // 0: Right, 1: Down, 2: Left, 3: Up
-
     private void Awake()
     {
         WorldGenerator.onBlockPick.AddListener(Block_Mined);
@@ -137,11 +131,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
         worldGenerator = WorldGenerator.Inst;
 
         yield return null;
-
-        if (IsServer)
-        {
-            _ = ReplenishSpawnPoolAsync();
-        }
 
 #if !UNITY_SERVER
 
@@ -773,157 +762,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
         public float lifeTime;
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestSafeSpawnServerRpc(Vector3 startPos = default, ServerRpcParams rpcParams = default)
-    {
-        var clientId = rpcParams.Receive.SenderClientId;
-        _ = ProvideSafeSpawnAsync(clientId, startPos);
-    }
-
-    private async Task ProvideSafeSpawnAsync(ulong clientId, Vector3 startSearchPos)
-    {
-        // For simplicity in this implementation, if pool is empty or startPos is specific, 
-        // we can find it on the fly or maintain multiple pools.
-        // Let's find it on the fly if startPos is far from center, or use pool if center.
-        
-        Vector3 spawnPos;
-        if (Vector3.Distance(startSearchPos, Vector3.zero) < 10f && safeSpawnPool.Count > 0)
-        {
-            spawnPos = safeSpawnPool.Dequeue();
-            _ = ReplenishSpawnPoolAsync(); // Refill center pool
-        }
-        else
-        {
-            // Find a specific safe spot near startSearchPos
-            spawnPos = await FindSafeSpotNearAsync(startSearchPos);
-        }
-
-        if (spawnPos != Vector3.zero)
-        {
-            var clientParams = GetTargetClientParams(clientId);
-            SetSafeSpawnClientRpc(spawnPos, clientParams);
-        }
-    }
-
-    private async Task<Vector3> FindSafeSpotNearAsync(Vector3 startPos)
-    {
-        float startTime = Time.time;
-        int chunkSize = WorldGenerator.size;
-        int startX = Mathf.RoundToInt(startPos.x / chunkSize);
-        int startZ = Mathf.RoundToInt(startPos.z / chunkSize);
-        int chunksChecked = 0;
-
-        for (int r = 0; r < 500; r++) // Practically infinite search radius
-        {
-            // After 3 seconds of searching, we stop being strict about safety
-            bool isStrict = (Time.time - startTime) < 3.0f;
-
-            for (int x = startX - r; x <= startX + r; x++)
-            {
-                for (int z = startZ - r; z <= startZ + r; z++)
-                {
-                    // Only check the perimeter of the current radius square
-                    if (Math.Abs(x - startX) != r && Math.Abs(z - startZ) != r) continue;
-
-                    for (int y = 3; y >= -2; y--)
-                    {
-                        Vector3 chunkPos = new Vector3(x * chunkSize, y * chunkSize, z * chunkSize);
-                        var (isSafe, surfaceY) = await CheckChunkSafetyAsync(chunkPos, isStrict);
-                        if (isSafe)
-                        {
-                            return new Vector3(chunkPos.x + (chunkSize / 2), surfaceY + 1.5f, chunkPos.z + (chunkSize / 2));
-                        }
-                    }
-
-                    chunksChecked++;
-                    // "Sliced" search: yield every 10 chunks to keep the server responsive
-                    if (chunksChecked % 10 == 0)
-                    {
-                        await Task.Yield();
-                    }
-                }
-            }
-
-            // Emergency timeout after 10 seconds of searching
-            if (Time.time - startTime > 10.0f)
-            {
-                Debug.LogWarning($"[Safe Spawn] Search timeout near {startPos}. Using fallback altitude.");
-                break;
-            }
-        }
-
-        // Fallback: Spawn in the sky at the requested location if no ground found
-        return new Vector3(startPos.x, 100f, startPos.z);
-    }
-
-    [ClientRpc]
-    private void SetSafeSpawnClientRpc(Vector3 spawnPos, ClientRpcParams rpcParams = default)
-    {
-        if (NetworkManager.LocalClient.PlayerObject != null)
-        {
-            NetworkManager.LocalClient.PlayerObject.transform.position = spawnPos;
-            Debug.Log($"[Safe Spawn] Teleported to: {spawnPos}");
-        }
-    }
-
-    private async Task ReplenishSpawnPoolAsync()
-    {
-        // Simple spiral search step by step
-        int maxAttempts = 100;
-        int attempts = 0;
-        int chunkSize = WorldGenerator.size;
-
-        while (safeSpawnPool.Count < 5 && attempts < maxAttempts)
-        {
-            attempts++;
-            
-            // Move spiral logic
-            if (Math.Abs(currentSpiralX) <= currentSpiralRadius && Math.Abs(currentSpiralZ) <= currentSpiralRadius)
-            {
-                // Simple implementation of spiral: expand radius if finished a lap
-                // For simplicity, let's just increment radius and iterate X/Z in this simplified version
-                // A better one would be a proper step-by-step spiral state machine
-                
-                // Let's use a nested loop for this call to find the NEXT valid one
-                bool foundNext = false;
-                for (int r = currentSpiralRadius; r < 20 && !foundNext; r++)
-                {
-                    for (int x = -r; x <= r && !foundNext; x++)
-                    {
-                        for (int z = -r; z <= r && !foundNext; z++)
-                        {
-                            if (Math.Abs(x) != r && Math.Abs(z) != r) continue;
-                            
-                            // Check vertical column
-                            for (int y = 3; y >= -2; y--)
-                            {
-                                Vector3 chunkPos = new Vector3(x * chunkSize, y * chunkSize, z * chunkSize);
-                                var (isSafe, surfaceY) = await CheckChunkSafetyAsync(chunkPos);
-                                if (isSafe)
-                                {
-                                    Vector3 spawnPos = new Vector3(chunkPos.x + (chunkSize / 2), surfaceY + 1.5f, chunkPos.z + (chunkSize / 2));
-                                    if (!safeSpawnPool.Contains(spawnPos))
-                                    {
-                                        safeSpawnPool.Enqueue(spawnPos);
-                                        foundNext = true;
-                                        // Update state for next call
-                                        currentSpiralX = x;
-                                        currentSpiralZ = z;
-                                        currentSpiralRadius = r;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (foundNext) break;
-                }
-                if (!foundNext) break; // Reached max radius
-            }
-        }
-    }
-
-    private async Task<(bool isSafe, float surfaceY)> CheckChunkSafetyAsync(Vector3 chunkPos, bool strict = true)
+    public async Task<(bool isSafe, float surfaceY)> CheckChunkSafetyAsync(Vector3 chunkPos, bool strict = true)
     {
         // 1. Modifications Check
         var chunckDataFileName = GetChunckDataFileName(chunkPos);

@@ -12,7 +12,7 @@ using System.IO;
 
 
 /// <summary>
-/// Этот скрипт сделан так, чтобы он мог работать и через сервер и локально для оффлайн режима
+///    ,            
 /// </summary>
 public class WorldSimulation : MonoBehaviour
 {
@@ -24,9 +24,26 @@ public class WorldSimulation : MonoBehaviour
     static string simulationDataDirectory = $"{Application.dataPath}/Data/Chuncks/Simulation/";
 
     public Dictionary<Vector3, SimulationChunkData> simulationsChunks = new();
+    private Queue<Vector3> cacheOrder = new Queue<Vector3>();
+    private const int MaxCacheSize = 300;
 
     HashSet<SimulationChunkData> queueToAddSimulationChunks = new();
     [ReadOnlyField] public SimulationConfig config;
+
+    private void AddToCache(Vector3 pos, SimulationChunkData data)
+    {
+        if (simulationsChunks.ContainsKey(pos))
+            return;
+
+        if (simulationsChunks.Count >= MaxCacheSize)
+        {
+            var oldestPos = cacheOrder.Dequeue();
+            simulationsChunks.Remove(oldestPos);
+        }
+
+        simulationsChunks.Add(pos, data);
+        cacheOrder.Enqueue(pos);
+    }
 
     private void Awake()
     {
@@ -44,8 +61,8 @@ public class WorldSimulation : MonoBehaviour
 
     public void PlaceBlock(ChunckComponent chunk, Vector3 worldBlockPos, byte blockID)
     {
-        // Сначала проверяем на Клиенте есть ли смысл передавать на сервер информацию
-        // о поставленном блоке для симуляции мира
+        //           
+        //      
         var topBlockPos = worldBlockPos + Vector3Int.up;
         var topBlockID = WorldGenerator.Inst.GetBlockID(topBlockPos);
         if (blockID == DIRT && topBlockID != DIRT && topBlockID != GRASS)
@@ -102,9 +119,9 @@ public class WorldSimulation : MonoBehaviour
         SimulationChunkData simulationChunkData;
         string json;
 
-        if (simulationsChunks.ContainsKey(chunkPos))
+        if (simulationsChunks.TryGetValue(chunkPos, out simulationChunkData))
         {
-            simulationChunkData = simulationsChunks[chunkPos];
+            // Cache hit
         }
         else
         {
@@ -117,7 +134,7 @@ public class WorldSimulation : MonoBehaviour
             {
                 simulationChunkData = new() { ChunkPos = chunkPos, simulatableBlocks = new() };
             }
-            queueToAddSimulationChunks.Add(simulationChunkData);
+            AddToCache(chunkPos, simulationChunkData);
         }
 
         
@@ -136,14 +153,7 @@ public class WorldSimulation : MonoBehaviour
         }
         else
         {
-            if (simulationChunkData.simulatableBlocks.Remove(found))
-            {
-                print("я хуй пойми как такая ситуация возможна, но я ремувнул");
-            }
-            else
-            {
-                print("бля, шо то вообще пошло не так 0_0");
-            }
+            simulationChunkData.simulatableBlocks.Remove(found);
         }
 
         json = JsonConvert.SerializeObject(simulationChunkData);
@@ -162,9 +172,9 @@ public class WorldSimulation : MonoBehaviour
         SimulationChunkData simulationChunkData = null;
         string json;
 
-        if (simulationsChunks.ContainsKey(chunkPos))
+        if (simulationsChunks.TryGetValue(chunkPos, out simulationChunkData))
         {
-            simulationChunkData = simulationsChunks[chunkPos];
+            // Cache hit
         }
         else
         {
@@ -172,6 +182,7 @@ public class WorldSimulation : MonoBehaviour
             {
                 json = File.ReadAllText(path);
                 simulationChunkData = JsonConvert.DeserializeObject<SimulationChunkData>(json);
+                AddToCache(chunkPos, simulationChunkData);
             }
         }
 
@@ -208,7 +219,7 @@ public class WorldSimulation : MonoBehaviour
             foreach (var chunkPos in chunkPoses)
             {
                 var simulationData = simulationsChunks[chunkPos];
-                //print($"симулируем {chunkPos} === {simulationData.simulatableBlocks.Count}");
+                //print($\" {chunkPos} === {simulationData.simulatableBlocks.Count}\");
                 SimulationChunk(simulationData);
 
                 yield return null;
@@ -232,7 +243,7 @@ public class WorldSimulation : MonoBehaviour
             {
                 var elapsed = DateTime.UtcNow - blockData.changed;
                 var seconds = elapsed.TotalSeconds;
-                //print($"прошло времени {seconds} ### {blockConfig.time}");
+                //print($\"  {seconds} ### {blockConfig.time}\");
                 if (seconds > blockConfig.time)
                 {
                     InvokeBlockSimulation(blockData, simulationChunkData.ChunkPos, out var removeSimulationData);
@@ -244,7 +255,7 @@ public class WorldSimulation : MonoBehaviour
             }
             else
             {
-                Debug.Log($"Э, хуйло добавь конфиг {blockData.blockID}");
+                Debug.Log($",    {blockData.blockID}");
             }
         }
 
@@ -289,7 +300,7 @@ public class WorldSimulation : MonoBehaviour
 
                 onBlockChanged?.Invoke(chunkPos, blockData.localBlockPos, GRASS);
 
-                //print($"Есть шо {changedBlock}");
+                //print($"  {changedBlock}");
                 WorldData.SaveChunkData(chunckData, chunkPos);
                 removeSimulationData = true;
                 break;
@@ -421,7 +432,3 @@ public struct SimulatableBlockData : INetworkSerializable
         serializer.SerializeValue(ref changed);
     }
 }
-
-
-
-

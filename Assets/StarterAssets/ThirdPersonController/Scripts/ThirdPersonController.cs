@@ -79,10 +79,20 @@ namespace StarterAssets
 
         public float checkEdgeDist = 0.3f;
 
+        [Tooltip("How much to smooth the camera rotation. Lower values are more responsive.")]
+        public float CameraSmoothTime = 0.03f;
+
         // cinemachine
 
         [ReadOnlyField] public float _cinemachineTargetYaw;
         [ReadOnlyField] public float _cinemachineTargetPitch;
+
+        private float _yawVelocity;
+        private float _pitchVelocity;
+        private float _smoothedYaw;
+        private float _smoothedPitch;
+        private float _rawTargetYaw;
+        private float _rawTargetPitch;
 
         // player
         private float _speed;
@@ -151,6 +161,10 @@ namespace StarterAssets
         private void Start()
         {
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
+            _smoothedYaw = _cinemachineTargetYaw;
+            _smoothedPitch = _cinemachineTargetPitch;
+            _rawTargetYaw = _cinemachineTargetYaw;
+            _rawTargetPitch = _cinemachineTargetPitch;
 
             _hasAnimator = true;
             _animator = GetComponentInChildren<Animator>();
@@ -223,23 +237,66 @@ namespace StarterAssets
 
         private void CameraRotation()
         {
+            float lookX = _input.look.x;
+            float lookY = _input.look.y;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // FALLBACK: New Input System in WebGL often has bugs with Pointer Lock and DPI.
+            // Using legacy Input.GetAxis is much more stable in many browsers.
+            lookX = Input.GetAxis("Mouse X") * 2.0f; // Reduced sensitivity
+            lookY = -Input.GetAxis("Mouse Y") * 2.0f; // Fixed inversion
+
+            // WebGL Outlier Rejection: Ignore huge spikes caused by browser events or DPI scaling glitches.
+            // A delta larger than 25 in one frame is physically impossible for normal mouse movement.
+            if (Mathf.Abs(lookX) > 25f || Mathf.Abs(lookY) > 25f) return;
+#else
+            // Outlier rejection for New Input System (if still used)
+            if (Mathf.Abs(lookX) > 100f || Mathf.Abs(lookY) > 100f) return;
+
+            // Increase sensitivity for non-WebGL platforms (Editor/Standalone)
+            lookX *= 2.0f;
+            lookY *= 2.0f;
+#endif
+
             // if there is an input and camera position is not fixed
-            if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
+            if ((Mathf.Abs(lookX) > _threshold || Mathf.Abs(lookY) > _threshold) && !LockCameraPosition)
             {
                 //Don't multiply mouse input by Time.deltaTime;
                 float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
-                _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
-                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier * sensitivityMouseY;
+                _cinemachineTargetYaw += lookX * deltaTimeMultiplier;
+                _cinemachineTargetPitch += lookY * deltaTimeMultiplier * sensitivityMouseY;
             }
 
-            // clamp our rotations so our values are limited 360 degrees
-            _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
+            // Properly wrap Yaw around 360 degrees using Mathf.Repeat to avoid precision issues and jumps
+            _cinemachineTargetYaw = Mathf.Repeat(_cinemachineTargetYaw, 360f);
+
+            // Strict clamp for Pitch
             _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
 
-            // Cinemachine will follow this target
-            CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch + CameraAngleOverride,
-                _cinemachineTargetYaw, 0.0f);
+            // Apply smoothing using INTERNAL variables (_smoothedYaw, _smoothedPitch).
+            // This is CRITICAL because reading from transform.rotation.eulerAngles creates jitter
+            // when the parent object (Player) is also moving/rotating in the same frame.
+            if (Mathf.Abs(lookX) > _threshold || Mathf.Abs(lookY) > _threshold)
+            {
+                _smoothedYaw = Mathf.SmoothDampAngle(_smoothedYaw, _cinemachineTargetYaw, ref _yawVelocity, CameraSmoothTime);
+                _smoothedPitch = Mathf.SmoothDampAngle(_smoothedPitch, _cinemachineTargetPitch, ref _pitchVelocity, CameraSmoothTime);
+
+                CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_smoothedPitch + CameraAngleOverride, _smoothedYaw, 0.0f);
+            }
+            else
+            {
+                // No input: Snap to the target and reset velocities to avoid any drifting.
+                _smoothedYaw = _cinemachineTargetYaw;
+                _smoothedPitch = _cinemachineTargetPitch;
+                CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_smoothedPitch + CameraAngleOverride, _smoothedYaw, 0.0f);
+                _yawVelocity = 0;
+                _pitchVelocity = 0;
+            }
+
+            // Sync raw targets for internal consistency
+            _rawTargetYaw = _cinemachineTargetYaw;
+            _rawTargetPitch = _cinemachineTargetPitch;
         }
 
         public bool useSprint;
@@ -490,9 +547,11 @@ namespace StarterAssets
             _cinemachineTargetPitch = pitch;
             _cinemachineTargetYaw = yaw;
 
-            _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
-            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
+            _rawTargetPitch = pitch;
+            _rawTargetYaw = yaw;
 
+            _cinemachineTargetYaw = Mathf.Repeat(_cinemachineTargetYaw, 360f);
+            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
         }
 
         private void OnDrawGizmosSelected()

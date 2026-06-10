@@ -39,6 +39,70 @@ public class NetworkUserManager : NetworkBehaviour
     {
         NetworkManager.OnClientConnectedCallback += Client_Connected;
         NetworkManager.OnClientDisconnectCallback += Client_Disconnected;
+
+        if (NetworkManager.IsServer)
+        {
+            _ = CleanupAllStaleSessionsAsync();
+        }
+    }
+
+    private async Task CleanupAllStaleSessionsAsync()
+    {
+#if !UNITY_WEBGL
+        if (!Directory.Exists(usersDataDirectory)) return;
+
+        Debug.Log("[NetworkUserManager] Starting post-crash session cleanup...");
+        string[] files = Directory.GetFiles(usersDataDirectory, "*.json");
+        int cleanedCount = 0;
+
+        foreach (var file in files)
+        {
+            try
+            {
+                string json = await Task.Run(() => File.ReadAllText(file));
+                var userData = JsonConvert.DeserializeObject<GlobalUserData>(json);
+                bool changed = false;
+
+                if (userData?.sessions == null) continue;
+
+                for (int i = 0; i < userData.sessions.Count; i++)
+                {
+                    var s = userData.sessions[i];
+                    if (s.isActive)
+                    {
+                        s.isActive = false;
+                        if (s.end.Year < 2000) s.end = DateTime.Now; // Use current time as best guess
+                        userData.sessions[i] = s;
+                        changed = true;
+                    }
+                }
+
+                if (changed)
+                {
+                    await SaveUserDataAsync(userData);
+                    cleanedCount++;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[NetworkUserManager] Failed cleanup for {file}: {e.Message}");
+            }
+        }
+        if (cleanedCount > 0) Debug.Log($"[NetworkUserManager] Cleaned up {cleanedCount} stale user files.");
+#endif
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (NetworkManager.IsServer)
+        {
+            // Sync-style cleanup for the last moment of application life
+            // Using Task.Wait() here is acceptable only during shutdown
+            foreach (var playerId in playerIds.Values)
+            {
+                EndUserSessionAsync(playerId).Wait(500);
+            }
+        }
     }
 
     private void Client_Disconnected(ulong clientId)
@@ -71,15 +135,15 @@ public class NetworkUserManager : NetworkBehaviour
             SendUserNameServerRpc(userData.userName);
 
 #if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
+            // ygPlayerID is handled via external JS/Yandex logic usually, 
+            // but let's ensure we use what we have.
             SendYGUserConnectedServerRpc(userData.userName, ygPlayerID);
-#endif
-
-#if UNITY_STANDALONE && !UNITY_SERVER
-            SendYGUserConnectedServerRpc(userData.userName, "878sdf78sd78f5");
-#endif
-
-#if UNITY_ANDROID
-            SendYGUserConnectedServerRpc(userData.userName, SystemInfo.deviceUniqueIdentifier);
+#elif UNITY_ANDROID
+            ygPlayerID = SystemInfo.deviceUniqueIdentifier;
+            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID);
+#else
+            ygPlayerID = "878sdf78sd78f5"; // Dev/Standalone ID
+            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID);
 #endif
         }
     }
@@ -167,6 +231,23 @@ public class NetworkUserManager : NetworkBehaviour
         {
             var json = await Task.Run(() => File.ReadAllText(path));
             userData = JsonConvert.DeserializeObject<GlobalUserData>(json);
+            
+            // CRITICAL FIX: Ensure playerID is set from the filename/system ID
+            userData.playerID = playerId; 
+
+            // Clean up any stale active sessions
+            for (int i = 0; i < userData.sessions.Count; i++)
+            {
+                var s = userData.sessions[i];
+                if (s.isActive)
+                {
+                    s.isActive = false;
+                    // If end was not set, set it to start to avoid crazy durations
+                    if (s.end.Year < 2000) s.end = s.start; 
+                    userData.sessions[i] = s;
+                }
+            }
+
             var session = new SessionData()
             {
                 nickname = nickname,
@@ -382,27 +463,28 @@ public class NetworkUserManager : NetworkBehaviour
 
     private void SendAverageFps(float avgFps, int minFps)
     {
-        //Debug.Log($"  FPS ( {fpsBuffer.Count} ): {avgFps:F1} min: {minFps}");
-#if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
         DeviceType deviceType = DeviceType.Desktopo;
+
+#if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
         if (YandexGame.EnvironmentData.isMobile)
         {
             deviceType = DeviceType.Mobilo;
         }
-        else
-        if (YandexGame.EnvironmentData.isTablet)
+        else if (YandexGame.EnvironmentData.isTablet)
         {
             deviceType = DeviceType.Tableto;
         }
+#elif UNITY_ANDROID || UNITY_IOS
+        deviceType = DeviceType.Mobilo;
+#endif
 
         SendAvgFpsServerRpc
         (
             ygPlayerID,
-            Mathf.RoundToInt(avgFps),
+            Mathf.FloorToInt(avgFps),
             minFps,
             deviceType
         );
-#endif
     }
 
     [ServerRpc(RequireOwnership = false)]

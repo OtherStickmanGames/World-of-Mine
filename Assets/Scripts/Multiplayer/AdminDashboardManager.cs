@@ -89,6 +89,9 @@ public class AdminDashboardManager : NetworkBehaviour
             }
         }
 
+        // Sort by last session ticks (most recent first)
+        stats.Sort((a, b) => b.LastSessionTicks.CompareTo(a.LastSessionTicks));
+
         // 1. Tell client to clear the table
         ClearDashboardClientRpc(targetParams);
 
@@ -172,6 +175,17 @@ public class AdminDashboardManager : NetworkBehaviour
         stat.MinFps = minFpsValue == int.MaxValue ? 0 : minFpsValue;
         stat.IsOnline = isCurrentlyOnline;
 
+        // Set last session ticks (using the start of the most recent session)
+        stat.LastSessionTicks = data.sessions[data.sessions.Count - 1].start.Ticks;
+
+        // Calculate unique devices
+        HashSet<string> uniqueDevices = new HashSet<string>();
+        foreach (var s in data.sessions)
+        {
+            uniqueDevices.Add(s.deviceType.ToString());
+        }
+        stat.Devices = new FixedString512Bytes(string.Join("\n", uniqueDevices));
+
         return stat;
     }
 
@@ -235,6 +249,8 @@ public struct PlayerDashboardStat : INetworkSerializable
     public int AvgFps;
     public int MinFps;
     public bool IsOnline;
+    public FixedString512Bytes Devices;
+    public long LastSessionTicks;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -246,5 +262,7 @@ public struct PlayerDashboardStat : INetworkSerializable
         serializer.SerializeValue(ref AvgFps);
         serializer.SerializeValue(ref MinFps);
         serializer.SerializeValue(ref IsOnline);
+        serializer.SerializeValue(ref Devices);
+        serializer.SerializeValue(ref LastSessionTicks);
     }
 }

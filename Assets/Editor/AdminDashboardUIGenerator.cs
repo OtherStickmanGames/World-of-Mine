@@ -193,6 +193,8 @@ public class AdminDashboardUIGenerator
         serializedObject.FindProperty("txtMaxTime").objectReferenceValue = texts[3];
         serializedObject.FindProperty("txtAvgFps").objectReferenceValue = texts[4];
         serializedObject.FindProperty("txtMinFps").objectReferenceValue = texts[5];
+        serializedObject.FindProperty("txtDevices").objectReferenceValue = texts[6];
+        serializedObject.FindProperty("txtLastSeen").objectReferenceValue = texts[7];
         serializedObject.FindProperty("btnDelete").objectReferenceValue = btnDelGo.GetComponent<Button>();
         serializedObject.FindProperty("imgStatus").objectReferenceValue = statusImg;
         serializedObject.ApplyModifiedProperties();
@@ -327,7 +329,7 @@ public class AdminDashboardUIGenerator
             sl.preferredWidth = 15;
         }
 
-        string[] columns = { "Имя", "Сессии", "Общее время", "Макс. время", "Ср. FPS", "Мин. FPS" };
+        string[] columns = { "Имя", "Сессии", "Общее время", "Макс. время", "Ср. FPS", "Мин. FPS", "Устройство", "Был в сети" };
         foreach (var col in columns)
         {
             GameObject colGo = new GameObject(col);

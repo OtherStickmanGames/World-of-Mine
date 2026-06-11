@@ -35,6 +35,11 @@ public class AdminDashboardUI : MonoBehaviour
 
         if (dashboardPanel == null) throw new NullReferenceException("DashboardPanel is not assigned.");
         if (scrollRect == null) throw new NullReferenceException("ScrollRect is not assigned.");
+        
+#if UNITY_WEBGL && !UNITY_EDITOR
+        scrollRect.scrollSensitivity *= 30f; // Significantly increase sensitivity for WebGL browsers
+#endif
+
         if (rowPrefab == null) throw new NullReferenceException("RowPrefab is not assigned.");
         if (btnPlayersTab == null) throw new NullReferenceException("BtnPlayersTab is not assigned.");
         

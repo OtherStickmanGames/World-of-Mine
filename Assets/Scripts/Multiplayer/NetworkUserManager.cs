@@ -134,16 +134,18 @@ public class NetworkUserManager : NetworkBehaviour
             var userData = UserData.Owner;
             SendUserNameServerRpc(userData.userName);
 
+            DeviceType deviceType = GetDeviceType();
+
 #if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
             // ygPlayerID is handled via external JS/Yandex logic usually, 
             // but let's ensure we use what we have.
-            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID);
+            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID, deviceType);
 #elif UNITY_ANDROID
             ygPlayerID = SystemInfo.deviceUniqueIdentifier;
-            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID);
+            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID, deviceType);
 #else
             ygPlayerID = "878sdf78sd78f5"; // Dev/Standalone ID
-            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID);
+            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID, deviceType);
 #endif
         }
     }
@@ -203,12 +205,12 @@ public class NetworkUserManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SendYGUserConnectedServerRpc(string nickname, string playerId, ServerRpcParams serverRpcParams = default)
+    private void SendYGUserConnectedServerRpc(string nickname, string playerId, DeviceType deviceType, ServerRpcParams serverRpcParams = default)
     {
-        _ = SendYGUserConnectedAsync(nickname, playerId, serverRpcParams.Receive.SenderClientId);
+        _ = SendYGUserConnectedAsync(nickname, playerId, deviceType, serverRpcParams.Receive.SenderClientId);
     }
 
-    private async Task SendYGUserConnectedAsync(string nickname, string playerId, ulong senderClientId)
+    private async Task SendYGUserConnectedAsync(string nickname, string playerId, DeviceType deviceType, ulong senderClientId)
     {
 #if !UNITY_WEBGL
         if (!Directory.Exists(usersDataDirectory))
@@ -254,6 +256,7 @@ public class NetworkUserManager : NetworkBehaviour
                 start = DateTime.Now,
                 isActive = true,
                 clientID = senderClientId,
+                deviceType = deviceType,
             };
             userData.sessions.Add(session);
         }
@@ -266,6 +269,7 @@ public class NetworkUserManager : NetworkBehaviour
                 start = DateTime.Now,
                 isActive = true,
                 clientID = senderClientId,
+                deviceType = deviceType,
             };
             userData.sessions = new();
             userData.sessions.Add(session);
@@ -461,7 +465,7 @@ public class NetworkUserManager : NetworkBehaviour
         }
     }
 
-    private void SendAverageFps(float avgFps, int minFps)
+    private DeviceType GetDeviceType()
     {
         DeviceType deviceType = DeviceType.Desktopo;
 
@@ -477,24 +481,27 @@ public class NetworkUserManager : NetworkBehaviour
 #elif UNITY_ANDROID || UNITY_IOS
         deviceType = DeviceType.Mobilo;
 #endif
+        return deviceType;
+    }
 
+    private void SendAverageFps(float avgFps, int minFps)
+    {
         SendAvgFpsServerRpc
         (
             ygPlayerID,
             Mathf.FloorToInt(avgFps),
-            minFps,
-            deviceType
+            minFps
         );
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SendAvgFpsServerRpc(string playerID, int fps, int minFps, DeviceType deviceType, ServerRpcParams serverRpcParams = default)
+    private void SendAvgFpsServerRpc(string playerID, int fps, int minFps, ServerRpcParams serverRpcParams = default)
     {
-        //print($"avg: {fps} min: {minFps} ### {deviceType} : {playerID} #");
-        _ = SendAvgFpsAsync(playerID, fps, minFps, deviceType);
+        //print($"avg: {fps} min: {minFps} ### {playerID} #");
+        _ = SendAvgFpsAsync(playerID, fps, minFps);
     }
 
-    private async Task SendAvgFpsAsync(string playerID, int fps, int minFps, DeviceType deviceType)
+    private async Task SendAvgFpsAsync(string playerID, int fps, int minFps)
     {
         var data = await GetUserDataAsync(playerID);
         //    !!!!!!
@@ -502,9 +509,6 @@ public class NetworkUserManager : NetworkBehaviour
         {
             var idxLastSession = data.sessions.Count - 1;
             var session = data.sessions[idxLastSession];
-
-            // TO DO
-            session.deviceType = deviceType;
 
             var needSave = false;
             if (session.avgFps != fps)

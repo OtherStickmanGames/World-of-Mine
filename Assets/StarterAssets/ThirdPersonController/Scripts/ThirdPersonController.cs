@@ -204,7 +204,7 @@ namespace StarterAssets
         private void LateUpdate()
         {
 #if !UNITY_SERVER
-            if (!IsOwner || !_input || !AllowCameraRotation)
+            if (!IsOwner || !_input || !AllowCameraRotation || !_input.cursorInputForLook)
                 return;
 
             CameraRotation();

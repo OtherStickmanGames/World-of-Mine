@@ -49,7 +49,7 @@ public class NetworkPlayer : NetworkBehaviour
             Debug.Log($"   {player} ### {UserData.Owner}");
 
             // Safe spawn for new players
-            if (UserData.Owner.position == Vector3.zero)
+            if (UserData.Owner.position == Vector3.zero && !GameManager.IsTutorialScene())
             {
                 NetworkSpawnManager.Instance.RequestSafeSpawnServerRpc();
             }

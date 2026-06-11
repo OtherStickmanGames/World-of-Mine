@@ -91,14 +91,21 @@ public class PlayerBehaviour : MonoBehaviour
         //print($"{UserData.Owner.userName} ### {UserData.Owner.position}");
         if (userDataPosition == Vector3.zero)
         {
-            print($"Requesting safe spawn from server...");
-
             Vector3 searchStartPos = Vector3.one + Vector3.up * 18;
-    #if UNITY_ANDROID
+#if UNITY_ANDROID
             searchStartPos += Vector3.right * 888;
-    #endif
+#endif
 
-            NetworkSpawnManager.Instance.RequestSafeSpawnServerRpc(searchStartPos);
+            if (GameManager.IsTutorialScene())
+            {
+                transform.position = searchStartPos;
+                Debug.Log($"[Tutorial] Local spawn at: {searchStartPos}");
+            }
+            else
+            {
+                print($"Requesting safe spawn from server...");
+                NetworkSpawnManager.Instance.RequestSafeSpawnServerRpc(searchStartPos);
+            }
         }
         else
         {

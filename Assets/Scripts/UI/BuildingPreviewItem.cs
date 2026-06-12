@@ -127,6 +127,11 @@ public class BuildingPreviewItem : MonoBehaviour
     void BuildingPreviewRotate()
     {
         var look = touchLook.TouchDist;
+        if (Application.isMobilePlatform)
+        {
+            look = TouchLookNormalizer.NormalizeScreenDelta(look);
+        }
+
         if (!Application.isMobilePlatform && touchLook.gameObject == UI.CurrentUIObject)
         {
             if (Input.GetMouseButtonDown(0))

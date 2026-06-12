@@ -20,14 +20,10 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     [ReadOnlyField]
     public bool Pressed;
 
-    AnimationCurve resolutionFactorCurve;
-
     void Start()
     {
        
-        resolutionFactorCurve = new();
-        resolutionFactorCurve.AddKey(new(720, 15));
-        resolutionFactorCurve.AddKey(new(1080, 1));
+        
         
         
     }
@@ -36,33 +32,30 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     {
         if (Pressed)
         {
-            Vector2 pos = Vector2.left * float.MaxValue;
-            for (int i = 0; i < Input.touches.Length; i++)
+            Vector2 currentPos = PointerOld;
+
+            if (Input.touchCount > 0)
             {
-                if(Input.touches[i].position.x > pos.x)
+                // Возвращаем старый, рабочий метод поиска пальца (самый правый на экране), 
+                // так как PointerId из EventSystem не совпадает с fingerId из-за конфликта систем ввода.
+                Vector2 pos = Vector2.left * float.MaxValue;
+                for (int i = 0; i < Input.touches.Length; i++)
                 {
-                    pos = Input.touches[i].position;
+                    if (Input.touches[i].position.x > pos.x)
+                    {
+                        pos = Input.touches[i].position;
+                    }
                 }
+                currentPos = pos;
+            }
+            else if (Input.GetMouseButton(0))
+            {
+                currentPos = Input.mousePosition;
             }
 
-            if(Input.touches.Length > 0)
-            {
-                TouchDist = pos - PointerOld;// * resolutionFactorCurve.Evaluate(Screen.height);
-                PointerOld = pos;
-            }
+            TouchDist = currentPos - PointerOld;
+            PointerOld = currentPos;
 
-            if (PointerId >= 0 && PointerId < Input.touches.Length)
-            {
-                //TouchDist = Input.touches[PointerId].position - PointerOld;
-                //PointerOld = Input.touches[PointerId].position;
-                //TouchDist = pos - PointerOld;
-                //PointerOld = pos;
-            }
-            else
-            {
-                //TouchDist = new Vector2(Input.mousePosition.x, Input.mousePosition.y) - PointerOld;
-                //PointerOld = Input.mousePosition;
-            }
             if (invertY)
             {
                 TouchDist.y *= -1;
@@ -70,8 +63,7 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         }
         else
         {
-            TouchDist  = Vector2.zero;
-            PointerOld = Vector2.zero;
+            TouchDist = Vector2.zero;
         }
     }
 

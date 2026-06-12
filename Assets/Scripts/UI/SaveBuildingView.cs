@@ -379,6 +379,11 @@ public class SaveBuildingView : MonoBehaviour
         if (panelPreview.activeSelf)
         {
             var look = buildingPreviewLook.TouchDist;
+            if (Application.isMobilePlatform)
+            {
+                look = TouchLookNormalizer.NormalizeScreenDelta(look);
+            }
+
             if (!Application.isMobilePlatform)
             {
                 if (Input.GetMouseButtonDown(0))

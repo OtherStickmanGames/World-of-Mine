@@ -249,6 +249,13 @@ namespace StarterAssets
             // WebGL Outlier Rejection: Ignore huge spikes caused by browser events or DPI scaling glitches.
             // A delta larger than 25 in one frame is physically impossible for normal mouse movement.
             if (Mathf.Abs(lookX) > 25f || Mathf.Abs(lookY) > 25f) return;
+#elif UNITY_ANDROID || UNITY_IOS
+            // Mobile Outlier Rejection: Increased threshold as we now pass an axis rate, not raw delta
+            if (Mathf.Abs(lookX) > 5000f || Mathf.Abs(lookY) > 5000f) return;
+
+            // Maintain sensitivity for mobile to match expected feeling
+            lookX *= 2.0f;
+            lookY *= 2.0f;
 #else
             // Outlier rejection for New Input System (if still used)
             if (Mathf.Abs(lookX) > 100f || Mathf.Abs(lookY) > 100f) return;

@@ -65,7 +65,6 @@ public class UI : MonoBehaviour
     Character mine;
     Transform player;
     PlayerBehaviour playerBehaviour;
-    AnimationCurve resolutionFactorCurve;
 
     bool needResetPlayerPosition;
 
@@ -127,13 +126,13 @@ public class UI : MonoBehaviour
             btnPlay.gameObject.SetActive(false);
             if (countTryConnection < 3)
             {
-                netcodeStatusView.ShowStatus("Пробую соедениться с сервером..");
+                netcodeStatusView.ShowStatus("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ..");
                 countTryConnection++;
                 StartCoroutine(DelayConnect());
             }
             else
             {
-                netcodeStatusView.ShowStatus("Не удалось соедениться с основным сервером, видимо он упал, попробуй позже :(");
+                netcodeStatusView.ShowStatus("пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ :(");
 #if !UNITY_WEBGL
                 netcodeStatusView.ShowBtnConnect();
 #endif
@@ -143,7 +142,7 @@ public class UI : MonoBehaviour
 
         IEnumerator DelayConnect()
         {
-            lblWaitForPlay.SetText("Радуюсь твоему возвращению");
+            lblWaitForPlay.SetText("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 
             InventoryParent.SetActive(false);
             btnSwitchCamera.gameObject.SetActive(false);
@@ -218,8 +217,6 @@ public class UI : MonoBehaviour
         BuildingManager.Singleton.onBuildingListHide.AddListener(BuildingList_Hided);
         InputLogic.Single.DontHideCursor = true;
 
-        InitResolutionCurveFactor();
-
         InitStartMenu();
 
 #endif
@@ -279,7 +276,7 @@ public class UI : MonoBehaviour
         UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
         transport.UseWebSockets = true;
         transport.UseEncryption = false;
-        transport.SetConnectionData("127.0.0.1", 7777); // Имя хоста и порт
+        transport.SetConnectionData("127.0.0.1", 7777); // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ
 
         StartCoroutine(ASYNC_START());
 
@@ -329,19 +326,13 @@ public class UI : MonoBehaviour
         CameraStack.Instance.SwitchCamera();
     }
 
-    Vector2 lookDirection;
-    Vector2 currentVelocity;
-    public float smoothTime = 1f;
     public float sensitivity = 3f;
 
     private void Update()
     {
         if (Application.isMobilePlatform || testMobileInput)
         {
-            var damping = resolutionFactorCurve.Evaluate(Screen.height) * Time.deltaTime;
-            var value = touchField.TouchDist * sensitivity * damping;
-            lookDirection = Vector2.SmoothDamp(lookDirection, value, ref currentVelocity, damping * smoothTime);
-            VirtualLookInput(lookDirection);
+            VirtualLookInput(TouchLookNormalizer.ToLookRate(touchField.TouchDist, sensitivity));
         }
 
         
@@ -460,8 +451,8 @@ public class UI : MonoBehaviour
 
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-        transport.UseEncryption = true; // Для HTTPS соединений
-        transport.SetConnectionData(hostname, 443); // Имя хоста и порт
+        transport.UseEncryption = true; // пїЅпїЅпїЅ HTTPS пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        transport.SetConnectionData(hostname, 443); // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ
 #endif
 
         transport.SetClientSecrets(hostname);
@@ -480,7 +471,7 @@ public class UI : MonoBehaviour
         transport.SetConnectionData(GameManager.Inst.devServerAdress, 443);
 
         netcodeStatusView.HideBtnConnect();
-        netcodeStatusView.ShowStatus("Пробую подключиться к резервному сервер О_о");
+        netcodeStatusView.ShowStatus("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ_пїЅ");
 
         NetworkManager.Singleton.StartClient();
     }
@@ -607,12 +598,7 @@ public class UI : MonoBehaviour
         craftView.Close();
     }
 
-    private void InitResolutionCurveFactor()
-    {
-        resolutionFactorCurve = new();
-        resolutionFactorCurve.AddKey(new(720, 1));
-        resolutionFactorCurve.AddKey(new(1080, 1));
-    }
+
 
     private void LateUpdate()
     {
@@ -626,8 +612,8 @@ public class UI : MonoBehaviour
     }
 
     /// <summary>
-    /// Метод в зависимости от платформы настраивает видимость 
-    /// кнопок меню на старте
+    /// пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
+    /// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     /// </summary>
     private void InitStartMenu()
     {
@@ -709,7 +695,7 @@ public class UI : MonoBehaviour
         }
         else
         {
-            print("Там ничего неееет");
+            print("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
         }
     }
 

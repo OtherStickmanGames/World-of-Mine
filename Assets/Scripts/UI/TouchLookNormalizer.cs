@@ -2,8 +2,11 @@ using UnityEngine;
 
 public static class TouchLookNormalizer
 {
+    private const float ReferenceDpi = 420f;
     private const float ReferenceShortSide = 1080f;
     private const float ReferenceFrameTime = 0.016f;
+    private const float MinReliableDpi = 120f;
+    private const float MaxReliableDpi = 900f;
 
     /// <summary>
     /// Converts raw Android/iOS touch pixels to the same reference screen size so camera
@@ -11,8 +14,7 @@ public static class TouchLookNormalizer
     /// </summary>
     public static Vector2 NormalizeScreenDelta(Vector2 pixelDelta)
     {
-        float shortSide = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height));
-        return pixelDelta * (ReferenceShortSide / shortSide);
+        return pixelDelta * GetNormalizationFactor();
     }
 
     /// <summary>
@@ -26,5 +28,16 @@ public static class TouchLookNormalizer
         }
 
         return NormalizeScreenDelta(pixelDelta) * sensitivity * ReferenceFrameTime / Time.deltaTime;
+    }
+
+    private static float GetNormalizationFactor()
+    {
+        if (Screen.dpi >= MinReliableDpi && Screen.dpi <= MaxReliableDpi)
+        {
+            return ReferenceDpi / Screen.dpi;
+        }
+
+        float shortSide = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height));
+        return ReferenceShortSide / shortSide;
     }
 }

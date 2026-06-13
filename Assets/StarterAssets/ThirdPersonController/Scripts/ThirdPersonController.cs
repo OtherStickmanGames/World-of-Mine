@@ -126,7 +126,7 @@ namespace StarterAssets
 
         private const float _threshold = 0.01f;
         private const float MobileTouchLookOutlierThreshold = 5000f;
-        private const float MobileTouchLookMultiplier = 2.0f;
+        private const float MobileTouchLookMultiplier = 0.199f;
 
         private bool _hasAnimator;
         float ebaniyTimer = 0;
@@ -241,7 +241,6 @@ namespace StarterAssets
         {
             float lookX = _input.look.x;
             float lookY = _input.look.y;
-            bool useMouseDelta = IsCurrentDeviceMouse;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             if (Application.isMobilePlatform || SystemInfo.deviceType == DeviceType.Handheld)
@@ -276,11 +275,8 @@ namespace StarterAssets
             // if there is an input and camera position is not fixed
             if ((Mathf.Abs(lookX) > _threshold || Mathf.Abs(lookY) > _threshold) && !LockCameraPosition)
             {
-                //Don't multiply mouse input by Time.deltaTime;
-                float deltaTimeMultiplier = useMouseDelta ? 1.0f : Time.deltaTime;
-
-                _cinemachineTargetYaw += lookX * deltaTimeMultiplier;
-                _cinemachineTargetPitch += lookY * deltaTimeMultiplier * sensitivityMouseY;
+                _cinemachineTargetYaw += lookX;
+                _cinemachineTargetPitch += lookY * sensitivityMouseY;
             }
 
             // Properly wrap Yaw around 360 degrees using Mathf.Repeat to avoid precision issues and jumps

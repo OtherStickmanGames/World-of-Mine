@@ -20,12 +20,10 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     [ReadOnlyField]
     public bool Pressed;
 
+
     void Start()
     {
        
-        
-        
-        
     }
 
     void Update()
@@ -53,8 +51,14 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
                 currentPos = Input.mousePosition;
             }
 
-            TouchDist = currentPos - PointerOld;
+            Vector2 rawDelta = currentPos - PointerOld;
             PointerOld = currentPos;
+
+            // Масштабируем по высоте (аналог Canvas Scaler -> Match Height)
+            float scaleFactor = 1080f / Screen.height;
+
+            TouchDist.x = rawDelta.x * scaleFactor;
+            TouchDist.y = rawDelta.y * scaleFactor;
 
             if (invertY)
             {
@@ -90,5 +94,13 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         
     }
 
+    //Camera uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+    //Vector2 localRawDelta;
 
+    //bool isInside = RectTransformUtility.ScreenPointToLocalPointInRectangle(
+    //    canvas.transform as RectTransform,
+    //    rawDelta,
+    //    uiCamera,
+    //    out localRawDelta
+    //);
 }

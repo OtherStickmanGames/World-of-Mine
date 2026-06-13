@@ -32,7 +32,14 @@ public static class TouchLookNormalizer
 
     private static float GetNormalizationFactor()
     {
-        float shortSide = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height));
-        return ReferenceShortSide / shortSide;
+        float currentDpi = Screen.dpi;
+
+        // Если устройство отдает кривой DPI (что часто бывает на Android), используем дефолтный
+        if (currentDpi < MinReliableDpi || currentDpi > MaxReliableDpi)
+        {
+            currentDpi = ReferenceDpi;
+        }
+
+        return ReferenceDpi / currentDpi;
     }
 }

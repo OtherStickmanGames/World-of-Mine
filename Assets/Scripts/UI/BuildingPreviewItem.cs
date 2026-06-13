@@ -127,10 +127,6 @@ public class BuildingPreviewItem : MonoBehaviour
     void BuildingPreviewRotate()
     {
         var look = touchLook.TouchDist;
-        if (Application.isMobilePlatform)
-        {
-            look = TouchLookNormalizer.NormalizeScreenDelta(look);
-        }
 
         if (!Application.isMobilePlatform && touchLook.gameObject == UI.CurrentUIObject)
         {
@@ -152,7 +148,7 @@ public class BuildingPreviewItem : MonoBehaviour
 
         if (lookDirection.sqrMagnitude >= 0.01f)
         {
-            float deltaTimeMultiplier = Time.deltaTime;
+            float deltaTimeMultiplier = 1.0f;
 
             _cinemachineTargetYaw += lookDirection.x * deltaTimeMultiplier;
             _cinemachineTargetPitch += lookDirection.y * deltaTimeMultiplier * sensitivityMouseY;

@@ -16,7 +16,7 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] int countBuildingsBlocks = 0;
     [SerializeField] float speedCamRot = 3f;
     [SerializeField] TMP_Text debugTexto;
-    [SerializeField] QuickInventoryView quickInventoryView;
+    [SerializeField] public QuickInventoryView quickInventoryView;
     [SerializeField] SaveBuildingView saveBuildingView;
     [SerializeField] Button btnSwitchCamera;
     [SerializeField] FixedTouchField touchField;
@@ -116,9 +116,13 @@ public class TutorialUI : MonoBehaviour
     bool needSetPlayerStartPos;
     bool allowCheckMoveCamTutorial;
 
+    public static TutorialUI Single;
+
 
     private void Awake()
     {
+        Single = this;
+
         canvasMine = GetComponent<Canvas>();
 
         btnSwitchCamera.gameObject.SetActive(false);
@@ -205,7 +209,8 @@ public class TutorialUI : MonoBehaviour
 
         if (Application.isMobilePlatform || testMobileInput)
         {
-            VirtualLookInput(TouchLookNormalizer.ToLookRate(touchField.TouchDist, sensitivity));
+            //VirtualLookInput(TouchLookNormalizer.ToLookRate(touchField.TouchDist, sensitivity));
+            VirtualLookInput(touchField.TouchDist * sensitivity);
         }
 
         if (Input.GetMouseButtonDown(0))

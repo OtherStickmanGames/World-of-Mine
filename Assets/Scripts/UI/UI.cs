@@ -332,7 +332,7 @@ public class UI : MonoBehaviour
     {
         if (Application.isMobilePlatform || testMobileInput)
         {
-            VirtualLookInput(TouchLookNormalizer.ToLookRate(touchField.TouchDist, sensitivity));
+            VirtualLookInput(touchField.TouchDist * sensitivity);
         }
 
         

@@ -9,8 +9,8 @@ public static class TouchLookNormalizer
     private const float MaxReliableDpi = 900f;
 
     /// <summary>
-    /// Converts raw Android/iOS touch pixels to a DPI-based reference so camera sensitivity
-    /// stays stable across phones with different physical pixel densities and render resolutions.
+    /// Converts raw Android/iOS touch pixels to the same reference screen size so camera
+    /// sensitivity stays stable across phones with different render resolutions.
     /// </summary>
     public static Vector2 NormalizeScreenDelta(Vector2 pixelDelta)
     {

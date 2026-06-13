@@ -218,7 +218,7 @@ public class SaveBuildingView : MonoBehaviour
     {
         BuildingManager.Singleton.SaveBuilding(nameInput.text);
         btnAccept.gameObject.SetActive(false);
-        // TO DO �������� � ������ ������� �����
+        // TO DO доделать в случае неудачи сейва
     }
 
     private void ShowInputBuildName()

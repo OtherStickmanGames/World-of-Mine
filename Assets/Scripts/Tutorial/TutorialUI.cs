@@ -675,8 +675,8 @@ public class TutorialUI : MonoBehaviour
                 leftCropHandleMoveComplete = true;
             }
 
-            // ������� ���������� ��������� ����� ���������� ��������� ������ �������
-            // �������� ����������� ������, ������� �� �� ��� ��������� ��������
+            // Система сохранения постройки после отпускания указателя выбора области
+            // включает отображение кнопки, поэтому мы ее тут постоянно скрываем
             saveBuildingView.SetVisibleBtnAccept(false);
         }
 
@@ -700,8 +700,8 @@ public class TutorialUI : MonoBehaviour
                 ShowTutorial(horizontalPlaneAcceptZone);
             }
 
-            // ������� ���������� ��������� ����� ���������� ��������� ������ �������
-            // �������� ����������� ������, ������� �� �� ��� ��������� ��������
+            // Система сохранения постройки после отпускания указателя выбора области
+            // включает отображение кнопки, поэтому мы ее тут постоянно скрываем
             saveBuildingView.SetVisibleBtnAccept(false);
         }
 
@@ -732,7 +732,7 @@ public class TutorialUI : MonoBehaviour
             saveBuildingView.HideBtnCancel();
             if (saveBuildingView.CurSelectionMode == AcceptMode.Name)
             {
-                saveBuildingView.SetBuildingName("��������� �..");
+                saveBuildingView.SetBuildingName("Неведомое х..");
                 saveBuildingView.SetVisibleBtnAccept(true);
                 previewBuildingComplete = true;
                 previewBuildingTutorial.SetActive(false);
@@ -757,8 +757,6 @@ public class TutorialUI : MonoBehaviour
             LeanTween.delayedCall(1f, () => saveBuildingView.SavedOk_Clicked());
             UserData.Owner.tutorialComplete = true;
             UserData.Owner.SaveData();
-
-            print("� ��");
         }
     }
 

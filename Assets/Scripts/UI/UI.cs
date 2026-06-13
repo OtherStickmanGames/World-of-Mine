@@ -126,13 +126,13 @@ public class UI : MonoBehaviour
             btnPlay.gameObject.SetActive(false);
             if (countTryConnection < 3)
             {
-                netcodeStatusView.ShowStatus("������ ����������� � ��������..");
+                netcodeStatusView.ShowStatus("Пробую соедениться с сервером..");
                 countTryConnection++;
                 StartCoroutine(DelayConnect());
             }
             else
             {
-                netcodeStatusView.ShowStatus("�� ������� ����������� � �������� ��������, ������ �� ����, �������� ����� :(");
+                netcodeStatusView.ShowStatus("Не удалось соедениться с основным сервером, видимо он упал, попробуй позже :(");
 #if !UNITY_WEBGL
                 netcodeStatusView.ShowBtnConnect();
 #endif
@@ -142,7 +142,7 @@ public class UI : MonoBehaviour
 
         IEnumerator DelayConnect()
         {
-            lblWaitForPlay.SetText("������� ������ �����������");
+            lblWaitForPlay.SetText("Радуюсь твоему возвращению");
 
             InventoryParent.SetActive(false);
             btnSwitchCamera.gameObject.SetActive(false);
@@ -276,7 +276,7 @@ public class UI : MonoBehaviour
         UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
         transport.UseWebSockets = true;
         transport.UseEncryption = false;
-        transport.SetConnectionData("127.0.0.1", 7777); // ��� ����� � ����
+        transport.SetConnectionData("127.0.0.1", 7777); // Имя хоста и порт
 
         StartCoroutine(ASYNC_START());
 
@@ -451,8 +451,8 @@ public class UI : MonoBehaviour
 
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-        transport.UseEncryption = true; // ��� HTTPS ����������
-        transport.SetConnectionData(hostname, 443); // ��� ����� � ����
+        transport.UseEncryption = true; // Для HTTPS соединений
+        transport.SetConnectionData(hostname, 443); // Имя хоста и порт
 #endif
 
         transport.SetClientSecrets(hostname);
@@ -471,7 +471,7 @@ public class UI : MonoBehaviour
         transport.SetConnectionData(GameManager.Inst.devServerAdress, 443);
 
         netcodeStatusView.HideBtnConnect();
-        netcodeStatusView.ShowStatus("������ ������������ � ���������� ������ �_�");
+        netcodeStatusView.ShowStatus("Пробую подключиться к резервному сервер О_о");
 
         NetworkManager.Singleton.StartClient();
     }
@@ -612,8 +612,8 @@ public class UI : MonoBehaviour
     }
 
     /// <summary>
-    /// ����� � ����������� �� ��������� ����������� ��������� 
-    /// ������ ���� �� ������
+    /// Метод в зависимости от платформы настраивает видимость 
+    /// кнопок меню на старте
     /// </summary>
     private void InitStartMenu()
     {

@@ -247,9 +247,6 @@ namespace StarterAssets
             if (Application.isMobilePlatform || SystemInfo.deviceType == DeviceType.Handheld)
             {
                 // Mobile WebGL uses the same normalized touch-look path as native Android/iOS builds.
-                // TouchLookNormalizer.ToLookRate() returns a per-second rate, so it must be
-                // multiplied by Time.deltaTime below even if PlayerInput still reports KeyboardMouse.
-                useMouseDelta = false;
                 if (!TryApplyMobileTouchLook(ref lookX, ref lookY)) return;
             }
             else
@@ -259,19 +256,13 @@ namespace StarterAssets
                 lookX = Input.GetAxis("Mouse X") * 1.6f; // Reduced sensitivity (down by 20%)
                 lookY = -Input.GetAxis("Mouse Y") * 1.6f; // Fixed inversion (down by 20%)
 
-                useMouseDelta = true;
-
                 // WebGL Outlier Rejection: Ignore huge spikes caused by browser events or DPI scaling glitches.
                 // A delta larger than 25 in one frame is physically impossible for normal mouse movement.
                 if (Mathf.Abs(lookX) > 25f || Mathf.Abs(lookY) > 25f) return;
             }
 #elif UNITY_ANDROID || UNITY_IOS
             // Native Android/iOS builds receive a resolution-normalized touch-look rate from
-            // TouchLookNormalizer.ToLookRate(), so this branch must always integrate it with
-            // Time.deltaTime. Do not trust PlayerInput.currentControlScheme here: on some Android
-            // devices it can remain KeyboardMouse, which skips deltaTime and makes sensitivity
-            // depend on display refresh rate/FPS.
-            useMouseDelta = false;
+            // TouchLookNormalizer.ToLookRate(), so this branch must not use raw screen pixels.
             if (!TryApplyMobileTouchLook(ref lookX, ref lookY)) return;
 #else
             // Outlier rejection for New Input System (if still used)

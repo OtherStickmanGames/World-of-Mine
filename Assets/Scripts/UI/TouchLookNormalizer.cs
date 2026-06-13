@@ -2,16 +2,15 @@ using UnityEngine;
 
 public static class TouchLookNormalizer
 {
+    private const float ReferenceDpi = 420f;
     private const float ReferenceShortSide = 1080f;
     private const float ReferenceFrameTime = 0.016f;
+    private const float MinReliableDpi = 120f;
+    private const float MaxReliableDpi = 900f;
 
     /// <summary>
-    /// Converts raw touch pixels to a reference screen size.
-    ///
-    /// Android devices often report unreliable Screen.dpi values, so using DPI can still make
-    /// the same swipe rotate differently on different phones. For camera look we normalize by
-    /// the rendered short side instead: a swipe that covers the same part of the visible screen
-    /// produces the same camera input regardless of resolution or pixel density.
+    /// Converts raw Android/iOS touch pixels to the same reference screen size so camera
+    /// sensitivity stays stable across phones with different render resolutions.
     /// </summary>
     public static Vector2 NormalizeScreenDelta(Vector2 pixelDelta)
     {

@@ -117,7 +117,7 @@ public class SaveBuildingView : MonoBehaviour
 
     private void CountBuildings_Received(int countBuildings)
     {
-        nameInput.text = $"Øåäåâðèùå - {countBuildings + 1}";
+        nameInput.text = $"Ð¨Ð•Ð”Ð•Ð’Ð Ð˜Ð©Ð• - {countBuildings + 1}";
         btnAccept.gameObject.SetActive(true);
     }
 
@@ -218,7 +218,7 @@ public class SaveBuildingView : MonoBehaviour
     {
         BuildingManager.Singleton.SaveBuilding(nameInput.text);
         btnAccept.gameObject.SetActive(false);
-        // TO DO äîäåëàòü â ñëó÷àå íåóäà÷è ñåéâà
+        // TO DO Ð´Ð¾Ð´ÐµÐ»Ð°Ñ‚ÑŒ Ð² ÑÐ»ÑƒÑ‡Ð°Ðµ Ð½ÐµÑƒÐ´Ð°Ñ‡Ð¸ ÑÐµÐ¹Ð²Ð°
     }
 
     private void ShowInputBuildName()
@@ -227,7 +227,6 @@ public class SaveBuildingView : MonoBehaviour
         btnAccept.gameObject.SetActive(false);
 
         BuildingManager.Singleton.InputNameBuilding_Showed();
-        //print("Åáàëà â ìåíåäæåð");
     }
 
     private void ShowBuildingPreview()
@@ -379,6 +378,7 @@ public class SaveBuildingView : MonoBehaviour
         if (panelPreview.activeSelf)
         {
             var look = buildingPreviewLook.TouchDist;
+
             if (!Application.isMobilePlatform)
             {
                 if (Input.GetMouseButtonDown(0))
@@ -390,6 +390,12 @@ public class SaveBuildingView : MonoBehaviour
                     look   = (Vector2)Input.mousePosition - prevMp;
                     prevMp = (Vector2)Input.mousePosition;
                 }
+
+                // ÐœÐ°ÑÑˆÑ‚Ð°Ð±Ð¸Ñ€ÑƒÐµÐ¼ Ð¿Ð¾ Ð²Ñ‹ÑÐ¾Ñ‚Ðµ (Ð°Ð½Ð°Ð»Ð¾Ð³ Canvas Scaler -> Match Height)
+                float scaleFactor = 1080f / Screen.height;
+
+                look.x *= scaleFactor;
+                look.y *= scaleFactor;
             }
 
             look.x *= -1;
@@ -398,10 +404,8 @@ public class SaveBuildingView : MonoBehaviour
 
             if (lookDirection.sqrMagnitude >= 0.01f)
             {
-                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
-
-                _cinemachineTargetYaw += lookDirection.x * deltaTimeMultiplier;
-                _cinemachineTargetPitch += lookDirection.y * deltaTimeMultiplier * sensitivityMouseY;
+                _cinemachineTargetYaw += lookDirection.x;
+                _cinemachineTargetPitch += lookDirection.y * sensitivityMouseY;
             }
 
             _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);

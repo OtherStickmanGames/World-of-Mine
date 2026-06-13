@@ -125,6 +125,8 @@ namespace StarterAssets
         private GameObject _mainCamera;
 
         private const float _threshold = 0.01f;
+        private const float MobileTouchLookOutlierThreshold = 5000f;
+        private const float MobileTouchLookMultiplier = 2.0f;
 
         private bool _hasAnimator;
         float ebaniyTimer = 0;
@@ -134,7 +136,7 @@ namespace StarterAssets
             get
             {
 #if ENABLE_INPUT_SYSTEM
-                return _playerInput.currentControlScheme == "KeyboardMouse";
+                return _playerInput != null && _playerInput.currentControlScheme == "KeyboardMouse";
 #else
 				return false;
 #endif
@@ -241,21 +243,26 @@ namespace StarterAssets
             float lookY = _input.look.y;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            // FALLBACK: New Input System in WebGL often has bugs with Pointer Lock and DPI.
-            // Using legacy Input.GetAxis is much more stable in many browsers.
-            lookX = Input.GetAxis("Mouse X") * 1.6f; // Reduced sensitivity (down by 20%)
-            lookY = -Input.GetAxis("Mouse Y") * 1.6f; // Fixed inversion (down by 20%)
+            if (Application.isMobilePlatform || SystemInfo.deviceType == DeviceType.Handheld)
+            {
+                // Mobile WebGL uses the same normalized touch-look path as native Android/iOS builds.
+                if (!TryApplyMobileTouchLook(ref lookX, ref lookY)) return;
+            }
+            else
+            {
+                // FALLBACK: New Input System in desktop WebGL often has bugs with Pointer Lock and DPI.
+                // Using legacy Input.GetAxis is much more stable in many browsers with mouse input.
+                lookX = Input.GetAxis("Mouse X") * 1.6f; // Reduced sensitivity (down by 20%)
+                lookY = -Input.GetAxis("Mouse Y") * 1.6f; // Fixed inversion (down by 20%)
 
-            // WebGL Outlier Rejection: Ignore huge spikes caused by browser events or DPI scaling glitches.
-            // A delta larger than 25 in one frame is physically impossible for normal mouse movement.
-            if (Mathf.Abs(lookX) > 25f || Mathf.Abs(lookY) > 25f) return;
+                // WebGL Outlier Rejection: Ignore huge spikes caused by browser events or DPI scaling glitches.
+                // A delta larger than 25 in one frame is physically impossible for normal mouse movement.
+                if (Mathf.Abs(lookX) > 25f || Mathf.Abs(lookY) > 25f) return;
+            }
 #elif UNITY_ANDROID || UNITY_IOS
-            // Mobile Outlier Rejection: Increased threshold as we now pass an axis rate, not raw delta
-            if (Mathf.Abs(lookX) > 5000f || Mathf.Abs(lookY) > 5000f) return;
-
-            // Maintain sensitivity for mobile to match expected feeling
-            lookX *= 2.0f;
-            lookY *= 2.0f;
+            // Native Android/iOS builds receive a resolution-normalized touch-look rate from
+            // TouchLookNormalizer.ToLookRate(), so this branch must not use raw screen pixels.
+            if (!TryApplyMobileTouchLook(ref lookX, ref lookY)) return;
 #else
             // Outlier rejection for New Input System (if still used)
             if (Mathf.Abs(lookX) > 100f || Mathf.Abs(lookY) > 100f) return;
@@ -304,6 +311,21 @@ namespace StarterAssets
             // Sync raw targets for internal consistency
             _rawTargetYaw = _cinemachineTargetYaw;
             _rawTargetPitch = _cinemachineTargetPitch;
+        }
+
+        private static bool TryApplyMobileTouchLook(ref float lookX, ref float lookY)
+        {
+            // TouchLookNormalizer converts Android touch pixels to a screen-size independent rate.
+            // Values above this threshold are input spikes, not real finger movement.
+            if (Mathf.Abs(lookX) > MobileTouchLookOutlierThreshold ||
+                Mathf.Abs(lookY) > MobileTouchLookOutlierThreshold)
+            {
+                return false;
+            }
+
+            lookX *= MobileTouchLookMultiplier;
+            lookY *= MobileTouchLookMultiplier;
+            return true;
         }
 
         public bool useSprint;

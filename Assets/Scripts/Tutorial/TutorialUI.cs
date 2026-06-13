@@ -373,7 +373,7 @@ public class TutorialUI : MonoBehaviour
         {
             if (quickInventoryView.Selected == 0)
             {
-                debugStr += $"����� �� ������";
+                debugStr += $"Ебать ты машина";
 
                 selectSlotComplete = true;
 
@@ -418,7 +418,7 @@ public class TutorialUI : MonoBehaviour
 
             needCameraLookToPlaceBlock = true;
 
-            debugStr += $"��������� ����� {WorldGenerator.Inst.GetBlockID(checkingPos)}";
+            debugStr += $"Установка блока {WorldGenerator.Inst.GetBlockID(checkingPos)}";
 
             if (WorldGenerator.Inst.GetBlockID(checkingPos) > 0)
             {

@@ -32,11 +32,6 @@ public static class TouchLookNormalizer
 
     private static float GetNormalizationFactor()
     {
-        if (Screen.dpi >= MinReliableDpi && Screen.dpi <= MaxReliableDpi)
-        {
-            return ReferenceDpi / Screen.dpi;
-        }
-
         float shortSide = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height));
         return ReferenceShortSide / shortSide;
     }

@@ -241,6 +241,7 @@ namespace StarterAssets
         {
             float lookX = _input.look.x;
             float lookY = _input.look.y;
+            bool useMouseDelta = IsCurrentDeviceMouse;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             if (Application.isMobilePlatform || SystemInfo.deviceType == DeviceType.Handheld)
@@ -276,7 +277,7 @@ namespace StarterAssets
             if ((Mathf.Abs(lookX) > _threshold || Mathf.Abs(lookY) > _threshold) && !LockCameraPosition)
             {
                 //Don't multiply mouse input by Time.deltaTime;
-                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+                float deltaTimeMultiplier = useMouseDelta ? 1.0f : Time.deltaTime;
 
                 _cinemachineTargetYaw += lookX * deltaTimeMultiplier;
                 _cinemachineTargetPitch += lookY * deltaTimeMultiplier * sensitivityMouseY;

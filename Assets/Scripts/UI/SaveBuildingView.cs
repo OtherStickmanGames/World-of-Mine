@@ -370,16 +370,19 @@ public class SaveBuildingView : MonoBehaviour
         UpdateRightCropHandle(cropHandleRightBottom.GetPos() / scaleFactor);
     }
 
-    float _cinemachineTargetYaw;
-    float _cinemachineTargetPitch;
-    Vector2 prevMp, lookDirection, currentVelocity;
+    Vector2 _currentInputDelta, _inputDeltaVelocity;
+    Vector2 prevMp;
     void BuildingPreviewRotate()
     {
         if (panelPreview.activeSelf)
         {
-            var look = buildingPreviewLook.TouchDist;
+            Vector2 look = Vector2.zero;
 
-            if (!Application.isMobilePlatform)
+            if (Application.isMobilePlatform)
+            {
+                look = buildingPreviewLook.TouchDist;
+            }
+            else
             {
                 if (Input.GetMouseButtonDown(0))
                 {
@@ -400,23 +403,22 @@ public class SaveBuildingView : MonoBehaviour
 
             look.x *= -1;
             look   *= rotateSensitibity;
-            lookDirection = Vector2.SmoothDamp(lookDirection, look, ref currentVelocity, Time.deltaTime * 1.38f);
 
-            if (lookDirection.sqrMagnitude >= 0.01f)
+            // Сглаживаем дельту ввода с константным временем сглаживания
+            _currentInputDelta = Vector2.SmoothDamp(_currentInputDelta, look, ref _inputDeltaVelocity, 0.05f);
+
+            if (_currentInputDelta.sqrMagnitude >= 0.001f)
             {
-                _cinemachineTargetYaw += lookDirection.x;
-                _cinemachineTargetPitch += lookDirection.y * sensitivityMouseY;
+                // Вращение по горизонтали (вокруг мировой оси Y)
+                Quaternion rotY = Quaternion.AngleAxis(_currentInputDelta.x, Vector3.up);
+                
+                // Вращение по вертикали (вокруг горизонтальной оси экрана/камеры)
+                Vector3 camRight = Camera.main.transform.right;
+                Quaternion rotX = Quaternion.AngleAxis(_currentInputDelta.y * sensitivityMouseY, camRight);
+
+                // Применяем инкрементальное вращение
+                meshHolder.transform.rotation = rotY * rotX * meshHolder.transform.rotation;
             }
-
-            _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
-            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, -90, 90);
-
-            meshHolder.transform.rotation = Quaternion.Euler
-            (
-                _cinemachineTargetPitch + CameraAngleOverrideX,
-                _cinemachineTargetYaw + CameraAngleOverrideY,
-                0.0f
-            );
         }
     }
 

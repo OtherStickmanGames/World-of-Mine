@@ -5,7 +5,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
-/// ������ ������������ �� ����
+/// Данные передающиеся по сети
 /// </summary>
 [Serializable]
 public struct BuildingServerData : INetworkSerializable
@@ -68,7 +68,7 @@ public struct NetworkNewsData : INetworkSerializable
     public string text;
     public NetworkSurveyData[] survey;
 
-    // �� ������� �� ����
+    // Не передаю по сети
     [NonSerialized]
     public AudioClip voiceClip;
     //[NonSerialized]

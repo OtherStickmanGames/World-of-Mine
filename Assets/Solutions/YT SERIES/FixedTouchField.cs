@@ -20,6 +20,8 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     [ReadOnlyField]
     public bool Pressed;
 
+    Vector2 accumulatedPointerDelta;
+
     void Start()
     {
        
@@ -32,38 +34,16 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     {
         if (Pressed)
         {
-            Vector2 currentPos = PointerOld;
-
-            if (Input.touchCount > 0)
-            {
-                // Возвращаем старый, рабочий метод поиска пальца (самый правый на экране), 
-                // так как PointerId из EventSystem не совпадает с fingerId из-за конфликта систем ввода.
-                Vector2 pos = Vector2.left * float.MaxValue;
-                for (int i = 0; i < Input.touches.Length; i++)
-                {
-                    if (Input.touches[i].position.x > pos.x)
-                    {
-                        pos = Input.touches[i].position;
-                    }
-                }
-                currentPos = pos;
-            }
-            else if (Input.GetMouseButton(0))
-            {
-                currentPos = Input.mousePosition;
-            }
-
-            TouchDist = currentPos - PointerOld;
-            PointerOld = currentPos;
-
-            if (invertY)
-            {
-                TouchDist.y *= -1;
-            }
+            // Use EventSystem deltas from the pointer that actually started on this field.
+            // Polling Input.touches and choosing the right-most finger makes the look delta depend
+            // on other active touches (joystick/UI) and on device-specific touch ordering.
+            TouchDist = accumulatedPointerDelta;
+            accumulatedPointerDelta = Vector2.zero;
         }
         else
         {
             TouchDist = Vector2.zero;
+            accumulatedPointerDelta = Vector2.zero;
         }
     }
 
@@ -72,22 +52,35 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         Pressed = true;
         PointerId = eventData.pointerId;
         PointerOld = eventData.position;
+        accumulatedPointerDelta = Vector2.zero;
 	}
 
 
     public void OnPointerUp(PointerEventData eventData)
     {
         Pressed = false;
+        TouchDist = Vector2.zero;
+        accumulatedPointerDelta = Vector2.zero;
         //UI.PrintCurrentUI();
     }
 
     public Vector2 olda;
     public void OnPointerMove(PointerEventData eventData)
     {
-        var offsetX = Screen.width / 2;
-        var offsetY = Screen.height / 2;
-        
-        
+        if (!Pressed || eventData.pointerId != PointerId)
+        {
+            return;
+        }
+
+        Vector2 delta = eventData.position - PointerOld;
+        PointerOld = eventData.position;
+
+        if (invertY)
+        {
+            delta.y *= -1;
+        }
+
+        accumulatedPointerDelta += delta;
     }
 
 

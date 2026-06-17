@@ -60,7 +60,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             int ChunkSize = 512;
             var allCount = binaryBuildingData.Length;
             int total = (allCount + ChunkSize - 1) / ChunkSize;
-            print($"Êîëè÷åñòâî ÷àñòåé ïîñòðîéêè {total}");
+            print($"Количество частей постройки {total}");
             for (int i = 0; i < total; i++)
             {
                 int offset = i * ChunkSize;
@@ -69,7 +69,7 @@ public class NetworkBuildingManager : NetworkBehaviour
                 Array.Copy(binaryBuildingData, offset, frag, 0, len);
                 var sendId = idGenerator.GenerateId();
                 timers[sendId] = 0f;
-                // Îòïðàâëÿåì ôðàãìåíò ñåðâåðó
+                // Отправляем фрагмент серверу
                 SaveBuildingServerRpc(sendId, i, total, frag);
 
                 yield return new WaitForSeconds(0.1f);
@@ -111,7 +111,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         }
 
         clientFragments[fragmentIndex] = frag;
-        print($"Ïîëó÷èë {fragmentIndex + 1} ÷àñòü ïîñòðîéêè èç {total}");
+        print($"Получил {fragmentIndex + 1} часть постройки из {total}");
                 if (clientFragments.Count == total)
         {
             int fullSize = 0;
@@ -140,7 +140,7 @@ public class NetworkBuildingManager : NetworkBehaviour
                 out List<JsonTurnedBlock> outTurned
             );
             var networkTurnedBlockData = NetworkWorldGenerator.ToNetworkTurnedBlocksData(outTurned);
-            // To DO êó÷à ëèøíèõ íåíóæíûõ ïðåîáðàçîâàíèé äàííûõ
+            // TODO: Куча лишних ненужных преобразований данных
             SaveBuilding(outPositions, outBlockIDs, networkTurnedBlockData, outName, serverRpcParams);
 
         }
@@ -188,7 +188,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// Ïðîñòî ñoîáùàåì êëèåíòó, ÷òî ñîõðàíèëè ïîñòðîéêó
+    /// ГЏГ°Г®Г±ГІГ® Г±oГ®ГЎГ№Г ГҐГ¬ ГЄГ«ГЁГҐГ­ГІГі, Г·ГІГ® Г±Г®ГµГ°Г Г­ГЁГ«ГЁ ГЇГ®Г±ГІГ°Г®Г©ГЄГі
     /// </summary>
     /// <param name="clientRpcParams"></param>
     [ClientRpc(RequireOwnership = false)]
@@ -203,8 +203,8 @@ public class NetworkBuildingManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// Êëèåíò çàïðàøèâàåò ó ñåðâåðà êîëè÷åñòâî ñîõðàíåííûõ ïîñòðîåê
-    /// Ñåðâåð èõ ïîëó÷àåò è îòïðàâëÿåò îáðàòíî êëèåíòó
+    /// Клиент запрашивает у сервера количество сохраненных построек
+    /// Сервер их получает и отправляет обратно клиенту
     /// </summary>
     /// <param name="rpcParams"></param>
     [ServerRpc(RequireOwnership = false)]
@@ -238,13 +238,13 @@ public class NetworkBuildingManager : NetworkBehaviour
 
 
     /// <summary>
-    /// Êëèåíò çàïðàøèâàåò ñïèñîê ïîñòðîåê ïî ñòðàíèöàì
+    /// Клиент запрашивает список построек по страницам
     /// </summary>
     /// <param name="page"></param>
     private void GetBuildings_Requested(int page)
     {
         GetBuildingsServerRpc(page);
-        //print("Îòïðàâèë çàïðîñ íà ïîñòðîéêè");
+        //print("Отправил запрос на постройки");
     }
 
     long rpcId = 0;
@@ -254,7 +254,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     Coroutine sendBuildingsRoutine;
     Coroutine sendBuildingFragments;
     /// <summary>
-    /// Ñåðâåð ïîëó÷àåò è îòïðàâëÿåò ñïèñîê ïîñòðîåê
+    /// Сервер получает и отправляет список построек
     /// </summary>
     /// <param name="page"></param>
     /// <param name="serverRpcParams"></param>
@@ -301,13 +301,13 @@ public class NetworkBuildingManager : NetworkBehaviour
                     if (rpcTimeouts[id] < 3)
                     {
                         yield return null;
-                        //print($"æäåì {id}");
+                        //print($"ждем {id}");
                     }
                     else
                     {
                         rpcTimeouts.Remove(id);
                         needBreak = true;
-                        print("òàéìàóò âûøåë");
+                        print("таймаут вышел");
                         break;
                     }
                 }
@@ -322,7 +322,7 @@ public class NetworkBuildingManager : NetworkBehaviour
 
             }
 
-            print($"Êëèåíò ïîëó÷èë âñå ïîñòðîéêè íà ñòðàíèöå {page + 1} èç {(buildingsServerData.Count + pageSize - 1) / pageSize} âñåãî ïîñòðîåê {buildingsServerData.Count}");
+            print($"Клиент получил все постройки на странице {page + 1} из {(buildingsServerData.Count + pageSize - 1) / pageSize} всего построек {buildingsServerData.Count}");
 
             if (skip + pageSize >= buildingsServerData.Count)
             {
@@ -367,12 +367,12 @@ public class NetworkBuildingManager : NetworkBehaviour
             }
         }
 
-        print("Çáñ, êëèåíò ïîëó÷èë ïåðâóþ ÷àñòü");
+        print("Г‡ГЎГ±, ГЄГ«ГЁГҐГ­ГІ ГЇГ®Г«ГіГ·ГЁГ« ГЇГҐГ°ГўГіГѕ Г·Г Г±ГІГј");
 
         int ChunkSize = 188;//128;
         var allCount = data.blockIDs.Length;
         int total = (allCount + ChunkSize - 1) / ChunkSize;
-        print($"Êîëè÷åñòâî ÷àñòåé áëîêîâ {total}");
+        print($"Количество частей блоков {total}");
         for (int i = 0; i < total; i++)
         {
             int offset = i * ChunkSize;
@@ -381,7 +381,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             Array.Copy(data.blockIDs, offset, frag, 0, len);
             sendId = idGenerator.GenerateId();
             timers[sendId] = 0f;
-            // Îòïðàâëÿåì ôðàãìåíò êëèåíòó
+            // Отправляем фрагмент клиенту
             BuildingFragmentBlocksClientRpc(sendId, i, total, frag, clientRpcParams);
 
             while (true)
@@ -403,7 +403,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         ChunkSize /= 3;
         allCount = data.positions.Length;
         total = (allCount + ChunkSize - 1) / ChunkSize;
-        print($"Êîëè÷åñòâî ÷àñòåé ïîçèöèé {total}");
+        print($"Количество частей позиций {total}");
         for (int i = 0; i < total; i++)
         {
             int offset = i * ChunkSize;
@@ -412,7 +412,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             Array.Copy(data.positions, offset, frag, 0, len);
             sendId = idGenerator.GenerateId();
             timers[sendId] = 0f;
-            // Îòïðàâëÿåì ôðàãìåíò êëèåíòó
+            // Отправляем фрагмент клиенту
             BuildingFragmentPositionsClientRpc(sendId, i, total, frag, clientRpcParams);
 
             while (true)
@@ -431,7 +431,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             }
         }
 
-        print("Çáñ, êëèåíò ïîëó÷èë ïîçèöèè áëîêîâ");
+        print("Збс, клиент получил позиции блоков");
 
         rpcTimeouts.Remove(rpcId);
 
@@ -443,13 +443,13 @@ public class NetworkBuildingManager : NetworkBehaviour
     {
         receivedFragments.partsPositions[fragmentIndex] = fragmentData;
         receivedFragments.lastReceivedTime = DateTime.UtcNow;
-        print($"Ïîëó÷èë ïîçèöèè {fragmentIndex + 1} èç {totalFragments}");
+        print($"Получил позиции {fragmentIndex + 1} из {totalFragments}");
 
         if (totalFragments == receivedFragments.CountPartsPositions)
         {
-            print("Åáàòü! ß ïîëó÷èë âñå äàííûå");
+            print("Г…ГЎГ ГІГј! Гџ ГЇГ®Г«ГіГ·ГЁГ« ГўГ±ГҐ Г¤Г Г­Г­Г»ГҐ");
 
-            // Ñîáèðàåì âñå â ïîðÿäêå èíäåêñîâ
+            // Собираем все в порядке индексов
             int fullSize = 0;
             for (int i = 0; i < receivedFragments.CountPartsBlocks; i++) 
                 fullSize += receivedFragments.partsBlocks[i].Length;
@@ -492,8 +492,8 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     public void BuildingFragmentBlocksClientRpc(ulong messageId, int fragmentIndex, int totalFragments, byte[] fragmentData, ClientRpcParams clientRpcParams = default)
     {
-        // Êîëè÷åñòâî ïîëó÷åííûõõ ÷àñòåé âñåãäà äîëæíî áûòü ðàâíî
-        // èíäåêñó ñëåäóþùåé ÷àòè
+        // ГЉГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГЇГ®Г«ГіГ·ГҐГ­Г­Г»ГµГµ Г·Г Г±ГІГҐГ© ГўГ±ГҐГЈГ¤Г  Г¤Г®Г«Г¦Г­Г® ГЎГ»ГІГј Г°Г ГўГ­Г®
+        // индексу следующей части
         if (receivedFragments.partsBlocks.Count == fragmentIndex)
         {
             receivedFragments.partsBlocks[fragmentIndex] = fragmentData;
@@ -505,7 +505,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         }
 
         AckReceivedServerRpc(messageId);
-        print($"Ïîëó÷èë áëîêè {fragmentIndex + 1} èç {totalFragments}");
+        print($"Получил блоки {fragmentIndex + 1} из {totalFragments}");
     }
 
 
@@ -525,7 +525,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         };
 
         AckReceivedServerRpc(sendId);
-        print($"Ïîëó÷èë õèäåð ïîñòðîéêè {mainFragment.nameBuilding}");
+        print($"Получил хидер постройки {mainFragment.nameBuilding}");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -560,7 +560,7 @@ public class NetworkBuildingManager : NetworkBehaviour
                 {
                     if (rpcTimeouts.Remove(id))
                     {
-                        print("Таймаут RPC удален");
+                        print("РўР°Р№РјР°СѓС‚ RPC СѓРґР°Р»РµРЅ");
                     }
                 }
             }
@@ -582,7 +582,7 @@ public class NetworkBuildingManager : NetworkBehaviour
                 {
                     if (timers.Remove(id))
                     {
-                        print("Таймаут таймера удален");
+                        print("РўР°Р№РјР°СѓС‚ С‚Р°Р№РјРµСЂР° СѓРґР°Р»РµРЅ");
                     }
                 }
             }
@@ -593,7 +593,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             if (receivedFragments != null && (DateTime.UtcNow - receivedFragments.lastReceivedTime).TotalSeconds > 30)
             {
                 receivedFragments = null;
-                print("Клиент: Таймаут передачи постройки, фрагменты очищены.");
+                print("РљР»РёРµРЅС‚: РўР°Р№РјР°СѓС‚ РїРµСЂРµРґР°С‡Рё РїРѕСЃС‚СЂРѕР№РєРё, С„СЂР°РіРјРµРЅС‚С‹ РѕС‡РёС‰РµРЅС‹.");
             }
         }
     }
@@ -611,7 +611,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     private void AckClientReceivedBuildingServerRpc(long rpcId, ServerRpcParams serverRpcParams = default)
     {
         rpcTimeouts.Remove(rpcId);
-        Debug.Log($"êëèåíò óåáàòîð {rpcId}");
+        Debug.Log($"клиент уебатор {rpcId}");
     }
 
     private void UpdateBuildingsList()
@@ -690,13 +690,13 @@ public class NetworkBuildingManager : NetworkBehaviour
     
 
     /// <summary>
-    /// Ìåòîä êîòîðûé âûçûâàòñÿ íà êëèåíòå, îçíà÷àþùèé êîíåö ñïèñêà ïîñòðîåê
+    /// ГЊГҐГІГ®Г¤ ГЄГ®ГІГ®Г°Г»Г© ГўГ»Г§Г»ГўГ ГІГ±Гї Г­Г  ГЄГ«ГЁГҐГ­ГІГҐ, Г®Г§Г­Г Г·Г ГѕГ№ГЁГ© ГЄГ®Г­ГҐГ¶ Г±ГЇГЁГ±ГЄГ  ГЇГ®Г±ГІГ°Г®ГҐГЄ
     /// </summary>
     /// <param name="clientRpcParams"></param>
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveEndOfPagesClientRpc(ClientRpcParams clientRpcParams = default)
     {
-        print("Êîíåö ñïèñêà");
+        print("Конец списка");
         BuildingManager.Singleton.InvokeEndBuildingList();
     }
 
@@ -717,7 +717,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         var json = File.ReadAllText(path);
         var savedData = JsonConvert.DeserializeObject<SaveBuildingData>(json);
         var playername = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
-        // TO DO Ïî ID þçåðà
+        // TODO: По ID юзера
         if (savedData.playersLiked == null)
         {
             savedData.playersLiked = new List<string>();
@@ -743,7 +743,7 @@ public class NetworkBuildingManager : NetworkBehaviour
 }
 
 /// <summary>
-/// Õðàíèòñÿ â Æàñîíå
+/// Хранится в Жасоне
 /// </summary>
 [JsonObject]
 public struct SaveBuildingData

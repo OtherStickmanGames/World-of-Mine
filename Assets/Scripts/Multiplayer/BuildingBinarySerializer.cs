@@ -8,8 +8,8 @@ using static ChunckData;
 public static class BuildingBinarySerializer
 {
     private const int FORMAT_VERSION = 1;
-    private const int MAX_POSITIONS = 100000;
-    private const int MAX_NAME_LENGTH = 256;
+    private const int MAX_POSITIONS = 100000; // Лимит блоков // Лимит блоков
+    private const int MAX_NAME_LENGTH = 256; // Лимит названия // Лимит названия
     private const int MAX_TURNED_BLOCKS = 100000;
 
     public static byte[] Serialize(Vector3[] positions, byte[] blockIDs, string nameBuilding, List<JsonTurnedBlock> turnedBlocks)
@@ -81,13 +81,13 @@ public static class BuildingBinarySerializer
             int version = r.ReadInt32();
             if (version != FORMAT_VERSION)
             {
-                throw new InvalidOperationException($"Unsupported format version: {version}");
+                throw new InvalidOperationException($"Неподдерживаемая версия формата: {version}");
             }
 
             int posCount = r.ReadInt32();
             if (posCount < 0 || posCount > MAX_POSITIONS)
             {
-                throw new InvalidDataException($"Invalid position count: {posCount}");
+                throw new InvalidDataException($"Недопустимое количество позиций: {posCount}");
             }
 
             positions = new Vector3[posCount];
@@ -102,13 +102,13 @@ public static class BuildingBinarySerializer
             int blockLen = r.ReadInt32();
             if (blockLen < 0 || blockLen > MAX_POSITIONS)
             {
-                throw new InvalidDataException($"Invalid blockID count: {blockLen}");
+                throw new InvalidDataException($"Недопустимое количество ID блоков: {blockLen}");
             }
 
             if (blockLen > 0)
             {
                 blockIDs = r.ReadBytes(blockLen);
-                if (blockIDs.Length != blockLen) throw new EndOfStreamException("Unexpected end when reading blockIDs");
+                if (blockIDs.Length != blockLen) throw new EndOfStreamException("Неожиданный конец файла при чтении ID блоков");
             }
             else
             {
@@ -118,13 +118,13 @@ public static class BuildingBinarySerializer
             int nameLen = r.ReadInt32();
             if (nameLen < 0 || nameLen > MAX_NAME_LENGTH)
             {
-                throw new InvalidDataException($"Invalid building name length: {nameLen}");
+                throw new InvalidDataException($"Недопустимая длина названия постройки: {nameLen}");
             }
 
             if (nameLen > 0)
             {
                 var nameBytes = r.ReadBytes(nameLen);
-                if (nameBytes.Length != nameLen) throw new EndOfStreamException("Unexpected end when reading nameBuilding");
+                if (nameBytes.Length != nameLen) throw new EndOfStreamException("Неожиданный конец файла при чтении названия");
                 nameBuilding = Encoding.UTF8.GetString(nameBytes);
             }
             else
@@ -135,7 +135,7 @@ public static class BuildingBinarySerializer
             int tbCount = r.ReadInt32();
             if (tbCount < 0 || tbCount > MAX_TURNED_BLOCKS)
             {
-                throw new InvalidDataException($"Invalid turnedBlocks count: {tbCount}");
+                throw new InvalidDataException($"Недопустимое количество повернутых блоков: {tbCount}");
             }
 
             turnedBlocks = new List<JsonTurnedBlock>(tbCount);
@@ -149,7 +149,7 @@ public static class BuildingBinarySerializer
                 int innerCount = r.ReadInt32();
                 if (innerCount < 0 || innerCount > 100) 
                 {
-                    throw new InvalidDataException($"Invalid inner turns count: {innerCount}");
+                    throw new InvalidDataException($"Недопустимое количество внутренних поворотов: {innerCount}");
                 }
 
                 if (innerCount > 0)

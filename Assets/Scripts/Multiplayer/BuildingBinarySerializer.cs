@@ -8,8 +8,8 @@ using static ChunckData;
 public static class BuildingBinarySerializer
 {
     private const int FORMAT_VERSION = 1;
-    private const int MAX_POSITIONS = 100000; // Лимит блоков // Лимит блоков
-    private const int MAX_NAME_LENGTH = 256; // Лимит названия // Лимит названия
+    private const int MAX_POSITIONS = 100000; // Р›РёРјРёС‚ Р±Р»РѕРєРѕРІ // Р›РёРјРёС‚ Р±Р»РѕРєРѕРІ
+    private const int MAX_NAME_LENGTH = 256; // Р›РёРјРёС‚ РЅР°Р·РІР°РЅРёСЏ // Р›РёРјРёС‚ РЅР°Р·РІР°РЅРёСЏ
     private const int MAX_TURNED_BLOCKS = 100000;
 
     public static byte[] Serialize(Vector3[] positions, byte[] blockIDs, string nameBuilding, List<JsonTurnedBlock> turnedBlocks)
@@ -81,13 +81,13 @@ public static class BuildingBinarySerializer
             int version = r.ReadInt32();
             if (version != FORMAT_VERSION)
             {
-                throw new InvalidOperationException($"Неподдерживаемая версия формата: {version}");
+                throw new InvalidOperationException($"РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјР°СЏ РІРµСЂСЃРёСЏ С„РѕСЂРјР°С‚Р°: {version}");
             }
 
             int posCount = r.ReadInt32();
             if (posCount < 0 || posCount > MAX_POSITIONS)
             {
-                throw new InvalidDataException($"Недопустимое количество позиций: {posCount}");
+                throw new InvalidDataException($"РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР·РёС†РёР№: {posCount}");
             }
 
             positions = new Vector3[posCount];
@@ -102,13 +102,13 @@ public static class BuildingBinarySerializer
             int blockLen = r.ReadInt32();
             if (blockLen < 0 || blockLen > MAX_POSITIONS)
             {
-                throw new InvalidDataException($"Недопустимое количество ID блоков: {blockLen}");
+                throw new InvalidDataException($"РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ ID Р±Р»РѕРєРѕРІ: {blockLen}");
             }
 
             if (blockLen > 0)
             {
                 blockIDs = r.ReadBytes(blockLen);
-                if (blockIDs.Length != blockLen) throw new EndOfStreamException("Неожиданный конец файла при чтении ID блоков");
+                if (blockIDs.Length != blockLen) throw new EndOfStreamException("РќРµРѕР¶РёРґР°РЅРЅС‹Р№ РєРѕРЅРµС† С„Р°Р№Р»Р° РїСЂРё С‡С‚РµРЅРёРё ID Р±Р»РѕРєРѕРІ");
             }
             else
             {
@@ -118,13 +118,13 @@ public static class BuildingBinarySerializer
             int nameLen = r.ReadInt32();
             if (nameLen < 0 || nameLen > MAX_NAME_LENGTH)
             {
-                throw new InvalidDataException($"Недопустимая длина названия постройки: {nameLen}");
+                throw new InvalidDataException($"РќРµРґРѕРїСѓСЃС‚РёРјР°СЏ РґР»РёРЅР° РЅР°Р·РІР°РЅРёСЏ РїРѕСЃС‚СЂРѕР№РєРё: {nameLen}");
             }
 
             if (nameLen > 0)
             {
                 var nameBytes = r.ReadBytes(nameLen);
-                if (nameBytes.Length != nameLen) throw new EndOfStreamException("Неожиданный конец файла при чтении названия");
+                if (nameBytes.Length != nameLen) throw new EndOfStreamException("РќРµРѕР¶РёРґР°РЅРЅС‹Р№ РєРѕРЅРµС† С„Р°Р№Р»Р° РїСЂРё С‡С‚РµРЅРёРё РЅР°Р·РІР°РЅРёСЏ");
                 nameBuilding = Encoding.UTF8.GetString(nameBytes);
             }
             else
@@ -135,7 +135,7 @@ public static class BuildingBinarySerializer
             int tbCount = r.ReadInt32();
             if (tbCount < 0 || tbCount > MAX_TURNED_BLOCKS)
             {
-                throw new InvalidDataException($"Недопустимое количество повернутых блоков: {tbCount}");
+                throw new InvalidDataException($"РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРІРµСЂРЅСѓС‚С‹С… Р±Р»РѕРєРѕРІ: {tbCount}");
             }
 
             turnedBlocks = new List<JsonTurnedBlock>(tbCount);
@@ -149,7 +149,7 @@ public static class BuildingBinarySerializer
                 int innerCount = r.ReadInt32();
                 if (innerCount < 0 || innerCount > 100) 
                 {
-                    throw new InvalidDataException($"Недопустимое количество внутренних поворотов: {innerCount}");
+                    throw new InvalidDataException($"РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РІРЅСѓС‚СЂРµРЅРЅРёС… РїРѕРІРѕСЂРѕС‚РѕРІ: {innerCount}");
                 }
 
                 if (innerCount > 0)

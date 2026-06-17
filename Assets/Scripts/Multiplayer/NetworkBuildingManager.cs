@@ -367,7 +367,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             }
         }
 
-        print("Г‡ГЎГ±, ГЄГ«ГЁГҐГ­ГІ ГЇГ®Г«ГіГ·ГЁГ« ГЇГҐГ°ГўГіГѕ Г·Г Г±ГІГј");
+        print("Г‡ГЎГ±, ГЄГ«ГЁГҐГ­ГІ ГЇГ®Г«ГіГ·ГЁГ« ГЇГҐГ°ГўГіГѕ часть");
 
         int ChunkSize = 188;//128;
         var allCount = data.blockIDs.Length;

@@ -7,18 +7,18 @@ using static ChunckData;
 
 public static class BuildingBinarySerializer
 {
-    // версия формата — увеличь при изменениях
     private const int FORMAT_VERSION = 1;
+    private const int MAX_POSITIONS = 100000;
+    private const int MAX_NAME_LENGTH = 256;
+    private const int MAX_TURNED_BLOCKS = 100000;
 
     public static byte[] Serialize(Vector3[] positions, byte[] blockIDs, string nameBuilding, List<JsonTurnedBlock> turnedBlocks)
     {
         using (var ms = new MemoryStream())
         using (var w = new BinaryWriter(ms, Encoding.UTF8, true))
         {
-            // header: версия
             w.Write(FORMAT_VERSION);
 
-            // positions
             w.Write(positions != null ? positions.Length : 0);
             if (positions != null)
             {
@@ -30,19 +30,16 @@ public static class BuildingBinarySerializer
                 }
             }
 
-            // blockIDs
             w.Write(blockIDs != null ? blockIDs.Length : 0);
             if (blockIDs != null && blockIDs.Length > 0)
             {
                 w.Write(blockIDs);
             }
 
-            // nameBuilding (explicit UTF8 length + bytes)
             var nameBytes = Encoding.UTF8.GetBytes(nameBuilding ?? string.Empty);
             w.Write(nameBytes.Length);
             if (nameBytes.Length > 0) w.Write(nameBytes);
 
-            // turnedBlocks
             w.Write(turnedBlocks != null ? turnedBlocks.Count : 0);
             if (turnedBlocks != null)
             {
@@ -60,7 +57,7 @@ public static class BuildingBinarySerializer
                         for (int j = 0; j < arr.Length; j++)
                         {
                             w.Write(arr[j].angle);
-                            w.Write((int)arr[j].axis); // enum as int
+                            w.Write((int)arr[j].axis);
                         }
                     }
                 }
@@ -70,10 +67,6 @@ public static class BuildingBinarySerializer
             return ms.ToArray();
         }
     }
-
-        private const int MAX_POSITIONS = 100000;
-    private const int MAX_NAME_LENGTH = 256;
-    private const int MAX_TURNED_BLOCKS = 100000;
 
     public static void Deserialize(byte[] data, out Vector3[] positions, out byte[] blockIDs, out string nameBuilding, out List<JsonTurnedBlock> turnedBlocks)
     {
@@ -91,7 +84,6 @@ public static class BuildingBinarySerializer
                 throw new InvalidOperationException($"Unsupported format version: {version}");
             }
 
-            // positions
             int posCount = r.ReadInt32();
             if (posCount < 0 || posCount > MAX_POSITIONS)
             {
@@ -107,7 +99,6 @@ public static class BuildingBinarySerializer
                 positions[i] = new Vector3(x, y, z);
             }
 
-            // blockIDs
             int blockLen = r.ReadInt32();
             if (blockLen < 0 || blockLen > MAX_POSITIONS)
             {
@@ -124,7 +115,6 @@ public static class BuildingBinarySerializer
                 blockIDs = Array.Empty<byte>();
             }
 
-            // nameBuilding
             int nameLen = r.ReadInt32();
             if (nameLen < 0 || nameLen > MAX_NAME_LENGTH)
             {
@@ -142,7 +132,6 @@ public static class BuildingBinarySerializer
                 nameBuilding = string.Empty;
             }
 
-            // turnedBlocks
             int tbCount = r.ReadInt32();
             if (tbCount < 0 || tbCount > MAX_TURNED_BLOCKS)
             {
@@ -163,74 +152,6 @@ public static class BuildingBinarySerializer
                     throw new InvalidDataException($"Invalid inner turns count: {innerCount}");
                 }
 
-                if (innerCount > 0)
-                {
-                    var inner = new TurnBlockData[innerCount];
-                    for (int j = 0; j < innerCount; j++)
-                    {
-                        inner[j].angle = r.ReadSingle();
-                        inner[j].axis = (RotationAxis)r.ReadInt32();
-                    }
-                    tb.turnsBlockData = inner;
-                }
-                else
-                {
-                    tb.turnsBlockData = Array.Empty<TurnBlockData>();
-                }
-
-                turnedBlocks.Add(tb);
-            }
-        }
-    }");
-            }
-
-            // positions
-            int posCount = r.ReadInt32();
-            positions = new Vector3[posCount];
-            for (int i = 0; i < posCount; i++)
-            {
-                float x = r.ReadSingle();
-                float y = r.ReadSingle();
-                float z = r.ReadSingle();
-                positions[i] = new Vector3(x, y, z);
-            }
-
-            // blockIDs
-            int blockLen = r.ReadInt32();
-            if (blockLen > 0)
-            {
-                blockIDs = r.ReadBytes(blockLen);
-                if (blockIDs.Length != blockLen) throw new EndOfStreamException("Unexpected end when reading blockIDs");
-            }
-            else
-            {
-                blockIDs = Array.Empty<byte>();
-            }
-
-            // nameBuilding
-            int nameLen = r.ReadInt32();
-            if (nameLen > 0)
-            {
-                var nameBytes = r.ReadBytes(nameLen);
-                if (nameBytes.Length != nameLen) throw new EndOfStreamException("Unexpected end when reading nameBuilding");
-                nameBuilding = Encoding.UTF8.GetString(nameBytes);
-            }
-            else
-            {
-                nameBuilding = string.Empty;
-            }
-
-            // turnedBlocks
-            int tbCount = r.ReadInt32();
-            turnedBlocks = new List<JsonTurnedBlock>(tbCount);
-            for (int i = 0; i < tbCount; i++)
-            {
-                JsonTurnedBlock tb = new JsonTurnedBlock();
-                tb.posX = r.ReadSingle();
-                tb.posY = r.ReadSingle();
-                tb.posZ = r.ReadSingle();
-
-                int innerCount = r.ReadInt32();
                 if (innerCount > 0)
                 {
                     var inner = new TurnBlockData[innerCount];

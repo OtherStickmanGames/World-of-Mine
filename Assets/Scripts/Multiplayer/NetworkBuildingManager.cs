@@ -441,7 +441,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     private void BuildingFragmentPositionsClientRpc(ulong messageId, int fragmentIndex, int totalFragments, Vector3[] fragmentData, ClientRpcParams clientRpcParams = default)
     {
-        receivedFragments.partsPositions[fragmentIndex] = fragmentData;
+        receivedFragments.partsPositions[fragmentIndex] = fragmentData;\n        receivedFragments.lastReceivedTime = DateTime.UtcNow;\n        receivedFragments.lastReceivedTime = DateTime.UtcNow;
         print($"ѕолучил позиции {fragmentIndex + 1} из {totalFragments}");
 
         if (totalFragments == receivedFragments.CountPartsPositions)
@@ -495,7 +495,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         // индексу следующей чати
         if (receivedFragments.partsBlocks.Count == fragmentIndex)
         {
-            receivedFragments.partsBlocks[fragmentIndex] = fragmentData;
+            receivedFragments.partsBlocks[fragmentIndex] = fragmentData;\n        receivedFragments.lastReceivedTime = DateTime.UtcNow;\n        receivedFragments.lastReceivedTime = DateTime.UtcNow;
         }
         else
         {
@@ -535,12 +535,12 @@ public class NetworkBuildingManager : NetworkBehaviour
         private List<long> _rpcKeysToRemove = new List<long>();
     private List<ulong> _timerKeysToRemove = new List<ulong>();
 
-    private void Update()
+        private void Update()
     {
+        float dt = Time.deltaTime;
+
         if (IsServer || IsHost)
         {
-            float dt = Time.deltaTime;
-
             if (rpcTimeouts.Count > 0)
             {
                 _rpcKeysToRemove.Clear();
@@ -583,6 +583,15 @@ public class NetworkBuildingManager : NetworkBehaviour
                         print("Timer timeout removed");
                     }
                 }
+            }
+        }
+
+        if (IsClient && !IsServer)
+        {
+            if (receivedFragments != null && (DateTime.UtcNow - receivedFragments.lastReceivedTime).TotalSeconds > 30)
+            {
+                receivedFragments = null;
+                print("Client: Building transmission timed out and fragments were cleared.");
             }
         }
     }
@@ -755,6 +764,7 @@ class Pending
 
 public class BuildingFragments
 {
+    public DateTime lastReceivedTime = DateTime.UtcNow;
     public Dictionary<int, byte[]> partsBlocks = new();
     public Dictionary<int, Vector3[]> partsPositions = new();
 

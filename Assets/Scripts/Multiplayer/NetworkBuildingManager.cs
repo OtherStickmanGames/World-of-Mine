@@ -188,7 +188,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// ГЏГ°Г®Г±ГІГ® Г±oГ®ГЎГ№Г ГҐГ¬ ГЄГ«ГЁГҐГ­ГІГі, Г·ГІГ® Г±Г®ГµГ°Г Г­ГЁГ«ГЁ ГЇГ®Г±ГІГ°Г®Г©ГЄГі
+    /// Просто сообщаем клиенту, что сохранили постройку
     /// </summary>
     /// <param name="clientRpcParams"></param>
     [ClientRpc(RequireOwnership = false)]
@@ -367,7 +367,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             }
         }
 
-        print("Г‡ГЎГ±, ГЄГ«ГЁГҐГ­ГІ ГЇГ®Г«ГіГ·ГЁГ« ГЇГҐГ°ГўГіГѕ часть");
+        print("Збс, клиент получил первую часть");
 
         int ChunkSize = 188;//128;
         var allCount = data.blockIDs.Length;
@@ -447,7 +447,7 @@ public class NetworkBuildingManager : NetworkBehaviour
 
         if (totalFragments == receivedFragments.CountPartsPositions)
         {
-            print("Г…ГЎГ ГІГј! Гџ ГЇГ®Г«ГіГ·ГЁГ« ГўГ±ГҐ Г¤Г Г­Г­Г»ГҐ");
+            print("Ебать! Я получил все данные");
 
             // Собираем все в порядке индексов
             int fullSize = 0;
@@ -492,7 +492,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     public void BuildingFragmentBlocksClientRpc(ulong messageId, int fragmentIndex, int totalFragments, byte[] fragmentData, ClientRpcParams clientRpcParams = default)
     {
-        // ГЉГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГЇГ®Г«ГіГ·ГҐГ­Г­Г»ГµГµ Г·Г Г±ГІГҐГ© ГўГ±ГҐГЈГ¤Г  Г¤Г®Г«Г¦Г­Г® ГЎГ»ГІГј Г°Г ГўГ­Г®
+        // Количество полученных частей всегда должно быть равно
         // индексу следующей части
         if (receivedFragments.partsBlocks.Count == fragmentIndex)
         {
@@ -560,7 +560,7 @@ public class NetworkBuildingManager : NetworkBehaviour
                 {
                     if (rpcTimeouts.Remove(id))
                     {
-                        print("РўР°Р№РјР°СѓС‚ RPC СѓРґР°Р»РµРЅ");
+                        print("Таймаут RPC удален");
                     }
                 }
             }
@@ -582,7 +582,7 @@ public class NetworkBuildingManager : NetworkBehaviour
                 {
                     if (timers.Remove(id))
                     {
-                        print("РўР°Р№РјР°СѓС‚ С‚Р°Р№РјРµСЂР° СѓРґР°Р»РµРЅ");
+                        print("Таймаут таймера удален");
                     }
                 }
             }
@@ -593,7 +593,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             if (receivedFragments != null && (DateTime.UtcNow - receivedFragments.lastReceivedTime).TotalSeconds > 30)
             {
                 receivedFragments = null;
-                print("РљР»РёРµРЅС‚: РўР°Р№РјР°СѓС‚ РїРµСЂРµРґР°С‡Рё РїРѕСЃС‚СЂРѕР№РєРё, С„СЂР°РіРјРµРЅС‚С‹ РѕС‡РёС‰РµРЅС‹.");
+                print("Клиент: Таймаут передачи постройки, фрагменты очищены.");
             }
         }
     }
@@ -690,7 +690,7 @@ public class NetworkBuildingManager : NetworkBehaviour
     
 
     /// <summary>
-    /// ГЊГҐГІГ®Г¤ ГЄГ®ГІГ®Г°Г»Г© ГўГ»Г§Г»ГўГ ГІГ±Гї Г­Г  ГЄГ«ГЁГҐГ­ГІГҐ, Г®Г§Г­Г Г·Г ГѕГ№ГЁГ© ГЄГ®Г­ГҐГ¶ Г±ГЇГЁГ±ГЄГ  ГЇГ®Г±ГІГ°Г®ГҐГЄ
+    /// Метод который вызывается на клиенте, означающий конец списка построек
     /// </summary>
     /// <param name="clientRpcParams"></param>
     [ClientRpc(RequireOwnership = false)]

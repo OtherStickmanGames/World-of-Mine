@@ -96,33 +96,40 @@ public class NetworkBuildingManager : NetworkBehaviour
         
     }
 
-    Dictionary<int, byte[]> receivedFragmentsBinaryBuildings = new();
+    Dictionary<ulong, Dictionary<int, byte[]>> receivedFragmentsBinaryBuildings = new();
 
     [ServerRpc(RequireOwnership = false)]
     private void SaveBuildingServerRpc(ulong sendId, int fragmentIndex, int total, byte[] frag, ServerRpcParams serverRpcParams = default)
     {
+        var clientId = serverRpcParams.Receive.SenderClientId;
+        if (!receivedFragmentsBinaryBuildings.ContainsKey(clientId)) receivedFragmentsBinaryBuildings[clientId] = new Dictionary<int, byte[]>();
+        var clientFragments = receivedFragmentsBinaryBuildings[clientId];
+
         if(fragmentIndex == 0)
         {
-            receivedFragmentsBinaryBuildings.Clear();
+            clientFragments.Clear();
         }
 
-        receivedFragmentsBinaryBuildings[fragmentIndex] = frag;
+        clientFragments[fragmentIndex] = frag;
         print($"Получил {fragmentIndex + 1} часть постройки из {total}");
-        if (fragmentIndex + 1 == total)
+                if (clientFragments.Count == total)
         {
-            // Собираем все в порядке индексов
             int fullSize = 0;
-            for (int i = 0; i < receivedFragmentsBinaryBuildings.Count; i++)
-                fullSize += receivedFragmentsBinaryBuildings[i].Length;
+            for (int i = 0; i < total; i++)
+                if (clientFragments.ContainsKey(i))
+                    fullSize += clientFragments[i].Length;
 
             var binaryBuildingData = new byte[fullSize];
             int pos = 0;
-            for (int i = 0; i < receivedFragmentsBinaryBuildings.Count; i++)
+            for (int i = 0; i < total; i++)
             {
-                var part = receivedFragmentsBinaryBuildings[i];
-                Buffer.BlockCopy(part, 0, binaryBuildingData, pos, part.Length);
-                pos += part.Length;
+                if (clientFragments.TryGetValue(i, out var part))
+                {
+                    Buffer.BlockCopy(part, 0, binaryBuildingData, pos, part.Length);
+                    pos += part.Length;
+                }
             }
+            receivedFragmentsBinaryBuildings.Remove(clientId);
 
             BuildingBinarySerializer.Deserialize
             (
@@ -525,61 +532,57 @@ public class NetworkBuildingManager : NetworkBehaviour
         timers.Remove(sendId);
     }
 
+        private List<long> _rpcKeysToRemove = new List<long>();
+    private List<ulong> _timerKeysToRemove = new List<ulong>();
+
     private void Update()
     {
         if (IsServer || IsHost)
         {
-            var keys = rpcTimeouts.Select((k) => k.Key).ToList();
+            float dt = Time.deltaTime;
 
-            for (int i = 0; i < keys.Count(); i++)
+            if (rpcTimeouts.Count > 0)
             {
-                var key = keys[i];
-                rpcTimeouts[key] += Time.deltaTime;
-                if (rpcTimeouts[key] > 300)
+                _rpcKeysToRemove.Clear();
+                foreach (var kvp in rpcTimeouts)
                 {
-                    if (rpcTimeouts.Remove(key))
+                    long id = kvp.Key;
+                    rpcTimeouts[id] = kvp.Value + dt;
+                    if (rpcTimeouts[id] > 300)
                     {
-                        print("Дропнул по глобальному таймату");
+                        _rpcKeysToRemove.Add(id);
                     }
-                    else
+                }
+
+                foreach (var id in _rpcKeysToRemove)
+                {
+                    if (rpcTimeouts.Remove(id))
                     {
-                        print("ездец какото");
+                        print("RPC timeout removed");
                     }
                 }
             }
 
-            //==============================================
-
             if (timers.Count > 0)
             {
-                var newkeys = timers.Select((k) => k.Key).ToList();
-
-                float dt = Time.deltaTime;
-                //var expired = new List<long>(); // allocate per-frame; okay for small counts
-
-                for (int i = 0; i < newkeys.Count(); i++)
+                _timerKeysToRemove.Clear();
+                foreach (var kvp in timers)
                 {
-                    var key = newkeys[i];
-
-                    timers[key] += dt;
-                    if (timers[key] > 10)
+                    ulong id = kvp.Key;
+                    timers[id] = kvp.Value + dt;
+                    if (timers[id] > 10)
                     {
-                        if (timers.Remove(key))
-                        {
-                            print("Дропнул по глобальному таймату");
-                        }
-                        else
-                        {
-                            print("эм что нах");
-                        }
+                        _timerKeysToRemove.Add(id);
                     }
-
                 }
 
-                //foreach (var id in expired)
-                //{
-                //    timers.Remove(id);
-                //}
+                foreach (var id in _timerKeysToRemove)
+                {
+                    if (timers.Remove(id))
+                    {
+                        print("Timer timeout removed");
+                    }
+                }
             }
         }
     }

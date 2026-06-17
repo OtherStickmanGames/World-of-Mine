@@ -441,7 +441,8 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     private void BuildingFragmentPositionsClientRpc(ulong messageId, int fragmentIndex, int totalFragments, Vector3[] fragmentData, ClientRpcParams clientRpcParams = default)
     {
-        receivedFragments.partsPositions[fragmentIndex] = fragmentData;\n        receivedFragments.lastReceivedTime = DateTime.UtcNow;\n        receivedFragments.lastReceivedTime = DateTime.UtcNow;
+        receivedFragments.partsPositions[fragmentIndex] = fragmentData;
+        receivedFragments.lastReceivedTime = DateTime.UtcNow;
         print($"ѕолучил позиции {fragmentIndex + 1} из {totalFragments}");
 
         if (totalFragments == receivedFragments.CountPartsPositions)
@@ -495,7 +496,8 @@ public class NetworkBuildingManager : NetworkBehaviour
         // индексу следующей чати
         if (receivedFragments.partsBlocks.Count == fragmentIndex)
         {
-            receivedFragments.partsBlocks[fragmentIndex] = fragmentData;\n        receivedFragments.lastReceivedTime = DateTime.UtcNow;\n        receivedFragments.lastReceivedTime = DateTime.UtcNow;
+            receivedFragments.partsBlocks[fragmentIndex] = fragmentData;
+        receivedFragments.lastReceivedTime = DateTime.UtcNow;
         }
         else
         {

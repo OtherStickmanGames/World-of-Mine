@@ -172,12 +172,15 @@ public class NetworkBuildingManager : NetworkBehaviour
             for (int i = 0; i < buildingsPaged.Count; i++)
             {
                 var data = buildingsPaged[i];
+                print(data.positions.Length + " count blocks");
                 data.liked = data.playersLiked != null && data.playersLiked.Find(p => p == username) != null;
                 ReceiveBuildingDataClientRpc(data, GetTargetClientParams(serverRpcParams));
                 //FindObjectOfType<UI>().txtPizdos.text += $" #{buildingData.nameBuilding}";
                 yield return null;
                 yield return null;
                 yield return null;
+
+                new WaitForSeconds(0.5f);
             }
 
             if (skip + pageSize >= buildingsServerData.Count)

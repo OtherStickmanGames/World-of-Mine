@@ -96,14 +96,30 @@ public class NetworkBuildingManager : NetworkBehaviour
         
     }
 
-    Dictionary<ulong, Dictionary<int, byte[]>> receivedFragmentsBinaryBuildings = new();
+    public class IncomingBuildingTransfer
+    {
+        public DateTime lastReceivedTime = DateTime.UtcNow;
+        public Dictionary<int, byte[]> fragments = new Dictionary<int, byte[]>();
+    }
+
+    Dictionary<ulong, IncomingBuildingTransfer> receivedFragmentsBinaryBuildings = new();
 
     [ServerRpc(RequireOwnership = false)]
     private void SaveBuildingServerRpc(ulong sendId, int fragmentIndex, int total, byte[] frag, ServerRpcParams serverRpcParams = default)
     {
         var clientId = serverRpcParams.Receive.SenderClientId;
-        if (!receivedFragmentsBinaryBuildings.ContainsKey(clientId)) receivedFragmentsBinaryBuildings[clientId] = new Dictionary<int, byte[]>();
-        var clientFragments = receivedFragmentsBinaryBuildings[clientId];
+
+        if (total <= 0 || total > 5000)
+        {
+            Debug.Log($"Client {clientId} sent invalid total fragments: {total}. Transfer aborted.");
+            receivedFragmentsBinaryBuildings.Remove(clientId);
+            return;
+        }
+
+        if (!receivedFragmentsBinaryBuildings.ContainsKey(clientId)) receivedFragmentsBinaryBuildings[clientId] = new IncomingBuildingTransfer();
+        var incomingTransfer = receivedFragmentsBinaryBuildings[clientId];
+        incomingTransfer.lastReceivedTime = DateTime.UtcNow;
+        var clientFragments = incomingTransfer.fragments;
 
         if(fragmentIndex == 0)
         {
@@ -112,7 +128,7 @@ public class NetworkBuildingManager : NetworkBehaviour
 
         clientFragments[fragmentIndex] = frag;
         print($"Получил {fragmentIndex + 1} часть постройки из {total}");
-                if (clientFragments.Count == total)
+        if (clientFragments.Count == total)
         {
             int fullSize = 0;
             for (int i = 0; i < total; i++)
@@ -131,17 +147,24 @@ public class NetworkBuildingManager : NetworkBehaviour
             }
             receivedFragmentsBinaryBuildings.Remove(clientId);
 
-            BuildingBinarySerializer.Deserialize
-            (
-                binaryBuildingData,
-                out Vector3[] outPositions,
-                out byte[] outBlockIDs,
-                out string outName,
-                out List<JsonTurnedBlock> outTurned
-            );
-            var networkTurnedBlockData = NetworkWorldGenerator.ToNetworkTurnedBlocksData(outTurned);
-            // TODO: Куча лишних ненужных преобразований данных
-            SaveBuilding(outPositions, outBlockIDs, networkTurnedBlockData, outName, serverRpcParams);
+            try
+            {
+                BuildingBinarySerializer.Deserialize
+                (
+                    binaryBuildingData,
+                    out Vector3[] outPositions,
+                    out byte[] outBlockIDs,
+                    out string outName,
+                    out List<JsonTurnedBlock> outTurned
+                );
+                var networkTurnedBlockData = NetworkWorldGenerator.ToNetworkTurnedBlocksData(outTurned);
+                // TODO: Куча лишних ненужных преобразований данных
+                SaveBuilding(outPositions, outBlockIDs, networkTurnedBlockData, outName, serverRpcParams);
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"Ошибка десериализации постройки от клиента {clientId}: {ex.Message}");
+            }
 
         }
 
@@ -251,8 +274,14 @@ public class NetworkBuildingManager : NetworkBehaviour
     Dictionary<long, float> rpcTimeouts = new();
     Dictionary<ulong, float> timers = new();
     IdGenerator idGenerator = new();
-    Coroutine sendBuildingsRoutine;
-    Coroutine sendBuildingFragments;
+    
+    public class ClientSendRoutines
+    {
+        public Coroutine sendBuildings;
+        public Coroutine sendFragments;
+    }
+    Dictionary<ulong, ClientSendRoutines> clientSendRoutines = new();
+
     /// <summary>
     /// Сервер получает и отправляет список построек
     /// </summary>
@@ -261,13 +290,20 @@ public class NetworkBuildingManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void GetBuildingsServerRpc(int page, ServerRpcParams serverRpcParams = default)
     {
-        if (sendBuildingsRoutine != null)
-            StopCoroutine(sendBuildingsRoutine);
+        var clientId = serverRpcParams.Receive.SenderClientId;
+        if (!clientSendRoutines.TryGetValue(clientId, out var routines))
+        {
+            routines = new ClientSendRoutines();
+            clientSendRoutines[clientId] = routines;
+        }
 
-        if (sendBuildingFragments != null)
-            StopCoroutine(sendBuildingFragments);
+        if (routines.sendBuildings != null)
+            StopCoroutine(routines.sendBuildings);
 
-        sendBuildingsRoutine = StartCoroutine(Async());
+        if (routines.sendFragments != null)
+            StopCoroutine(routines.sendFragments);
+
+        routines.sendBuildings = StartCoroutine(Async());
 
         IEnumerator Async()
         {
@@ -275,7 +311,11 @@ public class NetworkBuildingManager : NetworkBehaviour
             var buildingsPaged = buildingsServerData.Skip(skip).Take(pageSize).ToList();
             var username = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
 
-            bool needBreak = false;
+            if (skip + pageSize >= buildingsServerData.Count)
+            {
+                ReceiveEndOfPagesClientRpc(GetTargetClientParams(serverRpcParams));
+            }
+
             for (int i = 0; i < buildingsPaged.Count; i++)
             {
                 rpcId++;
@@ -286,7 +326,7 @@ public class NetworkBuildingManager : NetworkBehaviour
 
                 rpcTimeouts[id] = 0;
 
-                yield return sendBuildingFragments = StartCoroutine(StartSendFragmentableBuildingData(id, data, GetTargetClientParams(serverRpcParams)));
+                yield return routines.sendFragments = StartCoroutine(StartSendFragmentableBuildingData(id, data, GetTargetClientParams(serverRpcParams)));
                 
 
                 //ReceiveBuildingDataClientRpc(rpcId, data, GetTargetClientParams(serverRpcParams));
@@ -298,7 +338,7 @@ public class NetworkBuildingManager : NetworkBehaviour
                         break;
                     }
 
-                    if (rpcTimeouts[id] < 3)
+                    if (rpcTimeouts[id] < 300)
                     {
                         yield return null;
                         //print($"ждем {id}");
@@ -306,15 +346,9 @@ public class NetworkBuildingManager : NetworkBehaviour
                     else
                     {
                         rpcTimeouts.Remove(id);
-                        needBreak = true;
-                        print("таймаут вышел");
+                        print("Таймаут передачи целой постройки вышел. Переходим к следующей.");
                         break;
                     }
-                }
-
-                if (needBreak)
-                {
-                    break;
                 }
 
                 yield return new WaitForSeconds(0.1f);
@@ -324,17 +358,18 @@ public class NetworkBuildingManager : NetworkBehaviour
 
             print($"Клиент получил все постройки на странице {page + 1} из {(buildingsServerData.Count + pageSize - 1) / pageSize} всего построек {buildingsServerData.Count}");
 
-            if (skip + pageSize >= buildingsServerData.Count)
-            {
-                ReceiveEndOfPagesClientRpc(GetTargetClientParams(serverRpcParams));
-            }
-
-            sendBuildingsRoutine = null;
+            routines.sendBuildings = null;
         }
     }
 
     Dictionary<long, BuildingServerData> receivedBuildings = new();
-    BuildingFragments receivedFragments;
+    
+    public class ClientReceivingBuilding
+    {
+        public BuildingFragments fragments = new();
+        public BuildingServerData serverData;
+    }
+    Dictionary<long, ClientReceivingBuilding> clientReceivedBuildings = new();
 
     private IEnumerator StartSendFragmentableBuildingData(long rpcId, BuildingServerData data, ClientRpcParams clientRpcParams)
     {
@@ -350,7 +385,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         var sendId = idGenerator.GenerateId();
         timers[sendId] = 0f;
 
-        ReceiveBuildingMainFragmentClientRpc(sendId, mainFragment, clientRpcParams);
+        ReceiveBuildingMainFragmentClientRpc(rpcId, sendId, mainFragment, clientRpcParams);
 
         while (true)
         {
@@ -382,7 +417,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             sendId = idGenerator.GenerateId();
             timers[sendId] = 0f;
             // Отправляем фрагмент клиенту
-            BuildingFragmentBlocksClientRpc(sendId, i, total, frag, clientRpcParams);
+            BuildingFragmentBlocksClientRpc(rpcId, sendId, i, total, frag, clientRpcParams);
 
             while (true)
             {
@@ -413,7 +448,7 @@ public class NetworkBuildingManager : NetworkBehaviour
             sendId = idGenerator.GenerateId();
             timers[sendId] = 0f;
             // Отправляем фрагмент клиенту
-            BuildingFragmentPositionsClientRpc(sendId, i, total, frag, clientRpcParams);
+            BuildingFragmentPositionsClientRpc(rpcId, sendId, i, total, frag, clientRpcParams);
 
             while (true)
             {
@@ -434,55 +469,56 @@ public class NetworkBuildingManager : NetworkBehaviour
         print("Збс, клиент получил позиции блоков");
 
         rpcTimeouts.Remove(rpcId);
-
-        sendBuildingFragments = null;
     }
 
     [ClientRpc(RequireOwnership = false)]
-    private void BuildingFragmentPositionsClientRpc(ulong messageId, int fragmentIndex, int totalFragments, Vector3[] fragmentData, ClientRpcParams clientRpcParams = default)
+    private void BuildingFragmentPositionsClientRpc(long rpcId, ulong messageId, int fragmentIndex, int totalFragments, Vector3[] fragmentData, ClientRpcParams clientRpcParams = default)
     {
-        receivedFragments.partsPositions[fragmentIndex] = fragmentData;
-        receivedFragments.lastReceivedTime = DateTime.UtcNow;
+        if (!clientReceivedBuildings.TryGetValue(rpcId, out var receiving)) return;
+
+        receiving.fragments.partsPositions[fragmentIndex] = fragmentData;
+        receiving.fragments.lastReceivedTime = DateTime.UtcNow;
         print($"Получил позиции {fragmentIndex + 1} из {totalFragments}");
 
-        if (totalFragments == receivedFragments.CountPartsPositions)
+        if (totalFragments == receiving.fragments.CountPartsPositions)
         {
             print("Ебать! Я получил все данные");
 
             // Собираем все в порядке индексов
             int fullSize = 0;
-            for (int i = 0; i < receivedFragments.CountPartsBlocks; i++) 
-                fullSize += receivedFragments.partsBlocks[i].Length;
+            for (int i = 0; i < receiving.fragments.CountPartsBlocks; i++) 
+                fullSize += receiving.fragments.partsBlocks[i].Length;
 
             var allBlocks = new byte[fullSize];
             int pos = 0;
-            for (int i = 0; i < receivedFragments.CountPartsBlocks; i++)
+            for (int i = 0; i < receiving.fragments.CountPartsBlocks; i++)
             {
-                var partBlocks = receivedFragments.partsBlocks[i];
+                var partBlocks = receiving.fragments.partsBlocks[i];
                 Buffer.BlockCopy(partBlocks, 0, allBlocks, pos, partBlocks.Length);
                 pos += partBlocks.Length;
             }
 
             fullSize = 0;
-            for (int i = 0; i < receivedFragments.CountPartsPositions; i++)
-                fullSize += receivedFragments.partsPositions[i].Length;
+            for (int i = 0; i < receiving.fragments.CountPartsPositions; i++)
+                fullSize += receiving.fragments.partsPositions[i].Length;
 
             var allPositions = new Vector3[fullSize];
             var allPosesList = new List<Vector3>();
             pos = 0;
-            for (int i = 0; i < receivedFragments.CountPartsPositions; i++)
+            for (int i = 0; i < receiving.fragments.CountPartsPositions; i++)
             {
-                var partPositions = receivedFragments.partsPositions[i];
+                var partPositions = receiving.fragments.partsPositions[i];
                 //Buffer.BlockCopy(partPositions, 0, allPositions, pos, partPositions.Length);
                 //pos += partPositions.Length;
                 allPosesList.AddRange(partPositions);
             }
 
-            currentReceiving.blockIDs = allBlocks;
-            //currentReceiving.positions = allPositions;
-            currentReceiving.positions = allPosesList.ToArray();
+            receiving.serverData.blockIDs = allBlocks;
+            //receiving.serverData.positions = allPositions;
+            receiving.serverData.positions = allPosesList.ToArray();
 
-            BuildingManager.Singleton.CreateBuildingPreview(currentReceiving);
+            BuildingManager.Singleton.CreateBuildingPreview(receiving.serverData);
+            clientReceivedBuildings.Remove(rpcId);
         }
 
         
@@ -490,14 +526,16 @@ public class NetworkBuildingManager : NetworkBehaviour
     }
 
     [ClientRpc(RequireOwnership = false)]
-    public void BuildingFragmentBlocksClientRpc(ulong messageId, int fragmentIndex, int totalFragments, byte[] fragmentData, ClientRpcParams clientRpcParams = default)
+    public void BuildingFragmentBlocksClientRpc(long rpcId, ulong messageId, int fragmentIndex, int totalFragments, byte[] fragmentData, ClientRpcParams clientRpcParams = default)
     {
+        if (!clientReceivedBuildings.TryGetValue(rpcId, out var receiving)) return;
+
         // Количество полученных частей всегда должно быть равно
         // индексу следующей части
-        if (receivedFragments.partsBlocks.Count == fragmentIndex)
+        if (receiving.fragments.partsBlocks.Count == fragmentIndex)
         {
-            receivedFragments.partsBlocks[fragmentIndex] = fragmentData;
-        receivedFragments.lastReceivedTime = DateTime.UtcNow;
+            receiving.fragments.partsBlocks[fragmentIndex] = fragmentData;
+            receiving.fragments.lastReceivedTime = DateTime.UtcNow;
         }
         else
         {
@@ -508,21 +546,22 @@ public class NetworkBuildingManager : NetworkBehaviour
         print($"Получил блоки {fragmentIndex + 1} из {totalFragments}");
     }
 
-
-    BuildingServerData currentReceiving;
-
     [ClientRpc(RequireOwnership = false)]
-    private void ReceiveBuildingMainFragmentClientRpc(ulong sendId, NetworkHeaderBuildingData mainFragment, ClientRpcParams clientRpcParams = default)
+    private void ReceiveBuildingMainFragmentClientRpc(long rpcId, ulong sendId, NetworkHeaderBuildingData mainFragment, ClientRpcParams clientRpcParams = default)
     {
-        receivedFragments = new();
-        currentReceiving = new()
+        var receiving = new ClientReceivingBuilding
         {
-            nameBuilding = mainFragment.nameBuilding,
-            authorName = mainFragment.authorName,
-            guid = mainFragment.guid,
-            countLikes = mainFragment.countLikes,
-            liked = mainFragment.liked
+            fragments = new BuildingFragments(),
+            serverData = new BuildingServerData
+            {
+                nameBuilding = mainFragment.nameBuilding,
+                authorName = mainFragment.authorName,
+                guid = mainFragment.guid,
+                countLikes = mainFragment.countLikes,
+                liked = mainFragment.liked
+            }
         };
+        clientReceivedBuildings[rpcId] = receiving;
 
         AckReceivedServerRpc(sendId);
         print($"Получил хидер постройки {mainFragment.nameBuilding}");
@@ -534,66 +573,78 @@ public class NetworkBuildingManager : NetworkBehaviour
         timers.Remove(sendId);
     }
 
-        private List<long> _rpcKeysToRemove = new List<long>();
+    private List<long> _rpcKeysToRemove = new List<long>();
     private List<ulong> _timerKeysToRemove = new List<ulong>();
+    private List<ulong> _incomingTransfersToRemove = new List<ulong>();
 
-        private void Update()
+    private void Update()
     {
         float dt = Time.deltaTime;
 
         if (IsServer || IsHost)
         {
-            if (rpcTimeouts.Count > 0)
+            if (receivedFragmentsBinaryBuildings.Count > 0)
             {
-                _rpcKeysToRemove.Clear();
-                foreach (var kvp in rpcTimeouts)
+                _incomingTransfersToRemove.Clear();
+                foreach (var kvp in receivedFragmentsBinaryBuildings)
                 {
-                    long id = kvp.Key;
-                    rpcTimeouts[id] = kvp.Value + dt;
-                    if (rpcTimeouts[id] > 300)
+                    if ((DateTime.UtcNow - kvp.Value.lastReceivedTime).TotalSeconds > 30)
                     {
-                        _rpcKeysToRemove.Add(id);
+                        _incomingTransfersToRemove.Add(kvp.Key);
                     }
                 }
 
+                foreach (var id in _incomingTransfersToRemove)
+                {
+                    if (receivedFragmentsBinaryBuildings.Remove(id))
+                    {
+                        print($"Очищена зависшая загрузка постройки от клиента {id}");
+                    }
+                }
+            }
+
+            if (rpcTimeouts.Count > 0)
+            {
+                _rpcKeysToRemove.Clear();
+                _rpcKeysToRemove.AddRange(rpcTimeouts.Keys);
                 foreach (var id in _rpcKeysToRemove)
                 {
-                    if (rpcTimeouts.Remove(id))
+                    rpcTimeouts[id] += dt;
+                    if (rpcTimeouts[id] > 300)
                     {
+                        rpcTimeouts.Remove(id);
                         print("Таймаут RPC удален");
                     }
                 }
             }
 
-            if (timers.Count > 0)
-            {
-                _timerKeysToRemove.Clear();
-                foreach (var kvp in timers)
-                {
-                    ulong id = kvp.Key;
-                    timers[id] = kvp.Value + dt;
-                    if (timers[id] > 10)
-                    {
-                        _timerKeysToRemove.Add(id);
-                    }
-                }
+        }
 
-                foreach (var id in _timerKeysToRemove)
+        if (timers.Count > 0)
+        {
+            _timerKeysToRemove.Clear();
+            _timerKeysToRemove.AddRange(timers.Keys);
+            foreach (var id in _timerKeysToRemove)
+            {
+                timers[id] += dt;
+                if (timers[id] > 10)
                 {
-                    if (timers.Remove(id))
-                    {
-                        print("Таймаут таймера удален");
-                    }
+                    timers.Remove(id);
+                    // print("Таймаут таймера удален");
                 }
             }
         }
 
         if (IsClient && !IsServer)
         {
-            if (receivedFragments != null && (DateTime.UtcNow - receivedFragments.lastReceivedTime).TotalSeconds > 30)
+            if (clientReceivedBuildings.Count > 0)
             {
-                receivedFragments = null;
-                print("Клиент: Таймаут передачи постройки, фрагменты очищены.");
+                var keysToRemove = clientReceivedBuildings.Where(kvp => (DateTime.UtcNow - kvp.Value.fragments.lastReceivedTime).TotalSeconds > 30).Select(kvp => kvp.Key).ToList();
+                foreach(var k in keysToRemove)
+                {
+                    clientReceivedBuildings.Remove(k);
+                    print($"Клиент: Таймаут передачи постройки {k}, фрагменты очищены.");
+                }
             }
         }
     }

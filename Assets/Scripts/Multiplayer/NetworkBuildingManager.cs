@@ -309,7 +309,8 @@ public class NetworkBuildingManager : NetworkBehaviour
         {
             var skip = page * pageSize;
             var buildingsPaged = buildingsServerData.Skip(skip).Take(pageSize).ToList();
-            var username = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
+            ulong senderClientId = serverRpcParams.Receive.SenderClientId;
+            var userId = NetworkUserManager.Instance.playerIds.ContainsKey(senderClientId) ? NetworkUserManager.Instance.playerIds[senderClientId] : NetworkUserManager.Instance.GetUserName(senderClientId);
 
             if (skip + pageSize >= buildingsServerData.Count)
             {
@@ -321,7 +322,7 @@ public class NetworkBuildingManager : NetworkBehaviour
                 rpcId++;
                 var data = buildingsPaged[i];
                 print(data.positions.Length + " count blocks");
-                data.liked = data.playersLiked != null && data.playersLiked.Find(p => p == username) != null;
+                data.liked = data.playersLiked != null && data.playersLiked.Find(p => p == userId) != null;
                 var id = rpcId;
 
                 rpcTimeouts[id] = 0;
@@ -478,6 +479,8 @@ public class NetworkBuildingManager : NetworkBehaviour
 
         receiving.fragments.partsPositions[fragmentIndex] = fragmentData;
         receiving.fragments.lastReceivedTime = DateTime.UtcNow;
+        float progress = 0.25f + ((float)(fragmentIndex + 1) / totalFragments) * 0.75f;
+        BuildingManager.Singleton.onBuildingLoadProgress?.Invoke(receiving.serverData.guid, progress);
         print($"Получил позиции {fragmentIndex + 1} из {totalFragments}");
 
         if (totalFragments == receiving.fragments.CountPartsPositions)
@@ -536,6 +539,9 @@ public class NetworkBuildingManager : NetworkBehaviour
         {
             receiving.fragments.partsBlocks[fragmentIndex] = fragmentData;
             receiving.fragments.lastReceivedTime = DateTime.UtcNow;
+            
+            float progress = ((float)(fragmentIndex + 1) / totalFragments) * 0.25f;
+            BuildingManager.Singleton.onBuildingLoadProgress?.Invoke(receiving.serverData.guid, progress);
         }
         else
         {
@@ -562,6 +568,8 @@ public class NetworkBuildingManager : NetworkBehaviour
             }
         };
         clientReceivedBuildings[rpcId] = receiving;
+
+        BuildingManager.Singleton.StartBuildingPreview(receiving.serverData);
 
         AckReceivedServerRpc(sendId);
         print($"Получил хидер постройки {mainFragment.nameBuilding}");
@@ -760,29 +768,35 @@ public class NetworkBuildingManager : NetworkBehaviour
     private void BuildingLikedServerRpc(string guid, ServerRpcParams serverRpcParams = default)
     {
 #if !UNITY_WEBGL
-        //Debug.Log(buildingsServerData.Count);
-        var building = buildingsServerData.Find(b => b.guid == guid);
+        int buildingIndex = buildingsServerData.FindIndex(b => b.guid == guid);
+        if (buildingIndex == -1) return;
 
+        var building = buildingsServerData[buildingIndex];
         var fileName = $"{building.nameBuilding}_{guid}.json";
         var path = $"{buildingsDirectory}{fileName}";
+        
+        if (!File.Exists(path)) return;
+        
         var json = File.ReadAllText(path);
         var savedData = JsonConvert.DeserializeObject<SaveBuildingData>(json);
-        var playername = NetworkUserManager.Instance.GetUserName(serverRpcParams.Receive.SenderClientId);
-        // TODO: По ID юзера
+        
+        ulong senderClientId = serverRpcParams.Receive.SenderClientId;
+        var userId = NetworkUserManager.Instance.playerIds.ContainsKey(senderClientId) ? NetworkUserManager.Instance.playerIds[senderClientId] : NetworkUserManager.Instance.GetUserName(senderClientId);
+        
         if (savedData.playersLiked == null)
         {
             savedData.playersLiked = new List<string>();
         }
 
-        if (savedData.playersLiked.Contains(playername))
+        if (savedData.playersLiked.Contains(userId))
         {
-            savedData.playersLiked.Remove(playername);
-            Debug.Log($"{playername} DISLIKE !!! - {building.nameBuilding}");
+            savedData.playersLiked.Remove(userId);
+            Debug.Log($"{userId} DISLIKE !!! - {building.nameBuilding}");
         }
         else
         {
-            savedData.playersLiked.Add(playername);
-            Debug.Log($"{playername} Liked building - {building.nameBuilding}");
+            savedData.playersLiked.Add(userId);
+            Debug.Log($"{userId} Liked building - {building.nameBuilding}");
         }
         json = JsonConvert.SerializeObject(savedData);
         File.WriteAllText(path, json);

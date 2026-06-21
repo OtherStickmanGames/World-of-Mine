@@ -1,114 +1,95 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
+using UnityEngine.Events;
 using Unity.Netcode;
 
-public class FragmentedReceiver : MonoBehaviour
+public class FragmentedReceiver : NetworkBehaviour
 {
-    // Класс для сборки
-    class Pending
+    class PendingTransfer
     {
-        public int Total;
+        public int TotalFragments;
         public Dictionary<int, byte[]> Parts = new Dictionary<int, byte[]>();
-        public DateTime FirstReceived = DateTime.UtcNow;
-        public int ReceivedCount => Parts.Count;
+        public DateTime LastReceived = DateTime.UtcNow;
     }
 
-    private readonly Dictionary<ulong, Pending> _pendingByMessage = new Dictionary<ulong, Pending>();
-    private readonly object _lock = new object();
+    private Dictionary<ulong, PendingTransfer> _pendingTransfers = new Dictionary<ulong, PendingTransfer>();
 
-    // Этот метод должен совпадать с RPC подписью на сервере
-    // Помести его в скрипт на объекте, который слушает RPC'ы (NetworkBehaviour или обычный MonoBehaviour с регистрации вызова)
-    public void OnFragmentReceived(ulong messageId, int fragmentIndex, int totalFragments, byte[] fragmentData)
+    [HideInInspector] public UnityEvent<byte[]> onDataReceive = new UnityEvent<byte[]>();
+
+    public FragmentedSender sender;
+
+    private void Awake()
     {
-        lock (_lock)
+        if (sender == null) sender = GetComponent<FragmentedSender>();
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    public void ReceiveFragmentClientRpc(ulong transferId, int fragmentIndex, int totalFragments, byte[] fragmentData, ClientRpcParams clientRpcParams = default)
+    {
+        if (sender == null)
         {
-            if (!_pendingByMessage.TryGetValue(messageId, out var p))
+            Debug.LogError($"[FragmentedReceiver] РћС€РёР±РєР°: РљРѕРјРїРѕРЅРµРЅС‚ FragmentedSender РЅРµ РїСЂРёРІСЏР·Р°РЅ!");
+            return;
+        }
+
+        if (!_pendingTransfers.TryGetValue(transferId, out var pending))
+        {
+            pending = new PendingTransfer { TotalFragments = totalFragments };
+            _pendingTransfers.Add(transferId, pending);
+        }
+
+        pending.LastReceived = DateTime.UtcNow;
+
+        if (!pending.Parts.ContainsKey(fragmentIndex))
+        {
+            pending.Parts.Add(fragmentIndex, fragmentData);
+        }
+
+        sender.FragmentAckServerRpc(transferId, fragmentIndex);
+
+        if (pending.Parts.Count == pending.TotalFragments)
+        {
+            int fullSize = 0;
+            for (int i = 0; i < pending.TotalFragments; i++)
             {
-                p = new Pending { Total = totalFragments };
-                _pendingByMessage[messageId] = p;
+                fullSize += pending.Parts[i].Length;
             }
 
-            // игнорируем дубликаты
-            if (!p.Parts.ContainsKey(fragmentIndex))
+            byte[] completeData = new byte[fullSize];
+            int offset = 0;
+            for (int i = 0; i < pending.TotalFragments; i++)
             {
-                p.Parts[fragmentIndex] = fragmentData;
+                byte[] part = pending.Parts[i];
+                Buffer.BlockCopy(part, 0, completeData, offset, part.Length);
+                offset += part.Length;
             }
 
-            if (p.ReceivedCount == p.Total)
-            {
-                // Собираем все в порядке индексов
-                int fullSize = 0;
-                for (int i = 0; i < p.Total; i++) fullSize += p.Parts[i].Length;
-                var all = new byte[fullSize];
-                int pos = 0;
-                for (int i = 0; i < p.Total; i++)
-                {
-                    var part = p.Parts[i];
-                    Buffer.BlockCopy(part, 0, all, pos, part.Length);
-                    pos += part.Length;
-                }
-
-                // Удаляем pending
-                _pendingByMessage.Remove(messageId);
-
-                // Десериализуем структуру
-                var building = DeserializeBuilding(all);
-
-                // Отправляем ACK на сервер (через NetworkBehaviour/registered RPC)
-                var rpcOwner = NetworkManager.Singleton.LocalClientId;
-                // предполагаем, что есть сетевой объект с методом FragmentAckServerRpc
-                var ackSender = FindObjectOfType<FragmentedSender>(); // у тебя архитектура может быть другая
-                if (ackSender != null)
-                {
-                    ackSender.FragmentAckServerRpc(messageId);
-                }
-
-                // Делай что нужно с building: добавить в мир, сохранить и т.д.
-                Debug.Log($"Client: received building '{building.nameBuilding}', positions: {building.positions?.Length}");
-            }
+            _pendingTransfers.Remove(transferId);
+            
+            Debug.Log($"[FragmentedReceiver] РџРµСЂРµРґР°С‡Р° {transferId} СѓСЃРїРµС€РЅРѕ СЃРѕР±СЂР°РЅР° РЅР° РєР»РёРµРЅС‚Рµ. Р Р°Р·РјРµСЂ: {completeData.Length} Р±Р°Р№С‚.");
+            onDataReceive.Invoke(completeData);
         }
     }
-
-    private BuildingServerData DeserializeBuilding(byte[] bytes)
+    
+    private void Update()
     {
-        var d = new BuildingServerData();
-        using (var ms = new MemoryStream(bytes))
-        using (var br = new BinaryReader(ms))
+        if (_pendingTransfers.Count > 0)
         {
-            int posCount = br.ReadInt32();
-            if (posCount > 0)
+            List<ulong> keysToRemove = new List<ulong>();
+            foreach (var kvp in _pendingTransfers)
             {
-                d.positions = new Vector3[posCount];
-                for (int i = 0; i < posCount; i++)
+                if ((DateTime.UtcNow - kvp.Value.LastReceived).TotalSeconds > 30)
                 {
-                    float x = br.ReadSingle();
-                    float y = br.ReadSingle();
-                    float z = br.ReadSingle();
-                    d.positions[i] = new Vector3(x, y, z);
+                    keysToRemove.Add(kvp.Key);
                 }
             }
-            else d.positions = Array.Empty<Vector3>();
 
-            int blockLen = br.ReadInt32();
-            if (blockLen > 0) d.blockIDs = br.ReadBytes(blockLen);
-            else d.blockIDs = Array.Empty<byte>();
-
-            d.nameBuilding = ReadString(br);
-            d.authorName = ReadString(br);
-            d.guid = ReadString(br);
-            d.countLikes = br.ReadInt32();
-            d.liked = br.ReadBoolean();
+            for (int i = 0; i < keysToRemove.Count; i++)
+            {
+                _pendingTransfers.Remove(keysToRemove[i]);
+                Debug.LogError($"[FragmentedReceiver] РўР°Р№РјР°СѓС‚ РїРµСЂРµРґР°С‡Рё {keysToRemove[i]} РЅР° РєР»РёРµРЅС‚Рµ. РћС‡РёСЃС‚РєР° РЅРµР·Р°РєРѕРЅС‡РµРЅРЅС‹С… С„СЂР°РіРјРµРЅС‚РѕРІ.");
+            }
         }
-        return d;
-    }
-
-    private string ReadString(BinaryReader br)
-    {
-        int len = br.ReadInt32();
-        if (len == 0) return string.Empty;
-        var bytes = br.ReadBytes(len);
-        return System.Text.Encoding.UTF8.GetString(bytes);
     }
 }

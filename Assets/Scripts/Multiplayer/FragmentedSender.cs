@@ -1,6 +1,6 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using UnityEngine;
 using Unity.Netcode;
@@ -9,7 +9,6 @@ public class IdGenerator
 {
     private long _lastId = 0;
 
-    // Возвращает уникальный id как ulong
     public ulong GenerateId()
     {
         long next = Interlocked.Increment(ref _lastId);
@@ -17,105 +16,92 @@ public class IdGenerator
     }
 }
 
-
-// --- Sender side (server) ---
 public class FragmentedSender : NetworkBehaviour
 {
-    // Параметры — подгоняй под свой MaxPayloadSize
-    private const int ChunkSize = 1000; // байт на фрагмент (payload only)
-    private const int AckTimeoutMs = 5000;
-    private const int MaxRetries = 3;
+    [SerializeField] private int FragmentSize = 1024;
+    [SerializeField] private float AckTimeoutSeconds = 5f;
+    [SerializeField] private int MaxRetries = 3;
 
-    private ulong _nextMessageId = 1;
+    private IdGenerator idGenerator = new IdGenerator();
+    private Dictionary<ulong, int> _acknowledgedFragments = new Dictionary<ulong, int>();
 
-    private IdGenerator idGenerator = new();
+    public FragmentedReceiver receiver;
 
-    public void SendBuildingToClient(ulong clientId, BuildingServerData data)
+    private void Awake()
     {
-        var bytes = SerializeBuilding(data);
-        var messageId = idGenerator.GenerateId(); // где idGenerator — экземпляр класса выше
-        SendFragmentsReliable(clientId, messageId, bytes);
-        //можно стартовать ожидание ack и retry, но ниже мы делаем простую версию с retry
+        if (receiver == null) receiver = GetComponent<FragmentedReceiver>();
     }
 
-    private void SendFragmentsReliable(ulong clientId, ulong messageId, byte[] bytes)
+    public void SendLargeData(byte[] data, ulong clientId)
     {
-        int total = (bytes.Length + ChunkSize - 1) / ChunkSize;
-        for (int i = 0; i < total; i++)
-        {
-            int offset = i * ChunkSize;
-            int len = Math.Min(ChunkSize, bytes.Length - offset);
-            byte[] frag = new byte[len];
-            Array.Copy(bytes, offset, frag, 0, len);
+        ulong transferId = idGenerator.GenerateId();
+        _acknowledgedFragments.Add(transferId, -1);
+        StartCoroutine(SendFragmentsReliableCoroutine(clientId, transferId, data));
+    }
 
-            // Отправляем фрагмент клиенту
-            BuildingFragmentClientRpc(messageId, i, total, frag,
-                new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new[] { clientId } } });
+    private IEnumerator SendFragmentsReliableCoroutine(ulong clientId, ulong transferId, byte[] data)
+    {
+        if (receiver == null)
+        {
+            Debug.LogError($"[FragmentedSender] РћС€РёР±РєР°: РљРѕРјРїРѕРЅРµРЅС‚ FragmentedReceiver РЅРµ РїСЂРёРІСЏР·Р°РЅ!");
+            yield break;
         }
 
-        // Запустить Coroutine/таймер для ожидания ack и retry — в реальном проекте обязательно
-        // Можно хранить pending set и на AckServerRpc удалять.
-    }
-
-    private byte[] SerializeBuilding(BuildingServerData d)
-    {
-        using (var ms = new MemoryStream())
-        using (var bw = new BinaryWriter(ms))
+        int totalFragments = (data.Length + FragmentSize - 1) / FragmentSize;
+        Debug.Log($"[FragmentedSender] РќР°С‡РёРЅР°РµРј РїРµСЂРµРґР°С‡Сѓ {transferId} РєР»РёРµРЅС‚Сѓ {clientId}. Р’СЃРµРіРѕ С„СЂР°РіРјРµРЅС‚РѕРІ: {totalFragments}");
+        
+        for (int i = 0; i < totalFragments; i++)
         {
-            // positions
-            if (d.positions != null)
+            int offset = i * FragmentSize;
+            int length = Math.Min(FragmentSize, data.Length - offset);
+            byte[] fragmentData = new byte[length];
+            Array.Copy(data, offset, fragmentData, 0, length);
+
+            bool fragmentAcked = false;
+            int retryCount = 0;
+
+            while (!fragmentAcked && retryCount < MaxRetries)
             {
-                bw.Write(d.positions.Length);
-                foreach (var v in d.positions)
+                var rpcParams = new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new[] { clientId } } };
+                receiver.ReceiveFragmentClientRpc(transferId, i, totalFragments, fragmentData, rpcParams);
+
+                float timer = 0f;
+                while (timer < AckTimeoutSeconds)
                 {
-                    bw.Write(v.x);
-                    bw.Write(v.y);
-                    bw.Write(v.z);
+                    if (_acknowledgedFragments[transferId] == i)
+                    {
+                        fragmentAcked = true;
+                        break;
+                    }
+                    timer += Time.deltaTime;
+                    yield return null;
+                }
+
+                if (!fragmentAcked)
+                {
+                    retryCount++;
+                    Debug.Log($"[FragmentedSender] РўР°Р№РјР°СѓС‚ РѕР¶РёРґР°РЅРёСЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РїРµСЂРµРґР°С‡Рё {transferId}, С„СЂР°РіРјРµРЅС‚ {i}. РџРѕРїС‹С‚РєР° {retryCount} РёР· {MaxRetries}");
                 }
             }
-            else bw.Write(0);
 
-            // blockIDs
-            if (d.blockIDs != null)
+            if (!fragmentAcked)
             {
-                bw.Write(d.blockIDs.Length);
-                bw.Write(d.blockIDs);
+                Debug.LogError($"[FragmentedSender] РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РїСЂР°РІРёС‚СЊ С„СЂР°РіРјРµРЅС‚ {i} РїРµСЂРµРґР°С‡Рё {transferId} РєР»РёРµРЅС‚Сѓ {clientId} РїРѕСЃР»Рµ {MaxRetries} РїРѕРїС‹С‚РѕРє. РџРµСЂРµРґР°С‡Р° РїСЂРµСЂРІР°РЅР°.");
+                _acknowledgedFragments.Remove(transferId);
+                yield break;
             }
-            else bw.Write(0);
-
-            // strings (UTF8)
-            WriteString(bw, d.nameBuilding);
-            WriteString(bw, d.authorName);
-            WriteString(bw, d.guid);
-
-            bw.Write(d.countLikes);
-            bw.Write(d.liked);
-
-            bw.Flush();
-            return ms.ToArray();
         }
+
+        _acknowledgedFragments.Remove(transferId);
+        Debug.Log($"[FragmentedSender] РџРµСЂРµРґР°С‡Р° {transferId} РєР»РёРµРЅС‚Сѓ {clientId} СѓСЃРїРµС€РЅРѕ Р·Р°РІРµСЂС€РµРЅР°.");
     }
 
-    private void WriteString(BinaryWriter bw, string s)
-    {
-        if (s == null) { bw.Write(0); return; }
-        var bytes = System.Text.Encoding.UTF8.GetBytes(s);
-        bw.Write(bytes.Length);
-        bw.Write(bytes);
-    }
-
-    // RPC: фрагмент
-    [ClientRpc]
-    private void BuildingFragmentClientRpc(ulong messageId, int fragmentIndex, int totalFragments, byte[] fragmentData, ClientRpcParams clientRpcParams = default)
-    {
-        // Этот метод выполняется на клиенте (см. клиентскую часть ниже)
-    }
-
-    // Server будет получать Ack от клиента:
     [ServerRpc(RequireOwnership = false)]
-    public void FragmentAckServerRpc(ulong messageId, ServerRpcParams serverRpcParams = default)
+    public void FragmentAckServerRpc(ulong transferId, int fragmentIndex, ServerRpcParams serverRpcParams = default)
     {
-        // отметь messageId как доставленный — убери из pending, прекрати retry
-        Debug.Log($"Server: got ACK for message {messageId} from client {serverRpcParams.Receive.SenderClientId}");
+        if (_acknowledgedFragments.ContainsKey(transferId))
+        {
+            _acknowledgedFragments[transferId] = fragmentIndex;
+        }
     }
 }

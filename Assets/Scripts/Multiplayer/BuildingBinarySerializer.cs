@@ -7,18 +7,18 @@ using static ChunckData;
 
 public static class BuildingBinarySerializer
 {
-    // ������ ������� � ������� ��� ����������
     private const int FORMAT_VERSION = 1;
+    private const int MAX_POSITIONS = 100000; // Лимит блоков // Лимит блоков
+    private const int MAX_NAME_LENGTH = 256; // Лимит названия // Лимит названия
+    private const int MAX_TURNED_BLOCKS = 100000;
 
     public static byte[] Serialize(Vector3[] positions, byte[] blockIDs, string nameBuilding, List<JsonTurnedBlock> turnedBlocks)
     {
         using (var ms = new MemoryStream())
         using (var w = new BinaryWriter(ms, Encoding.UTF8, true))
         {
-            // header: ������
             w.Write(FORMAT_VERSION);
 
-            // positions
             w.Write(positions != null ? positions.Length : 0);
             if (positions != null)
             {
@@ -30,19 +30,16 @@ public static class BuildingBinarySerializer
                 }
             }
 
-            // blockIDs
             w.Write(blockIDs != null ? blockIDs.Length : 0);
             if (blockIDs != null && blockIDs.Length > 0)
             {
                 w.Write(blockIDs);
             }
 
-            // nameBuilding (explicit UTF8 length + bytes)
             var nameBytes = Encoding.UTF8.GetBytes(nameBuilding ?? string.Empty);
             w.Write(nameBytes.Length);
             if (nameBytes.Length > 0) w.Write(nameBytes);
 
-            // turnedBlocks
             w.Write(turnedBlocks != null ? turnedBlocks.Count : 0);
             if (turnedBlocks != null)
             {
@@ -60,7 +57,7 @@ public static class BuildingBinarySerializer
                         for (int j = 0; j < arr.Length; j++)
                         {
                             w.Write(arr[j].angle);
-                            w.Write((int)arr[j].axis); // enum as int
+                            w.Write((int)arr[j].axis);
                         }
                     }
                 }
@@ -84,12 +81,15 @@ public static class BuildingBinarySerializer
             int version = r.ReadInt32();
             if (version != FORMAT_VERSION)
             {
-                // ����� ���������� ��-�������, ���� ������ ���������� � ��� ����� ������������ �������
-                throw new InvalidOperationException($"Unsupported format version: {version}");
+                throw new InvalidOperationException($"Неподдерживаемая версия формата: {version}");
             }
 
-            // positions
             int posCount = r.ReadInt32();
+            if (posCount < 0 || posCount > MAX_POSITIONS)
+            {
+                throw new InvalidDataException($"Недопустимое количество позиций: {posCount}");
+            }
+
             positions = new Vector3[posCount];
             for (int i = 0; i < posCount; i++)
             {
@@ -99,24 +99,32 @@ public static class BuildingBinarySerializer
                 positions[i] = new Vector3(x, y, z);
             }
 
-            // blockIDs
             int blockLen = r.ReadInt32();
+            if (blockLen < 0 || blockLen > MAX_POSITIONS)
+            {
+                throw new InvalidDataException($"Недопустимое количество ID блоков: {blockLen}");
+            }
+
             if (blockLen > 0)
             {
                 blockIDs = r.ReadBytes(blockLen);
-                if (blockIDs.Length != blockLen) throw new EndOfStreamException("Unexpected end when reading blockIDs");
+                if (blockIDs.Length != blockLen) throw new EndOfStreamException("Неожиданный конец файла при чтении ID блоков");
             }
             else
             {
                 blockIDs = Array.Empty<byte>();
             }
 
-            // nameBuilding
             int nameLen = r.ReadInt32();
+            if (nameLen < 0 || nameLen > MAX_NAME_LENGTH)
+            {
+                throw new InvalidDataException($"Недопустимая длина названия постройки: {nameLen}");
+            }
+
             if (nameLen > 0)
             {
                 var nameBytes = r.ReadBytes(nameLen);
-                if (nameBytes.Length != nameLen) throw new EndOfStreamException("Unexpected end when reading nameBuilding");
+                if (nameBytes.Length != nameLen) throw new EndOfStreamException("Неожиданный конец файла при чтении названия");
                 nameBuilding = Encoding.UTF8.GetString(nameBytes);
             }
             else
@@ -124,8 +132,12 @@ public static class BuildingBinarySerializer
                 nameBuilding = string.Empty;
             }
 
-            // turnedBlocks
             int tbCount = r.ReadInt32();
+            if (tbCount < 0 || tbCount > MAX_TURNED_BLOCKS)
+            {
+                throw new InvalidDataException($"Недопустимое количество повернутых блоков: {tbCount}");
+            }
+
             turnedBlocks = new List<JsonTurnedBlock>(tbCount);
             for (int i = 0; i < tbCount; i++)
             {
@@ -135,6 +147,11 @@ public static class BuildingBinarySerializer
                 tb.posZ = r.ReadSingle();
 
                 int innerCount = r.ReadInt32();
+                if (innerCount < 0 || innerCount > 100) 
+                {
+                    throw new InvalidDataException($"Недопустимое количество внутренних поворотов: {innerCount}");
+                }
+
                 if (innerCount > 0)
                 {
                     var inner = new TurnBlockData[innerCount];

@@ -31,6 +31,7 @@ public class ShowBuildingView : MonoBehaviour
         btnPrevPage.onClick.AddListener(PrevPage_Clicked);
 
         BuildingManager.Singleton.onLoadedPreviewBuild.AddListener(LoadedPreview_Builded);
+        BuildingManager.Singleton.onStartedPreviewBuild.AddListener(StartedPreview_Builded);
         BuildingManager.Singleton.onBuildingListEnded.AddListener(BuildingList_Ended);
 
         buildingsView.SetActive(false);
@@ -49,12 +50,23 @@ public class ShowBuildingView : MonoBehaviour
         btnNextPage.interactable = false;
     }
 
+        private void StartedPreview_Builded(BuildingServerData serverData)
+    {
+        var previewItem = Instantiate(previewItemPrefab, parent);
+        previewItem.Init(null, serverData);
+        previewItem.onLikeClick.AddListener(BuildingLike_Clicked);
+        previewItem.onBuildingClick.AddListener(Building_Clicked);
+        buildingItems.Add(previewItem);
+        UpdatePageBtnsView();
+    }
+
     private void LoadedPreview_Builded(BuildPreviewData preview, BuildingServerData serverData)
     {
         var loadedItem = buildingItems.Find(i => i.Guid == serverData.guid);
         if (loadedItem)
         {
             loadedItem.gameObject.SetActive(true);
+            loadedItem.ApplyMesh(preview);
         }
         else
         {

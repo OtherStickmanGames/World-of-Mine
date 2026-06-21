@@ -25,6 +25,8 @@ public class BuildingManager : MonoBehaviour
     public UnityEvent<int> onCountBuildingsReceive;
     public UnityEvent<List<BlockData>, List<JsonTurnedBlock>, string> onSaveBuilding;
     public UnityEvent<BuildPreviewData, BuildingServerData> onLoadedPreviewBuild;
+    public UnityEvent<BuildingServerData> onStartedPreviewBuild;
+    public UnityEvent<string, float> onBuildingLoadProgress;
     public UnityEvent<string> onBuildingLike;
 
     public UnityEvent<int> onGetBuildings;
@@ -297,6 +299,11 @@ public class BuildingManager : MonoBehaviour
     public void SendRequestGetBuildings(int page)
     {
         onGetBuildings?.Invoke(page);
+    }
+
+    public void StartBuildingPreview(BuildingServerData buildingServerData)
+    {
+        onStartedPreviewBuild?.Invoke(buildingServerData);
     }
 
     public void CreateBuildingPreview(BuildingServerData buildingServerData)

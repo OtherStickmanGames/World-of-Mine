@@ -9,11 +9,13 @@ public class FragmentedReceiver : NetworkBehaviour
     class PendingTransfer
     {
         public int TotalFragments;
-        public Dictionary<int, byte[]> Parts = new Dictionary<int, byte[]>();
-        public DateTime LastReceived = DateTime.UtcNow;
+        public byte[][] Parts;
+        public int ReceivedCount;
+        public float LastReceivedTime;
     }
 
     private Dictionary<ulong, PendingTransfer> _pendingTransfers = new Dictionary<ulong, PendingTransfer>();
+    private List<ulong> _keysToRemove = new List<ulong>();
 
     [HideInInspector] public UnityEvent<byte[]> onDataReceive = new UnityEvent<byte[]>();
 
@@ -35,20 +37,25 @@ public class FragmentedReceiver : NetworkBehaviour
 
         if (!_pendingTransfers.TryGetValue(transferId, out var pending))
         {
-            pending = new PendingTransfer { TotalFragments = totalFragments };
+            pending = new PendingTransfer { 
+                TotalFragments = totalFragments,
+                Parts = new byte[totalFragments][],
+                ReceivedCount = 0
+            };
             _pendingTransfers.Add(transferId, pending);
         }
 
-        pending.LastReceived = DateTime.UtcNow;
+        pending.LastReceivedTime = Time.unscaledTime;
 
-        if (!pending.Parts.ContainsKey(fragmentIndex))
+        if (pending.Parts[fragmentIndex] == null)
         {
-            pending.Parts.Add(fragmentIndex, fragmentData);
+            pending.Parts[fragmentIndex] = fragmentData;
+            pending.ReceivedCount++;
         }
 
         sender.FragmentAckServerRpc(transferId, fragmentIndex);
 
-        if (pending.Parts.Count == pending.TotalFragments)
+        if (pending.ReceivedCount == pending.TotalFragments)
         {
             int fullSize = 0;
             for (int i = 0; i < pending.TotalFragments; i++)
@@ -76,19 +83,19 @@ public class FragmentedReceiver : NetworkBehaviour
     {
         if (_pendingTransfers.Count > 0)
         {
-            List<ulong> keysToRemove = new List<ulong>();
+            _keysToRemove.Clear();
             foreach (var kvp in _pendingTransfers)
             {
-                if ((DateTime.UtcNow - kvp.Value.LastReceived).TotalSeconds > 30)
+                if ((Time.unscaledTime - kvp.Value.LastReceivedTime) > 30f)
                 {
-                    keysToRemove.Add(kvp.Key);
+                    _keysToRemove.Add(kvp.Key);
                 }
             }
 
-            for (int i = 0; i < keysToRemove.Count; i++)
+            for (int i = 0; i < _keysToRemove.Count; i++)
             {
-                _pendingTransfers.Remove(keysToRemove[i]);
-                Debug.LogError($"[FragmentedReceiver] Таймаут передачи {keysToRemove[i]} на клиенте. Очистка незаконченных фрагментов.");
+                _pendingTransfers.Remove(_keysToRemove[i]);
+                Debug.LogError($"[FragmentedReceiver] Таймаут передачи {_keysToRemove[i]} на клиенте. Очистка незаконченных фрагментов.");
             }
         }
     }

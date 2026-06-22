@@ -89,27 +89,27 @@ public class SurveyVariantItem : MonoBehaviour
     }
 
     /// <summary>
-    /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С€РёСЂРёРЅСѓ RectTransform РІ РїСЂРѕС†РµРЅС‚Р°С… РѕС‚ С€РёСЂРёРЅС‹ РµРіРѕ СЂРѕРґРёС‚РµР»СЏ.
+    /// Устанавливает ширину RectTransform в процентах от ширины его родителя.
     /// </summary>
-    /// <param name="rectTransform">RectTransform, С€РёСЂРёРЅСѓ РєРѕС‚РѕСЂРѕРіРѕ РЅРµРѕР±С…РѕРґРёРјРѕ РёР·РјРµРЅРёС‚СЊ.</param>
-    /// <param name="percentage">РџСЂРѕС†РµРЅС‚ РѕС‚ РїРѕР»РЅРѕР№ (100%) С€РёСЂРёРЅС‹ СЂРѕРґРёС‚РµР»СЏ (РѕС‚ 0 РґРѕ 100).</param>
+    /// <param name="rectTransform">RectTransform, ширину которого необходимо изменить.</param>
+    /// <param name="percentage">Процент от полной (100%) ширины родителя (от 0 до 100).</param>
     public static void SetWidthByPercentage(RectTransform rectTransform, float percentage)
     {
-        // РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ RectTransform
+        // Проверка наличия родительского RectTransform
         RectTransform parentRect = rectTransform.parent as RectTransform;
         if (parentRect == null)
         {
-            Debug.LogError("RectTransform РЅРµ РёРјРµРµС‚ СЂРѕРґРёС‚РµР»СЏ РёР»Рё СЂРѕРґРёС‚РµР»СЊ РЅРµ СЏРІР»СЏРµС‚СЃСЏ RectTransform.");
+            Debug.LogError("RectTransform не имеет родителя или родитель не является RectTransform.");
             return;
         }
 
-        // РџРѕР»СѓС‡Р°РµРј С€РёСЂРёРЅСѓ СЂРѕРґРёС‚РµР»СЏ
+        // Получаем ширину родителя
         float parentWidth = parentRect.rect.width;
 
-        // Р’С‹С‡РёСЃР»СЏРµРј РЅРѕРІСѓСЋ С€РёСЂРёРЅСѓ
+        // Вычисляем новую ширину
         float newWidth = parentWidth * (percentage / 100f);
 
-        // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅРѕРІСѓСЋ С€РёСЂРёРЅСѓ, СѓС‡РёС‚С‹РІР°СЏ С‚РµРєСѓС‰РёРµ Р°РЅС‡РѕСЂС‹
+        // Устанавливаем новую ширину, учитывая текущие анчоры
         rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, newWidth);
     }
 

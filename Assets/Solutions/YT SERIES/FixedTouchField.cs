@@ -34,8 +34,8 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
             if (Input.touchCount > 0)
             {
-                // Возвращаем �тарый, рабочий метод пои�ка пальца (�амый правый на экране), 
-                // так как PointerId из EventSystem не �овпадает � fingerId из-за конфликта �и�тем ввода.
+                // Возвращаем старый, рабочий метод поиска пальца (самый правый на экране), 
+                // так как PointerId из EventSystem не совпадает с fingerId из-за конфликта систем ввода.
                 Vector2 pos = Vector2.left * float.MaxValue;
                 for (int i = 0; i < Input.touches.Length; i++)
                 {
@@ -54,7 +54,7 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             Vector2 rawDelta = currentPos - PointerOld;
             PointerOld = currentPos;
 
-            // Ма�штабируем по вы�оте (аналог Canvas Scaler -> Match Height)
+            // Масштабируем по высоте (аналог Canvas Scaler -> Match Height)
             float scaleFactor = 1080f / Screen.height;
 
             TouchDist.x = rawDelta.x * scaleFactor;

@@ -47,10 +47,10 @@ public class Inventory
 
     public void TakeItem(Item item)
     {
-        //Debug.Log("РґР° РЅСѓ РЅР° ");
+        //Debug.Log("да ну на ");
         if (AvailableSpace(item))
         {
-            // С…РµСЂ Р·РЅР°РµС‚, РїРѕРїСЂРѕР±СѓСЋ СѓР±СЂР°С‚СЊ
+            // хер знает, попробую убрать
             //UnityEngine.Object.DestroyImmediate(item.view);
 
             var matched = ExistMatchInQuick(item);
@@ -130,7 +130,7 @@ public class Inventory
         else
         {
             main.Remove(item);
-            //Debug.Log($"Р РµРјСѓРІРЅСѓР» {item.id} {ItemsStorage.Singleton?.GetItemData(item.id).name}");
+            //Debug.Log($"Ремувнул {item.id} {ItemsStorage.Singleton?.GetItemData(item.id).name}");
         }
         //Debug.Log($"After opta {quick.Count} =-=- {main.Count}");
     }
@@ -211,8 +211,8 @@ public class Inventory
     }
 
     /// <summary>
-    /// РњРµС‚РѕРґ РІС‹Р·С‹РІР°РµС‚СЃСЏ РєРѕРіРґР° СЃРїРёСЃРєР°Рј РёРЅРІРµРЅС‚Р°СЂСЏ РїСЂРёСЃРІРѕРµРЅС‹
-    /// Р·РЅР°С‡РµРЅРёСЏ РёР· СЃРѕС…СЂР°РЅРµРЅРЅРѕРіРѕ Json-Р° 
+    /// Метод вызывается когда спискам инвентаря присвоены
+    /// значения из сохраненного Json-а 
     /// </summary>
     public void InvokeItemsSeted()
     {
@@ -230,7 +230,7 @@ public class Inventory
         if (item != null)
         {
             main.Remove(item);
-            Debug.Log("Р”СЂРѕРїРЅСѓР» СЌР±СѓС€РєСѓ");
+            Debug.Log("Дропнул эбушку");
         }
 
         var jsonInventory = new JsonInventory(this);

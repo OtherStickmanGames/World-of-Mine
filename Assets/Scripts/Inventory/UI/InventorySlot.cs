@@ -128,16 +128,16 @@ public class InventorySlot : MonoBehaviour
 
     private void SetGameObjectView()
     {
-        if (itemParent.childCount > 0)// РЇ С‚Р°Рє РїРѕРЅРёРјР°СЋ С‚РёРїР° СѓР¶Рµ РµСЃС‚СЊ РёРєРѕРЅРєР° Рё РјС‹ РїСЂРѕСЃС‚Рѕ +1 Рє РєРѕР»РёС‡РµСЃС‚РІСѓ
+        if (itemParent.childCount > 0)// Я так понимаю типа уже есть иконка и мы просто +1 к количеству
             return;
-        //print($"Р—С‹СЂРёРј РёРєРѕРЅРєР° {Item.view}");
+        //print($"Зырим иконка {Item.view}");
         if (Item.view == null)
         {
             Item.view = BlockItemSpawner.CreateDropedView(Item.id);
         }
         else
         {
-            //print("РµСЃС‚СЊ С‡С‘");
+            //print("есть чё");
         }
 
         Item.view.transform.SetParent(itemParent, false);

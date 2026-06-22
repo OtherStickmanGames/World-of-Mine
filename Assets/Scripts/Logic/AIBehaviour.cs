@@ -180,7 +180,7 @@ public class AIBehaviour : MonoBehaviour
                 // If we just got to the goal node, build and return the path.
                 if (node.point == goal_node.point || distToGoal < distanceToStop)
                 {
-                    print("!!!!!!  ÐŸÑƒÑ‚ÑŒ Ð½Ð°Ð¹Ð´ÐµÐ½  !!!!!");
+                    print("!!!!!!  Ïóòü íàéäåí  !!!!!");
                     BuildPath(node);
                     break;
                 }
@@ -218,7 +218,7 @@ public class AIBehaviour : MonoBehaviour
                 }
                 //yield return new WaitForSeconds(delay);
             }
-            print("Ñ†Ð¸ÐºÐ»Ñƒ Ð¿Ð¸Ð·Ð´Ð°");
+            print("öèêëó ïèçäà");
 
             if (path.Count == 0)
             {
@@ -368,7 +368,7 @@ public class AIBehaviour : MonoBehaviour
         //        var nextPoint = neighbours.Find(p => Mathf.Abs(p.distance - neighbours.Min(n => n.distance)) < 0.01f);
         //        if (nextPoint == null)
         //        {
-        //            print("ÐÑƒ Ð²ÑÐµ ÐµÐ±Ð°Ñ‚ÑŒ");
+        //            print("Íó âñå åáàòü");
         //            key = point.previous.point;
         //            point = point.previous;
         //            distToTarget = Vector3.Distance(point.point, target.transform.position);

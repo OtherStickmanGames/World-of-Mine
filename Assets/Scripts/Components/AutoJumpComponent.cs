@@ -28,13 +28,13 @@ public class AutoJumpComponent : MonoBehaviour
         Vector3 footPosition = transform.position + Vector3.up * checkHeight;
         Vector3 blockCheckPosition = footPosition + movementDirection.normalized * stepCheckDistance;
 
-        // РџСЂРѕРІРµСЂРєР° РїСЂРµРїСЏС‚СЃС‚РІРёСЏ РїСЂСЏРјРѕ РїРµСЂРµРґ РёРіСЂРѕРєРѕРј
+        // Проверка препятствия прямо перед игроком
         bool isObstacle = Physics.Raycast(footPosition, movementDirection, stepCheckDistance, blockLayer);
 
         if (!isObstacle)
             return false;
 
-        // РџСЂРѕРІРµСЂРєР° СЃРІРѕР±РѕРґРЅРѕРіРѕ РјРµСЃС‚Р° РїСЂСЏРјРѕ РЅР°Рґ РїСЂРµРїСЏС‚СЃС‚РІРёРµРј
+        // Проверка свободного места прямо над препятствием
         Vector3 upperCheckPosition = blockCheckPosition + Vector3.up * stepHeight;
         //bool isFreeAbove = !Physics.Raycast(upperCheckPosition, Vector3.down, 0.1f, blockLayer);
 
@@ -61,9 +61,9 @@ public class AutoJumpComponent : MonoBehaviour
 
         //if (isObstacle && isFreeAbove)
         //{
-        //    // РўСЂРёРіРіРµСЂРёРј Р°РІС‚РѕРїСЂС‹Р¶РѕРє
+        //    // Триггерим автопрыжок
         //    //VerticalSpeed = autoJumpSpeed;
-        //    print("Р№РѕР±Р°");
+        //    print("йоба");
         //}
 
     }

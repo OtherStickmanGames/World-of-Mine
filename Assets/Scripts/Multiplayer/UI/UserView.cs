@@ -52,7 +52,7 @@ public class UserView : MonoBehaviour
             //Debug.Log(string.IsNullOrEmpty(userData.userName));
             if (string.IsNullOrEmpty(userData.userName))
             {
-                inputUserName.text = $"РЎРєРёС‚Р°Р»РµС† {new System.Random().Next(0, 9)}{new System.Random().Next(0, 9)}{new System.Random().Next(0, 9)}";
+                inputUserName.text = $"Скиталец {new System.Random().Next(0, 9)}{new System.Random().Next(0, 9)}{new System.Random().Next(0, 9)}";
             }
             else
             {

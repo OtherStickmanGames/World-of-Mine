@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] public string tutorialSceneName = "Tutorial";
 
-    [Header("Ğ“Ğ»Ğ¾Ğ±Ğ°Ğ»ÑŒĞ½Ñ‹Ğµ ĞĞ°ÑÑ‚Ñ€Ğ¾Ğ¹ĞºĞ¸ Ğ Ğ°Ğ±Ğ¾Ñ‡Ğ¸Ñ…")]
+    [Header("Ãëîáàëüíûå Íàñòğîéêè Ğàáî÷èõ")]
     public float JumpTopThresold = 0.8f;
     public float JumpLowThresold = 0.5f;
     public float JumpForce = 30;
@@ -95,7 +95,7 @@ public class GameManager : MonoBehaviour
 
         //var blocksData = new FantasyTreeGenerator().GenerateTree();
         //var mesh = MeshGenerator.Single.GenerateMesh(blocksData);
-        //var building = new GameObject($"Ğ•Ğ‘ĞĞĞĞĞ¢ĞĞ¢Ğ¬ Ğ”Ğ•Ğ Ğ•Ğ’ĞĞĞ¢ÑŒ");
+        //var building = new GameObject($"ÅÁÎÀÀÀÒÎÒÜ ÄÅĞÅÂÎÀÒü");
         //var renderer = building.AddComponent<MeshRenderer>();
         //var meshFilter = building.AddComponent<MeshFilter>();
         //var collider = building.AddComponent<MeshCollider>();

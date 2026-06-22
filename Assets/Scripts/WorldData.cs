@@ -37,7 +37,7 @@ public class WorldData : MonoBehaviour
         {
             var fileText = File.ReadAllText(path);
             data = JsonConvert.DeserializeObject<ChunckData>(fileText, settings);
-            data.blocks = chunck.blocks;// РЇ С…Р· Р·Р°С‡РµРј СЏ СЌС‚Рѕ РґРµР»Р°СЋ
+            data.blocks = chunck.blocks;// Я хз зачем я это делаю
         }
         else
         {

@@ -7,14 +7,14 @@ using System.Collections;
 public class AudioFragmentHandler : NetworkBehaviour
 {
     //[SerializeField] int countFragmentsOneFrame = 8;
-    [SerializeField] int FragmentSize = 800; // Р Р°Р·РјРµСЂ РѕРґРЅРѕРіРѕ С„СЂР°РіРјРµРЅС‚Р° РІ Р±Р°Р№С‚Р°С…
+    [SerializeField] int FragmentSize = 800; // Размер одного фрагмента в байтах
 
-    // РЎР»РѕРІР°СЂСЊ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С„СЂР°РіРјРµРЅС‚РѕРІ РґР°РЅРЅС‹С… РЅР° РєР»РёРµРЅС‚Рµ
+    // Словарь для хранения фрагментов данных на клиенте
     private Dictionary<int, List<byte[]>> receivedFragments = new Dictionary<int, List<byte[]>>();
 
     [HideInInspector] public UnityEvent<byte[]> onDataReceive;
 
-    // РњРµС‚РѕРґ РґР»СЏ РѕС‚РїСЂР°РІРєРё Р±РѕР»СЊС€РѕРіРѕ РјР°СЃСЃРёРІР° РґР°РЅРЅС‹С…
+    // Метод для отправки большого массива данных
     public void SendLargeData(byte[] data, int dataId, ulong clientID)
     {
         List<byte[]> fragments = SplitIntoFragments(data);
@@ -39,7 +39,7 @@ public class AudioFragmentHandler : NetworkBehaviour
         }
     }
 
-    // Р Р°Р·Р±РёРІР°РµС‚ РґР°РЅРЅС‹Рµ РЅР° С„СЂР°РіРјРµРЅС‚С‹
+    // Разбивает данные на фрагменты
     private List<byte[]> SplitIntoFragments(byte[] data)
     {
         List<byte[]> fragments = new List<byte[]>();
@@ -57,15 +57,15 @@ public class AudioFragmentHandler : NetworkBehaviour
         return fragments;
     }
 
-    // РЎРµСЂРІРµСЂРЅС‹Р№ RPC РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ С„СЂР°РіРјРµРЅС‚РѕРІ
+    // Серверный RPC для получения фрагментов
     //[ServerRpc(RequireOwnership = false)]
     private void SendFragment(int dataId, byte[] fragment, int index, int totalFragments, ulong clientID)
     {
-        //Debug.Log($"РћС‚РїСЂР°РІРёР» {index} РёР· {totalFragments}");
+        //Debug.Log($"Отправил {index} из {totalFragments}");
         ReceiveFragmentClientRpc(dataId, fragment, index, totalFragments, GetTargetClientParams(clientID));
     }
 
-    // РљР»РёРµРЅС‚СЃРєРёР№ RPC РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ С„СЂР°РіРјРµРЅС‚РѕРІ
+    // Клиентский RPC для получения фрагментов
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveFragmentClientRpc(int dataId, byte[] fragment, int index, int totalFragments, ClientRpcParams clientRpcParams = default)
     {
@@ -74,23 +74,23 @@ public class AudioFragmentHandler : NetworkBehaviour
             receivedFragments[dataId] = new List<byte[]>(new byte[totalFragments][]);
         }
 
-        // РЎРѕС…СЂР°РЅСЏРµРј С„СЂР°РіРјРµРЅС‚
+        // Сохраняем фрагмент
         receivedFragments[dataId][index] = fragment;
 
-        // РџСЂРѕРІРµСЂСЏРµРј, РІСЃРµ Р»Рё С„СЂР°РіРјРµРЅС‚С‹ РїРѕР»СѓС‡РµРЅС‹
+        // Проверяем, все ли фрагменты получены
         if (IsAllFragmentsReceived(receivedFragments[dataId], totalFragments))
         {
             byte[] completeData = CombineFragments(receivedFragments[dataId]);
-            receivedFragments.Remove(dataId); // РћС‡РёС‰Р°РµРј РґР°РЅРЅС‹Рµ РїРѕСЃР»Рµ СЃР±РѕСЂРєРё
+            receivedFragments.Remove(dataId); // Очищаем данные после сборки
 
             Debug.Log($"Data {dataId} successfully reconstructed with size: {completeData.Length}");
 
-            // РџСЂРёРјРµСЂ: РѕР±СЂР°Р±РѕС‚РєР° СЃРѕР±СЂР°РЅРЅС‹С… РґР°РЅРЅС‹С…
+            // Пример: обработка собранных данных
             ProcessReceivedData(completeData);
         }
     }
 
-    // РџСЂРѕРІРµСЂРєР°, РІСЃРµ Р»Рё С„СЂР°РіРјРµРЅС‚С‹ РїРѕР»СѓС‡РµРЅС‹
+    // Проверка, все ли фрагменты получены
     private bool IsAllFragmentsReceived(List<byte[]> fragments, int totalFragments)
     {
         foreach (var fragment in fragments)
@@ -101,7 +101,7 @@ public class AudioFragmentHandler : NetworkBehaviour
         return true;
     }
 
-    // РЎРѕР±РёСЂР°РµРј РІСЃРµ С„СЂР°РіРјРµРЅС‚С‹ РІ РµРґРёРЅС‹Р№ РјР°СЃСЃРёРІ
+    // Собираем все фрагменты в единый массив
     private byte[] CombineFragments(List<byte[]> fragments)
     {
         int totalSize = 0;
@@ -124,10 +124,10 @@ public class AudioFragmentHandler : NetworkBehaviour
 
     
 
-    // РџСЂРёРјРµСЂ РѕР±СЂР°Р±РѕС‚РєРё РїРѕР»СѓС‡РµРЅРЅС‹С… РґР°РЅРЅС‹С…
+    // Пример обработки полученных данных
     private void ProcessReceivedData(byte[] data)
     {
-        // РќР°РїСЂРёРјРµСЂ, РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ AudioClip РёР· РґР°РЅРЅС‹С…
+        // Например, восстановление AudioClip из данных
         Debug.Log($"Processing received data of size {data.Length}");
         onDataReceive?.Invoke(data);
     }

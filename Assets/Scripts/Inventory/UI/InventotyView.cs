@@ -47,7 +47,7 @@ public class InventotyView : ViewUI
         if (foundItem == null)
         {
             inventory.AddItemToMain(slot.Item);
-            //print("РґРѕР±Р°РІР»РµРЅРѕ");
+            //print("добавлено");
         }
     }
 
@@ -63,7 +63,7 @@ public class InventotyView : ViewUI
         if (foundItem == null)
         {
             inventory.AddItemToMain(slot.Item);
-            print("РґРѕР±Р°РІР»РµРЅРѕ РІ РѕСЃРЅРѕРІРЅРѕР№ РёРЅРІРµРЅС‚Р°СЂСЊ");
+            print("добавлено в основной инвентарь");
         }
     }
 

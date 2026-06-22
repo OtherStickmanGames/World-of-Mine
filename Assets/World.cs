@@ -123,7 +123,7 @@ public class World : MonoBehaviour
 			if (countNotAvailables[globalBlockPos] > 10)
 			{
 				WorldGenerator.Inst.SetBlockAndUpdateChunck(globalBlockPos, 0);
-				print("--= СѓРґР°Р»РёР» Р±Р»РѕРє =--");
+				print("--= удалил блок =--");
 			}
         }
         else

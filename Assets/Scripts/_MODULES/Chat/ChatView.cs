@@ -122,14 +122,14 @@ public class ChatView : NetworkBehaviour
         if (usernames == null)
             throw new System.NullReferenceException($"{nameof(usernames)} dictionary is not initialized. Ensure ChatView.Init is called on the server.");
 
-        // Оста�ляем только про�ерку на null, разрешая пустые строки или пробелы по желанию игрока
+        // Оставляем только проверку на null, разрешая пустые строки или пробелы по желанию игрока
         if (username == null)
             throw new System.ArgumentNullException(nameof(username), "Username cannot be null.");
 
         var clientID = serverRpcParams.Receive.SenderClientId;
         usernames[clientID] = username;
 
-        // Синхронизируем последние 20 сообщений для но�ого игрока
+        // Синхронизируем последние 20 сообщений для нового игрока
         if (history != null && history.Count > 0)
         {
             int count = Mathf.Min(history.Count, 20);
@@ -155,7 +155,7 @@ public class ChatView : NetworkBehaviour
             username = usernames[clientID];
         }
 
-        // Сохраняем � историю сер�ера (максимум 100)
+        // Сохраняем в историю сервера (максимум 100)
         history.Add(new ChatMessage { Username = username, Message = message });
         if (history.Count > 100)
         {

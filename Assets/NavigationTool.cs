@@ -10,17 +10,17 @@ public static class NavigationTool
         //var go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         //go.transform.position = globalBlockPos;
         //go.transform.localScale *= 0.3f;
-        //go.name = "РРќРќР«Рђ";
+        //go.name = "ИННЫА";
 
         globalBlockPos += (Vector3.one * 0.5f) + (Vector3.up * 0.51f) + Vector3.left;
         
         if (NavMesh.SamplePosition(globalBlockPos, out var hit, distance, NavMesh.AllAreas))
         {
-            //Debug.Log($"Р”Р°, СЏ РІРѕР·РІСЂР°С‰Р°СЋ, СЌС‚Сѓ С…СѓР№РЅСЋ {hit.position}");
+            //Debug.Log($"Да, я возвращаю, эту хуйню {hit.position}");
             return hit.position;
         }
 
-        Debug.Log("РќРµ РЅР°С€РµР» С‚РѕС‡РєРё РЅР° РЅР°РІРјРµС€Рµ");
+        Debug.Log("Не нашел точки на навмеше");
         return globalBlockPos;
     }
 
@@ -29,18 +29,18 @@ public static class NavigationTool
         //var go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         //go.transform.position = globalBlockPos;
         //go.transform.localScale *= 0.3f;
-        //go.name = "РРќРќР«Рђ";
+        //go.name = "ИННЫА";
 
         globalBlockPos += (Vector3.one * 0.5f) + (Vector3.up * 0.51f) + Vector3.left;
 
         if (NavMesh.SamplePosition(globalBlockPos, out var hit, distance, NavMesh.AllAreas))
         {
-            //Debug.Log($"Р”Р°, СЏ РІРѕР·РІСЂР°С‰Р°СЋ, СЌС‚Сѓ С…СѓР№РЅСЋ {hit.position}");
+            //Debug.Log($"Да, я возвращаю, эту хуйню {hit.position}");
             founded = true;
             return hit.position;
         }
 
-        Debug.Log("РќРµ РЅР°С€РµР» С‚РѕС‡РєРё РЅР° РЅР°РІРјРµС€Рµ");
+        Debug.Log("Не нашел точки на навмеше");
         founded = false;
         return globalBlockPos;
     }

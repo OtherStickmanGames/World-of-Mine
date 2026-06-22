@@ -107,7 +107,7 @@ public class Worker : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.V))
         {
-            print("Р·Р°РїСѓС‰ С‚СЂРёР°РЅРіР»РёРє");
+            print("запущ трианглик");
             NavMesh.CalculateTriangulation();
         }
 
@@ -138,7 +138,7 @@ public class Worker : MonoBehaviour
             {
                 needFixPos = true;
                 //transform.position = navMeshAgent.transform.position;
-                //print($"РєР°РєР°СЏ-С‚Рѕ Р¶РѕРїР° {gameObject}");
+                //print($"какая-то жопа {gameObject}");
             }
         }
         else
@@ -173,7 +173,7 @@ public class Worker : MonoBehaviour
             excludeBlocks.AddRange(World.Instance.notAvailable);
             if (!findingNearBlock)
             {
-                sequenceAction.Add("Р·Р°РїСѓСЃС‚РёР» РїРѕРёСЃРє Р±Р»РѕРєР°");
+                sequenceAction.Add("запустил поиск блока");
                 findingNearBlock = true;
                 FindBlockSystem.Instance.GetNearUpperBlock(transform.position, excludeBlocks, NearBlock_Received);
             }
@@ -189,7 +189,7 @@ public class Worker : MonoBehaviour
                 currentStateTime = 0;
                 logicTimeout = 0;
                 mineTimer = 0;
-                sequenceAction.Add("РЅР°С€РµР» Р±Р»РѕРє");
+                sequenceAction.Add("нашел блок");
             }
 
         }
@@ -206,7 +206,7 @@ public class Worker : MonoBehaviour
             {
                 if (IsPathNotComplete && currentStateTime > 60 && navMeshAgent.velocity == Vector3.zero && mineTimer < 0.001f)
                 {
-                    sequenceAction.Add("РџРµСЂРІР°СЏ РіР»РѕР±. РїСЂРѕРІРµСЂРєР° РјР°Р№РЅР°");
+                    sequenceAction.Add("Первая глоб. проверка майна");
                     World.Instance.AddNotAvailable(mineableData.pos);
                     if (player.inventory.quick.Count > 0)
                     {
@@ -229,17 +229,17 @@ public class Worker : MonoBehaviour
                     }
                     currentStateTime = 0;
                     logicTimeout = 0;
-                    //print($"РЅСѓСѓСѓСѓСѓ, С‚Р°РєРѕРµ РїСЂРѕРёСЃС…РѕРґРёС‚ {navMeshAgent.pathStatus}");
+                    //print($"нууууу, такое происходит {navMeshAgent.pathStatus}");
                 }
                 else
                 if (IsPathNotComplete && CheckCountMatchLastPos(15) && mineTimer < 0.001f)
                 {
-                    sequenceAction.Add("Р’С‚РѕСЂР°СЏ РіР»РѕР±. РїСЂРѕРІРµСЂРєР° РјР°Р№РЅР°");
+                    sequenceAction.Add("Вторая глоб. проверка майна");
                     World.Instance.AddNotAvailable(mineableData.pos);
                     CurrentState = State.Idle;
                     currentStateTime = 0;
                     logicTimeout = 0;
-                    print("РїСЂРёРіРѕРґРёР»РѕСЃСЊ");
+                    print("пригодилось");
                     GameManager.CheckPathBetweenBlock(mineableData.pos, World.Instance.towerPos.position.ToGlobalBlockPos());
                 }
             }
@@ -296,12 +296,12 @@ public class Worker : MonoBehaviour
                     
                     WorldGenerator.Inst.MineBlock(blockPos);
                     StartCoroutine(DisableDelayEnableAgent());
-                    print("С‡РµС‚ Р·Р°СЃС‚СЂСЏР»");
+                    print("чет застрял");
                 }
                 else
                 {
                     currentState = State.Idle;
-                    sequenceAction.Add("СЏ С…Р· С€Рѕ РјРЅРµ РґРµР»Р°С‚СЊ");
+                    sequenceAction.Add("я хз шо мне делать");
                 }
             }
 
@@ -331,7 +331,7 @@ public class Worker : MonoBehaviour
             CurrentState = State.Idle;
             waitLootDuration = 0;
             mineableData = null;
-            sequenceAction.Add("РћР±РЅР°СЂСѓР¶РёР», С‡С‚Рѕ Р±Р»РѕРєР° РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚");
+            sequenceAction.Add("Обнаружил, что блока не существует");
             return false;
         }
 
@@ -361,7 +361,7 @@ public class Worker : MonoBehaviour
                 mineableData.pos = destinationBlockPos;
                 mineableData.ID = id;
                 World.Instance.AddNotAvailable(destinationBlockPos);
-                sequenceAction.Add($"Р”РµСЃС‚РёРЅР°С‚РёРѕРЅ СЃРјРµРЅР° Р±Р»РѕРєР° {Vector3.Distance(navMeshAgent.destination, mineableData.pos)}\n{navMeshAgent.destination} = Р”РµСЃС‚РёРЅР°С‚\n{mineableData.pos} = Р‘Р»РѕРє РїРѕСЃ");
+                sequenceAction.Add($"Дестинатион смена блока {Vector3.Distance(navMeshAgent.destination, mineableData.pos)}\n{navMeshAgent.destination} = Дестинат\n{mineableData.pos} = Блок пос");
             }
         }
     }
@@ -395,10 +395,10 @@ public class Worker : MonoBehaviour
             {
                 if (!World.Instance.notMineable.Contains(rayPos))
                 {
-                    sequenceAction.Add("СЃРјРµРЅРёР» Р±Р»РѕРє РїРѕ Р»СѓС‡Сѓ");
+                    sequenceAction.Add("сменил блок по лучу");
                     WorldGenerator.Inst.SetBlock(rayPos, 11);
                     SetMineableData(rayPos, blockID);
-                    //print("РЅР°С€РµР» Р±Р»РѕРє Р±Р»РёР¶Рµ");
+                    //print("нашел блок ближе");
                 }
             }
         }
@@ -408,14 +408,14 @@ public class Worker : MonoBehaviour
             CurrentState = State.Idle;
             waitLootDuration = 0;
             mineableData = null;
-            sequenceAction.Add("РџРѕРєР° РµР±Р°С€РёР», РѕР±РЅР°СЂСѓР¶РёР», С‡С‚Рѕ Р±Р»РѕРєР° РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚");
-            //print("РЎС‚СЂР°РЅРЅР°СЏ С…СѓР№РЅСЏ.....");
+            sequenceAction.Add("Пока ебашил, обнаружил, что блока не существует");
+            //print("Странная хуйня.....");
             return;
         }
 
         if (World.Instance.notMineable.Contains(mineableData.pos))
         {
-            Debug.LogError("РџРР—Р”Р­РЎ");
+            Debug.LogError("ПИЗДЭС");
         }
 
         if (mineTimer > 3)
@@ -499,10 +499,10 @@ public class Worker : MonoBehaviour
 
         navMeshAgent.SetDestination(pos);
         lastDestination = pos;
-        string str = $"{pos} РќР°Р·Р°РЅС‡РµРЅ";
+        string str = $"{pos} Назанчен";
         if (pos == World.Instance.towerPos.position)
         {
-            str = "РРґРµРј Рє Р±Р°С€РЅРµ";
+            str = "Идем к башне";
         }
         sequenceAction.Add(str);
     }
@@ -546,7 +546,7 @@ public class Worker : MonoBehaviour
             var k = Mathf.Clamp(dirToNavMesh.y, 0, GameManager.Inst.JumpTopThresold);
             moveComponent._verticalVelocity = GameManager.Inst.JumpForce * k; // * Time.deltaTime;
             //transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * verticalSpeed);
-            //print("РїРѕС‚СѓРіРё");
+            //print("потуги");
         }
 
         if (needFixPos)
@@ -566,7 +566,7 @@ public class Worker : MonoBehaviour
             if (diffrentHeight > GameManager.Inst.maxDiffrentHeight)
             {
                 StartCoroutine(DisableDelayEnableAgent());
-                //print("РµР±Р°С‚ РєСЂРѕРІР°С‚");
+                //print("ебат кроват");
             }
         }
 

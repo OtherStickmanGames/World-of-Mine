@@ -9,7 +9,7 @@ public class TutorialManager : MonoBehaviour
     private IEnumerator Start()
     {
         //var deb = GameObject.FindGameObjectWithTag("TxtDebugo").GetComponent<TMPro.TMP_Text>();
-        //deb.text += $"Ğ«Ñ‹Ñ‹Ñ‹Ñ‹Ñ‹\n";
+        //deb.text += $"Ûûûûûû\n";
 
         PlayerPrefs.DeleteKey("inventory");
 

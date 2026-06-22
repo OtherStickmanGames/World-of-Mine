@@ -53,7 +53,7 @@ public class NetworkWorldSimulation : NetworkBehaviour
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveChangeBlockClientRpc(Vector3 chunkPos, Vector3Int localBlockPos, byte blockID, ClientRpcParams clientRpcParams = default)
     {
-        //print($"РµР±Р°С‚СЊ С‡Рµ РїРѕР»СѓС‡РёР» {chunkPos}");
+        //print($"ебать че получил {chunkPos}");
         WorldGenerator.Inst.SetBlockAndUpdateChunck(chunkPos + localBlockPos, blockID);
     }
 

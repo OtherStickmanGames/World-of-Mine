@@ -15,18 +15,18 @@ public static class VectorTools
 
     public static Vector3 GetDominantDirection(Vector3 direction)
     {
-        // РЎСЂР°РІРЅРёРІР°РµРј РєРѕРјРїРѕРЅРµРЅС‚С‹ РїРѕ РёС… Р°Р±СЃРѕР»СЋС‚РЅРѕР№ РІРµР»РёС‡РёРЅРµ
+        // Сравниваем компоненты по их абсолютной величине
         if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y) && Mathf.Abs(direction.x) > Mathf.Abs(direction.z))
         {
-            return new Vector3(Mathf.Sign(direction.x), 0, 0); // РћСЃС‚Р°РІР»СЏРµРј С‚РѕР»СЊРєРѕ X
+            return new Vector3(Mathf.Sign(direction.x), 0, 0); // Оставляем только X
         }
         else if (Mathf.Abs(direction.y) > Mathf.Abs(direction.x) && Mathf.Abs(direction.y) > Mathf.Abs(direction.z))
         {
-            return new Vector3(0, Mathf.Sign(direction.y), 0); // РћСЃС‚Р°РІР»СЏРµРј С‚РѕР»СЊРєРѕ Y
+            return new Vector3(0, Mathf.Sign(direction.y), 0); // Оставляем только Y
         }
         else
         {
-            return new Vector3(0, 0, Mathf.Sign(direction.z)); // РћСЃС‚Р°РІР»СЏРµРј С‚РѕР»СЊРєРѕ Z
+            return new Vector3(0, 0, Mathf.Sign(direction.z)); // Оставляем только Z
         }
     }
 }

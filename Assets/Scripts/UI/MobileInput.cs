@@ -113,19 +113,19 @@ public class MobileInput : MonoBehaviour
             var exclude = new List<GameObject>() { lookTouch.gameObject };
             if (Input.touches.Length == 1 && !touchWasMoved && !UI.ClickOnUI(exclude))
             {
-                //print("Р·Р°С€Р»Рё РІ С‚Р°С‡");
+                //print("зашли в тач");
                 var touch = Input.touches[0];
 
-                // Р•СЃР»Рё Р±С‹Р»Рѕ РЅР°Р¶Р°С‚РёРµ РїРµСЂРІС‹Р№ СЂР°Р·
+                // Если было нажатие первый раз
                 if (!touchDown)
                 {
                     //print("==============================================");
                     touchDown = true;
                     oldTouchPos = touch.position;
                 }
-                // Р’С‹С‡РёСЃР»СЏРµРј Р±С‹Р»Рѕ Р»Рё РґРІРёР¶РµРЅРёРµ С‚Р°С‡Р°
+                // Вычисляем было ли движение тача
                 var dir = touch.position - oldTouchPos;
-                // Р•СЃР»Рё РЅРµС‚ РґРІРёР¶РµРЅРёСЏ Р±РѕР»СЊС€Рµ 0,5 СЃРµРє, С‚Рѕ Р°РєС‚РёРІРёСЂСѓРµРј РјР°Р№РЅРёРЅРі
+                // Если нет движения больше 0,5 сек, то активируем майнинг
                 lastBlockRaycast = IsBlockRaycast(out raycastHit);
                 //print($"{oldTouchPos} ??? {touch.position} ### {dir.magnitude < 1.88f * scaleFactor}");
                 if (dir.magnitude < 3.8f * scaleFactor && lastBlockRaycast)
@@ -147,22 +147,22 @@ public class MobileInput : MonoBehaviour
                         mineIconPos.x = touch.position.x * scaleFactor;
                         mineIconPos.y = touch.position.y * scaleFactor;
 
-                        Mining(blockPosition + Vector3.right);// РљСѓР·РёС‡РµРІР° 731,76
+                        Mining(blockPosition + Vector3.right);// Кузичева 731,76
                     }
                 }
-                else// РРЅР°С‡Рµ Р±Р»РѕРєРёСЂСѓРµРј РјР°Р№РЅРёРЅРі РґРѕ РЅРѕРІРѕРіРѕ С‚Р°С‡Р°
+                else// Иначе блокируем майнинг до нового тача
                 {
                     touchWasMoved = true;
                 }
                 oldTouchPos = touch.position;
 
             }
-            // РЎР±СЂРѕСЃ Р»РѕРіРёРєРё РЅР°Р¶Р°С‚РёСЏ РЅР° СЌРєСЂР°РЅ
+            // Сброс логики нажатия на экран
             if (Input.touches.Length == 0 && !UI.ClickOnUI(exclude))
             {
                 if (touchTimer > 0 && touchTimer < 0.18f && lastBlockRaycast && !touchWasMoved)
                 {
-                    // РќР°РґРѕ РїРµСЂРµРґРµР»Р°С‚СЊ, Рё РІ РїР»РµРµСЂ Р±РµС…Рµ Рё С‚СѓС‚ РѕРґРёРЅР°РєРѕРІС‹Р№ РєРѕРґ
+                    // Надо переделать, и в плеер бехе и тут одинаковый код
                     var lookBlockID = WorldGenerator.Inst.GetBlockID(blockPosition + Vector3.right);
                     if (ItemsStorage.Singleton.HasCraftingBundle(lookBlockID))
                     {

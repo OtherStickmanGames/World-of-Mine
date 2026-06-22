@@ -209,7 +209,7 @@ public class CameraStack : MonoBehaviour
 
     private void TopDownZoom()
     {
-        // TO DO РЅР° РњРѕРґСѓР»СЊРЅРѕСЃС‚СЊ
+        // TO DO на Модульность
         if (Input.mouseScrollDelta.y == 0)
             return;
 

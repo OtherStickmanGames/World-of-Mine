@@ -6,13 +6,13 @@ using System;
 public class TriggerSystem : MonoBehaviour
 {
     /// <summary>
-    /// 1 GO - РћР±СЉРµРєС‚ РІРѕС€РµРґС€РёР№ РІ С‚СЂРёРіРіРµСЂ #
-    /// 2 GO - РЎР°Рј РѕР±СЉРµРєС‚ С‚СЂРёРіРіРµСЂР°
+    /// 1 GO - Объект вошедший в триггер #
+    /// 2 GO - Сам объект триггера
     /// </summary>
     public static Action<GameObject, GameObject> onTriggerEnter;
     /// <summary>
-    /// 1 GO - РћР±СЉРµРєС‚ РїРѕРєРёРЅСѓРІС€РёР№ С‚СЂРёРіРіРµСЂ #
-    /// 2 GO - РЎР°Рј РѕР±СЉРµРєС‚ С‚СЂРёРіРіРµСЂР°
+    /// 1 GO - Объект покинувший триггер #
+    /// 2 GO - Сам объект триггера
     /// </summary>
     public static Action<GameObject, GameObject> onTriggerExit;
 

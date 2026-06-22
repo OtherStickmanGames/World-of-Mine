@@ -15,7 +15,7 @@ public class AudioClipSender : NetworkBehaviour
     public static string releaseNotesDirectory = $"{Application.dataPath}/Data/Sounds/ReleaseNotes/";
 
     public AudioFragmentHandler audioFragmentHandler;
-    private string[] filters = { "*.mp3", "*.wav", ".ogg" }; // Укажите нужные фильтры
+    private string[] filters = { "*.mp3", "*.wav", ".ogg" }; // РЈРєР°Р¶РёС‚Рµ РЅСѓР¶РЅС‹Рµ С„РёР»СЊС‚СЂС‹
     Dictionary<ulong, int> clientIdxAudioSending = new();
     public List<AudioClip> releaseNotesSounds;
 
@@ -38,7 +38,7 @@ public class AudioClipSender : NetworkBehaviour
     }
 
     /// <summary>
-    /// Старт отправки озвучки, только после получения всех текстов новостей
+    /// РЎС‚Р°СЂС‚ РѕС‚РїСЂР°РІРєРё РѕР·РІСѓС‡РєРё, С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ РїРѕР»СѓС‡РµРЅРёСЏ РІСЃРµС… С‚РµРєСЃС‚РѕРІ РЅРѕРІРѕСЃС‚РµР№
     /// </summary>
     /// <param name="clienId"></param>
     public void StartSendNewsVoice(ulong clienId)
@@ -57,7 +57,7 @@ public class AudioClipSender : NetworkBehaviour
         }
         else
         {
-            print("Нет звука для отправки");
+            print("РќРµС‚ Р·РІСѓРєР° РґР»СЏ РѕС‚РїСЂР°РІРєРё");
         }
     }
 
@@ -94,14 +94,14 @@ public class AudioClipSender : NetworkBehaviour
             uri = filePath.Insert(0, "file://");
 #endif
 
-            // Загружаем аудиофайл
+            // Р—Р°РіСЂСѓР¶Р°РµРј Р°СѓРґРёРѕС„Р°Р№Р»
             using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(uri, GetAudioTypeFromFile(filePath)))
             {
                 yield return request.SendWebRequest();
 
                 if (request.result == UnityWebRequest.Result.Success)
                 {
-                    // Получаем AudioClip из ответа
+                    // РџРѕР»СѓС‡Р°РµРј AudioClip РёР· РѕС‚РІРµС‚Р°
                     AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
                     var name = Path.GetFileName(filePath);
                     name = name.Substring(0, name.IndexOf("."));
@@ -127,28 +127,28 @@ public class AudioClipSender : NetworkBehaviour
             fs.Read(fileHeader, 0, fileHeader.Length);
         }
 
-        // Сравниваем сигнатуры
+        // РЎСЂР°РІРЅРёРІР°РµРј СЃРёРіРЅР°С‚СѓСЂС‹
         if (fileHeader[0] == 0x52 && fileHeader[1] == 0x49 && fileHeader[2] == 0x46 && fileHeader[3] == 0x46)
             return AudioType.WAV;
-        if (fileHeader[0] == 0xFF && (fileHeader[1] & 0xE0) == 0xE0) // MP3 сигнатура
+        if (fileHeader[0] == 0xFF && (fileHeader[1] & 0xE0) == 0xE0) // MP3 СЃРёРіРЅР°С‚СѓСЂР°
             return AudioType.MPEG;
         if (fileHeader[0] == 0x4F && fileHeader[1] == 0x67 && fileHeader[2] == 0x67 && fileHeader[3] == 0x53)
             return AudioType.OGGVORBIS;
 
-        return AudioType.UNKNOWN; // Неизвестный формат
+        return AudioType.UNKNOWN; // РќРµРёР·РІРµСЃС‚РЅС‹Р№ С„РѕСЂРјР°С‚
     }
 #endif
 
     public void PlayAudio(AudioClip clip)
     {
-        // Убедитесь, что есть AudioSource
+        // РЈР±РµРґРёС‚РµСЃСЊ, С‡С‚Рѕ РµСЃС‚СЊ AudioSource
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
 
-        // Устанавливаем загруженный клип и воспроизводим
+        // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р·Р°РіСЂСѓР¶РµРЅРЅС‹Р№ РєР»РёРї Рё РІРѕСЃРїСЂРѕРёР·РІРѕРґРёРј
         audioSource.clip = clip;
         audioSource.Play();
 
@@ -224,7 +224,7 @@ public class AudioClipSender : NetworkBehaviour
 
         byte[] audioData = AudioClipToByteArray(audioClip);
 
-        Debug.Log($"Начинаю отправку {audioClip.name}");
+        Debug.Log($"РќР°С‡РёРЅР°СЋ РѕС‚РїСЂР°РІРєСѓ {audioClip.name}");
 
         audioFragmentHandler.SendLargeData(audioData, 0, clientID);
         //if (audioData.Length > 0)

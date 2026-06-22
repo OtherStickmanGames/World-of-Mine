@@ -10,9 +10,9 @@ public class AgentMove : MonoBehaviour
 {
     [SerializeField] NavMeshAgent agent;
 
-    //[SerializeField] float approachDistance = 1.0f; // Допустимое расстояние при подходе к точке установки
-    [SerializeField] byte scaffoldingBlockID = 1;   // ID временного блока для опоры (scaffolding)
-    [SerializeField] int verticalGapThreshold = 5;  // Если зазор меньше или равен этому порогу, строим вертикальную колонну
+    //[SerializeField] float approachDistance = 1.0f; // Р”РѕРїСѓСЃС‚РёРјРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РїСЂРё РїРѕРґС…РѕРґРµ Рє С‚РѕС‡РєРµ СѓСЃС‚Р°РЅРѕРІРєРё
+    [SerializeField] byte scaffoldingBlockID = 1;   // ID РІСЂРµРјРµРЅРЅРѕРіРѕ Р±Р»РѕРєР° РґР»СЏ РѕРїРѕСЂС‹ (scaffolding)
+    [SerializeField] int verticalGapThreshold = 5;  // Р•СЃР»Рё Р·Р°Р·РѕСЂ РјРµРЅСЊС€Рµ РёР»Рё СЂР°РІРµРЅ СЌС‚РѕРјСѓ РїРѕСЂРѕРіСѓ, СЃС‚СЂРѕРёРј РІРµСЂС‚РёРєР°Р»СЊРЅСѓСЋ РєРѕР»РѕРЅРЅСѓ
     [SerializeField] ItemID[] excludePathfindingBlocks;
     [SerializeField] GameObject markerPrefab;
 
@@ -44,14 +44,14 @@ public class AgentMove : MonoBehaviour
         var distance = Vector3.Distance(agent.transform.position + Vector3.down, destination);
         if (distance < approachDistance - .1f)
         {
-            print("уже на месте");
+            print("СѓР¶Рµ РЅР° РјРµСЃС‚Рµ");
             yield break;
         }
 
         agent.SetDestination(destination);
         agent.isStopped = true;
 
-        // Ждем, пока путь не будет вычислен:
+        // Р–РґРµРј, РїРѕРєР° РїСѓС‚СЊ РЅРµ Р±СѓРґРµС‚ РІС‹С‡РёСЃР»РµРЅ:
         while (agent.pathPending)
         {
             yield return null;
@@ -77,10 +77,10 @@ public class AgentMove : MonoBehaviour
 
         if (canBuildLadder && path.status != NavMeshPathStatus.PathComplete)
         {
-            Debug.Log($"MoveToPosition: Путь до {destination} не найден через NavMesh (PathComplete = {path.status}). Запускаем построение scaffolding. lastCornerEnough = {lastCornerEnough}");
+            Debug.Log($"MoveToPosition: РџСѓС‚СЊ РґРѕ {destination} РЅРµ РЅР°Р№РґРµРЅ С‡РµСЂРµР· NavMesh (PathComplete = {path.status}). Р—Р°РїСѓСЃРєР°РµРј РїРѕСЃС‚СЂРѕРµРЅРёРµ scaffolding. lastCornerEnough = {lastCornerEnough}");
             if (path.status is NavMeshPathStatus.PathInvalid)
             {
-                print("ЭЭ, путоь не валидо");
+                print("Р­Р­, РїСѓС‚РѕСЊ РЅРµ РІР°Р»РёРґРѕ");
                 yield return StartCoroutine(Pause());
             }
 
@@ -89,7 +89,7 @@ public class AgentMove : MonoBehaviour
             {
                 scaffoldingDestination = lastCorner;
             }
-            yield return StartCoroutine(MoveToPosition(destination, false));// Чисто проверить
+            yield return StartCoroutine(MoveToPosition(destination, false));// Р§РёСЃС‚Рѕ РїСЂРѕРІРµСЂРёС‚СЊ
             yield return StartCoroutine(BuildPathScaffolding(scaffoldingDestination));
             yield return StartCoroutine(MoveToPosition(destination, false));
             yield break;
@@ -117,7 +117,7 @@ public class AgentMove : MonoBehaviour
                 stuckTimer += Time.deltaTime;
                 if (stuckTimer > noMovementTimeout)
                 {
-                    Debug.Log($"MoveToPosition: Агент физически застрял у {agent.transform.position}.");
+                    Debug.Log($"MoveToPosition: РђРіРµРЅС‚ С„РёР·РёС‡РµСЃРєРё Р·Р°СЃС‚СЂСЏР» Сѓ {agent.transform.position}.");
                     if (canBuildLadder)
                     {
                         yield return StartCoroutine(BuildPathScaffolding(destination));
@@ -137,7 +137,7 @@ public class AgentMove : MonoBehaviour
                 progressTimer += Time.deltaTime;
                 if (progressTimer > noProgressTimeout)
                 {
-                    Debug.Log($"MoveToPosition: Агент не приближается к {destination}, текущее расстояние = {currentDistanceToDest}");
+                    Debug.Log($"MoveToPosition: РђРіРµРЅС‚ РЅРµ РїСЂРёР±Р»РёР¶Р°РµС‚СЃСЏ Рє {destination}, С‚РµРєСѓС‰РµРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ = {currentDistanceToDest}");
                     if (canBuildLadder)
                     {
                         yield return StartCoroutine(BuildPathScaffolding(destination));
@@ -162,7 +162,7 @@ public class AgentMove : MonoBehaviour
 
     public IEnumerator SimpleMoveToPosition(Vector3 destination, float approachDistance = 0.1f)
     {
-        //print($"ыыы === {agent.isOnOffMeshLink}");
+        //print($"С‹С‹С‹ === {agent.isOnOffMeshLink}");
 
         var distance = Vector3.Distance(transform.position, destination);
         if (distance < approachDistance)
@@ -173,7 +173,7 @@ public class AgentMove : MonoBehaviour
         agent.SetDestination(destination);
         agent.isStopped = true;
 
-        // Ждем, пока путь не будет вычислен:
+        // Р–РґРµРј, РїРѕРєР° РїСѓС‚СЊ РЅРµ Р±СѓРґРµС‚ РІС‹С‡РёСЃР»РµРЅ:
         while (agent.pathPending)
         {
             yield return null;
@@ -203,7 +203,7 @@ public class AgentMove : MonoBehaviour
                 stuckTimer += Time.deltaTime;
                 if (stuckTimer > noMovementTimeout)
                 {
-                    Debug.Log($"MoveToPosition: Агент физически застрял у {agent.transform.position}.");
+                    Debug.Log($"MoveToPosition: РђРіРµРЅС‚ С„РёР·РёС‡РµСЃРєРё Р·Р°СЃС‚СЂСЏР» Сѓ {agent.transform.position}.");
                     
                     yield break;
                 }
@@ -219,7 +219,7 @@ public class AgentMove : MonoBehaviour
                 progressTimer += Time.deltaTime;
                 if (progressTimer > noProgressTimeout)
                 {
-                    Debug.Log($"MoveToPosition: Агент не приближается к {destination}, текущее расстояние = {currentDistanceToDest}");
+                    Debug.Log($"MoveToPosition: РђРіРµРЅС‚ РЅРµ РїСЂРёР±Р»РёР¶Р°РµС‚СЃСЏ Рє {destination}, С‚РµРєСѓС‰РµРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ = {currentDistanceToDest}");
                    
                     yield break;
                 }
@@ -232,7 +232,7 @@ public class AgentMove : MonoBehaviour
             lastPosition = agent.transform.position;
             yield return null;
 
-            print($"премся === {agent.isOnOffMeshLink}");
+            print($"РїСЂРµРјСЃСЏ === {agent.isOnOffMeshLink}");
         }
 
         yield return StartCoroutine(StopAgent());
@@ -245,14 +245,14 @@ public class AgentMove : MonoBehaviour
         var go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         go.transform.position = destination;
         go.transform.localScale *= 0.3f;
-        go.name = "Destination Как Есть";
+        go.name = "Destination РљР°Рє Р•СЃС‚СЊ";
         Destroy(go.GetComponent<Collider>());
 
         yield return new WaitForSeconds(0.5f);
 
         //yield return StartCoroutine(Pause());
 
-        // Получаем целочисленные позиции агента и цели
+        // РџРѕР»СѓС‡Р°РµРј С†РµР»РѕС‡РёСЃР»РµРЅРЅС‹Рµ РїРѕР·РёС†РёРё Р°РіРµРЅС‚Р° Рё С†РµР»Рё
         Vector3Int agentPos = new Vector3Int(
             Mathf.FloorToInt(transform.position.x + 1),
             Mathf.FloorToInt(transform.position.y - 1.1f),
@@ -267,8 +267,8 @@ public class AgentMove : MonoBehaviour
 
         var startBlockID = WorldGenerator.Inst.GetBlockID(agentPos);
         var startItemID = ItemsStorage.Singleton.GetItemData(startBlockID).itemID;
-        // Если стартовая позиция агента находится на блоке, в котором невозможно
-        // построить NavMesh путь, то проверяем альтернативные (соседние) блоки
+        // Р•СЃР»Рё СЃС‚Р°СЂС‚РѕРІР°СЏ РїРѕР·РёС†РёСЏ Р°РіРµРЅС‚Р° РЅР°С…РѕРґРёС‚СЃСЏ РЅР° Р±Р»РѕРєРµ, РІ РєРѕС‚РѕСЂРѕРј РЅРµРІРѕР·РјРѕР¶РЅРѕ
+        // РїРѕСЃС‚СЂРѕРёС‚СЊ NavMesh РїСѓС‚СЊ, С‚Рѕ РїСЂРѕРІРµСЂСЏРµРј Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹Рµ (СЃРѕСЃРµРґРЅРёРµ) Р±Р»РѕРєРё
         if (excludePathfindingBlocks.Contains(startItemID))
         {
             var agentPos2 = new Vector3Int
@@ -292,13 +292,13 @@ public class AgentMove : MonoBehaviour
                 if (id3 != 0 && !excludePathfindingBlocks.Contains(itemID3))
                 {
                     agentPos = agentPos3;
-                    print($"-!-!- Заменили на 3 вариант стартовой позиции");
+                    print($"-!-!- Р—Р°РјРµРЅРёР»Рё РЅР° 3 РІР°СЂРёР°РЅС‚ СЃС‚Р°СЂС‚РѕРІРѕР№ РїРѕР·РёС†РёРё");
                 }
             }
             else
             {
                 agentPos = agentPos2;
-                print($"-!-!- Заменили на 2 вариант стартовой позиции");
+                print($"-!-!- Р—Р°РјРµРЅРёР»Рё РЅР° 2 РІР°СЂРёР°РЅС‚ СЃС‚Р°СЂС‚РѕРІРѕР№ РїРѕР·РёС†РёРё");
             }
         }
 
@@ -325,18 +325,18 @@ public class AgentMove : MonoBehaviour
         go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         go.transform.position = destPos;
         go.transform.localScale *= 0.3f;
-        go.name = "Нормализованный Destionation";
+        go.name = "РќРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅС‹Р№ Destionation";
         Destroy(go.GetComponent<Collider>());
 
         List<Vector3Int> path = null;
-        Debug.Log("Высоты отличаются – ищем путь ступеньками через AStarPath3D.");
+        Debug.Log("Р’С‹СЃРѕС‚С‹ РѕС‚Р»РёС‡Р°СЋС‚СЃСЏ вЂ“ РёС‰РµРј РїСѓС‚СЊ СЃС‚СѓРїРµРЅСЊРєР°РјРё С‡РµСЂРµР· AStarPath3D.");
         yield return StartCoroutine(AStarPath3DCoroutine(agentPos, destPos, result => path = result));
 
         
 
         if (path == null)
         {
-            Debug.Log("Не удалось найти путь для scaffolding.");
+            Debug.Log("РќРµ СѓРґР°Р»РѕСЃСЊ РЅР°Р№С‚Рё РїСѓС‚СЊ РґР»СЏ scaffolding.");
             yield break;
         }
 
@@ -352,11 +352,11 @@ public class AgentMove : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
-        Debug.Log("Найден путь для scaffolding, длина: " + path.Count);
+        Debug.Log("РќР°Р№РґРµРЅ РїСѓС‚СЊ РґР»СЏ scaffolding, РґР»РёРЅР°: " + path.Count);
         List<Vector3Int> scaffoldingPositions = new();
         foreach (Vector3Int cell in path)
         {
-            // Если в ячейке пусто – ставим scaffolding-блок
+            // Р•СЃР»Рё РІ СЏС‡РµР№РєРµ РїСѓСЃС‚Рѕ вЂ“ СЃС‚Р°РІРёРј scaffolding-Р±Р»РѕРє
             if (WorldGenerator.Inst.GetBlockID(cell) == 0)
             {
                 WorldGenerator.Inst.SetBlockAndUpdateChunck(cell, scaffoldingBlockID);
@@ -365,13 +365,13 @@ public class AgentMove : MonoBehaviour
                 //var pathPart = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 //pathPart.transform.position = cell + new Vector3(-0.5f, 0.3f, 0.5f);
                 //pathPart.transform.localScale *= 0.5f;
-                //pathPart.name = "-= Часть пути =-";
+                //pathPart.name = "-= Р§Р°СЃС‚СЊ РїСѓС‚Рё =-";
 
                 var approachCellPos = NavigationTool.FindApproachPositionOnBlock(cell);
 
                 yield return StartCoroutine(SimpleMoveToPosition(approachCellPos));
                 //print($"=== {agent.isOnOffMeshLink} &&& {agent.isOnNavMesh}");
-                print("продвинулся вродь");
+                print("РїСЂРѕРґРІРёРЅСѓР»СЃСЏ РІСЂРѕРґСЊ");
 
                 scaffoldingPositions.Add(cell);
 
@@ -384,7 +384,7 @@ public class AgentMove : MonoBehaviour
                     var prevScaffolding = scaffoldingPositions[prevIdx];
                     //if (IsPositionInsideBuilding(blocks, prevScaffolding, start))
                     {
-                        print("уебу");
+                        print("СѓРµР±Сѓ");
                         WorldGenerator.Inst.SetBlockAndUpdateChunck(prevScaffolding, 0);
                         scaffoldingPositions.RemoveAt(prevIdx);
 
@@ -394,7 +394,7 @@ public class AgentMove : MonoBehaviour
 
                 yield return StartCoroutine(Pause());
 
-                //Debug.Log("Поставлен scaffolding блок на " + cell);
+                //Debug.Log("РџРѕСЃС‚Р°РІР»РµРЅ scaffolding Р±Р»РѕРє РЅР° " + cell);
                 //yield return StartCoroutine(MoveToPosition(cell, false));
                 //yield return new WaitForSeconds(0.3f);
             }
@@ -409,8 +409,8 @@ public class AgentMove : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         allScaffoldingPositions.AddRange(scaffoldingPositions);
-        // После построения scaffolding, перемещаемся к цели,
-        // смещённой также на один блок вниз
+        // РџРѕСЃР»Рµ РїРѕСЃС‚СЂРѕРµРЅРёСЏ scaffolding, РїРµСЂРµРјРµС‰Р°РµРјСЃСЏ Рє С†РµР»Рё,
+        // СЃРјРµС‰С‘РЅРЅРѕР№ С‚Р°РєР¶Рµ РЅР° РѕРґРёРЅ Р±Р»РѕРє РІРЅРёР·
         //Vector3 destinationOffset = destination + Vector3.down;
         yield return StartCoroutine(MoveToPosition(destination, false));
 
@@ -422,12 +422,12 @@ public class AgentMove : MonoBehaviour
     }
 
 
-    // Иногда возникает ситуация, при которой НавЛинк создается рядом с блоком
-    // на котором невозможно создать Нав Меш, и иногда для Нав Линка не строится
-    // геометрия и агент не может пройти по этому линку. В методе Update на
-    // клавишу Т есть дебаг, стоит ли агент на навмеше и стоит ли он возле 
-    // нав линка. Идея в том, что либо перемешать агент на навмеш в таких 
-    // ситуациях и уже из него строить путь, либо вручную перемещать по линку
+    // РРЅРѕРіРґР° РІРѕР·РЅРёРєР°РµС‚ СЃРёС‚СѓР°С†РёСЏ, РїСЂРё РєРѕС‚РѕСЂРѕР№ РќР°РІР›РёРЅРє СЃРѕР·РґР°РµС‚СЃСЏ СЂСЏРґРѕРј СЃ Р±Р»РѕРєРѕРј
+    // РЅР° РєРѕС‚РѕСЂРѕРј РЅРµРІРѕР·РјРѕР¶РЅРѕ СЃРѕР·РґР°С‚СЊ РќР°РІ РњРµС€, Рё РёРЅРѕРіРґР° РґР»СЏ РќР°РІ Р›РёРЅРєР° РЅРµ СЃС‚СЂРѕРёС‚СЃСЏ
+    // РіРµРѕРјРµС‚СЂРёСЏ Рё Р°РіРµРЅС‚ РЅРµ РјРѕР¶РµС‚ РїСЂРѕР№С‚Рё РїРѕ СЌС‚РѕРјСѓ Р»РёРЅРєСѓ. Р’ РјРµС‚РѕРґРµ Update РЅР°
+    // РєР»Р°РІРёС€Сѓ Рў РµСЃС‚СЊ РґРµР±Р°Рі, СЃС‚РѕРёС‚ Р»Рё Р°РіРµРЅС‚ РЅР° РЅР°РІРјРµС€Рµ Рё СЃС‚РѕРёС‚ Р»Рё РѕРЅ РІРѕР·Р»Рµ 
+    // РЅР°РІ Р»РёРЅРєР°. РРґРµСЏ РІ С‚РѕРј, С‡С‚Рѕ Р»РёР±Рѕ РїРµСЂРµРјРµС€Р°С‚СЊ Р°РіРµРЅС‚ РЅР° РЅР°РІРјРµС€ РІ С‚Р°РєРёС… 
+    // СЃРёС‚СѓР°С†РёСЏС… Рё СѓР¶Рµ РёР· РЅРµРіРѕ СЃС‚СЂРѕРёС‚СЊ РїСѓС‚СЊ, Р»РёР±Рѕ РІСЂСѓС‡РЅСѓСЋ РїРµСЂРµРјРµС‰Р°С‚СЊ РїРѕ Р»РёРЅРєСѓ
     GameObject CreatePathNavMeshLink(Vector3 start, Vector3 end)
     {
         var linkGo = new GameObject("-= PATH LINK =-");
@@ -467,10 +467,10 @@ public class AgentMove : MonoBehaviour
 
     private IEnumerator AStarPath3DCoroutine(Vector3Int start, Vector3Int goal, Action<List<Vector3Int>> callback)
     {
-        print($"Id goal блока {(ItemID)WorldGenerator.Inst.GetBlockID(goal)}");
-        // Разрешаем движения, исключая диагональные переходы в горизонтальной плоскости.
-        // Разрешаем только движения, в которых либо dx == 0, либо dz == 0 (но не оба ненулевые).
-        // Также исключаем чисто вертикальные ходы (когда dx и dz равны 0, а dy не равен 0).
+        print($"Id goal Р±Р»РѕРєР° {(ItemID)WorldGenerator.Inst.GetBlockID(goal)}");
+        // Р Р°Р·СЂРµС€Р°РµРј РґРІРёР¶РµРЅРёСЏ, РёСЃРєР»СЋС‡Р°СЏ РґРёР°РіРѕРЅР°Р»СЊРЅС‹Рµ РїРµСЂРµС…РѕРґС‹ РІ РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕР№ РїР»РѕСЃРєРѕСЃС‚Рё.
+        // Р Р°Р·СЂРµС€Р°РµРј С‚РѕР»СЊРєРѕ РґРІРёР¶РµРЅРёСЏ, РІ РєРѕС‚РѕСЂС‹С… Р»РёР±Рѕ dx == 0, Р»РёР±Рѕ dz == 0 (РЅРѕ РЅРµ РѕР±Р° РЅРµРЅСѓР»РµРІС‹Рµ).
+        // РўР°РєР¶Рµ РёСЃРєР»СЋС‡Р°РµРј С‡РёСЃС‚Рѕ РІРµСЂС‚РёРєР°Р»СЊРЅС‹Рµ С…РѕРґС‹ (РєРѕРіРґР° dx Рё dz СЂР°РІРЅС‹ 0, Р° dy РЅРµ СЂР°РІРµРЅ 0).
         allowedDirections = new List<Vector3Int>();
         //if (!allowedDirections.Any())
         {
@@ -480,13 +480,13 @@ public class AgentMove : MonoBehaviour
                 {
                     for (int dz = -1; dz <= 1; dz++)
                     {
-                        // Пропускаем отсутствие движения.
+                        // РџСЂРѕРїСѓСЃРєР°РµРј РѕС‚СЃСѓС‚СЃС‚РІРёРµ РґРІРёР¶РµРЅРёСЏ.
                         if (dx == 0 && dy == 0 && dz == 0)
                             continue;
-                        // Исключаем чисто вертикальные движения (только по Y).
+                        // РСЃРєР»СЋС‡Р°РµРј С‡РёСЃС‚Рѕ РІРµСЂС‚РёРєР°Р»СЊРЅС‹Рµ РґРІРёР¶РµРЅРёСЏ (С‚РѕР»СЊРєРѕ РїРѕ Y).
                         if (dx == 0 && dz == 0 && dy != 0)
                             continue;
-                        // Исключаем диагональные ходы по горизонтали (когда и dx, и dz ненулевые).
+                        // РСЃРєР»СЋС‡Р°РµРј РґРёР°РіРѕРЅР°Р»СЊРЅС‹Рµ С…РѕРґС‹ РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё (РєРѕРіРґР° Рё dx, Рё dz РЅРµРЅСѓР»РµРІС‹Рµ).
                         if (dx != 0 && dz != 0)
                             continue;
 
@@ -506,7 +506,7 @@ public class AgentMove : MonoBehaviour
         startNode.hCost = ManhattanDistance(start, goal);
         openSet.Add(start, startNode);
 
-        print($"{(ItemID)WorldGenerator.Inst.GetBlockID(startNode.position)} Стартовая ---");
+        print($"{(ItemID)WorldGenerator.Inst.GetBlockID(startNode.position)} РЎС‚Р°СЂС‚РѕРІР°СЏ ---");
 
         int iterations = 0;
         int maxIterations = 10000;
@@ -514,16 +514,16 @@ public class AgentMove : MonoBehaviour
         {
             iterations++;
             if (iterations % 50 == 0)
-                yield return null; // даём время корутине
+                yield return null; // РґР°С‘Рј РІСЂРµРјСЏ РєРѕСЂСѓС‚РёРЅРµ
 
             if (iterations > maxIterations)
             {
-                Debug.Log("AStarPath3DCoroutine: достигнут максимум итераций, возможный цикл.");
+                Debug.Log("AStarPath3DCoroutine: РґРѕСЃС‚РёРіРЅСѓС‚ РјР°РєСЃРёРјСѓРј РёС‚РµСЂР°С†РёР№, РІРѕР·РјРѕР¶РЅС‹Р№ С†РёРєР».");
                 callback(null);
                 yield break;
             }
 
-            // Берём узел с минимальным fCost
+            // Р‘РµСЂС‘Рј СѓР·РµР» СЃ РјРёРЅРёРјР°Р»СЊРЅС‹Рј fCost
             Node current = openSet.Values.OrderBy(n => n.fCost).First();
             if (current.position == goal)
             {
@@ -535,7 +535,7 @@ public class AgentMove : MonoBehaviour
                 }
                 path.Reverse();
 
-                print($"Путь найден, итераций {iterations}");
+                print($"РџСѓС‚СЊ РЅР°Р№РґРµРЅ, РёС‚РµСЂР°С†РёР№ {iterations}");
 
                 callback(path);
                 yield break;
@@ -545,7 +545,7 @@ public class AgentMove : MonoBehaviour
             closedSet.Add(current.position);
 
             
-            // --=-- Перебор соседних узлов --=--
+            // --=-- РџРµСЂРµР±РѕСЂ СЃРѕСЃРµРґРЅРёС… СѓР·Р»РѕРІ --=--
             foreach (var dir in allowedDirections)
             {
                 Vector3Int neighborPos = current.position + dir;
@@ -555,8 +555,8 @@ public class AgentMove : MonoBehaviour
                 var neighborId = WorldGenerator.Inst.GetBlockID(neighborPos);
 
 
-                // Проверка, которая исключает ноду, если агент стоит под блоками
-                // и нода ведет вверх, агент не сможет сразу начать подъем
+                // РџСЂРѕРІРµСЂРєР°, РєРѕС‚РѕСЂР°СЏ РёСЃРєР»СЋС‡Р°РµС‚ РЅРѕРґСѓ, РµСЃР»Рё Р°РіРµРЅС‚ СЃС‚РѕРёС‚ РїРѕРґ Р±Р»РѕРєР°РјРё
+                // Рё РЅРѕРґР° РІРµРґРµС‚ РІРІРµСЂС…, Р°РіРµРЅС‚ РЅРµ СЃРјРѕР¶РµС‚ СЃСЂР°Р·Сѓ РЅР°С‡Р°С‚СЊ РїРѕРґСЉРµРј
                 if (current == startNode && dir.y > 0)
                 {
                     var up3Pos = current.position + (Vector3Int.up * 3);
@@ -580,7 +580,7 @@ public class AgentMove : MonoBehaviour
                         up3BlockID = 0;
 
                     //Vector3 neighborF = new Vector3(neighborPos.x, neighborPos.y, neighborPos.z);
-                    //// Если ячейка не входит в blueprint и занята (не пуста), пропускаем её
+                    //// Р•СЃР»Рё СЏС‡РµР№РєР° РЅРµ РІС…РѕРґРёС‚ РІ blueprint Рё Р·Р°РЅСЏС‚Р° (РЅРµ РїСѓСЃС‚Р°), РїСЂРѕРїСѓСЃРєР°РµРј РµС‘
                     //if (!blueprintPositions.Contains(neighborF) && WorldGenerator.Inst.GetBlockID(neighborPos) != 0)
                     //    continue;
 
@@ -600,7 +600,7 @@ public class AgentMove : MonoBehaviour
                         up3BlockID = 0;
                     }
 
-                    // Проверяем, что над ячейкой свободно три ячейки
+                    // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РЅР°Рґ СЏС‡РµР№РєРѕР№ СЃРІРѕР±РѕРґРЅРѕ С‚СЂРё СЏС‡РµР№РєРё
                     if (upBlockID != 0 || up2BlockID != 0 || up3BlockID != 0)
                     {
                         if (withDebug)
@@ -609,7 +609,7 @@ public class AgentMove : MonoBehaviour
                             var marker = Instantiate(markerPrefab, neighborPos + offset, Quaternion.identity);
                             markers.Add(marker);
 
-                            yield return StartCoroutine(Pause($"Скипнул по первой {upBlockID != 0} || {up2BlockID != 0} || {up3BlockID != 0}"));
+                            yield return StartCoroutine(Pause($"РЎРєРёРїРЅСѓР» РїРѕ РїРµСЂРІРѕР№ {upBlockID != 0} || {up2BlockID != 0} || {up3BlockID != 0}"));
                         }
 
                         continue;
@@ -617,17 +617,17 @@ public class AgentMove : MonoBehaviour
 
                     //if (dir.y > 0)
                     //{
-                    //    // Проверяем, что над ячейкой свободно три ячейки
+                    //    // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РЅР°Рґ СЏС‡РµР№РєРѕР№ СЃРІРѕР±РѕРґРЅРѕ С‚СЂРё СЏС‡РµР№РєРё
                     //    if (upBlockID != 0 || up2BlockID != 0 || up3BlockID != 0)
                     //        continue;
                     //}
                     //else
-                    //{// Проверяем, что над ячейкой свободно три ячейки
+                    //{// РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РЅР°Рґ СЏС‡РµР№РєРѕР№ СЃРІРѕР±РѕРґРЅРѕ С‚СЂРё СЏС‡РµР№РєРё
                     //    if (upBlockID != 0 || up2BlockID != 0)
                     //        continue;
                     //}
 
-                    // если уже в openSet или closedSet есть нода на две клетки вверх от кандидата, пропускаем его
+                    // РµСЃР»Рё СѓР¶Рµ РІ openSet РёР»Рё closedSet РµСЃС‚СЊ РЅРѕРґР° РЅР° РґРІРµ РєР»РµС‚РєРё РІРІРµСЂС… РѕС‚ РєР°РЅРґРёРґР°С‚Р°, РїСЂРѕРїСѓСЃРєР°РµРј РµРіРѕ
                     Vector3Int aboveCandidate = neighborPos + (Vector3Int.up * 2);
                     //if (aboveCandidate != start && (openSet.ContainsKey(aboveCandidate) || closedSet.Contains(aboveCandidate)))
                     if (IsAboveInPath(current, aboveCandidate))
@@ -638,9 +638,9 @@ public class AgentMove : MonoBehaviour
                             var marker = Instantiate(markerPrefab, neighborPos + offset, Quaternion.identity);
                             markers.Add(marker);
 
-                            yield return StartCoroutine(Pause($"Скипнул по второй {openSet.ContainsKey(aboveCandidate)} || {closedSet.Contains(aboveCandidate)}"));
+                            yield return StartCoroutine(Pause($"РЎРєРёРїРЅСѓР» РїРѕ РІС‚РѕСЂРѕР№ {openSet.ContainsKey(aboveCandidate)} || {closedSet.Contains(aboveCandidate)}"));
                         }
-                        //Debug.Log("Возможно стоит убрать эту проверку");
+                        //Debug.Log("Р’РѕР·РјРѕР¶РЅРѕ СЃС‚РѕРёС‚ СѓР±СЂР°С‚СЊ СЌС‚Сѓ РїСЂРѕРІРµСЂРєСѓ");
                         continue;
                     }
 
@@ -668,8 +668,8 @@ public class AgentMove : MonoBehaviour
                     //    continue;
                     //}
 
-                    // если уже в openSet или closedSet есть нода ниже
-                    // от кандидата, пропускаем её
+                    // РµСЃР»Рё СѓР¶Рµ РІ openSet РёР»Рё closedSet РµСЃС‚СЊ РЅРѕРґР° РЅРёР¶Рµ
+                    // РѕС‚ РєР°РЅРґРёРґР°С‚Р°, РїСЂРѕРїСѓСЃРєР°РµРј РµС‘
                     var belowCandidate = neighborPos + Vector3Int.down + Vector3Int.left;
                     if (openSet.ContainsKey(belowCandidate) || closedSet.Contains(belowCandidate))
                     {
@@ -688,7 +688,7 @@ public class AgentMove : MonoBehaviour
                             var marker = Instantiate(markerPrefab, neighborPos + offset, Quaternion.identity);
                             markers.Add(marker);
 
-                            yield return StartCoroutine(Pause($"Скипнул по third "));
+                            yield return StartCoroutine(Pause($"РЎРєРёРїРЅСѓР» РїРѕ third "));
                         }
 
                         if (!skipContine)
@@ -697,7 +697,7 @@ public class AgentMove : MonoBehaviour
                 }
                 else
                 {
-                    print($"-=-=-= есть гофл =-=-=-");
+                    print($"-=-=-= РµСЃС‚СЊ РіРѕС„Р» =-=-=-");
                 }
 
                 //if (withDebug)
@@ -733,7 +733,7 @@ public class AgentMove : MonoBehaviour
             }
         }
 
-        Debug.Log("Путь не найден :(");
+        Debug.Log("РџСѓС‚СЊ РЅРµ РЅР°Р№РґРµРЅ :(");
         callback(null);
         yield break;
     }
@@ -764,19 +764,19 @@ public class AgentMove : MonoBehaviour
             if (dist > 1.1f)
             {
                 agent.isStopped = true;
-                print("застопал");
+                print("Р·Р°СЃС‚РѕРїР°Р»");
                 
                 yield return wait01;
-                // TO DO, вообще тут такое дело, что так как в метод построения
-                // лестницы, мы не передаем конечную точку где поставить блок, 
-                // а только ближайшую точку на навмеше, то иногда NPC ставит 
-                // сначала лестницу на том месте где должен быть блок,
-                // затем нужный блок, а потом удаляет нужный блок, так как думает,
-                // что это часть лестницы. 
-                // Варианты: либо проверять длинну пути, типа если 1,
-                // то не ставить лестницу, либо передавать точку в которой
-                // должен быть блок
-                // Пока просто проверяю, чтобы удаляемый блок являлся лестницей
+                // TO DO, РІРѕРѕР±С‰Рµ С‚СѓС‚ С‚Р°РєРѕРµ РґРµР»Рѕ, С‡С‚Рѕ С‚Р°Рє РєР°Рє РІ РјРµС‚РѕРґ РїРѕСЃС‚СЂРѕРµРЅРёСЏ
+                // Р»РµСЃС‚РЅРёС†С‹, РјС‹ РЅРµ РїРµСЂРµРґР°РµРј РєРѕРЅРµС‡РЅСѓСЋ С‚РѕС‡РєСѓ РіРґРµ РїРѕСЃС‚Р°РІРёС‚СЊ Р±Р»РѕРє, 
+                // Р° С‚РѕР»СЊРєРѕ Р±Р»РёР¶Р°Р№С€СѓСЋ С‚РѕС‡РєСѓ РЅР° РЅР°РІРјРµС€Рµ, С‚Рѕ РёРЅРѕРіРґР° NPC СЃС‚Р°РІРёС‚ 
+                // СЃРЅР°С‡Р°Р»Р° Р»РµСЃС‚РЅРёС†Сѓ РЅР° С‚РѕРј РјРµСЃС‚Рµ РіРґРµ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±Р»РѕРє,
+                // Р·Р°С‚РµРј РЅСѓР¶РЅС‹Р№ Р±Р»РѕРє, Р° РїРѕС‚РѕРј СѓРґР°Р»СЏРµС‚ РЅСѓР¶РЅС‹Р№ Р±Р»РѕРє, С‚Р°Рє РєР°Рє РґСѓРјР°РµС‚,
+                // С‡С‚Рѕ СЌС‚Рѕ С‡Р°СЃС‚СЊ Р»РµСЃС‚РЅРёС†С‹. 
+                // Р’Р°СЂРёР°РЅС‚С‹: Р»РёР±Рѕ РїСЂРѕРІРµСЂСЏС‚СЊ РґР»РёРЅРЅСѓ РїСѓС‚Рё, С‚РёРїР° РµСЃР»Рё 1,
+                // С‚Рѕ РЅРµ СЃС‚Р°РІРёС‚СЊ Р»РµСЃС‚РЅРёС†Сѓ, Р»РёР±Рѕ РїРµСЂРµРґР°РІР°С‚СЊ С‚РѕС‡РєСѓ РІ РєРѕС‚РѕСЂРѕР№
+                // РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±Р»РѕРє
+                // РџРѕРєР° РїСЂРѕСЃС‚Рѕ РїСЂРѕРІРµСЂСЏСЋ, С‡С‚РѕР±С‹ СѓРґР°Р»СЏРµРјС‹Р№ Р±Р»РѕРє СЏРІР»СЏР»СЃСЏ Р»РµСЃС‚РЅРёС†РµР№
                 if (WorldGenerator.Inst.GetBlockID(pos) == scaffoldingBlockID)
                 {
                     WorldGenerator.Inst.SetBlockAndUpdateChunck(pos, 0);
@@ -784,7 +784,7 @@ public class AgentMove : MonoBehaviour
 
                 if (!allScaffoldingPositions.Remove(pos))
                 {
-                    print($"фиг знает почему, но не удалось удалить {pos}");
+                    print($"С„РёРі Р·РЅР°РµС‚ РїРѕС‡РµРјСѓ, РЅРѕ РЅРµ СѓРґР°Р»РѕСЃСЊ СѓРґР°Р»РёС‚СЊ {pos}");
                 }
                 else
                 {
@@ -803,7 +803,7 @@ public class AgentMove : MonoBehaviour
     private IEnumerator Pause(string msg = "")
     {
         isPaused = true;
-        print($"{gameObject} На паузе... {msg}");
+        print($"{gameObject} РќР° РїР°СѓР·Рµ... {msg}");
 
         while (isPaused)
         {
@@ -812,26 +812,26 @@ public class AgentMove : MonoBehaviour
     }
 
     /// <summary>
-    /// Проверяет, находится ли позиция (globalPos) внутри Bounding Box постройки.
-    /// Список buildingBlockLocalPositions содержит локальные координаты блоков (без смещения),
-    /// а глобальная позиция блока получается как buildingBlockLocalPosition + buildingCenter.
+    /// РџСЂРѕРІРµСЂСЏРµС‚, РЅР°С…РѕРґРёС‚СЃСЏ Р»Рё РїРѕР·РёС†РёСЏ (globalPos) РІРЅСѓС‚СЂРё Bounding Box РїРѕСЃС‚СЂРѕР№РєРё.
+    /// РЎРїРёСЃРѕРє buildingBlockLocalPositions СЃРѕРґРµСЂР¶РёС‚ Р»РѕРєР°Р»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ Р±Р»РѕРєРѕРІ (Р±РµР· СЃРјРµС‰РµРЅРёСЏ),
+    /// Р° РіР»РѕР±Р°Р»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ Р±Р»РѕРєР° РїРѕР»СѓС‡Р°РµС‚СЃСЏ РєР°Рє buildingBlockLocalPosition + buildingCenter.
     /// </summary>
-    /// <param name="buildingBlockLocalPositions">Список локальных позиций блоков постройки.</param>
-    /// <param name="globalPos">Глобальная позиция для проверки (например, позиция установленной лестницы).</param>
-    /// <param name="buildintStartPos">Центр постройки, который добавляется к локальным координатам блоков.</param>
-    /// <returns>True, если globalPos находится внутри Bounding Box постройки, иначе false.</returns>
+    /// <param name="buildingBlockLocalPositions">РЎРїРёСЃРѕРє Р»РѕРєР°Р»СЊРЅС‹С… РїРѕР·РёС†РёР№ Р±Р»РѕРєРѕРІ РїРѕСЃС‚СЂРѕР№РєРё.</param>
+    /// <param name="globalPos">Р“Р»РѕР±Р°Р»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ РґР»СЏ РїСЂРѕРІРµСЂРєРё (РЅР°РїСЂРёРјРµСЂ, РїРѕР·РёС†РёСЏ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕР№ Р»РµСЃС‚РЅРёС†С‹).</param>
+    /// <param name="buildintStartPos">Р¦РµРЅС‚СЂ РїРѕСЃС‚СЂРѕР№РєРё, РєРѕС‚РѕСЂС‹Р№ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ Рє Р»РѕРєР°Р»СЊРЅС‹Рј РєРѕРѕСЂРґРёРЅР°С‚Р°Рј Р±Р»РѕРєРѕРІ.</param>
+    /// <returns>True, РµСЃР»Рё globalPos РЅР°С…РѕРґРёС‚СЃСЏ РІРЅСѓС‚СЂРё Bounding Box РїРѕСЃС‚СЂРѕР№РєРё, РёРЅР°С‡Рµ false.</returns>
     public bool IsPositionInsideBuilding(HashSet<Vector3> buildingBlockLocalPositions, Vector3Int globalPos, Vector3 buildintStartPos)
     {
         if (buildingBlockLocalPositions == null || buildingBlockLocalPositions.Count == 0)
             return false;
 
-        // Вычисляем глобальные координаты для первого блока
+        // Р’С‹С‡РёСЃР»СЏРµРј РіР»РѕР±Р°Р»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РґР»СЏ РїРµСЂРІРѕРіРѕ Р±Р»РѕРєР°
         Vector3 firstGlobal = buildintStartPos + buildingBlockLocalPositions.First();
         int minX = Mathf.FloorToInt(firstGlobal.x), maxX = Mathf.FloorToInt(firstGlobal.x);
         int minY = Mathf.FloorToInt(firstGlobal.y), maxY = Mathf.FloorToInt(firstGlobal.y);
         int minZ = Mathf.FloorToInt(firstGlobal.z), maxZ = Mathf.FloorToInt(firstGlobal.z);
 
-        // Обходим все блоки и находим глобальный AABB
+        // РћР±С…РѕРґРёРј РІСЃРµ Р±Р»РѕРєРё Рё РЅР°С…РѕРґРёРј РіР»РѕР±Р°Р»СЊРЅС‹Р№ AABB
         foreach (var localPos in buildingBlockLocalPositions)
         {
             Vector3 globalBlockPos = buildintStartPos + localPos;
@@ -878,8 +878,8 @@ public class AgentMove : MonoBehaviour
     }
 
     /// <summary>
-    /// Hot Fix, так как навмеш генерится неверное если у нас есть подвисшие 
-    /// в воздухе два\три блока, генерится навмеш сетка внутри блока
+    /// Hot Fix, С‚Р°Рє РєР°Рє РЅР°РІРјРµС€ РіРµРЅРµСЂРёС‚СЃСЏ РЅРµРІРµСЂРЅРѕРµ РµСЃР»Рё Сѓ РЅР°СЃ РµСЃС‚СЊ РїРѕРґРІРёСЃС€РёРµ 
+    /// РІ РІРѕР·РґСѓС…Рµ РґРІР°\С‚СЂРё Р±Р»РѕРєР°, РіРµРЅРµСЂРёС‚СЃСЏ РЅР°РІРјРµС€ СЃРµС‚РєР° РІРЅСѓС‚СЂРё Р±Р»РѕРєР°
     /// </summary>
     /// <param name="blockPos"></param>
     public IEnumerator CheckMeshToFixNavError(Vector3 blockPos)

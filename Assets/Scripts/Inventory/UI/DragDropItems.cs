@@ -130,7 +130,7 @@ public class DragDropItems : MonoBehaviour
 
     void DelayPrint(InventorySlot slot, InventorySlot slot2)
     {
-        print(slot.Item?.view + " уруруру");
+        print(slot.Item?.view + " СѓСЂСѓСЂСѓСЂСѓ");
 
         StartCoroutine(Delay());
 
@@ -138,7 +138,7 @@ public class DragDropItems : MonoBehaviour
         {
             for (int i = 0; i < 3; i++)
             {
-                print(slot.Item?.view + " эээ");
+                print(slot.Item?.view + " СЌСЌСЌ");
                 yield return null;
             }
 

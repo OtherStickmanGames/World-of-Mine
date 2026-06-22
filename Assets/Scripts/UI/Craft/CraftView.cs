@@ -64,7 +64,7 @@ public class CraftView : ViewUI
 
             player.inventory.TakeItem(item);
             RemoveIngridients(craftableData);
-            Item_Clicked(selectedCraftableItem);// Птом добавить метод Update, сейчас это чисто для обновление
+            Item_Clicked(selectedCraftableItem);// РџС‚РѕРј РґРѕР±Р°РІРёС‚СЊ РјРµС‚РѕРґ Update, СЃРµР№С‡Р°СЃ СЌС‚Рѕ С‡РёСЃС‚Рѕ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёРµ
         }
         
     }

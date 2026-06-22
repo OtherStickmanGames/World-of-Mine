@@ -204,7 +204,7 @@ public class PlayerBehaviour : MonoBehaviour
         if(kostylTimer > 8)
         {
             thirdPersonController.AllowGravityLogic = true;
-            print("�������� �������");
+            print("kostylTimer");
             onStartAllowGravity?.Invoke();
         }
 
@@ -238,7 +238,6 @@ public class PlayerBehaviour : MonoBehaviour
         if (ebalaTimer > 1.8f)
         {
             thirdPersonController.AllowGravityLogic = true;
-            print("����� ���������");
             onStartAllowGravity?.Invoke();
         }
     }

@@ -29,7 +29,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
 
     public static ReleaseNotesHandler Singleton;
 
-    string format = "dd_MM_yyyy"; // Формат строки даты
+    string format = "dd_MM_yyyy"; // Р¤РѕСЂРјР°С‚ СЃС‚СЂРѕРєпїЅ РґР°С‚С‹
     CultureInfo provider = CultureInfo.InvariantCulture; // 
 
     private void Awake()
@@ -75,13 +75,32 @@ public class ReleaseNotesHandler : NetworkBehaviour
     private void SendSurveySelectServerRpc(string date, int idx, ServerRpcParams serverRpcParams = default)
     {
 #if !UNITY_WEBGL || UNITY_EDITOR
+        var clientId = serverRpcParams.Receive.SenderClientId;
+        if (!NetworkUserManager.Instance.playerIds.TryGetValue(clientId, out string playerId))
+        {
+            Debug.LogWarning($"[Survey] Client {clientId} tried to vote but has no PlayerID.");
+            return;
+        }
+
         date = date.Replace(".", "_");
         var found = newsData.Find(n => n.name == date);
-        found.survey[idx].votes++;
-        var json = JsonConvert.SerializeObject(found);
-        print(json);
-        var path = $"{releaseNotesDirectory}{date}.json";
-        File.WriteAllText(path, json);
+        if (found.name != date || found.survey == null || idx < 0 || idx >= found.survey.Length) return;
+
+        // Ensure list is initialized
+        if (found.survey[idx].votedPlayerIds == null)
+            found.survey[idx].votedPlayerIds = new List<string>();
+
+        // Validation: Only add if player hasn't voted for this variant yet
+        if (!found.survey[idx].votedPlayerIds.Contains(playerId))
+        {
+            found.survey[idx].votedPlayerIds.Add(playerId);
+            found.survey[idx].votes = found.survey[idx].votedPlayerIds.Count;
+
+            var json = JsonConvert.SerializeObject(found);
+            var path = $"{releaseNotesDirectory}{date}.json";
+            File.WriteAllText(path, json);
+            Debug.Log($"[Survey] Player {playerId} voted for {found.name} option {idx}. Total: {found.survey[idx].votes}");
+        }
 #endif
     }
 
@@ -94,13 +113,23 @@ public class ReleaseNotesHandler : NetworkBehaviour
     private void SendSurveyDeselectServerRpc(string date, int idx, ServerRpcParams serverRpcParams = default)
     {
 #if !UNITY_WEBGL || UNITY_EDITOR
+        var clientId = serverRpcParams.Receive.SenderClientId;
+        if (!NetworkUserManager.Instance.playerIds.TryGetValue(clientId, out string playerId)) return;
+
         date = date.Replace(".", "_");
         var found = newsData.Find(n => n.name == date);
-        found.survey[idx].votes--;
-        var json = JsonConvert.SerializeObject(found);
-        print(json);
-        var path = $"{releaseNotesDirectory}{date}.json";
-        File.WriteAllText(path, json);
+        if (found.name != date || found.survey == null || idx < 0 || idx >= found.survey.Length) return;
+
+        if (found.survey[idx].votedPlayerIds != null && found.survey[idx].votedPlayerIds.Contains(playerId))
+        {
+            found.survey[idx].votedPlayerIds.Remove(playerId);
+            found.survey[idx].votes = found.survey[idx].votedPlayerIds.Count;
+
+            var json = JsonConvert.SerializeObject(found);
+            var path = $"{releaseNotesDirectory}{date}.json";
+            File.WriteAllText(path, json);
+            Debug.Log($"[Survey] Player {playerId} removed vote from {found.name} option {idx}. Total: {found.survey[idx].votes}");
+        }
 #endif
     }
 
@@ -110,13 +139,13 @@ public class ReleaseNotesHandler : NetworkBehaviour
         {
             if (clientNewsData.Count == 0)
             {
-                print("Нет новостей");
+                print("РќРµС‚ РЅРѕРІРѕСЃС‚РµР№");
                 return;
             }
 
             if (clientNewsData[0].voiceClip == null)
             {
-                Debug.Log("Последняя новость не имеет озвучки");
+                Debug.Log("РџРѕСЃР»РµРґРЅСЏСЏ РЅРѕРІРѕСЃС‚СЊ РЅРµ пїЅРјРµРµС‚ РѕР·РІСѓС‡РєпїЅ");
                 return;
             }
 
@@ -238,7 +267,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
     {
         clientIdxNewsSending.Add(clientID, 0);
 
-        // TODO Костыль, чтобы не начинать одновременно отправку и чанков и новостей
+        // TODO РљРѕСЃС‚С‹Р»СЊ, С‡С‚РѕР±С‹ РЅРµ РЅР°С‡пїЅРЅР°С‚СЊ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ РѕС‚РїСЂР°РІРєСѓ пїЅ С‡Р°РЅРєРѕРІ пїЅ РЅРѕРІРѕСЃС‚РµР№
         StartCoroutine(Delay());
 
         IEnumerator Delay()

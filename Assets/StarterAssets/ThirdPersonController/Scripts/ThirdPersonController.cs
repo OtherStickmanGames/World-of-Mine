@@ -416,9 +416,9 @@ namespace StarterAssets
                 }
                 else
                 {
-                    // Костыль, иногда только, что поставленный блок не упевает
-                    // дать коллизию с рейкастом, поэтому ждем время, чтобы
-                    // точно убедиться, что под нами нет поверхности.
+                    // Ко�тыль, иногда только, что по�тавленный блок не упевает
+                    // дать коллизию � рейка�том, поэтому ждем время, чтобы
+                    // точно убедить�я, что под нами нет поверхно�ти.
                     ebaniyTimer += Time.deltaTime;
                     if (ebaniyTimer < 0.3f)
                     {
@@ -441,25 +441,25 @@ namespace StarterAssets
 
         Vector3 AdjustMovementForEdge(Vector3 moveDirection)
         {
-            // Проверяем движение вперед по оси Z
+            // Проверяем движение вперед по о�и Z
             if (!IsEdgeSafe(Vector3.forward) && moveDirection.z > 0)
             {
-                moveDirection.z = 0; // Останавливаем движение вперед
+                moveDirection.z = 0; // О�танавливаем движение вперед
             }
-            // Проверяем движение назад по оси Z
+            // Проверяем движение назад по о�и Z
             if (!IsEdgeSafe(Vector3.back) && moveDirection.z < 0)
             {
-                moveDirection.z = 0; // Останавливаем движение назад
+                moveDirection.z = 0; // О�танавливаем движение назад
             }
-            // Проверяем движение вправо по оси X
+            // Проверяем движение вправо по о�и X
             if (!IsEdgeSafe(Vector3.right) && moveDirection.x > 0)
             {
-                moveDirection.x = 0; // Останавливаем движение вправо
+                moveDirection.x = 0; // О�танавливаем движение вправо
             }
-            // Проверяем движение влево по оси X
+            // Проверяем движение влево по о�и X
             if (!IsEdgeSafe(Vector3.left) && moveDirection.x < 0)
             {
-                moveDirection.x = 0; // Останавливаем движение влево
+                moveDirection.x = 0; // О�танавливаем движение влево
             }
 
             return moveDirection;

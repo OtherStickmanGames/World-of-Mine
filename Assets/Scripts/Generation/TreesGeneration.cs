@@ -10,7 +10,7 @@ public class TreesGeneration : MonoBehaviour
 {
     [SerializeField] ProceduralGeneration proceduralGeneration;
 
-    [Header("Настройки генерации")]
+    [Header("РќР°СЃС‚СЂРѕР№РєРё РіРµРЅРµСЂР°С†РёРё")]
     [SerializeField] float yCorrect = 1f;
     [SerializeField] float noiseScale = 50;
     [SerializeField] float landThresold = 11f;
@@ -19,7 +19,7 @@ public class TreesGeneration : MonoBehaviour
     [SerializeField] float landHeightSlice = 8f;
     [SerializeField] float randomFactor = 888;
 
-    [Header("Деревья")]
+    [Header("Р”РµСЂРµРІСЊСЏ")]
     [SerializeField] TreeData[] treeDatas;
 
     

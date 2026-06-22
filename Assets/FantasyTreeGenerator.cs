@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class FantasyTreeGenerator
 {
-    // Настройки генерации деревьев
+    // Настройк� генерац�� деревьев
     private int sizeX = 160, sizeY = 240, sizeZ = 160;
     private int minHeight = 50, maxHeight = 80;
-    private int baseTrunkRadius = 6;        // максимальный радиус внизу
-    private int minTrunkRadius = 2;         // минимальный радиус вверху
+    private int baseTrunkRadius = 6;        // макс�мальный рад�ус вн�зу
+    private int minTrunkRadius = 2;         // м�н�мальный рад�ус вверху
     private int leafVariants = 2;
     private float leafFlatten = 0.5f;
     private float noiseScale = 0.5f;
@@ -34,7 +34,7 @@ public class FantasyTreeGenerator
         byte woodId = 5;
         int baseX = sizeX / 2, baseZ = sizeZ / 2;
 
-        // Случайный наклон задаем один раз
+        // Случайный наклон задаем од�н раз
         float tiltAngle = (float)(rnd.NextDouble() * 2 * Math.PI);
         float tiltRadians = maxTiltAngle * Mathf.Deg2Rad;
         float tiltDX = Mathf.Cos(tiltAngle) * Mathf.Tan(tiltRadians);
@@ -42,24 +42,24 @@ public class FantasyTreeGenerator
 
         for (int y = 0; y < height; y++)
         {
-            // Текущий радиус ствола
+            // Текущ�й рад�ус ствола
             float t = (float)y / height;
             int currentRadius = Mathf.RoundToInt(Mathf.Lerp(baseTrunkRadius, minTrunkRadius, t));
 
-            // Изгиб по шуму
+            // Изг�б по шуму
             float nx = Mathf.PerlinNoise(y * trunkNoiseScale, 0);
             float nz = Mathf.PerlinNoise(0, y * trunkNoiseScale);
             int bendX = Mathf.RoundToInt((nx * 2 - 1) * trunkBendAmplitude);
             int bendZ = Mathf.RoundToInt((nz * 2 - 1) * trunkBendAmplitude);
 
-            // Наклон (линейно по высоте)
+            // Наклон (л�нейно по высоте)
             int tiltX = Mathf.RoundToInt(tiltDX * y);
             int tiltZ = Mathf.RoundToInt(tiltDZ * y);
 
             int cx = Mathf.Clamp(baseX + bendX + tiltX, currentRadius, sizeX - currentRadius - 1);
             int cz = Mathf.Clamp(baseZ + bendZ + tiltZ, currentRadius, sizeZ - currentRadius - 1);
 
-            // Рисуем кольцо ствола
+            // Р�суем кольцо ствола
             for (int dx = -currentRadius; dx <= currentRadius; dx++)
                 for (int dz = -currentRadius; dz <= currentRadius; dz++)
                     if (dx * dx + dz * dz <= currentRadius * currentRadius)
@@ -72,8 +72,8 @@ public class FantasyTreeGenerator
         int branchCount = rnd.Next(7, 12);
         int baseX = sizeX / 2, baseZ = sizeZ / 2;
 
-        // Используем те же смещения, что и для ствола, чтобы ветки вылезали корректно
-        // Предварительно запоминаем массив центров по y
+        // Используем те же смещен�я, что � для ствола, чтобы ветк� вылезал� корректно
+        // Предвар�тельно запом�наем масс�в центров по y
         var centers = new Vector2Int[height];
         for (int y = 0; y < height; y++)
         {

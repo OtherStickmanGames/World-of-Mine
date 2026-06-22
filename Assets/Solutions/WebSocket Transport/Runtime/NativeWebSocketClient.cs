@@ -133,7 +133,7 @@ namespace Netcode.Transports.WebSocket
         //                buffer = _bufferPool.Dequeue();
         //                if (buffer.Length < data.Count)
         //                {
-        //                    buffer = new byte[data.Count];  // Ñîçäàòü íîâûé áóôåð, åñëè ñòàðûé ñëèøêîì ìàë
+        //                    buffer = new byte[data.Count];  // Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ Ð½Ð¾Ð²Ñ‹Ð¹ Ð±ÑƒÑ„ÐµÑ€, ÐµÑÐ»Ð¸ ÑÑ‚Ð°Ñ€Ñ‹Ð¹ ÑÐ»Ð¸ÑˆÐºÐ¾Ð¼ Ð¼Ð°Ð»
         //                }
         //            }
         //            else
@@ -141,7 +141,7 @@ namespace Netcode.Transports.WebSocket
         //                buffer = new byte[data.Count];
         //            }
 
-        //            // Áåçîïàñíîå êîïèðîâàíèå ñ ó÷åòîì äëèíû ìàññèâà
+        //            // Ð‘ÐµÐ·Ð¾Ð¿Ð°ÑÐ½Ð¾Ðµ ÐºÐ¾Ð¿Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ñ ÑƒÑ‡ÐµÑ‚Ð¾Ð¼ Ð´Ð»Ð¸Ð½Ñ‹ Ð¼Ð°ÑÑÐ¸Ð²Ð°
         //            Buffer.BlockCopy(data.Array, data.Offset, buffer, 0, data.Count);
 
         //            Connection.Send(buffer);
@@ -225,7 +225,7 @@ namespace Netcode.Transports.WebSocket
             }
         }
 
-        private static byte[] _receiveBuffer = new byte[192];  // Ôèêñèðîâàííûé áóôåð
+        private static byte[] _receiveBuffer = new byte[192];  // Ð¤Ð¸ÐºÑÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ð¹ Ð±ÑƒÑ„ÐµÑ€
         public void OnMessage(object sender, MessageEventArgs e)
         {
             lock (ConnectionLock)

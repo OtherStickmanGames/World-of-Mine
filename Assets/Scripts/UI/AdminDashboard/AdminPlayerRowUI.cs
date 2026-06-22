@@ -63,10 +63,10 @@ public class AdminPlayerRowUI : MonoBehaviour
         TimeSpan span = DateTime.Now - lastDate;
 
         if (span.TotalSeconds < 60) return "Только что";
-        if (span.TotalMinutes < 60) return $"{Mathf.FloorToInt((float)span.TotalMinutes)}м. назад";
-        if (span.TotalHours < 24) return $"{Mathf.FloorToInt((float)span.TotalHours)}ч. назад";
+        if (span.TotalMinutes < 60) return $"{Mathf.FloorToInt((float)span.TotalMinutes)}�. наза�";
+        if (span.TotalHours < 24) return $"{Mathf.FloorToInt((float)span.TotalHours)}ч. наза�";
         if (span.TotalDays < 2) return "Вчера";
-        if (span.TotalDays < 7) return $"{Mathf.FloorToInt((float)span.TotalDays)}д. назад";
+        if (span.TotalDays < 7) return $"{Mathf.FloorToInt((float)span.TotalDays)}�. наза�";
 
         return lastDate.ToString("dd.MM.yyyy");
     }

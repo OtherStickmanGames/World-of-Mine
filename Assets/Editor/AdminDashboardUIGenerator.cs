@@ -329,7 +329,7 @@ public class AdminDashboardUIGenerator
             sl.preferredWidth = 15;
         }
 
-        string[] columns = { "Имя", "Сессии", "Общее время", "Макс. время", "Ср. FPS", "Мин. FPS", "Устройство", "Был в сети" };
+        string[] columns = { "Имя", "Сессии", "Общее �ремя", "Макс. �ремя", "Ср. FPS", "Мин. FPS", "Устройст�о", "Был � сети" };
         foreach (var col in columns)
         {
             GameObject colGo = new GameObject(col);

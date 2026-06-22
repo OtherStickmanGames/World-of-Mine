@@ -119,7 +119,7 @@ public class ShowBuildingView : MonoBehaviour
     {
         btnPrevPage.interactable = page != 0;
 
-        labelPage.SetText($"Страница {page + 1}");
+        labelPage.SetText($"РЎС‚СЂР°РЅРёС†Р° {page + 1}");
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(pageSwitcherLayoutGroup);
 

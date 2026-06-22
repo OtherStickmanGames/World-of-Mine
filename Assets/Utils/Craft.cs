@@ -7,7 +7,7 @@
 //{
 //    public Dictionary<byte?[], Tuple<byte, int, ItemType>> sets = new()
 //    {
-//        #region Доски
+//        #region Р”РѕСЃРєРё
 //        { new byte?[] { null, 8 }, new(11, 4, ItemType.Block) },
 
 //        { new byte?[] { 8, null }, new(11, 4, ItemType.Block) },
@@ -37,7 +37,7 @@
 //        },
 //        #endregion
 
-//        #region Простой Верстак
+//        #region РџСЂРѕСЃС‚РѕР№ Р’РµСЂСЃС‚Р°Рє
 //        { new byte?[] { 11, 11 }, new(100, 1, ItemType.Block) },
 
 //        {
@@ -54,7 +54,7 @@
 
 //        #endregion
 
-//        #region Верстак
+//        #region Р’РµСЂСЃС‚Р°Рє
 //        {
 //            new byte?[] { 100, 100,
 //                        100, 100 },
@@ -62,7 +62,7 @@
 //        },
 //        #endregion
 
-//        #region Палки
+//        #region РџР°Р»РєРё
 //        {
 //            new byte?[] { 11, null,
 //                          11, null },
@@ -77,7 +77,7 @@
 
 //        #endregion
 
-//        #region Печь
+//        #region РџРµС‡СЊ
 //        {
 //            new byte?[] { 3,  3,  3,
 //                          3, null,3,
@@ -86,7 +86,7 @@
 //        },
 //        #endregion
 
-//        #region Порох
+//        #region РџРѕСЂРѕС…
 //        {
 //            new byte?[] { ITEMS.COAL,  ITEMS.SALTPETER,  ITEMS.SULFUR,
 //                           null, null, null,
@@ -109,7 +109,7 @@
 //        },
 //        #endregion
 
-//        #region Кусочек Железа
+//        #region РљСѓСЃРѕС‡РµРє Р–РµР»РµР·Р°
 //        { new byte?[] { null, ITEMS.INGOT_IRON }, new(ITEMS.IRON_PART, 9, ItemType.Item) },
 //        { new byte?[] { ITEMS.INGOT_IRON, null }, new(ITEMS.IRON_PART, 9, ItemType.Item) },
         
@@ -120,7 +120,7 @@
 
 //        #endregion
 
-//        #region Патрон
+//        #region РџР°С‚СЂРѕРЅ
 //        { new byte?[] { GUNPOWDER, IRON_PART }, new(BULLET, 8, ItemType.Item) },
 //        { new byte?[] { GUNPOWDER, IRON_PART, 
 //                            null,    null }, new(BULLET, 8, ItemType.Item) },
@@ -132,13 +132,13 @@
 
 //        #endregion
 
-//        #region Обойма
+//        #region РћР±РѕР№РјР°
 //        { new byte?[] { INGOT_IRON, BULLET, INGOT_IRON,
 //                        INGOT_IRON, BULLET, INGOT_IRON,
 //                        INGOT_IRON, BULLET, INGOT_IRON}, new(MAGAZINE, 1, ItemType.Item) },
 //        #endregion
 
-//        #region Простой Пистолет
+//        #region РџСЂРѕСЃС‚РѕР№ РџРёСЃС‚РѕР»РµС‚
 //        {
 //            new byte?[] {    null,       null,     null,
 //                          INGOT_IRON, INGOT_IRON, SILICON,
@@ -153,7 +153,7 @@
 //        },
 //        #endregion
 
-//        #region Деревянный топор
+//        #region Р”РµСЂРµРІСЏРЅРЅС‹Р№ С‚РѕРїРѕСЂ
 //        {
 //            new byte?[] { STICK, 11,
 //                          STICK, null },
@@ -168,7 +168,7 @@
 //        #endregion
 //    };
 
-//    // id блока/предмета и время горения
+//    // id Р±Р»РѕРєР°/РїСЂРµРґРјРµС‚Р° Рё РІСЂРµРјСЏ РіРѕСЂРµРЅРёСЏ
 //    public Dictionary<byte, float> setsCombustible = new()
 //    {
 //        {  8,  39 },
@@ -176,7 +176,7 @@
 //        { COAL, 10 },
 //    };
 
-//    // id блока/предмета и время обработки огнем
+//    // id Р±Р»РѕРєР°/РїСЂРµРґРјРµС‚Р° Рё РІСЂРµРјСЏ РѕР±СЂР°Р±РѕС‚РєРё РѕРіРЅРµРј
 //    public Dictionary<byte, Furnaceable> setsFurnaceable = new()
 //    {
 //        { 30, new(5, INGOT_IRON) },

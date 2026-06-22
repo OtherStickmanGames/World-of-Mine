@@ -218,7 +218,7 @@ public class SaveBuildingView : MonoBehaviour
     {
         BuildingManager.Singleton.SaveBuilding(nameInput.text);
         btnAccept.gameObject.SetActive(false);
-        // TO DO доделать в случае неудачи сейва
+        // TO DO доделать � �лучае неудачи �ей�а
     }
 
     private void ShowInputBuildName()
@@ -394,7 +394,7 @@ public class SaveBuildingView : MonoBehaviour
                     prevMp = (Vector2)Input.mousePosition;
                 }
 
-                // Масштабируем по высоте (аналог Canvas Scaler -> Match Height)
+                // Ма�штабируем по �ы�оте (аналог Canvas Scaler -> Match Height)
                 float scaleFactor = 1080f / Screen.height;
 
                 look.x *= scaleFactor;
@@ -404,19 +404,19 @@ public class SaveBuildingView : MonoBehaviour
             look.x *= -1;
             look   *= rotateSensitibity;
 
-            // Сглаживаем дельту ввода с константным временем сглаживания
+            // Сглажи�аем дельту ��ода � кон�тантным �ременем �глажи�ания
             _currentInputDelta = Vector2.SmoothDamp(_currentInputDelta, look, ref _inputDeltaVelocity, 0.05f);
 
             if (_currentInputDelta.sqrMagnitude >= 0.001f)
             {
-                // Вращение по горизонтали (вокруг мировой оси Y)
+                // Вращение по горизонтали (�округ миро�ой о�и Y)
                 Quaternion rotY = Quaternion.AngleAxis(_currentInputDelta.x, Vector3.up);
                 
-                // Вращение по вертикали (вокруг горизонтальной оси экрана/камеры)
+                // Вращение по �ертикали (�округ горизонтальной о�и экрана/камеры)
                 Vector3 camRight = Camera.main.transform.right;
                 Quaternion rotX = Quaternion.AngleAxis(_currentInputDelta.y * sensitivityMouseY, camRight);
 
-                // Применяем инкрементальное вращение
+                // Применяем инкрементальное �ращение
                 meshHolder.transform.rotation = rotY * rotX * meshHolder.transform.rotation;
             }
         }

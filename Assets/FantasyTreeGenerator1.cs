@@ -6,25 +6,25 @@ namespace TonkoTree
 {
     public class FantasyTreeGenerator
     {
-        // Параметры генерации
+        // РџР°СЂР°РјРµС‚СЂС‹ РіРµРЅРµСЂР°С†РёРё
         private int sizeX = 256, sizeY = 512, sizeZ = 256;
         private int minHeight = 50, maxHeight = 80;
-        private int woodVariants = 2;  // количество вариаций ствола
-        private int leafVariants = 2;  // количество вариаций листвы
+        private int woodVariants = 2;  // РєРѕР»РёС‡РµСЃС‚РІРѕ РІР°СЂРёР°С†РёР№ СЃС‚РІРѕР»Р°
+        private int leafVariants = 2;  // РєРѕР»РёС‡РµСЃС‚РІРѕ РІР°СЂРёР°С†РёР№ Р»РёСЃС‚РІС‹
         private System.Random rnd = new System.Random();
 
-        // Генерирует и возвращает список блоков дерева
+        // Р“РµРЅРµСЂРёСЂСѓРµС‚ Рё РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє Р±Р»РѕРєРѕРІ РґРµСЂРµРІР°
         public List<BlockData> GenerateTree()
         {
             var blocks = new List<BlockData>();
             int cx = sizeX / 2;
             int cz = sizeZ / 2;
 
-            // Определяем высоту ствола и вариант ID ствола
+            // РћРїСЂРµРґРµР»СЏРµРј РІС‹СЃРѕС‚Сѓ СЃС‚РІРѕР»Р° Рё РІР°СЂРёР°РЅС‚ ID СЃС‚РІРѕР»Р°
             int height = rnd.Next(minHeight, maxHeight + 1);
             byte woodId = (byte)(5 + rnd.Next(0, woodVariants));
 
-            // Рисуем ствол
+            // Р РёСЃСѓРµРј СЃС‚РІРѕР»
             for (int y = 0; y < height; y++)
             {
                 var block = new BlockData();
@@ -33,7 +33,7 @@ namespace TonkoTree
                 blocks.Add(block);
             }
 
-            // Генерируем ветви
+            // Р“РµРЅРµСЂРёСЂСѓРµРј РІРµС‚РІРё
             int branchCount = rnd.Next(3, 6);
             for (int i = 0; i < branchCount; i++)
             {
@@ -43,7 +43,7 @@ namespace TonkoTree
                 DrawBranch(blocks, cx, by, cz, angle, branchLength);
             }
 
-            // Добавляем крону на вершине
+            // Р”РѕР±Р°РІР»СЏРµРј РєСЂРѕРЅСѓ РЅР° РІРµСЂС€РёРЅРµ
             DrawLeavesSphere(blocks, cx, height, cz, rnd.Next(4, 6));
 
             return blocks;
@@ -74,7 +74,7 @@ namespace TonkoTree
                 }
             }
 
-            // Крона на конце ветки
+            // РљСЂРѕРЅР° РЅР° РєРѕРЅС†Рµ РІРµС‚РєРё
             DrawLeavesSphere(blocks, x, y, z, rnd.Next(3, 5));
         }
 

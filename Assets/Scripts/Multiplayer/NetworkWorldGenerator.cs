@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Newtonsoft;
 using Newtonsoft.Json;
 using Unity.Netcode;
@@ -15,6 +16,10 @@ public class NetworkWorldGenerator : NetworkBehaviour
     public static string chuncksDirectory = $"{Application.dataPath}/Data/Chuncks/";
     public static string serverDirectory = "Server/";
     public static string clientDirectory = "Client/";
+
+    private Dictionary<Vector3, ChunckData> serverChunksCache = new Dictionary<Vector3, ChunckData>();
+    private Queue<Vector3> cacheOrder = new Queue<Vector3>();
+    private const int MaxCacheSize = 300;
 
     List<ChunckComponent> offlineBlocksSeted = new List<ChunckComponent>();
     List<ChunckComponent> pendingChuncks = new List<ChunckComponent>();
@@ -55,33 +60,43 @@ public class NetworkWorldGenerator : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendChangedBlocksServerRpc(Vector3 chunckPos, ServerRpcParams serverRpcParams = default)
     {
-        var userName = NetworkUserManager.Instance.users[serverRpcParams.Receive.SenderClientId];
+        var clientId = serverRpcParams.Receive.SenderClientId;
+        var clientRpcParams = GetTargetClientParams(serverRpcParams);
+        _ = SendChangedBlocksAsync(chunckPos, clientId, clientRpcParams);
+    }
+
+    private async Task SendChangedBlocksAsync(Vector3 chunckPos, ulong clientId, ClientRpcParams clientRpcParams)
+    {
         var chunckDataFileName = GetChunckDataFileName(chunckPos);
         var path = $"{chuncksDirectory}{serverDirectory}{chunckDataFileName}.json";
+        
         if (File.Exists(path))
         {
-            var json = File.ReadAllText(path);
-            var chunckData = JsonConvert.DeserializeObject<ChunckData>(json);
+            var chunckData = await Task.Run(() =>
+            {
+                var json = File.ReadAllText(path);
+                return JsonConvert.DeserializeObject<ChunckData>(json);
+            });
+
             var changedBlocks = chunckData.changedBlocks;
             if (changedBlocks.Count > 0)
             {
-                PrepareAndSendTurnedBlocksData(chunckData, chunckPos, GetTargetClientParams(serverRpcParams));
+                PrepareAndSendTurnedBlocksData(chunckData, chunckPos, clientRpcParams);
 
                 Vector3[] positions = changedBlocks.Select(b => b.Pos).ToArray();
                 byte[] blockIDs = changedBlocks.Select(b => b.blockId).ToArray();
-                ReceivePendingChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
+                ReceivePendingChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, clientRpcParams);
             }
         }
         else
         {
-            // Сервер отправляет клиенту, информацию о том, что чанк не менялся
-            ReceiveNoDataChunckBlocksClientRpc(chunckPos, GetTargetClientParams(serverRpcParams));
+            ReceiveNoDataChunckBlocksClientRpc(chunckPos, clientRpcParams);
         }
     }
 
     /// <summary>
-    /// Метод, который вызывается, чтобы сообщить клиенту
-    /// что на сервере нет сохраненных изминений чанка 
+    /// РЎРѕРѕР±С‰Р°РµРј, С‡С‚Рѕ РґР°РЅРЅС‹С… РЅРµС‚, СЃРѕР·РґР°РІР°Р№ РїСѓСЃС‚РѕР№
+    /// РџСЂРѕСЃС‚Рѕ РїСЂРѕРєРёРґС‹РІР°РµРј СЃС‚Р°С‚СѓСЃ РіРѕС‚РѕРІРЅРѕСЃС‚Рё С‡Р°РЅРєР°
     /// </summary>
     /// <param name="chunckPos"></param>
     /// <param name="clientRpcParams"></param>
@@ -93,7 +108,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
     }
 
     /// <summary>
-    /// Вроде как здесь я чанку задаю блоки из json файла
+    /// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С‡Р°РЅРєР° РґР°РЅРЅС‹РјРё РёР· json С„Р°Р№Р»Р°
     /// </summary>
     /// <param name="emptyChunck"></param>
     private void Chunck_Inited(ChunckComponent emptyChunck)
@@ -116,6 +131,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
         worldGenerator = WorldGenerator.Inst;
 
         yield return null;
+
 #if !UNITY_SERVER
 
 #if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
@@ -154,31 +170,73 @@ public class NetworkWorldGenerator : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendPendingChunckDataServerRpc(Vector3 chunckPos, ServerRpcParams serverRpcParams = default)
     {
-        //var userName = NetworkUserManager.Instance.users[serverRpcParams.Receive.SenderClientId];
-        var chunckDataFileName = GetChunckDataFileName(chunckPos);
-        var path = $"{chuncksDirectory}{serverDirectory}{chunckDataFileName}.json";
-        if (File.Exists(path))
+        var clientId = serverRpcParams.Receive.SenderClientId;
+        var clientRpcParams = GetTargetClientParams(serverRpcParams);
+        _ = SendPendingChunckDataAsync(chunckPos, clientId, clientRpcParams);
+    }
+
+    private async Task SendPendingChunckDataAsync(Vector3 chunckPos, ulong clientId, ClientRpcParams clientRpcParams)
+    {
+        ChunckData chunckData = null;
+
+        // Check cache (should be thread-safe for reading if not being modified, 
+        // but let's be safe and do it on main thread or just use TryGetValue)
+        if (serverChunksCache.TryGetValue(chunckPos, out chunckData))
         {
-            var json = File.ReadAllText(path);
-            var chunckData = JsonConvert.DeserializeObject<ChunckData>(json);
-            var changedBlocks = chunckData.changedBlocks;
-            if(changedBlocks.Count > 0)
+            // Cache hit
+        }
+        else
+        {
+            var chunckDataFileName = GetChunckDataFileName(chunckPos);
+            var path = $"{chuncksDirectory}{serverDirectory}{chunckDataFileName}.json";
+            if (File.Exists(path))
             {
-                PrepareAndSendTurnedBlocksData(chunckData, chunckPos, GetTargetClientParams(serverRpcParams));
+                chunckData = await Task.Run(() =>
+                {
+                    var json = File.ReadAllText(path);
+                    return JsonConvert.DeserializeObject<ChunckData>(json);
+                });
                 
+                // Add to cache (main thread is better for Dictionary safety)
+                AddToCache(chunckPos, chunckData);
+            }
+        }
+
+        if (chunckData != null)
+        {
+            var changedBlocks = chunckData.changedBlocks;
+            if (changedBlocks.Count > 0)
+            {
+                PrepareAndSendTurnedBlocksData(chunckData, chunckPos, clientRpcParams);
+
                 Vector3[] positions = changedBlocks.Select(b => b.Pos).ToArray();
                 byte[] blockIDs = changedBlocks.Select(b => b.blockId).ToArray();
-                ReceivePendingChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, GetTargetClientParams(serverRpcParams));
+                ReceivePendingChunckBlocksDataClientRpc(positions, blockIDs, chunckPos, clientRpcParams);
             }
             else
             {
-                SendNoChunckServerData(serverRpcParams.Receive.SenderClientId);
+                SendNoChunckServerData(clientId);
             }
         }
         else
         {
-            SendNoChunckServerData(serverRpcParams.Receive.SenderClientId);
+            SendNoChunckServerData(clientId);
         }
+    }
+
+    private void AddToCache(Vector3 pos, ChunckData data)
+    {
+        if (serverChunksCache.ContainsKey(pos))
+            return;
+
+        if (serverChunksCache.Count >= MaxCacheSize)
+        {
+            var oldestPos = cacheOrder.Dequeue();
+            serverChunksCache.Remove(oldestPos);
+        }
+
+        serverChunksCache.Add(pos, data);
+        cacheOrder.Enqueue(pos);
     }
 
     private void PrepareAndSendTurnedBlocksData(ChunckData chunckData, Vector3 chunckPos, ClientRpcParams clientRpcParams)
@@ -219,7 +277,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
         if (turnedBlocks.Length is 0)
             return;
 
-        //print($"хуль, я клиент и я получил данные о повертышах {turnedBlocks.Length}");
         var chunk = worldGenerator.GetChunk(chunkPos);
         foreach (var turnData in turnedBlocks)
         {
@@ -230,25 +287,12 @@ public class NetworkWorldGenerator : NetworkBehaviour
                 turnsData[i].angle = turnData.turnsData[i].angle;
                 turnsData[i].axis = turnData.turnsData[i].axis;
             }
-            //print($"{turnData.worldBlockPos} ### {turnData.turnsData[0].angle}");
             chunk.AddTurnBlock
             (
-                turnData.worldBlockPos.ToVecto3Int(),// бля.. в общем он тут
-                turnsData                            // уже приходит в локальных координатах
+                turnData.worldBlockPos.ToVecto3Int(),
+                turnsData
             );
-            
-            //print($"{chunkPos} ### {turnData.worldBlockPos} ### {turnData.angle}");
         }
-
-        //print("проверяю данные повернутых блоков у чанка");
-        //foreach (var kv in chunk.turnedBlocks)
-        //{
-        //    print(kv.Key + " Позиция блока");
-        //    foreach (var item in kv.Value)
-        //    {
-        //        print($"{item.angle} ^^^ {item.axis}");
-        //    }
-        //}
     }
 
     [ClientRpc(RequireOwnership = false)]
@@ -264,11 +308,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
             }
 
             waitHandlingChunck = false;
-
-            //print("ЁБА ???");
-
-            // КОСТЫЛИЩЕ
-            //StartCoroutine(Async());
         }
 
         IEnumerator Async()
@@ -279,10 +318,9 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
     }
 
-    // Выполняется на клиенте
+    //   
     private void UpdateChunckMesh(Vector3[] positions, byte[] blockIDs, Vector3 chunckPos, Action onComplete = null)
     {
-        //Debug.Break();
         StartCoroutine(Async());
 
         IEnumerator Async()
@@ -291,10 +329,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
 
             var length = positions.Length;
             var chunck = worldGenerator.GetChunk(chunckPos);
-            //print($"{chunckPos} ### {chunck.pos} ### {chunck.renderer.transform}");
 
-            //yield return null;
-            //print("=========================");
             for (int i = 0; i < length; i++)
             {
                 var pos = positions[i];
@@ -305,14 +340,9 @@ public class NetworkWorldGenerator : NetworkBehaviour
                     pos = worldGenerator.ToLocalBlockPos(pos);
                 }
 
-                //int xIdx = (int)pos.x;
-                //int yIdx = (int)pos.y;
-                //int zIdx = (int)pos.z;
-                //print($"{xIdx} # {yIdx} # {zIdx} # {chunck.blocks.Length}");
                 chunck.SetBlock(pos, blockId);
             }
 
-            //worldGenerator.UpdateChunckMesh(chunck);
             worldGenerator.UpdateChunkMeshAsync(chunck, LocalOnComplete);
 
             void LocalOnComplete()
@@ -395,11 +425,15 @@ public class NetworkWorldGenerator : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendTurnedBlockPlacedServerRpc(NetworkTurnedBlockData blockData, ServerRpcParams serverRpcParams = default)
     {
-        //print($"Еба че получил {blockData.angle} ### {blockData.axis}");
-        SaveChangeChunck(blockData.worldBlockPos, blockData.blockID, serverRpcParams);
-        SaveTurnedChangeChunck(blockData, serverRpcParams);
+        _ = SaveTurnedBlockAsync(blockData, serverRpcParams);
         ReceiveBlockPlacedClientRpc(blockData.worldBlockPos, blockData.blockID, serverRpcParams.Receive.SenderClientId);
         ReceiveTurnBlockPlacedClientRpc(blockData, serverRpcParams.Receive.SenderClientId);
+    }
+
+    private async Task SaveTurnedBlockAsync(NetworkTurnedBlockData blockData, ServerRpcParams serverRpcParams)
+    {
+        await SaveChangeChunckAsync(blockData.worldBlockPos, blockData.blockID, serverRpcParams);
+        await SaveTurnedChangeChunckAsync(blockData, serverRpcParams);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -408,7 +442,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
 #if !UNITY_SERVER
         ChangeChunck(blockPos, blockId);
 #endif
-        SaveChangeChunck(blockPos, blockId, serverRpcParams);
+        _ = SaveChangeChunckAsync(blockPos, blockId, serverRpcParams);
         ReceiveBlockPlacedClientRpc(blockPos, blockId, serverRpcParams.Receive.SenderClientId);
 
         NetworkUserManager.Instance.AddPlacedBlock(serverRpcParams.Receive.SenderClientId);
@@ -419,7 +453,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
     {
         if (mineClientId == NetworkManager.LocalClient.ClientId)
             return;
-        // TO DO Доделать, чтобы не отправлять эти данные тому кто добыл блок
 
         worldGenerator.SetBlockAndUpdateChunck(blockPos, blockID);
     }
@@ -429,7 +462,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
     {
         if (mineClientId == NetworkManager.LocalClient.ClientId)
             return;
-        // TO DO Доделать, чтобы не отправлять эти данные тому кто добыл блок
 
         var chunk = worldGenerator.GetChunk(blockData.worldBlockPos);
         foreach (var turndata in blockData.turnsData)
@@ -442,7 +474,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
             );
         }
 
-        //worldGenerator.UpdateChunckMesh(chunk);
         worldGenerator.UpdateChunkMeshAsync(chunk);
     }
 
@@ -457,21 +488,18 @@ public class NetworkWorldGenerator : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void BlockMinedServerRpc(Vector3 blockPos, byte blockID, ServerRpcParams serverRpcParams = default)
     {
-        //print($"Пришел блок {blockID} в {blockPos}");
 #if !UNITY_SERVER
         ChangeChunck(blockPos, 0);
 #endif
-        RemoveTurnedBlockData(blockPos);
-        SaveChangeChunck(blockPos, 0, serverRpcParams);
+        _ = RemoveTurnedBlockDataAsync(blockPos, serverRpcParams);
         ReceiveMinedBlockClientRpc(blockPos, serverRpcParams.Receive.SenderClientId);
 
         NetworkUserManager.Instance.AddMinedBlock(serverRpcParams.Receive.SenderClientId);
     }
 
-    private void RemoveTurnedBlockData(Vector3 blockPos)
+    private async Task RemoveTurnedBlockDataAsync(Vector3 blockPos, ServerRpcParams serverRpcParams)
     {
         var chunck = worldGenerator.GetChunk(blockPos);
-        //print($"R.T.B.D: chunck {chunck} ###");
         var chunckFileName = GetChunckName(chunck);
         var path = $"{chuncksDirectory}{serverDirectory}{chunckFileName}.json";
         var localBlockPos = worldGenerator.ToLocalBlockPos(blockPos);
@@ -479,8 +507,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
         ChunckData jsonChunkData = GetChunckData(path, chunck);
         int idx = 0;
         var hasTurnedData = false;
-        //print($"R.T.B.D: jsonChunkData {jsonChunkData} ###");
-        // Заглушка для старых json в которых нет этого поля
         jsonChunkData.turnedBlocks ??= new List<ChunckData.JsonTurnedBlock>();
 
         foreach (var turnData in jsonChunkData.turnedBlocks)
@@ -495,16 +521,24 @@ public class NetworkWorldGenerator : NetworkBehaviour
         
         if (hasTurnedData)
         {
-            print($"R.T.B.D: jsonChunkData.turnedBlocks {jsonChunkData.turnedBlocks} ###");
             jsonChunkData.turnedBlocks.RemoveAt(idx);
 
-            var json = JsonConvert.SerializeObject(jsonChunkData);
-            File.WriteAllText(path, json);
-            //print($"Жахнул поворото датас из чанкас {chunckFileName}");
+            await Task.Run(() => {
+                var json = JsonConvert.SerializeObject(jsonChunkData);
+                File.WriteAllText(path, json);
+            });
+            
+            // Update cache
+            if (serverChunksCache.ContainsKey(chunck.pos))
+                serverChunksCache[chunck.pos] = jsonChunkData;
+            else
+                AddToCache(chunck.pos, jsonChunkData);
         }
+
+        await SaveChangeChunckAsync(blockPos, 0, serverRpcParams);
     }
 
-    private void SaveChangeChunck(Vector3 worldBlockPos, byte blockID, ServerRpcParams serverRpcParams)
+    private async Task SaveChangeChunckAsync(Vector3 worldBlockPos, byte blockID, ServerRpcParams serverRpcParams)
     {
         CheckDirectory(serverDirectory);
 
@@ -540,13 +574,20 @@ public class NetworkWorldGenerator : NetworkBehaviour
             }
         }
 
-        var json = JsonConvert.SerializeObject(jsonChunkData); //JsonUtility.ToJson(data);
+        await Task.Run(() => {
+            var json = JsonConvert.SerializeObject(jsonChunkData);
+            File.WriteAllText(path, json);
+        });
 
-        File.WriteAllText(path, json);
+        // Update cache
+        if (serverChunksCache.ContainsKey(chunck.pos))
+            serverChunksCache[chunck.pos] = jsonChunkData;
+        else
+            AddToCache(chunck.pos, jsonChunkData);
     }
 
     
-    private void SaveTurnedChangeChunck(NetworkTurnedBlockData blockData, ServerRpcParams serverRpcParams)
+    private async Task SaveTurnedChangeChunckAsync(NetworkTurnedBlockData blockData, ServerRpcParams serverRpcParams)
     {
         CheckDirectory(serverDirectory);
 
@@ -558,10 +599,16 @@ public class NetworkWorldGenerator : NetworkBehaviour
 
         ServerChangedTurnedBlock(jsonChunkData, blockData);
 
-        var json = JsonConvert.SerializeObject(jsonChunkData); //JsonUtility.ToJson(data);
-
-        File.WriteAllText(path, json);
-        //print($"Жасон савед - {chunckFileName}");
+        await Task.Run(() => {
+            var json = JsonConvert.SerializeObject(jsonChunkData);
+            File.WriteAllText(path, json);
+        });
+        
+        // Update cache
+        if (serverChunksCache.ContainsKey(chunck.pos))
+            serverChunksCache[chunck.pos] = jsonChunkData;
+        else
+            AddToCache(chunck.pos, jsonChunkData);
     }
 
     [ClientRpc]
@@ -569,19 +616,24 @@ public class NetworkWorldGenerator : NetworkBehaviour
     {
         if (mineClientId == NetworkManager.LocalClient.ClientId)
             return;
-        // TO DO Доделать, чтобы не отправлять эти данные тому кто добыл блок
         worldGenerator.SetBlockAndUpdateChunck(blockPos, 0);
     }
 
     private ChunckData GetChunckData(string path, ChunckComponent chunck)
     {
+        if (serverChunksCache.TryGetValue(chunck.pos, out var cachedData))
+        {
+            return cachedData;
+        }
+
         ChunckData data;
 
         if (File.Exists(path))
         {
             var fileText = File.ReadAllText(path);
             data = JsonConvert.DeserializeObject<ChunckData>(fileText, settings);
-            data.blocks = chunck.blocks;// Я хз зачем я это делаю
+            data.blocks = chunck.blocks;
+            AddToCache(chunck.pos, data);
         }
         else
         {
@@ -589,6 +641,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
         return data;
     }
+
 
     private void ServerChangedDataBlocks(ChunckData jsonChunckData, Vector3 blockPos, byte blockID)
     {
@@ -612,15 +665,11 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
         var localBlockPos = worldGenerator.ToLocalBlockPos(blockData.worldBlockPos);
 
-        // Ищем в уже сохраненных данных информацию о повернутом блоке
         for (int i = 0; i < jsonChunckData.turnedBlocks.Count; i++)
         {
             var turnedBlock = jsonChunckData.turnedBlocks[i];
             if (turnedBlock.Pos == localBlockPos)
             {
-                // не особо оптимизировано
-                // мы пересоздаем массив вместе перезаписывания элементов
-                // и при необходимости изминении размера массива
                 var length = blockData.turnsData.Length;
                 turnedBlock.turnsBlockData = new TurnBlockData[length];
                 for (int j = 0; j < length; j++)
@@ -633,7 +682,6 @@ public class NetworkWorldGenerator : NetworkBehaviour
             }
         }
 
-        // Если не находим, то создаем её
         TurnBlockData[] turns = new TurnBlockData[blockData.turnsData.Length];
         for (int j = 0; j < turns.Length; j++)
         {
@@ -686,6 +734,14 @@ public class NetworkWorldGenerator : NetworkBehaviour
         return clientRpcParams;
     }
 
+    private ClientRpcParams GetTargetClientParams(ulong clientId)
+    {
+        ClientRpcParams clientRpcParams = default;
+        clientRpcParams.Send.TargetClientIds = new ulong[] { clientId };
+
+        return clientRpcParams;
+    }
+
     private static JsonSerializerSettings settings = new JsonSerializerSettings
     {
         TypeNameHandling = TypeNameHandling.Auto,
@@ -704,5 +760,73 @@ public class NetworkWorldGenerator : NetworkBehaviour
         public Vector3 chunkPos;
         public ulong cliendId;
         public float lifeTime;
+    }
+
+    public async Task<(bool isSafe, float surfaceY)> CheckChunkSafetyAsync(Vector3 chunkPos, bool strict = true)
+    {
+        // 1. Modifications Check
+        var chunckDataFileName = GetChunckDataFileName(chunkPos);
+        var path = $"{chuncksDirectory}{serverDirectory}{chunckDataFileName}.json";
+        
+        int changeCount = 0;
+        HashSet<Vector3Int> modifiedLocalPoses = new HashSet<Vector3Int>();
+
+        if (serverChunksCache.TryGetValue(chunkPos, out var cachedData))
+        {
+            changeCount = cachedData.changedBlocks.Count;
+            foreach(var b in cachedData.changedBlocks) modifiedLocalPoses.Add(worldGenerator.ToLocalBlockPos(b.Pos));
+        }
+        else if (File.Exists(path))
+        {
+            var json = await Task.Run(() => File.ReadAllText(path));
+            var data = JsonConvert.DeserializeObject<ChunckData>(json, settings);
+            changeCount = data.changedBlocks.Count;
+            foreach(var b in data.changedBlocks) modifiedLocalPoses.Add(worldGenerator.ToLocalBlockPos(b.Pos));
+        }
+
+        if (strict && changeCount > 10) return (false, 0);
+
+        // 2. Block Analysis
+        var chunk = worldGenerator.GetChunk(chunkPos);
+        if (chunk == null)
+        {
+            return (false, 0); 
+        }
+
+        int solidCount = 0;
+        int highestSolidY = -1;
+        int size = WorldGenerator.size;
+
+        for (int x = 0; x < size; x++)
+        {
+            for (int z = 0; z < size; z++)
+            {
+                for (int y = size - 1; y >= 0; y--)
+                {
+                    byte blockID = chunk.blocks[x, y, z];
+                    Vector3Int localPos = new Vector3Int(x, y, z);
+
+                    bool isSolid = blockID != 0;
+                    if (isSolid)
+                    {
+                        if (!strict || !modifiedLocalPoses.Contains(localPos))
+                        {
+                            solidCount++;
+                            if (y > highestSolidY) highestSolidY = y;
+                            break; 
+                        }
+                    }
+                }
+            }
+        }
+
+        // In strict mode, we need many unmodified solid blocks
+        // In non-strict mode, we just need ANY solid ground to stand on
+        if ((strict && solidCount >= 80) || (!strict && solidCount > 0))
+        {
+            return (true, chunkPos.y + highestSolidY);
+        }
+
+        return (false, 0);
     }
 }

@@ -1,5 +1,5 @@
 {
-    "idSave": 8222,
+    "idSave": 9659,
     "isFirstSession": false,
     "language": "ru",
     "promptDone": false,
@@ -7,9 +7,9 @@
     "tutorialComplete": false,
     "tutorialSkiped": false,
     "position": {
-        "x": -128.2572021484375,
-        "y": 21.94499969482422,
-        "z": 196.9998016357422
+        "x": -173.69813537597657,
+        "y": 44.94499588012695,
+        "z": 488.33856201171877
     },
     "newPlayerName": "",
     "openLevels": [

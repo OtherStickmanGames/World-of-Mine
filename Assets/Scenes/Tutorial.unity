@@ -2244,10 +2244,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 288572287}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.7, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -180.20898}
-  m_SizeDelta: {x: 0, y: -360.4165}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 1, y: 0.73}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &653725232
 MonoBehaviour:
@@ -2446,7 +2446,7 @@ MonoBehaviour:
   mobileInput: {fileID: 288572288}
   btnJump: {fileID: 971869830}
   smoothTime: 0.8
-  sensitivity: 11
+  sensitivity: 3
   resolutionFactorInput: {fileID: 347325243}
   starterAssetsInputs: {fileID: 1785066746}
   mobileController: {fileID: 971869828}

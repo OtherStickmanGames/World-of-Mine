@@ -20,6 +20,7 @@ public class InputLogic : MonoBehaviour
 
     PlayerBehaviour playerBehaviour;
     StarterAssetsInputs starterAssetsInputs;
+    QuickInventoryView quickInventoryView;
 
     [ReadOnlyField] public bool needUserGesture;
 
@@ -35,6 +36,9 @@ public class InputLogic : MonoBehaviour
     private void Start()
     {
         starterAssetsInputs = GetComponent<StarterAssetsInputs>();
+
+        quickInventoryView = GameManager.IsTutorialScene() ? TutorialUI.Single.quickInventoryView : UI.Single.quickInventoryView;
+
     }
 
     private void PlayerMine_Spawned(MonoBehaviour player)
@@ -135,9 +139,9 @@ public class InputLogic : MonoBehaviour
             return;
         }
 
-        var currentSlot = UI.Single.quickInventoryView.Selected;
+        var currentSlot = quickInventoryView.Selected;
         // TO DO на один раз при старте
-        var slotCount = UI.Single.quickInventoryView.SlotCount;
+        var slotCount = quickInventoryView.SlotCount;
         var scrollValue = Mouse.current.scroll.y.ReadValue();
         if (scrollValue < 0f)
             currentSlot = (currentSlot + 1) % slotCount;
@@ -175,7 +179,7 @@ public class InputLogic : MonoBehaviour
 
     void OnSlotChanged(int value)
     {
-        UI.Single.quickInventoryView.SelectSlot(value);
+        quickInventoryView.SelectSlot(value);
     }
 
 

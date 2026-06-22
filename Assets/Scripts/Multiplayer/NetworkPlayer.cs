@@ -10,6 +10,7 @@ using UnityEngine.InputSystem;
 [DefaultExecutionOrder(103)]
 public class NetworkPlayer : NetworkBehaviour
 {
+    public static NetworkPlayer LocalPlayer;
     PlayerBehaviour player;
     ThirdPersonController thirdPersonController;
 
@@ -17,6 +18,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         player = GetComponent<PlayerBehaviour>();
         thirdPersonController = GetComponent<ThirdPersonController>();
+        if (IsOwner) LocalPlayer = this;
     }
 
     private void Start()
@@ -35,7 +37,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Client_Started()
     {
-        // КОСТЫЛИЩЕ, я задолбался разбираться, почему перс иногда спавнится на старте
+        // ,   ,      
 
         delay = StartCoroutine(Async());
 
@@ -44,7 +46,13 @@ public class NetworkPlayer : NetworkBehaviour
             yield return null;
 
 #if !UNITY_SERVER
-            Debug.Log($"Сервак выкидывает Ошибку {player} ### {UserData.Owner}");
+            Debug.Log($"   {player} ### {UserData.Owner}");
+
+            // Safe spawn for new players
+            if (UserData.Owner.position == Vector3.zero && !GameManager.IsTutorialScene())
+            {
+                NetworkSpawnManager.Instance.RequestSafeSpawnServerRpc();
+            }
 #endif
             player?.SetLoadedPosition();
             delay = null; 

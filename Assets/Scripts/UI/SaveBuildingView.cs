@@ -117,7 +117,7 @@ public class SaveBuildingView : MonoBehaviour
 
     private void CountBuildings_Received(int countBuildings)
     {
-        nameInput.text = $"��������� - {countBuildings + 1}";
+        nameInput.text = $"ШЕДЕВРИЩЕ - {countBuildings + 1}";
         btnAccept.gameObject.SetActive(true);
     }
 
@@ -218,7 +218,7 @@ public class SaveBuildingView : MonoBehaviour
     {
         BuildingManager.Singleton.SaveBuilding(nameInput.text);
         btnAccept.gameObject.SetActive(false);
-        // TO DO �������� � ������ ������� �����
+        // TO DO доделать в случае неудачи сейва
     }
 
     private void ShowInputBuildName()
@@ -227,7 +227,6 @@ public class SaveBuildingView : MonoBehaviour
         btnAccept.gameObject.SetActive(false);
 
         BuildingManager.Singleton.InputNameBuilding_Showed();
-        //print("����� � ��������");
     }
 
     private void ShowBuildingPreview()
@@ -371,15 +370,19 @@ public class SaveBuildingView : MonoBehaviour
         UpdateRightCropHandle(cropHandleRightBottom.GetPos() / scaleFactor);
     }
 
-    float _cinemachineTargetYaw;
-    float _cinemachineTargetPitch;
-    Vector2 prevMp, lookDirection, currentVelocity;
+    Vector2 _currentInputDelta, _inputDeltaVelocity;
+    Vector2 prevMp;
     void BuildingPreviewRotate()
     {
         if (panelPreview.activeSelf)
         {
-            var look = buildingPreviewLook.TouchDist;
-            if (!Application.isMobilePlatform)
+            Vector2 look = Vector2.zero;
+
+            if (Application.isMobilePlatform)
+            {
+                look = buildingPreviewLook.TouchDist;
+            }
+            else
             {
                 if (Input.GetMouseButtonDown(0))
                 {
@@ -390,29 +393,32 @@ public class SaveBuildingView : MonoBehaviour
                     look   = (Vector2)Input.mousePosition - prevMp;
                     prevMp = (Vector2)Input.mousePosition;
                 }
+
+                // Масштабируем по высоте (аналог Canvas Scaler -> Match Height)
+                float scaleFactor = 1080f / Screen.height;
+
+                look.x *= scaleFactor;
+                look.y *= scaleFactor;
             }
 
             look.x *= -1;
             look   *= rotateSensitibity;
-            lookDirection = Vector2.SmoothDamp(lookDirection, look, ref currentVelocity, Time.deltaTime * 1.38f);
 
-            if (lookDirection.sqrMagnitude >= 0.01f)
+            // Сглаживаем дельту ввода с константным временем сглаживания
+            _currentInputDelta = Vector2.SmoothDamp(_currentInputDelta, look, ref _inputDeltaVelocity, 0.05f);
+
+            if (_currentInputDelta.sqrMagnitude >= 0.001f)
             {
-                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+                // Вращение по горизонтали (вокруг мировой оси Y)
+                Quaternion rotY = Quaternion.AngleAxis(_currentInputDelta.x, Vector3.up);
+                
+                // Вращение по вертикали (вокруг горизонтальной оси экрана/камеры)
+                Vector3 camRight = Camera.main.transform.right;
+                Quaternion rotX = Quaternion.AngleAxis(_currentInputDelta.y * sensitivityMouseY, camRight);
 
-                _cinemachineTargetYaw += lookDirection.x * deltaTimeMultiplier;
-                _cinemachineTargetPitch += lookDirection.y * deltaTimeMultiplier * sensitivityMouseY;
+                // Применяем инкрементальное вращение
+                meshHolder.transform.rotation = rotY * rotX * meshHolder.transform.rotation;
             }
-
-            _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
-            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, -90, 90);
-
-            meshHolder.transform.rotation = Quaternion.Euler
-            (
-                _cinemachineTargetPitch + CameraAngleOverrideX,
-                _cinemachineTargetYaw + CameraAngleOverrideY,
-                0.0f
-            );
         }
     }
 

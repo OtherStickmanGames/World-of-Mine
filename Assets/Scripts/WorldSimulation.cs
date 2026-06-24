@@ -12,7 +12,7 @@ using System.IO;
 
 
 /// <summary>
-///    ,            
+/// Этот скрипт сделан так, чтобы он мог работать и через сервер и локально для оффлайн режима
 /// </summary>
 public class WorldSimulation : MonoBehaviour
 {
@@ -61,8 +61,8 @@ public class WorldSimulation : MonoBehaviour
 
     public void PlaceBlock(ChunckComponent chunk, Vector3 worldBlockPos, byte blockID)
     {
-        //           
-        //      
+        // Сначала проверяем на Клиенте есть ли смысл передавать на сервер информацию
+        // о поставленном блоке для симуляции мира
         var topBlockPos = worldBlockPos + Vector3Int.up;
         var topBlockID = WorldGenerator.Inst.GetBlockID(topBlockPos);
         if (blockID == DIRT && topBlockID != DIRT && topBlockID != GRASS)
@@ -255,7 +255,7 @@ public class WorldSimulation : MonoBehaviour
             }
             else
             {
-                Debug.Log($",    {blockData.blockID}");
+                Debug.Log($"Э, хуйло добавь конфиг {blockData.blockID}");
             }
         }
 
@@ -300,7 +300,7 @@ public class WorldSimulation : MonoBehaviour
 
                 onBlockChanged?.Invoke(chunkPos, blockData.localBlockPos, GRASS);
 
-                //print($"  {changedBlock}");
+                //print($"Есть шо {changedBlock}");
                 WorldData.SaveChunkData(chunckData, chunkPos);
                 removeSimulationData = true;
                 break;

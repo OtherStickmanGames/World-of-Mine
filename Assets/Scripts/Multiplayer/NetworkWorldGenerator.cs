@@ -318,7 +318,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
     }
 
-            // КОСТЫЛИЩЕ
+    //   
     private void UpdateChunckMesh(Vector3[] positions, byte[] blockIDs, Vector3 chunckPos, Action onComplete = null)
     {
         StartCoroutine(Async());

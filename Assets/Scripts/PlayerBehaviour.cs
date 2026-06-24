@@ -74,7 +74,7 @@ public class PlayerBehaviour : MonoBehaviour
             InitSizeMainInventory();
             LoadInventory();
 
-            if (player.inventory.mainSize == 0)// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
+            if (player.inventory.mainSize == 0)// ������� ��������� �� ����, ������� ��� ��� ��� ��� ���� ���� ��� ��������� 
             {
                 player.inventory.SetMainInventorySize(sizeMainInventory);
             }
@@ -222,7 +222,7 @@ public class PlayerBehaviour : MonoBehaviour
                     {
                         if (!WorldGenerator.Inst.chuncks[key].blocksLoaded)
                         {
-                            //print("пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
+                            //print("���� �� ����������� �����");
                             return;
                         }
                     }
@@ -271,7 +271,7 @@ public class PlayerBehaviour : MonoBehaviour
                 WorldGenerator.Inst.MineBlock(blockPosition + Vector3.right);
             }
 
-            //print($"пїЅпїЅ пїЅпїЅпїЅпїЅ: {WorldGenerator.Inst.GetBlockID(transform.position + (Vector3.down * 0.5f) + Vector3.right)}");
+            //print($"�� ����: {WorldGenerator.Inst.GetBlockID(transform.position + (Vector3.down * 0.5f) + Vector3.right)}");
             var lookBlockID = WorldGenerator.Inst.GetBlockID(blockPosition + Vector3.right);
             if (ItemsStorage.Singleton.HasCraftingBundle(lookBlockID))
             {
@@ -286,11 +286,11 @@ public class PlayerBehaviour : MonoBehaviour
             }
             //if (Input.GetMouseButtonDown(1))
             //{
-            //    // пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1 пїЅпїЅ пїЅпїЅпїЅ X, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+            //    // �����-�� ����� ���������� 1 �� ��� X, �� ������ ���, �� ������ ��� ��������
             //    ref var chunck = ref Service<World>.Get().GetChunk(blockPosition + Vector3.right);
             //    var pos = chunck.renderer.transform.position;
 
-            //    // пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1 пїЅпїЅ пїЅпїЅпїЅ X, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+            //    // �����-�� ����� ���������� 1 �� ��� X, �� ������ ���, �� ������ ��� ��������
             //    int xBlock = x - Mathf.FloorToInt(pos.x) + 1;
             //    int yBlock = y - Mathf.FloorToInt(pos.y);
             //    int zBlock = z - Mathf.FloorToInt(pos.z);
@@ -324,7 +324,7 @@ public class PlayerBehaviour : MonoBehaviour
             //                    onChunkHit?.Invoke(new Entity { id = e }, component);
             //                    GlobalEvents.onBlockPlaced?.Invoke(item.blockID, blockPosition + hit.normal);
 
-            //                    // HOT FIX пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+            //                    // HOT FIX ������� � ��������� �������
             //                    item.count--;
             //                    if (item.count == 0)
             //                    {
@@ -376,14 +376,14 @@ public class PlayerBehaviour : MonoBehaviour
             //print($"Dot Left {Vector3.Dot(Vector3.left, hitNormal)}");
 
             Ray ray = CameraStack.Instance.Main.ScreenPointToRay(Input.mousePosition);
-            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+            // �������� ����������� ����
             Vector3 rayDirection = ray.direction;
             //print(VectorTools.GetRoundedVector(rayDirection));
-            // 1,1,0 пїЅ -1,1,0 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+            // 1,1,0 � -1,1,0 ����������� ��������
 
             rayDirection = VectorTools.GetDominantDirection(rayDirection) * -1f;
 
-            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 90 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (-1, 0, 1)
+            // ��������� ����������� �� ���������� �������� 90 �������� �������� (-1, 0, 1)
             Vector3 roundedDirection = new Vector3(
                 Mathf.Round(rayDirection.x),
                 Mathf.Round(rayDirection.y),
@@ -393,7 +393,7 @@ public class PlayerBehaviour : MonoBehaviour
 
             //Quaternion rotation = Quaternion.LookRotation(roundedDirection);
             //rotation.ToAngleAxis(out var angle, out var axoso);
-            ////Debug.Log("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " + axoso + ", пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " + angle);
+            ////Debug.Log("��� ��������: " + axoso + ", ���� ��������: " + angle);
 
             //RotationAxis zaebis = RotationAxis.Y;
             //var turnBlockAngle = angle * axoso.y;
@@ -405,7 +405,7 @@ public class PlayerBehaviour : MonoBehaviour
             //        turnBlockAngle = angle * axoso.x;
             //    }
             //}
-            //print($"пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ {zaebis}");
+            //print($"��� ��� ��������� {zaebis}");
 
             //var axis = WorldGenerator.Inst.turnableBlocks[(byte)ItemID.STONE_WORKBENCH];
             //bool axisXY = (axis & (RotationAxis.X | RotationAxis.Y)) == (RotationAxis.X | RotationAxis.Y);
@@ -417,7 +417,7 @@ public class PlayerBehaviour : MonoBehaviour
                     return;
 
                 var item = player.inventory.CurrentSelectedItem;
-                // пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1 пїЅпїЅ пїЅпїЅпїЅ X, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+                // �����-�� ����� ���������� 1 �� ��� X, �� ������ ���, �� ������ ��� ��������
                 var generator = WorldGenerator.Inst;
                 var chunck = generator.GetChunk(blockPosition + Vector3.right);
                 var pos = chunck.renderer.transform.position;
@@ -425,7 +425,7 @@ public class PlayerBehaviour : MonoBehaviour
                 int xBlock = (int)(blockPosition.x - pos.x) + 1;
                 int yBlock = (int)(blockPosition.y - pos.y);
                 int zBlock = (int)(blockPosition.z - pos.z);
-                // пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1 пїЅпїЅ пїЅпїЅпїЅ X, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+                // �����-�� ����� ���������� 1 �� ��� X, �� ������ ���, �� ������ ��� ��������
                 byte hitBlockID = chunck.blocks[xBlock, yBlock, zBlock];
 
                 chunck.blocks[xBlock, yBlock, zBlock] = item.id;
@@ -445,7 +445,7 @@ public class PlayerBehaviour : MonoBehaviour
                     //        (int)turnBlockAngle,
                     //        zaebis
                     //    );
-                    //    print($"пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ {turnBlockAngle} ### {zaebis}");
+                    //    print($"����� � ����� ��� ��������� {turnBlockAngle} ### {zaebis}");
                     //}
                 }
 
@@ -552,16 +552,16 @@ public class PlayerBehaviour : MonoBehaviour
         Ray ray = CameraStack.Instance.Main.ScreenPointToRay(Input.mousePosition);
         Vector3 rayDirection = ray.direction;
         var roundedDir = VectorTools.GetRoundedVector(rayDirection);
-        // 1,1,0 пїЅ -1,1,0 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        // 1,1,0 � -1,1,0 ����������� ��������
         //print(chunk.turnedBlocks.ContainsKey(blockLocalPos));
         //Quaternion roto = Quaternion.LookRotation(roundedDir);
         //roto.ToAngleAxis(out var agle, out var os);
-        //Debug.Log($"{roundedDir}:: пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " + os + ", пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " + agle);
+        //Debug.Log($"{roundedDir}:: ��� ��������: " + os + ", ���� ��������: " + agle);
 
         var availableAxis = WorldGenerator.Inst.turnableBlocks[blockID];
         var dominantDirection = VectorTools.GetDominantDirection(rayDirection) * -1f;
         var roundedDominant = VectorTools.GetRoundedVector(dominantDirection);
-        Debug.Log($"пїЅпїЅпїЅпїЅ {roundedDir} &&& {roundedDominant}");
+        Debug.Log($"���� {roundedDir} &&& {roundedDominant}");
         
         TurnBlockData turnData = default;
         List<TurnBlockData> turns = new List<TurnBlockData>();
@@ -572,7 +572,7 @@ public class PlayerBehaviour : MonoBehaviour
         {
             if (roundedDominant.x < 0 || roundedDominant.y < 0)
             {
-                Debug.Log($"1: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ");
+                Debug.Log($"1: ������� �����-������");
                 if (isXYTurn)
                 {
                     turnData.axis = RotationAxis.X;
@@ -583,7 +583,7 @@ public class PlayerBehaviour : MonoBehaviour
                 turnData.axis = RotationAxis.Y;
                 turns.Add(turnData);
 
-                //Debug.Log($"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ {turnData.axis} :: {turnData.angle}");
+                //Debug.Log($"�������� {turnData.axis} :: {turnData.angle}");
             }
         }
         else
@@ -601,7 +601,7 @@ public class PlayerBehaviour : MonoBehaviour
                 turnData.axis = RotationAxis.Y;
                 turnData.angle = -90;
                 turns.Add(turnData);
-                Debug.Log($"2: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ");
+                Debug.Log($"2: ������� �����-�����");
             }
         }
         else
@@ -620,7 +620,7 @@ public class PlayerBehaviour : MonoBehaviour
             turnData.axis = RotationAxis.X;
             turnData.angle = 90;
             turns.Add(turnData);
-            print("пїЅпїЅпїЅ пїЅпїЅпїЅ");
+            print("��� ���");
         }
 
         if (turns.Count == 0)
@@ -647,10 +647,10 @@ public class PlayerBehaviour : MonoBehaviour
 
                 turns.Add(turnData);
                 
-                //Debug.Log($"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ {turnData.axis} :: {turnData.angle}");
+                //Debug.Log($"�������� {turnData.axis} :: {turnData.angle}");
             }
 
-            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 90 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (-1, 0, 1)
+            // ��������� ����������� �� ���������� �������� 90 �������� �������� (-1, 0, 1)
         }
 
         foreach (var item in turns)
@@ -661,7 +661,7 @@ public class PlayerBehaviour : MonoBehaviour
                 (int)item.angle,
                 item.axis
             );
-            //Debug.Log($"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ {item.axis} :: {item.angle}");
+            //Debug.Log($"�������� {item.axis} :: {item.angle}");
         }
         
 
@@ -741,7 +741,7 @@ public class PlayerBehaviour : MonoBehaviour
         if (item != null)
         {
             player.inventory.main.Remove(item);
-            Debug.Log("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
+            Debug.Log("������� ������");
         }
 
         var jsonInventory = new JsonInventory(player.inventory);

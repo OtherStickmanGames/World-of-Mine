@@ -592,7 +592,7 @@ public class TutorialUI : MonoBehaviour
                         pos =>
                         {
                             CameraStack.Instance.SetSaveBuildingCamPos(pos);
-                            //print("Ты ЕБАНУТ ????!!!!");
+                            //print("�� ������ ????!!!!");
                         },
                         camPos,
                         targetPos,

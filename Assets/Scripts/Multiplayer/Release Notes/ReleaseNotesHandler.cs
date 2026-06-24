@@ -29,7 +29,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
 
     public static ReleaseNotesHandler Singleton;
 
-    string format = "dd_MM_yyyy"; // Формат строки даты
+    string format = "dd_MM_yyyy"; // Формат строк� даты
     CultureInfo provider = CultureInfo.InvariantCulture; // 
 
     private void Awake()
@@ -145,7 +145,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
 
             if (clientNewsData[0].voiceClip == null)
             {
-                Debug.Log("Последняя новость не имеет озвучки");
+                Debug.Log("Последняя новость не �меет озвучк�");
                 return;
             }
 
@@ -267,7 +267,7 @@ public class ReleaseNotesHandler : NetworkBehaviour
     {
         clientIdxNewsSending.Add(clientID, 0);
 
-        // TODO Костыль, чтобы не начинать одновременно отправку и чанков и новостей
+        // TODO Костыль, чтобы не нач�нать одновременно отправку � чанков � новостей
         StartCoroutine(Delay());
 
         IEnumerator Delay()

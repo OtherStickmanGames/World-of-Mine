@@ -695,7 +695,7 @@ public class UI : MonoBehaviour
         }
         else
         {
-            print("Там ничего неееет");
+            print("��� ������ ������");
         }
     }
 

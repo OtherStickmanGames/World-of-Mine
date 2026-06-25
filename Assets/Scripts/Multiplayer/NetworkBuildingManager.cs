@@ -33,6 +33,40 @@ public class NetworkBuildingManager : NetworkBehaviour
     private void Start()
     {
         NetworkManager.OnServerStarted += Server_Started;
+        if (NetworkManager != null)
+        {
+            NetworkManager.OnClientDisconnectCallback += Client_Disconnected;
+        }
+    }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        if (NetworkManager != null)
+        {
+            NetworkManager.OnServerStarted -= Server_Started;
+            NetworkManager.OnClientDisconnectCallback -= Client_Disconnected;
+        }
+    }
+
+    private void Client_Disconnected(ulong clientId)
+    {
+        if (IsServer || IsHost)
+        {
+            if (clientSendRoutines.TryGetValue(clientId, out var routines))
+            {
+                if (routines.sendBuildings != null) StopCoroutine(routines.sendBuildings);
+                if (routines.sendFragments != null) StopCoroutine(routines.sendFragments);
+                clientSendRoutines.Remove(clientId);
+                Debug.Log($"Очищены корутины отправки построек для отключившегося клиента {clientId}");
+            }
+
+            if (receivedFragmentsBinaryBuildings.ContainsKey(clientId))
+            {
+                receivedFragmentsBinaryBuildings.Remove(clientId);
+                Debug.Log($"Очищены фрагменты загрузки построек для отключившегося клиента {clientId}");
+            }
+        }
     }
 
     private void Server_Started()

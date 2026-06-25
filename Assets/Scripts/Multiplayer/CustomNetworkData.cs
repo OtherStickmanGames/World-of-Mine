@@ -143,7 +143,7 @@ public struct NetworkNewsData : INetworkSerializable
     public string text;
     public NetworkSurveyData[] survey;
 
-    // �� ������� �� ����
+    // не передаю по сети
     [NonSerialized]
     public AudioClip voiceClip;
     //[NonSerialized]

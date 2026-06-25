@@ -33,20 +33,14 @@ public class NetworkBuildingManager : NetworkBehaviour
     private void Start()
     {
         NetworkManager.OnServerStarted += Server_Started;
-        if (NetworkManager != null)
-        {
-            NetworkManager.OnClientDisconnectCallback += Client_Disconnected;
-        }
+        NetworkManager.OnClientDisconnectCallback += Client_Disconnected;
     }
 
     public override void OnDestroy()
     {
         base.OnDestroy();
-        if (NetworkManager != null)
-        {
-            NetworkManager.OnServerStarted -= Server_Started;
-            NetworkManager.OnClientDisconnectCallback -= Client_Disconnected;
-        }
+        NetworkManager.OnServerStarted -= Server_Started;
+        NetworkManager.OnClientDisconnectCallback -= Client_Disconnected;
     }
 
     private void Client_Disconnected(ulong clientId)
@@ -740,16 +734,9 @@ public class NetworkBuildingManager : NetworkBehaviour
             List<SaveBuildingData> buildingsData = new List<SaveBuildingData>();
             foreach (var file in files)
             {
-                try
-                {
-                    var json = File.ReadAllText(file);
-                    var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
-                    buildingsData.Add(data);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"Ошибка чтения постройки из файла {file}: {e.Message}");
-                }
+                var json = File.ReadAllText(file);
+                var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
+                buildingsData.Add(data);
             }
             return buildingsData.OrderBy(d => d.createDate).ToList();
         });

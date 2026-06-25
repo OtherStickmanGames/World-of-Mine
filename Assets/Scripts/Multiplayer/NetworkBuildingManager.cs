@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -206,7 +206,18 @@ public class NetworkBuildingManager : NetworkBehaviour
         File.WriteAllText(path, json);
         ReceiveSaveBuildingSuccesClientRpc(GetTargetClientParams(serverRpcParams));
         Debug.Log($"Building will be saved by {data.blocksData.userName}");
-        UpdateBuildingsList();
+        
+        BuildingServerData newBuildingData = new BuildingServerData
+        {
+            positions = positions,
+            blockIDs = blockIDs,
+            nameBuilding = nameBuilding,
+            authorName = data.blocksData.userName,
+            countLikes = 0,
+            guid = guid,
+            playersLiked = new List<string>()
+        };
+        buildingsServerData.Add(newBuildingData);
 #endif
     }
 
@@ -681,54 +692,70 @@ public class NetworkBuildingManager : NetworkBehaviour
             Directory.CreateDirectory(buildingsDirectory);
         }
 
-        var files = Directory.GetFiles(buildingsDirectory).Where(f => f.Substring(f.Length - 4, 4) == "json").ToList();
+        var files = Directory.GetFiles(buildingsDirectory, "*.json");
 
-        StartCoroutine(Async());
+        StartCoroutine(AsyncLoadBuildings(files));
+#endif
+    }
 
-        IEnumerator Async()
+#if !UNITY_WEBGL
+    private IEnumerator AsyncLoadBuildings(string[] files)
+    {
+        var loadTask = System.Threading.Tasks.Task.Run(() =>
         {
             List<SaveBuildingData> buildingsData = new List<SaveBuildingData>();
             foreach (var file in files)
             {
-                var json = File.ReadAllText(file);
-                var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
-                buildingsData.Add(data);
-            }
-
-            buildingsData = buildingsData.OrderBy(d => d.createDate).ToList();
-
-            List<BuildingServerData> buildings = new List<BuildingServerData>();
-            int idx = 0;
-            foreach (var data in buildingsData)
-            {
-                BuildingServerData buildingData = new BuildingServerData
+                try
                 {
-                    positions = data.blocksData.changedBlocks.Select(b => b.Pos).ToArray(),
-                    blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray(),
-                    nameBuilding = data.nameBuilding,
-                    authorName = data.blocksData.userName,
-                    countLikes = data.playersLiked == null ? 0 : data.playersLiked.Count,
-                    guid = data.guid,
-                    // NOT SENDABLE
-                    playersLiked = data.playersLiked,
-                };
-
-                buildings.Add(buildingData);
-                idx++;
-
-                if (idx % 38 == 0)
+                    var json = File.ReadAllText(file);
+                    var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
+                    buildingsData.Add(data);
+                }
+                catch (Exception e)
                 {
-                    yield return null;
+                    Debug.LogError($"Ошибка чтения постройки из файла {file}: {e.Message}");
                 }
             }
+            return buildingsData.OrderBy(d => d.createDate).ToList();
+        });
 
+        yield return new WaitUntil(() => loadTask.IsCompleted);
 
-            buildingsServerData = buildings;
-            //FindObjectOfType<UI>().txtPizdos.SetText($"{buildingsServerData.Count}");
-            //Debug.Log($"{buildingsServerData.Count} -=-=-");
+        if (loadTask.Exception != null)
+        {
+            throw loadTask.Exception; // Принцип Fail Fast: если таска упала, роняем сервер громко
         }
-#endif
+
+        var buildingsDataResult = loadTask.Result;
+        List<BuildingServerData> buildings = new List<BuildingServerData>();
+        int idx = 0;
+        foreach (var data in buildingsDataResult)
+        {
+            BuildingServerData buildingData = new BuildingServerData
+            {
+                positions = data.blocksData.changedBlocks.Select(b => b.Pos).ToArray(),
+                blockIDs = data.blocksData.changedBlocks.Select(b => b.blockId).ToArray(),
+                nameBuilding = data.nameBuilding,
+                authorName = data.blocksData.userName,
+                countLikes = data.playersLiked == null ? 0 : data.playersLiked.Count,
+                guid = data.guid,
+                // NOT SENDABLE
+                playersLiked = data.playersLiked,
+            };
+
+            buildings.Add(buildingData);
+            idx++;
+
+            if (idx % 38 == 0)
+            {
+                yield return null;
+            }
+        }
+
+        buildingsServerData = buildings;
     }
+#endif
 
     private void ShuffleBuildingList()
     {
@@ -769,17 +796,23 @@ public class NetworkBuildingManager : NetworkBehaviour
     {
 #if !UNITY_WEBGL
         int buildingIndex = buildingsServerData.FindIndex(b => b.guid == guid);
-        if (buildingIndex == -1) return;
+        if (buildingIndex == -1) 
+        {
+            throw new InvalidOperationException($"Принцип Fail Fast: Постройка с GUID {guid} не найдена в памяти при попытке поставить лайк.");
+        }
 
         var building = buildingsServerData[buildingIndex];
         var fileName = $"{building.nameBuilding}_{guid}.json";
         var path = $"{buildingsDirectory}{fileName}";
         
-        if (!File.Exists(path)) return;
+        if (!File.Exists(path)) 
+        {
+            throw new FileNotFoundException($"Принцип Fail Fast: Файл постройки {path} отсутствует на диске при обработке лайка.");
+        }
         
         var json = File.ReadAllText(path);
         var savedData = JsonConvert.DeserializeObject<SaveBuildingData>(json);
-                ulong senderClientId = serverRpcParams.Receive.SenderClientId;
+        ulong senderClientId = serverRpcParams.Receive.SenderClientId;
         var userId = NetworkUserManager.Instance.playerIds.ContainsKey(senderClientId) ? NetworkUserManager.Instance.playerIds[senderClientId] : NetworkUserManager.Instance.GetUserName(senderClientId);
         
         if (savedData.playersLiked == null)
@@ -800,7 +833,9 @@ public class NetworkBuildingManager : NetworkBehaviour
         json = JsonConvert.SerializeObject(savedData);
         File.WriteAllText(path, json);
 
-        UpdateBuildingsList();
+        building.playersLiked = savedData.playersLiked;
+        building.countLikes = savedData.playersLiked.Count;
+        buildingsServerData[buildingIndex] = building;
 #endif
     }
 

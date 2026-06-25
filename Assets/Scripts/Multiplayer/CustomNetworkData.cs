@@ -1,4 +1,4 @@
-п»їusing System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -6,7 +6,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
-/// Р”Р°РЅРЅС‹Рµ, РєРѕС‚РѕСЂС‹Рµ РїРµСЂРµРґР°СЋС‚СЃСЏ СЃР»РёС€РєРѕРј Р±РѕР»СЊС€РёРµ, РїРѕСЌС‚РѕРјСѓ РјС‹ С‚РѕР»СЊРєРѕ С…РёРґРµСЂ
+/// Данные зданий слишком большие, поэтому это только часть данных
 /// </summary>
 [Serializable]
 public struct NetworkHeaderBuildingData : INetworkSerializable
@@ -33,7 +33,7 @@ public struct NetworkHeaderBuildingData : INetworkSerializable
 
 
 /// <summary>
-/// Р”Р°РЅРЅС‹Рµ РїРµСЂРµРґР°СЋС‰РёРµСЃСЏ РїРѕ СЃРµС‚Рё
+/// Данные передающиеся по сети
 /// </summary>
 [Serializable]
 public struct BuildingServerData : INetworkSerializable
@@ -143,7 +143,7 @@ public struct NetworkNewsData : INetworkSerializable
     public string text;
     public NetworkSurveyData[] survey;
 
-    // РќРµ РїРµСЂРµРґР°СЋ РїРѕ СЃРµС‚Рё
+    // Не передаю по сети
     [NonSerialized]
     public AudioClip voiceClip;
     //[NonSerialized]
@@ -163,9 +163,6 @@ public struct NetworkSurveyData : INetworkSerializable
 {
     public string title;
     public int votes;
-
-    // NO SENDABLE
-    public List<string> votedPlayerIds;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {

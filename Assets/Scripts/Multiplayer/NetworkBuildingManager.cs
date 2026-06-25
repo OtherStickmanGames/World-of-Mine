@@ -779,7 +779,7 @@ public class NetworkBuildingManager : NetworkBehaviour
         
         var json = File.ReadAllText(path);
         var savedData = JsonConvert.DeserializeObject<SaveBuildingData>(json);
-        ulong senderClientId = serverRpcParams.Receive.SenderClientId;
+                ulong senderClientId = serverRpcParams.Receive.SenderClientId;
         var userId = NetworkUserManager.Instance.playerIds.ContainsKey(senderClientId) ? NetworkUserManager.Instance.playerIds[senderClientId] : NetworkUserManager.Instance.GetUserName(senderClientId);
         
         if (savedData.playersLiked == null)

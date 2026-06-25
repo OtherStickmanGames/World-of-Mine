@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
-using UnityEngine.Events;
+
 
 public class BuildingPreviewItem : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class BuildingPreviewItem : MonoBehaviour
     [SerializeField] FixedTouchField touchLook;
     [SerializeField] Button btnLike;
     [SerializeField] Image iconLike;
+    [SerializeField] RectTransform loader;
+    [SerializeField] TMP_Text loadingPercent;
 
     [Space]
 
@@ -25,8 +28,8 @@ public class BuildingPreviewItem : MonoBehaviour
     public bool IsPreviewRotating { get; set; }
     public string Guid { get; private set; }
 
-    public UnityEvent<BuildingPreviewItem> onLikeClick;
-    public UnityEvent<BuildingPreviewItem> onBuildingClick;
+    [HideInInspector] public UnityEvent<BuildingPreviewItem> onLikeClick;
+    [HideInInspector] public UnityEvent<BuildingPreviewItem> onBuildingClick;
 
     InteractableStateTracker lookTouchTracker;
     Color unlikedColor;
@@ -36,7 +39,6 @@ public class BuildingPreviewItem : MonoBehaviour
     public void Init(BuildPreviewData preview, BuildingServerData serverData)
     {
         lookTouchTracker = touchLook.GetComponent<InteractableStateTracker>();
-        //print(serverData.liked);
         unlikedColor = iconLike.color;
         countLikes = serverData.countLikes;
         liked = serverData.liked;
@@ -46,12 +48,50 @@ public class BuildingPreviewItem : MonoBehaviour
         txtCountLikes.SetText($"{countLikes}");
 
         Guid = serverData.guid;
-        PrepareBuildingMesh(preview);
 
         btnLike.onClick.AddListener(Like_Clicked);
         lookTouchTracker.onPointerUp.AddListener(LookTouch_Uped);
 
         UpdateBtnLikeView();
+
+        if (preview == null)
+        {
+            loader.gameObject.SetActive(true);
+            loadingPercent.gameObject.SetActive(true);
+            loadingPercent.SetText("Загружено 0%");
+            LeanTween.rotateAroundLocal(loader.gameObject, Vector3.forward, -360f, 1f).setLoopClamp();
+            
+            BuildingManager.Singleton.onBuildingLoadProgress.AddListener(OnProgressChanged);
+        }
+        else
+        {
+            loader.gameObject.SetActive(false);
+            loadingPercent.gameObject.SetActive(false);
+            PrepareBuildingMesh(preview);
+        }
+    }
+
+    private void OnProgressChanged(string guid, float progress)
+    {
+        if (Guid != guid) return;
+        loadingPercent.SetText($"Загружено {Mathf.RoundToInt(progress * 100)}%");
+    }
+
+    public void ApplyMesh(BuildPreviewData preview)
+    {
+        LeanTween.cancel(loader.gameObject);
+        loader.gameObject.SetActive(false);
+        loadingPercent.gameObject.SetActive(false);
+        BuildingManager.Singleton.onBuildingLoadProgress.RemoveListener(OnProgressChanged);
+        PrepareBuildingMesh(preview);
+    }
+
+    private void OnDestroy()
+    {
+        if (BuildingManager.Singleton != null && BuildingManager.Singleton.onBuildingLoadProgress != null)
+        {
+            BuildingManager.Singleton.onBuildingLoadProgress.RemoveListener(OnProgressChanged);
+        }
     }
 
     private void LookTouch_Uped()
@@ -96,7 +136,9 @@ public class BuildingPreviewItem : MonoBehaviour
     private void PrepareBuildingMesh(BuildPreviewData preview)
     {
         preview.view.layer = LayerMask.NameToLayer("UI");
-        preview.view.transform.SetParent(parent);
+        preview.view.transform.SetParent(parent, false);
+        preview.view.transform.localPosition = Vector3.zero;
+        preview.view.transform.localRotation = Quaternion.identity;
 
         var rectTransform = transform as RectTransform;
         var size = rectTransform.sizeDelta - (Vector2.up * 100);
@@ -108,17 +150,10 @@ public class BuildingPreviewItem : MonoBehaviour
         preview.ShiftPosition();
     }
 
-    private void Update()
-    {
-        
-    }
-
     private void LateUpdate()
     {
         IsPreviewRotating = touchLook.Pressed;
-
         BuildingPreviewRotate();
-
     }
 
     float _cinemachineTargetYaw;
@@ -157,19 +192,14 @@ public class BuildingPreviewItem : MonoBehaviour
         _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
         _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, -90, 90);
 
-        parent.transform.rotation = Quaternion.Euler
-        (
-            _cinemachineTargetPitch + CameraAngleOverrideX,
-            _cinemachineTargetYaw + CameraAngleOverrideY,
-            0.0f
-        );
-
+        parent.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch + CameraAngleOverrideX,
+            _cinemachineTargetYaw + CameraAngleOverrideY, 0.0f);
     }
 
     private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
     {
         if (lfAngle < -360f) lfAngle += 360f;
-        if (lfAngle >  360f) lfAngle -= 360f;
+        if (lfAngle > 360f) lfAngle -= 360f;
         return Mathf.Clamp(lfAngle, lfMin, lfMax);
     }
 }

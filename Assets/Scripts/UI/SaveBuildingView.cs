@@ -42,6 +42,8 @@ public class SaveBuildingView : MonoBehaviour
     [Space]
 
     [SerializeField] GameObject inputNameBuilding;
+    [SerializeField] GameObject panelSavingInfo;
+    [SerializeField] Image saveProgressbar;
     [SerializeField] TMP_InputField nameInput;
     [SerializeField] GameObject buildingSavedNotify;
     [SerializeField] Button btnSavedOk;
@@ -70,6 +72,7 @@ public class SaveBuildingView : MonoBehaviour
         selectingArea.SetActive(false);
         panelPreview.SetActive(false);
         inputNameBuilding.SetActive(false);
+        panelSavingInfo.SetActive(false);
         buildingSavedNotify.SetActive(false);
         btnCancel.gameObject.SetActive(false);
 
@@ -112,6 +115,7 @@ public class SaveBuildingView : MonoBehaviour
 
     private void Building_Saved()
     {
+        panelSavingInfo.SetActive(false);
         buildingSavedNotify.SetActive(true);
     }
 
@@ -217,6 +221,7 @@ public class SaveBuildingView : MonoBehaviour
     private void SaveBuilding()
     {
         BuildingManager.Singleton.SaveBuilding(nameInput.text);
+        panelSavingInfo.SetActive(true);
         btnAccept.gameObject.SetActive(false);
         // TO DO доделать в случае неудачи сейва
     }
@@ -274,6 +279,11 @@ public class SaveBuildingView : MonoBehaviour
 
         UpdateZoomButtons();
         CameraMove();
+
+        if (panelSavingInfo.activeSelf)
+        {
+            saveProgressbar.fillAmount = BuildingManager.Singleton.savingProgress;
+        }
     }
 
 

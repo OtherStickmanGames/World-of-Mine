@@ -194,7 +194,7 @@ public class NetworkUserManager : NetworkBehaviour
         }
         else
         {
-            Debug.Log($"  {ownerID}");
+            Debug.Log($"Нет юзера {ownerID}");
         }
     }
 
@@ -222,7 +222,7 @@ public class NetworkUserManager : NetworkBehaviour
         
         if(!playerIds.TryAdd(senderClientId, playerId))
         {
-            print($"-   player ID {playerId}");
+            print($"Почему-то не добавился player ID {playerId}");
         }
 
         var fileName = $"{playerId}.json";
@@ -283,7 +283,7 @@ public class NetworkUserManager : NetworkBehaviour
 #endif
     }
 
-    // TODO ,       
+    // TODO переделать, чтобы держать в оперативе все данные юзеров   
     public void AddMinedBlock(ulong clienID)
     {
         _ = AddMinedBlockAsync(clienID);
@@ -311,7 +311,7 @@ public class NetworkUserManager : NetworkBehaviour
 #endif
     }
 
-    // TODO ,       
+    // TODO переделать, чтобы держать в оперативе все данные юзеров
     public void AddPlacedBlock(ulong clienID)
     {
         _ = AddPlacedBlockAsync(clienID);
@@ -361,7 +361,7 @@ public class NetworkUserManager : NetworkBehaviour
         }
         else
         {
-            print("   ...");
+            print("чё за хуйня блять...");
         }
 #endif
     }
@@ -386,7 +386,7 @@ public class NetworkUserManager : NetworkBehaviour
         }
         else
         {
-            print($"   ...    {playerId}");
+            print($"чё за хуйня блять... нет данных юзера {playerId}");
         }
 #endif
         return null;
@@ -403,8 +403,8 @@ public class NetworkUserManager : NetworkBehaviour
     }
 
 
-    [Header("   FPS")]
-    [Tooltip("      ")]
+    [Header("Буфер последних значений FPS")]
+    [Tooltip("Сколько последних кадров учитывать при расчёте среднего")]
     [SerializeField] private int bufferSize = 100;
 
     private Queue<float> fpsBuffer = new Queue<float>();
@@ -424,19 +424,19 @@ public class NetworkUserManager : NetworkBehaviour
             if (dt <= 0) dt = 0.016f; // Safety check
             float currentFps = 1f / dt;
 
-            // 2)      
+            // 2) Добавляем в буфер и обновляем сумму
             fpsBuffer.Enqueue(currentFps);
             sumFps += currentFps;
 
-            // 3)        
+            // 3) Если превысили размер буфера — убираем самое старое    
             if (fpsBuffer.Count > bufferSize)
                 sumFps -= fpsBuffer.Dequeue();
 
-            // 4)    ,    
+            // 4) Считаем среднее по тому, что осталось в буфере  
             float averageFps = sumFps / fpsBuffer.Count;
 
 
-            // 5)  / 
+            // 5) Вывод / отправка
             sendTimer += Time.deltaTime;
             if (sendTimer > 10)
             {
@@ -504,7 +504,6 @@ public class NetworkUserManager : NetworkBehaviour
     private async Task SendAvgFpsAsync(string playerID, int fps, int minFps)
     {
         var data = await GetUserDataAsync(playerID);
-        //    !!!!!!
         if (data != null)
         {
             var idxLastSession = data.sessions.Count - 1;

@@ -289,8 +289,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
             }
             chunk.AddTurnBlock
             (
-                turnData.worldBlockPos.ToVecto3Int(),
-                turnsData
+                turnData.worldBlockPos.ToVecto3Int(),// бля.. в общем он тут
+                turnsData // уже приходит в локальных координатах
             );
         }
     }
@@ -318,7 +318,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
     }
 
-    //   
+    // Выполняется на клиенте
     private void UpdateChunckMesh(Vector3[] positions, byte[] blockIDs, Vector3 chunckPos, Action onComplete = null)
     {
         StartCoroutine(Async());
@@ -507,6 +507,8 @@ public class NetworkWorldGenerator : NetworkBehaviour
         ChunckData jsonChunkData = GetChunckData(path, chunck);
         int idx = 0;
         var hasTurnedData = false;
+
+        // Заглушка для старых json в которых нет этого поля
         jsonChunkData.turnedBlocks ??= new List<ChunckData.JsonTurnedBlock>();
 
         foreach (var turnData in jsonChunkData.turnedBlocks)
@@ -632,6 +634,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
         {
             var fileText = File.ReadAllText(path);
             data = JsonConvert.DeserializeObject<ChunckData>(fileText, settings);
+            // Я хз зачем я это делаю
             data.blocks = chunck.blocks;
             AddToCache(chunck.pos, data);
         }
@@ -665,11 +668,15 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
         var localBlockPos = worldGenerator.ToLocalBlockPos(blockData.worldBlockPos);
 
+        // Ищем в уже сохраненных данных информацию о повернутом блоке
         for (int i = 0; i < jsonChunckData.turnedBlocks.Count; i++)
         {
             var turnedBlock = jsonChunckData.turnedBlocks[i];
             if (turnedBlock.Pos == localBlockPos)
             {
+                // не особо оптимизировано
+                // мы пересоздаем массив вместе перезаписывания элементов
+                // и при необходимости изминении размера массива
                 var length = blockData.turnsData.Length;
                 turnedBlock.turnsBlockData = new TurnBlockData[length];
                 for (int j = 0; j < length; j++)
@@ -682,6 +689,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
             }
         }
 
+        // Если не находим, то создаем её
         TurnBlockData[] turns = new TurnBlockData[blockData.turnsData.Length];
         for (int j = 0; j < turns.Length; j++)
         {

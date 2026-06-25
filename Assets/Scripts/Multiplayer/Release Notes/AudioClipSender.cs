@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -14,8 +14,9 @@ public class AudioClipSender : NetworkBehaviour
 {
     public static string releaseNotesDirectory = $"{Application.dataPath}/Data/Sounds/ReleaseNotes/";
 
-    public AudioFragmentHandler audioFragmentHandler;
-    private string[] filters = { "*.mp3", "*.wav", ".ogg" }; // Укажите нужные фильтры
+    public FragmentedSender fragmentedSender;
+    public FragmentedReceiver fragmentedReceiver;
+    private string[] filters = { "*.mp3", "*.wav", ".ogg" }; // ������� ������ �������
     Dictionary<ulong, int> clientIdxAudioSending = new();
     public List<AudioClip> releaseNotesSounds;
 
@@ -31,7 +32,7 @@ public class AudioClipSender : NetworkBehaviour
 
     private void Start()
     {
-        audioFragmentHandler.onDataReceive.AddListener(Data_Received);
+        fragmentedReceiver.onDataReceive.AddListener(Data_Received);
 
         NetworkManager.OnServerStarted += Server_Started;
 
@@ -87,7 +88,7 @@ public class AudioClipSender : NetworkBehaviour
     {
         foreach (var filePath in filePaths)
         {
-            Debug.Log("Found Audio file: " + filePath);
+            Debug.Log("[AudioClipSender] ������ ���������: " + filePath);
 
             var uri = filePath;
 #if UNITY_STANDALONE_LINUX
@@ -111,7 +112,7 @@ public class AudioClipSender : NetworkBehaviour
                 }
                 else
                 {
-                    Debug.LogError($"Error loading audio file: {request.error}");
+                    Debug.LogError($"[AudioClipSender] ������ �������� ����������: {request.error}");
                 }
             }
         }
@@ -154,7 +155,7 @@ public class AudioClipSender : NetworkBehaviour
 
         startPlayingFlag = true;
 
-        Debug.Log($"Playing audio: {clip.name}");
+        Debug.Log($"[AudioClipSender] ��������������� �����: {clip.name}");
     }
 
 
@@ -226,7 +227,7 @@ public class AudioClipSender : NetworkBehaviour
 
         Debug.Log($"Начинаю отправку {audioClip.name}");
 
-        audioFragmentHandler.SendLargeData(audioData, 0, clientID);
+        fragmentedSender.SendLargeData(audioData, clientID);
         //if (audioData.Length > 0)
         //{
         //    SendAudioServerRpc(audioData);

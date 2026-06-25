@@ -99,6 +99,30 @@ public class ChatView : NetworkBehaviour
         }
     }
 
+    public override void OnNetworkSpawn()
+    {
+        if (NetworkUserManager.Instance)
+        {
+            NetworkUserManager.OnUserNameChanged += NetworkUserManager_OnUserNameChanged;
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (NetworkUserManager.Instance)
+        {
+            NetworkUserManager.OnUserNameChanged -= NetworkUserManager_OnUserNameChanged;
+        }
+    }
+
+    private void NetworkUserManager_OnUserNameChanged(ulong clientId, string newName)
+    {
+        if (IsServer && usernames != null)
+        {
+            usernames[clientId] = newName;
+        }
+    }
+
     private void BtnSend_Clicked()
     {
         Message_Submited(messageInput.text);

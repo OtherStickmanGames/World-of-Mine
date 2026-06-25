@@ -23,12 +23,17 @@ public class UserView : MonoBehaviour
 
     private void Submited(string text)
     {
+        if (NetworkManager.Singleton && NetworkManager.Singleton.IsClient)
+        {
+            NetworkUserManager.Instance.UpdateUserNameServerRpc(text);
+        }
         DelayShowCursor();
     }
 
     private void Client_Started()
     {
-        inputUserName.interactable = false;
+        // Allow user to change name after connect
+        // inputUserName.interactable = false;
     }
 
     private void InitUserName()

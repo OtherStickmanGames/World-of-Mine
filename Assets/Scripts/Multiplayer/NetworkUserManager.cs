@@ -25,6 +25,7 @@ public class NetworkUserManager : NetworkBehaviour
 
     public static NetworkUserManager Instance;
     public static UnityEvent onUserRegistred = new UnityEvent();
+    public static Action<ulong, string> OnUserNameChanged;
 
     static string usersDataDirectory = $"{Application.dataPath}/Data/Users/";
 
@@ -169,6 +170,41 @@ public class NetworkUserManager : NetworkBehaviour
     {
         UserRegistred = true;
         onUserRegistred?.Invoke();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdateUserNameServerRpc(string newName, ServerRpcParams serverRpcParams = default)
+    {
+        ulong senderId = serverRpcParams.Receive.SenderClientId;
+        if (users.ContainsKey(senderId))
+        {
+            users[senderId] = newName;
+            UpdateUserNameClientRpc(senderId, newName);
+            _ = UpdateSessionNicknameAsync(senderId, newName);
+        }
+    }
+
+    private async Task UpdateSessionNicknameAsync(ulong clientId, string newName)
+    {
+#if !UNITY_WEBGL
+        if (playerIds.TryGetValue(clientId, out string playerId))
+        {
+            var data = await GetUserDataAsync(playerId);
+            if (data != null && data.sessions != null && data.sessions.Count > 0)
+            {
+                var idxLastSession = data.sessions.Count - 1;
+                var session = data.sessions[idxLastSession];
+                session.nickname = newName;
+                data.sessions[idxLastSession] = session;
+            }
+        }
+#endif
+    }
+
+    [ClientRpc(RequireOwnership = false)]
+    private void UpdateUserNameClientRpc(ulong clientId, string newName, ClientRpcParams clientRpcParams = default)
+    {
+        OnUserNameChanged?.Invoke(clientId, newName);
     }
 
     public string GetUserName(ulong userId)

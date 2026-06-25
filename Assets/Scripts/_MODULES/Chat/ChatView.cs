@@ -15,6 +15,19 @@ public class ChatView : NetworkBehaviour
     [SerializeField] GameObject view;
 
     Dictionary<ulong, string> usernames;
+    List<ChatMessage> history;
+
+    public struct ChatMessage : INetworkSerializable
+    {
+        public string Username;
+        public string Message;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref Username);
+            serializer.SerializeValue(ref Message);
+        }
+    }
 
     bool inited;
 
@@ -35,6 +48,7 @@ public class ChatView : NetworkBehaviour
         if (IsServer)
         {
             usernames = new Dictionary<ulong, string>();
+            history = new List<ChatMessage>();
             NetworkManager.OnClientDisconnectCallback += Client_Disconnected;
         }
         else
@@ -105,28 +119,77 @@ public class ChatView : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SendUsernameServerRpc(string username, ServerRpcParams serverRpcParams = default)
     {
-        usernames.Add(serverRpcParams.Receive.SenderClientId, username);
+        if (usernames == null)
+            throw new System.NullReferenceException($"{nameof(usernames)} dictionary is not initialized. Ensure ChatView.Init is called on the server.");
+
+        // Оставляем только проверку на null, разрешая пустые строки или пробелы по желанию игрока
+        if (username == null)
+            throw new System.ArgumentNullException(nameof(username), "Username cannot be null.");
+
+        var clientID = serverRpcParams.Receive.SenderClientId;
+        usernames[clientID] = username;
+
+        // Синхронизируем последние 20 сообщений для нового игрока
+        if (history != null && history.Count > 0)
+        {
+            int count = Mathf.Min(history.Count, 20);
+            ChatMessage[] lastMessages = history.GetRange(history.Count - count, count).ToArray();
+            SyncHistoryClientRpc(lastMessages, new ClientRpcParams
+            {
+                Send = new ClientRpcSendParams { TargetClientIds = new[] { clientID } }
+            });
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void SendMessageServerRpc(string message, ServerRpcParams serverRpcParams = default)
     {
-        print($"������ ��� {message}");
+        if (history == null)
+            throw new System.NullReferenceException($"{nameof(history)} is not initialized. Ensure ChatView.Init is called on the server.");
+
+        print($"сообщение чат {message}");
         var clientID = serverRpcParams.Receive.SenderClientId;
-        var username = "����� �����";
+        var username = "Житель мира";
         if (usernames.ContainsKey(clientID))
         {
             username = usernames[clientID];
         }
 
+        // Сохраняем в историю сервера (максимум 100)
+        history.Add(new ChatMessage { Username = username, Message = message });
+        if (history.Count > 100)
+        {
+            history.RemoveAt(0);
+        }
+
         ReceiveMessageClientRpc(username, message);
+    }
+
+    [ClientRpc]
+    private void SyncHistoryClientRpc(ChatMessage[] messages, ClientRpcParams clientRpcParams = default)
+    {
+        foreach (var msg in messages)
+        {
+            AddMessageToUI(msg.Username, msg.Message);
+        }
+        ScrollToBottom();
     }
 
     [ClientRpc(RequireOwnership = false)]
     private void ReceiveMessageClientRpc(string username, string message, ClientRpcParams clientRpcParams = default)
     {
-        var view = Instantiate(messagePrefab, messagesParent);
-        view.Init(username, message);
+        AddMessageToUI(username, message);
+        ScrollToBottom();
+    }
+
+    private void AddMessageToUI(string username, string message)
+    {
+        var msgView = Instantiate(messagePrefab, messagesParent);
+        msgView.Init(username, message);
+    }
+
+    private void ScrollToBottom()
+    {
         LeanTween.value(gameObject, v =>
         {
             scrollbar.value = v;

@@ -74,7 +74,7 @@ public class PlayerBehaviour : MonoBehaviour
             InitSizeMainInventory();
             LoadInventory();
 
-            if (player.inventory.mainSize == 0)// Сначала инвентаря не было, поэтому тем кто был без него надо его увеличить 
+            if (player.inventory.mainSize == 0)// РЎРЅР°С‡Р°Р»Р° РёРЅРІРµРЅС‚Р°СЂСЏ РЅРµ Р±С‹Р»Рѕ, РїРѕСЌС‚РѕРјСѓ С‚РµРј РєС‚Рѕ Р±С‹Р» Р±РµР· РЅРµРіРѕ РЅР°РґРѕ РµРіРѕ СѓРІРµР»РёС‡РёС‚СЊ
             {
                 player.inventory.SetMainInventorySize(sizeMainInventory);
             }
@@ -91,11 +91,21 @@ public class PlayerBehaviour : MonoBehaviour
         //print($"{UserData.Owner.userName} ### {UserData.Owner.position}");
         if (userDataPosition == Vector3.zero)
         {
-            transform.position += Vector3.one + Vector3.up * 18;
-            print($"Загружена дефолтная позиция");
+            Vector3 searchStartPos = Vector3.one + Vector3.up * 18;
 #if UNITY_ANDROID
-            transform.position += Vector3.right * 888;
+            searchStartPos += Vector3.right * 888;
 #endif
+
+            if (GameManager.IsTutorialScene())
+            {
+                transform.position = searchStartPos;
+                Debug.Log($"[Tutorial] Local spawn at: {searchStartPos}");
+            }
+            else
+            {
+                print($"Requesting safe spawn from server...");
+                NetworkSpawnManager.Instance.RequestSafeSpawnServerRpc(searchStartPos);
+            }
         }
         else
         {
@@ -104,6 +114,7 @@ public class PlayerBehaviour : MonoBehaviour
             //print($"{transform.position} ===---+++");
         }
     }
+
 
     private void Item_TakedUpdated(Item item)
     {
@@ -193,7 +204,7 @@ public class PlayerBehaviour : MonoBehaviour
         if(kostylTimer > 8)
         {
             thirdPersonController.AllowGravityLogic = true;
-            print("СРАБОТАЛ КОСТЫЛЬ");
+            print("kostylTimer");
             onStartAllowGravity?.Invoke();
         }
 
@@ -211,7 +222,7 @@ public class PlayerBehaviour : MonoBehaviour
                     {
                         if (!WorldGenerator.Inst.chuncks[key].blocksLoaded)
                         {
-                            //print("эсть не загруженные блоки");
+                            //print("СЌСЃС‚СЊ РЅРµ Р·Р°РіСЂСѓР¶РµРЅРЅС‹Рµ Р±Р»РѕРєРё");
                             return;
                         }
                     }
@@ -227,7 +238,6 @@ public class PlayerBehaviour : MonoBehaviour
         if (ebalaTimer > 1.8f)
         {
             thirdPersonController.AllowGravityLogic = true;
-            print("ЧАНКИ ЗАГРУЖЕНЫ");
             onStartAllowGravity?.Invoke();
         }
     }
@@ -261,7 +271,7 @@ public class PlayerBehaviour : MonoBehaviour
                 WorldGenerator.Inst.MineBlock(blockPosition + Vector3.right);
             }
 
-            //print($"Ща блок: {WorldGenerator.Inst.GetBlockID(transform.position + (Vector3.down * 0.5f) + Vector3.right)}");
+            //print($"Р©Р° Р±Р»РѕРє: {WorldGenerator.Inst.GetBlockID(transform.position + (Vector3.down * 0.5f) + Vector3.right)}");
             var lookBlockID = WorldGenerator.Inst.GetBlockID(blockPosition + Vector3.right);
             if (ItemsStorage.Singleton.HasCraftingBundle(lookBlockID))
             {
@@ -276,11 +286,11 @@ public class PlayerBehaviour : MonoBehaviour
             }
             //if (Input.GetMouseButtonDown(1))
             //{
-            //    // зачем-то нужно прибавлять 1 по оси X, хз почему так, но именно так работает
+            //    // Р·Р°С‡РµРј-С‚Рѕ РЅСѓР¶РЅРѕ РїСЂРёР±Р°РІР»СЏС‚СЊ 1 РїРѕ РѕСЃРё X, С…Р· РїРѕС‡РµРјСѓ С‚Р°Рє, РЅРѕ РёРјРµРЅРЅРѕ С‚Р°Рє СЂР°Р±РѕС‚Р°РµС‚
             //    ref var chunck = ref Service<World>.Get().GetChunk(blockPosition + Vector3.right);
             //    var pos = chunck.renderer.transform.position;
 
-            //    // зачем-то нужно прибавлять 1 по оси X, хз почему так, но именно так работает
+            //    // Р·Р°С‡РµРј-С‚Рѕ РЅСѓР¶РЅРѕ РїСЂРёР±Р°РІР»СЏС‚СЊ 1 РїРѕ РѕСЃРё X, С…Р· РїРѕС‡РµРјСѓ С‚Р°Рє, РЅРѕ РёРјРµРЅРЅРѕ С‚Р°Рє СЂР°Р±РѕС‚Р°РµС‚
             //    int xBlock = x - Mathf.FloorToInt(pos.x) + 1;
             //    int yBlock = y - Mathf.FloorToInt(pos.y);
             //    int zBlock = z - Mathf.FloorToInt(pos.z);
@@ -314,7 +324,7 @@ public class PlayerBehaviour : MonoBehaviour
             //                    onChunkHit?.Invoke(new Entity { id = e }, component);
             //                    GlobalEvents.onBlockPlaced?.Invoke(item.blockID, blockPosition + hit.normal);
 
-            //                    // HOT FIX вынести в отдельную систему
+            //                    // HOT FIX РІС‹РЅРµСЃС‚Рё РІ РѕС‚РґРµР»СЊРЅСѓСЋ СЃРёСЃС‚РµРјСѓ
             //                    item.count--;
             //                    if (item.count == 0)
             //                    {
@@ -366,14 +376,14 @@ public class PlayerBehaviour : MonoBehaviour
             //print($"Dot Left {Vector3.Dot(Vector3.left, hitNormal)}");
 
             Ray ray = CameraStack.Instance.Main.ScreenPointToRay(Input.mousePosition);
-            // Получаем направление луча
+            // РџРѕР»СѓС‡Р°РµРј РЅР°РїСЂР°РІР»РµРЅРёРµ Р»СѓС‡Р°
             Vector3 rayDirection = ray.direction;
             //print(VectorTools.GetRoundedVector(rayDirection));
-            // 1,1,0 и -1,1,0 направления поворота
+            // 1,1,0 Рё -1,1,0 РЅР°РїСЂР°РІР»РµРЅРёСЏ РїРѕРІРѕСЂРѕС‚Р°
 
             rayDirection = VectorTools.GetDominantDirection(rayDirection) * -1f;
 
-            // Округляем направление до ближайшего кратного 90 градусов значения (-1, 0, 1)
+            // РћРєСЂСѓРіР»СЏРµРј РЅР°РїСЂР°РІР»РµРЅРёРµ РґРѕ Р±Р»РёР¶Р°Р№С€РµРіРѕ РєСЂР°С‚РЅРѕРіРѕ 90 РіСЂР°РґСѓСЃРѕРІ Р·РЅР°С‡РµРЅРёСЏ (-1, 0, 1)
             Vector3 roundedDirection = new Vector3(
                 Mathf.Round(rayDirection.x),
                 Mathf.Round(rayDirection.y),
@@ -383,7 +393,7 @@ public class PlayerBehaviour : MonoBehaviour
 
             //Quaternion rotation = Quaternion.LookRotation(roundedDirection);
             //rotation.ToAngleAxis(out var angle, out var axoso);
-            ////Debug.Log("Ось вращения: " + axoso + ", Угол поворота: " + angle);
+            ////Debug.Log("РћСЃСЊ РІСЂР°С‰РµРЅРёСЏ: " + axoso + ", РЈРіРѕР» РїРѕРІРѕСЂРѕС‚Р°: " + angle);
 
             //RotationAxis zaebis = RotationAxis.Y;
             //var turnBlockAngle = angle * axoso.y;
@@ -395,7 +405,7 @@ public class PlayerBehaviour : MonoBehaviour
             //        turnBlockAngle = angle * axoso.x;
             //    }
             //}
-            //print($"Май ось вращенька {zaebis}");
+            //print($"РњР°Р№ РѕСЃСЊ РІСЂР°С‰РµРЅСЊРєР° {zaebis}");
 
             //var axis = WorldGenerator.Inst.turnableBlocks[(byte)ItemID.STONE_WORKBENCH];
             //bool axisXY = (axis & (RotationAxis.X | RotationAxis.Y)) == (RotationAxis.X | RotationAxis.Y);
@@ -407,7 +417,7 @@ public class PlayerBehaviour : MonoBehaviour
                     return;
 
                 var item = player.inventory.CurrentSelectedItem;
-                // зачем-то нужно прибавлять 1 по оси X, хз почему так, но именно так работает
+                // Р·Р°С‡РµРј-С‚Рѕ РЅСѓР¶РЅРѕ РїСЂРёР±Р°РІР»СЏС‚СЊ 1 РїРѕ РѕСЃРё X, С…Р· РїРѕС‡РµРјСѓ С‚Р°Рє, РЅРѕ РёРјРµРЅРЅРѕ С‚Р°Рє СЂР°Р±РѕС‚Р°РµС‚
                 var generator = WorldGenerator.Inst;
                 var chunck = generator.GetChunk(blockPosition + Vector3.right);
                 var pos = chunck.renderer.transform.position;
@@ -415,7 +425,7 @@ public class PlayerBehaviour : MonoBehaviour
                 int xBlock = (int)(blockPosition.x - pos.x) + 1;
                 int yBlock = (int)(blockPosition.y - pos.y);
                 int zBlock = (int)(blockPosition.z - pos.z);
-                // зачем-то нужно прибавлять 1 по оси X, хз почему так, но именно так работает
+                // Р·Р°С‡РµРј-С‚Рѕ РЅСѓР¶РЅРѕ РїСЂРёР±Р°РІР»СЏС‚СЊ 1 РїРѕ РѕСЃРё X, С…Р· РїРѕС‡РµРјСѓ С‚Р°Рє, РЅРѕ РёРјРµРЅРЅРѕ С‚Р°Рє СЂР°Р±РѕС‚Р°РµС‚
                 byte hitBlockID = chunck.blocks[xBlock, yBlock, zBlock];
 
                 chunck.blocks[xBlock, yBlock, zBlock] = item.id;
@@ -435,7 +445,7 @@ public class PlayerBehaviour : MonoBehaviour
                     //        (int)turnBlockAngle,
                     //        zaebis
                     //    );
-                    //    print($"зашли и вроде как повернули {turnBlockAngle} ### {zaebis}");
+                    //    print($"Р·Р°С€Р»Рё Рё РІСЂРѕРґРµ РєР°Рє РїРѕРІРµСЂРЅСѓР»Рё {turnBlockAngle} ### {zaebis}");
                     //}
                 }
 
@@ -542,16 +552,16 @@ public class PlayerBehaviour : MonoBehaviour
         Ray ray = CameraStack.Instance.Main.ScreenPointToRay(Input.mousePosition);
         Vector3 rayDirection = ray.direction;
         var roundedDir = VectorTools.GetRoundedVector(rayDirection);
-        // 1,1,0 и -1,1,0 направления поворота
+        // 1,1,0 Рё -1,1,0 РЅР°РїСЂР°РІР»РµРЅРёСЏ РїРѕРІРѕСЂРѕС‚Р°
         //print(chunk.turnedBlocks.ContainsKey(blockLocalPos));
         //Quaternion roto = Quaternion.LookRotation(roundedDir);
         //roto.ToAngleAxis(out var agle, out var os);
-        //Debug.Log($"{roundedDir}:: Ось вращения: " + os + ", Угол поворота: " + agle);
+        //Debug.Log($"{roundedDir}:: РћСЃСЊ РІСЂР°С‰РµРЅРёСЏ: " + os + ", РЈРіРѕР» РїРѕРІРѕСЂРѕС‚Р°: " + agle);
 
         var availableAxis = WorldGenerator.Inst.turnableBlocks[blockID];
         var dominantDirection = VectorTools.GetDominantDirection(rayDirection) * -1f;
         var roundedDominant = VectorTools.GetRoundedVector(dominantDirection);
-        Debug.Log($"Зырь {roundedDir} &&& {roundedDominant}");
+        Debug.Log($"Р—С‹СЂСЊ {roundedDir} &&& {roundedDominant}");
         
         TurnBlockData turnData = default;
         List<TurnBlockData> turns = new List<TurnBlockData>();
@@ -562,7 +572,7 @@ public class PlayerBehaviour : MonoBehaviour
         {
             if (roundedDominant.x < 0 || roundedDominant.y < 0)
             {
-                Debug.Log($"1: Смотрим вверх-вправо");
+                Debug.Log($"1: РЎРјРѕС‚СЂРёРј РІРІРµСЂС…-РІРїСЂР°РІРѕ");
                 if (isXYTurn)
                 {
                     turnData.axis = RotationAxis.X;
@@ -573,7 +583,7 @@ public class PlayerBehaviour : MonoBehaviour
                 turnData.axis = RotationAxis.Y;
                 turns.Add(turnData);
 
-                //Debug.Log($"Повернул {turnData.axis} :: {turnData.angle}");
+                //Debug.Log($"РџРѕРІРµСЂРЅСѓР» {turnData.axis} :: {turnData.angle}");
             }
         }
         else
@@ -591,7 +601,7 @@ public class PlayerBehaviour : MonoBehaviour
                 turnData.axis = RotationAxis.Y;
                 turnData.angle = -90;
                 turns.Add(turnData);
-                Debug.Log($"2: Смотрим вверх-влево");
+                Debug.Log($"2: РЎРјРѕС‚СЂРёРј РІРІРµСЂС…-РІР»РµРІРѕ");
             }
         }
         else
@@ -610,7 +620,7 @@ public class PlayerBehaviour : MonoBehaviour
             turnData.axis = RotationAxis.X;
             turnData.angle = 90;
             turns.Add(turnData);
-            print("тыр тыр");
+            print("С‚С‹СЂ С‚С‹СЂ");
         }
 
         if (turns.Count == 0)
@@ -637,10 +647,10 @@ public class PlayerBehaviour : MonoBehaviour
 
                 turns.Add(turnData);
                 
-                //Debug.Log($"Повернул {turnData.axis} :: {turnData.angle}");
+                //Debug.Log($"РџРѕРІРµСЂРЅСѓР» {turnData.axis} :: {turnData.angle}");
             }
 
-            // Округляем направление до ближайшего кратного 90 градусов значения (-1, 0, 1)
+            // РћРєСЂСѓРіР»СЏРµРј РЅР°РїСЂР°РІР»РµРЅРёРµ РґРѕ Р±Р»РёР¶Р°Р№С€РµРіРѕ РєСЂР°С‚РЅРѕРіРѕ 90 РіСЂР°РґСѓСЃРѕРІ Р·РЅР°С‡РµРЅРёСЏ (-1, 0, 1)
         }
 
         foreach (var item in turns)
@@ -651,7 +661,7 @@ public class PlayerBehaviour : MonoBehaviour
                 (int)item.angle,
                 item.axis
             );
-            //Debug.Log($"Повернул {item.axis} :: {item.angle}");
+            //Debug.Log($"РџРѕРІРµСЂРЅСѓР» {item.axis} :: {item.angle}");
         }
         
 
@@ -731,7 +741,7 @@ public class PlayerBehaviour : MonoBehaviour
         if (item != null)
         {
             player.inventory.main.Remove(item);
-            Debug.Log("Дропнул эбушку");
+            Debug.Log("Р”СЂРѕРїРЅСѓР» СЌР±СѓС€РєСѓ");
         }
 
         var jsonInventory = new JsonInventory(player.inventory);

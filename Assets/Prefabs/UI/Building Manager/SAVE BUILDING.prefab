@@ -1365,7 +1365,7 @@ MonoBehaviour:
   sensitivityMouseY: 1.5
   CameraAngleOverrideX: -18
   CameraAngleOverrideY: 30
-  rotateSensitibity: 7
+  rotateSensitibity: 1
 --- !u!1 &4335938410253832577
 GameObject:
   m_ObjectHideFlags: 0

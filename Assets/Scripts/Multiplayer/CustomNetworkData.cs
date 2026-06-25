@@ -5,7 +5,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
-/// Данные передающиеся по сети
+/// Р”Р°РЅРЅС‹Рµ РїРµСЂРµРґР°СЋС‰РёРµСЃСЏ РїРѕ СЃРµС‚Рё
 /// </summary>
 [Serializable]
 public struct BuildingServerData : INetworkSerializable
@@ -68,7 +68,7 @@ public struct NetworkNewsData : INetworkSerializable
     public string text;
     public NetworkSurveyData[] survey;
 
-    // Не передаю по сети
+    // РќРµ РїРµСЂРµРґР°СЋ РїРѕ СЃРµС‚Рё
     [NonSerialized]
     public AudioClip voiceClip;
     //[NonSerialized]
@@ -88,6 +88,9 @@ public struct NetworkSurveyData : INetworkSerializable
 {
     public string title;
     public int votes;
+
+    // NO SENDABLE
+    public List<string> votedPlayerIds;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {

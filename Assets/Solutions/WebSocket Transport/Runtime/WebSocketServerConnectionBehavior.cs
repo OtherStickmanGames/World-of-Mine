@@ -168,7 +168,7 @@ namespace Netcode.Transports.WebSocket
             }
         }
 
-        private static byte[] _receiveBuffer = new byte[192];  // Фиксированный буфер
+        private static byte[] _receiveBuffer = new byte[192];  // Р¤РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№ Р±СѓС„РµСЂ
         protected override void OnMessage(MessageEventArgs e)
         {
             lock (ConnectionLock)

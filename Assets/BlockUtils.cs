@@ -8,9 +8,9 @@ namespace Ururu
         public static List<BlockData> FillBoundingBox(List<BlockData> inputBlocks)
         {
             if (inputBlocks == null || inputBlocks.Count == 0)
-                return new List<BlockData>(); // Если пустой вход - возвращаем пустой список
+                return new List<BlockData>(); // Р•СЃР»Рё РїСѓСЃС‚РѕР№ РІС…РѕРґ - РІРѕР·РІСЂР°С‰Р°РµРј РїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє
 
-            // Шаг 1: Определяем границы Bounding Box
+            // РЁР°Рі 1: РћРїСЂРµРґРµР»СЏРµРј РіСЂР°РЅРёС†С‹ Bounding Box
             Vector3 min = inputBlocks[0].localPosition;
             Vector3 max = inputBlocks[0].localPosition;
 
@@ -20,18 +20,18 @@ namespace Ururu
                 max = Vector3.Max(max, block.localPosition);
             }
 
-            // Приведение к целым, если нужно (если предполагается только целочисленные позиции)
+            // РџСЂРёРІРµРґРµРЅРёРµ Рє С†РµР»С‹Рј, РµСЃР»Рё РЅСѓР¶РЅРѕ (РµСЃР»Рё РїСЂРµРґРїРѕР»Р°РіР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ С†РµР»РѕС‡РёСЃР»РµРЅРЅС‹Рµ РїРѕР·РёС†РёРё)
             Vector3Int minInt = Vector3Int.FloorToInt(min);
             Vector3Int maxInt = Vector3Int.CeilToInt(max);
 
-            // Шаг 2: Создаем словарь для быстрого поиска занятых позиций
+            // РЁР°Рі 2: РЎРѕР·РґР°РµРј СЃР»РѕРІР°СЂСЊ РґР»СЏ Р±С‹СЃС‚СЂРѕРіРѕ РїРѕРёСЃРєР° Р·Р°РЅСЏС‚С‹С… РїРѕР·РёС†РёР№
             HashSet<Vector3Int> existingPositions = new HashSet<Vector3Int>();
             foreach (var block in inputBlocks)
             {
                 existingPositions.Add(Vector3Int.FloorToInt(block.localPosition));
             }
 
-            // Шаг 3: Заполняем все позиции в Bounding Box
+            // РЁР°Рі 3: Р—Р°РїРѕР»РЅСЏРµРј РІСЃРµ РїРѕР·РёС†РёРё РІ Bounding Box
             List<BlockData> result = new List<BlockData>();
 
             for (int x = minInt.x; x <= maxInt.x; x++)
@@ -43,7 +43,7 @@ namespace Ururu
                         Vector3Int pos = new Vector3Int(x, y, z);
                         if (existingPositions.Contains(pos))
                         {
-                            // Находим оригинальный блок с этим положением
+                            // РќР°С…РѕРґРёРј РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ Р±Р»РѕРє СЃ СЌС‚РёРј РїРѕР»РѕР¶РµРЅРёРµРј
                             byte blockId = 0;
                             foreach (var block in inputBlocks)
                             {
@@ -57,7 +57,7 @@ namespace Ururu
                         }
                         else
                         {
-                            // Пустая ячейка
+                            // РџСѓСЃС‚Р°СЏ СЏС‡РµР№РєР°
                             result.Add(new BlockData(pos, 0));
                         }
                     }

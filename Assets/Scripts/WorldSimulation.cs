@@ -153,7 +153,16 @@ public class WorldSimulation : MonoBehaviour
         }
         else
         {
-            simulationChunkData.simulatableBlocks.Remove(found);
+            if (simulationChunkData.simulatableBlocks.Remove(found))
+            {
+                print("я хуй пойми как такая ситуация возможна, но я ремувнул");
+                // "Я вообще не понимаю, как такая ситуация возможна, но я удалил"
+            }
+            else
+            {
+                print("бля, шо то вообще пошло не так 0_0");
+                // "Блин, что-то вообще пошло не так 0_0"
+            }
         }
 
         json = JsonConvert.SerializeObject(simulationChunkData);

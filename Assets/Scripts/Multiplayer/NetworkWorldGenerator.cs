@@ -90,6 +90,7 @@ public class NetworkWorldGenerator : NetworkBehaviour
         }
         else
         {
+            // Сервер отправляет клиенту информацию о том, что чанк не менялся
             ReceiveNoDataChunckBlocksClientRpc(chunckPos, clientRpcParams);
         }
     }

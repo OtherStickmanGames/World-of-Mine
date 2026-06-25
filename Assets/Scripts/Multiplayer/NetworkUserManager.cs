@@ -504,29 +504,22 @@ public class NetworkUserManager : NetworkBehaviour
     private async Task SendAvgFpsAsync(string playerID, int fps, int minFps)
     {
         var data = await GetUserDataAsync(playerID);
-        if (data != null)
+        
+        // Fail Fast: если данные потерялись в памяти или на диске — сервер должен упасть, 
+        // а не делать вид, что всё нормально (как было раньше с if (data != null))
+        if (data == null)
         {
-            var idxLastSession = data.sessions.Count - 1;
-            var session = data.sessions[idxLastSession];
-
-            var needSave = false;
-            if (session.avgFps != fps)
-            {
-                session.avgFps = fps;
-                needSave = true;
-            }
-            if (session.minFps != minFps)
-            {
-                needSave = true;
-                session.minFps = minFps;
-            }
-
-            if (needSave)
-            {
-                data.sessions[idxLastSession] = session;
-                await SaveUserDataAsync(data);
-            }
+            throw new System.InvalidOperationException($"Fail Fast: Данные пользователя {playerID} отсутствуют при попытке обновить FPS.");
         }
+
+        var idxLastSession = data.sessions.Count - 1;
+        var session = data.sessions[idxLastSession];
+
+        session.avgFps = fps;
+        session.minFps = minFps;
+
+        data.sessions[idxLastSession] = session;
+        // Запись на диск УБРАНА намеренно. Актуальные данные будут записаны при выходе в EndUserSessionAsync.
     }
 
     /// <summary>

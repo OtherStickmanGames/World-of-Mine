@@ -33,6 +33,34 @@ public class NetworkBuildingManager : NetworkBehaviour
     private void Start()
     {
         NetworkManager.OnServerStarted += Server_Started;
+        NetworkManager.OnClientDisconnectCallback += Client_Disconnected;
+    }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        NetworkManager.OnServerStarted -= Server_Started;
+        NetworkManager.OnClientDisconnectCallback -= Client_Disconnected;
+    }
+
+    private void Client_Disconnected(ulong clientId)
+    {
+        if (IsServer || IsHost)
+        {
+            if (clientSendRoutines.TryGetValue(clientId, out var routines))
+            {
+                if (routines.sendBuildings != null) StopCoroutine(routines.sendBuildings);
+                if (routines.sendFragments != null) StopCoroutine(routines.sendFragments);
+                clientSendRoutines.Remove(clientId);
+                Debug.Log($"Очищены корутины отправки построек для отключившегося клиента {clientId}");
+            }
+
+            if (receivedFragmentsBinaryBuildings.ContainsKey(clientId))
+            {
+                receivedFragmentsBinaryBuildings.Remove(clientId);
+                Debug.Log($"Очищены фрагменты загрузки построек для отключившегося клиента {clientId}");
+            }
+        }
     }
 
     private void Server_Started()
@@ -706,16 +734,9 @@ public class NetworkBuildingManager : NetworkBehaviour
             List<SaveBuildingData> buildingsData = new List<SaveBuildingData>();
             foreach (var file in files)
             {
-                try
-                {
-                    var json = File.ReadAllText(file);
-                    var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
-                    buildingsData.Add(data);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"Ошибка чтения постройки из файла {file}: {e.Message}");
-                }
+                var json = File.ReadAllText(file);
+                var data = JsonConvert.DeserializeObject<SaveBuildingData>(json);
+                buildingsData.Add(data);
             }
             return buildingsData.OrderBy(d => d.createDate).ToList();
         });

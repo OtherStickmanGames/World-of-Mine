@@ -766,7 +766,17 @@ public class NetworkBuildingManager : NetworkBehaviour
             yield return new WaitForSeconds(380);
 
             var random = new System.Random();
-            buildingsServerData = buildingsServerData.OrderBy(d => random.Next()).ToList();
+            
+            // Fisher-Yates shuffle без аллокаций памяти (in-place)
+            int n = buildingsServerData.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = random.Next(n + 1);
+                var value = buildingsServerData[k];
+                buildingsServerData[k] = buildingsServerData[n];
+                buildingsServerData[n] = value;
+            }
 
             StartCoroutine(Await());
         }

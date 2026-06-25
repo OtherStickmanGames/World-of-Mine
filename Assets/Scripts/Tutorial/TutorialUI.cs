@@ -16,7 +16,7 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] int countBuildingsBlocks = 0;
     [SerializeField] float speedCamRot = 3f;
     [SerializeField] TMP_Text debugTexto;
-    [SerializeField] QuickInventoryView quickInventoryView;
+    [SerializeField] public QuickInventoryView quickInventoryView;
     [SerializeField] SaveBuildingView saveBuildingView;
     [SerializeField] Button btnSwitchCamera;
     [SerializeField] FixedTouchField touchField;
@@ -116,11 +116,13 @@ public class TutorialUI : MonoBehaviour
     bool needSetPlayerStartPos;
     bool allowCheckMoveCamTutorial;
 
-    AnimationCurve resolutionFactorCurve;
+    public static TutorialUI Single;
 
 
     private void Awake()
     {
+        Single = this;
+
         canvasMine = GetComponent<Canvas>();
 
         btnSwitchCamera.gameObject.SetActive(false);
@@ -183,10 +185,6 @@ public class TutorialUI : MonoBehaviour
         mobileController.SetActive(false);
         mobileInput.gameObject.SetActive(false);
 
-        resolutionFactorCurve = new();
-        resolutionFactorCurve.AddKey(new(720, 1));
-        resolutionFactorCurve.AddKey(new(1080, 1));
-
         SaveBuildingView.onSaveBuildingClick.AddListener(SaveBuilding_Clicked);
         SaveBuildingView.onBuildingSave.AddListener(Building_Saved);
 
@@ -211,10 +209,8 @@ public class TutorialUI : MonoBehaviour
 
         if (Application.isMobilePlatform || testMobileInput)
         {
-            var damping = resolutionFactorCurve.Evaluate(Screen.height) * Time.deltaTime;
-            var value = touchField.TouchDist * sensitivity * damping;
-            lookDirection = Vector2.SmoothDamp(lookDirection, value, ref currentVelocity, damping * smoothTime);
-            VirtualLookInput(lookDirection);
+            //VirtualLookInput(TouchLookNormalizer.ToLookRate(touchField.TouchDist, sensitivity));
+            VirtualLookInput(touchField.TouchDist * sensitivity);
         }
 
         if (Input.GetMouseButtonDown(0))
@@ -377,7 +373,7 @@ public class TutorialUI : MonoBehaviour
         {
             if (quickInventoryView.Selected == 0)
             {
-                debugStr += $"Åáàòü òû ìàøèíà";
+                debugStr += $"Ð•Ð±Ð°Ñ‚ÑŒ Ñ‚Ñ‹ Ð¼Ð°ÑˆÐ¸Ð½Ð°";
 
                 selectSlotComplete = true;
 
@@ -422,7 +418,7 @@ public class TutorialUI : MonoBehaviour
 
             needCameraLookToPlaceBlock = true;
 
-            debugStr += $"Óñòàíîâêà áëîêà {WorldGenerator.Inst.GetBlockID(checkingPos)}";
+            debugStr += $"Ð£ÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ° Ð±Ð»Ð¾ÐºÐ° {WorldGenerator.Inst.GetBlockID(checkingPos)}";
 
             if (WorldGenerator.Inst.GetBlockID(checkingPos) > 0)
             {
@@ -596,7 +592,7 @@ public class TutorialUI : MonoBehaviour
                         pos =>
                         {
                             CameraStack.Instance.SetSaveBuildingCamPos(pos);
-                            //print("Òû ÅÁÀÍÓÒ ????!!!!");
+                            //print("Ð¢Ñ‹ Ð•Ð‘ÐÐÐ£Ð¢ ????!!!!");
                         },
                         camPos,
                         targetPos,
@@ -679,8 +675,8 @@ public class TutorialUI : MonoBehaviour
                 leftCropHandleMoveComplete = true;
             }
 
-            // Ñèñòåìà ñîõðàíåíèÿ ïîñòðîéêè ïîñëå îòïóñêàíèÿ óêàçàòåëÿ âûáîðà îáëàñòè
-            // âêëþ÷àåò îòîáðàæåíèå êíîïêè, ïîýòîìó ìû åå òóò ïîñòîÿííî ñêðûâàåì
+            // Ð¡Ð¸ÑÑ‚ÐµÐ¼Ð° ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ Ð¿Ð¾ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸ Ð¿Ð¾ÑÐ»Ðµ Ð¾Ñ‚Ð¿ÑƒÑÐºÐ°Ð½Ð¸Ñ ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»Ñ Ð²Ñ‹Ð±Ð¾Ñ€Ð° Ð¾Ð±Ð»Ð°ÑÑ‚Ð¸
+            // Ð²ÐºÐ»ÑŽÑ‡Ð°ÐµÑ‚ Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ ÐºÐ½Ð¾Ð¿ÐºÐ¸, Ð¿Ð¾ÑÑ‚Ð¾Ð¼Ñƒ Ð¼Ñ‹ ÐµÐµ Ñ‚ÑƒÑ‚ Ð¿Ð¾ÑÑ‚Ð¾ÑÐ½Ð½Ð¾ ÑÐºÑ€Ñ‹Ð²Ð°ÐµÐ¼
             saveBuildingView.SetVisibleBtnAccept(false);
         }
 
@@ -704,8 +700,8 @@ public class TutorialUI : MonoBehaviour
                 ShowTutorial(horizontalPlaneAcceptZone);
             }
 
-            // Ñèñòåìà ñîõðàíåíèÿ ïîñòðîéêè ïîñëå îòïóñêàíèÿ óêàçàòåëÿ âûáîðà îáëàñòè
-            // âêëþ÷àåò îòîáðàæåíèå êíîïêè, ïîýòîìó ìû åå òóò ïîñòîÿííî ñêðûâàåì
+            // Ð¡Ð¸ÑÑ‚ÐµÐ¼Ð° ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ Ð¿Ð¾ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸ Ð¿Ð¾ÑÐ»Ðµ Ð¾Ñ‚Ð¿ÑƒÑÐºÐ°Ð½Ð¸Ñ ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»Ñ Ð²Ñ‹Ð±Ð¾Ñ€Ð° Ð¾Ð±Ð»Ð°ÑÑ‚Ð¸
+            // Ð²ÐºÐ»ÑŽÑ‡Ð°ÐµÑ‚ Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ ÐºÐ½Ð¾Ð¿ÐºÐ¸, Ð¿Ð¾ÑÑ‚Ð¾Ð¼Ñƒ Ð¼Ñ‹ ÐµÐµ Ñ‚ÑƒÑ‚ Ð¿Ð¾ÑÑ‚Ð¾ÑÐ½Ð½Ð¾ ÑÐºÑ€Ñ‹Ð²Ð°ÐµÐ¼
             saveBuildingView.SetVisibleBtnAccept(false);
         }
 
@@ -736,7 +732,7 @@ public class TutorialUI : MonoBehaviour
             saveBuildingView.HideBtnCancel();
             if (saveBuildingView.CurSelectionMode == AcceptMode.Name)
             {
-                saveBuildingView.SetBuildingName("Íåâåäîìîå õ..");
+                saveBuildingView.SetBuildingName("ÐÐµÐ²ÐµÐ´Ð¾Ð¼Ð¾Ðµ Ñ…..");
                 saveBuildingView.SetVisibleBtnAccept(true);
                 previewBuildingComplete = true;
                 previewBuildingTutorial.SetActive(false);
@@ -761,8 +757,6 @@ public class TutorialUI : MonoBehaviour
             LeanTween.delayedCall(1f, () => saveBuildingView.SavedOk_Clicked());
             UserData.Owner.tutorialComplete = true;
             UserData.Owner.SaveData();
-
-            print("À âñ¸");
         }
     }
 
@@ -830,7 +824,6 @@ public class TutorialUI : MonoBehaviour
                 var pitch = playerBehaviour.cameraTarget.rotation.eulerAngles.x - thirdPersonController.CameraAngleOverride;
                 var yaw = playerBehaviour.cameraTarget.rotation.eulerAngles.y;
                 thirdPersonController.SetPitchAndYaw(pitch, yaw);
-                currentVelocity = default;
             }
 
             lookToBuildingTimer += Time.deltaTime;

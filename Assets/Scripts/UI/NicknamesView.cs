@@ -125,7 +125,7 @@ public class NicknamesView : MonoBehaviour
     private void ReceiveNickname(string nickname)
     {
         //print($"{waitingNickname} {nickname}");
-        // TO DO странная хуйня надо буде тразобраться
+        // TO DO СЃС‚СЂР°РЅРЅР°СЏ С…СѓР№РЅСЏ РЅР°РґРѕ Р±СѓРґРµ С‚СЂР°Р·РѕР±СЂР°С‚СЊСЃСЏ
         if (waitingNickname)
         {
             nicknames.Add(waitingNickname, nickname);

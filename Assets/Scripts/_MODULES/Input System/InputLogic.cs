@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Возиожно стоит переименовать в Input System
+/// Р’РѕР·РёРѕР¶РЅРѕ СЃС‚РѕРёС‚ РїРµСЂРµРёРјРµРЅРѕРІР°С‚СЊ РІ Input System
 /// </summary>
 public class InputLogic : MonoBehaviour
 {
@@ -20,6 +20,7 @@ public class InputLogic : MonoBehaviour
 
     PlayerBehaviour playerBehaviour;
     StarterAssetsInputs starterAssetsInputs;
+    QuickInventoryView quickInventoryView;
 
     [ReadOnlyField] public bool needUserGesture;
 
@@ -35,6 +36,9 @@ public class InputLogic : MonoBehaviour
     private void Start()
     {
         starterAssetsInputs = GetComponent<StarterAssetsInputs>();
+
+        quickInventoryView = GameManager.IsTutorialScene() ? TutorialUI.Single.quickInventoryView : UI.Single.quickInventoryView;
+
     }
 
     private void PlayerMine_Spawned(MonoBehaviour player)
@@ -90,7 +94,7 @@ public class InputLogic : MonoBehaviour
                         {
                             needUserGesture = true;
                             LockPlayerDigging();
-                            print("*** нужен жест ***");
+                            print("*** РЅСѓР¶РµРЅ Р¶РµСЃС‚ ***");
                             StartCoroutine(DelayedLockPlayerDigging());
                         }
 #endif
@@ -107,7 +111,7 @@ public class InputLogic : MonoBehaviour
             {
                 if (Input.anyKeyDown)
                 {
-                    print("-= Уруруруур =-");
+                    print("-= РЈСЂСѓСЂСѓСЂСѓСѓСЂ =-");
                     StartCoroutine(DelayedUnlockDigging());
                 }
             }
@@ -135,9 +139,9 @@ public class InputLogic : MonoBehaviour
             return;
         }
 
-        var currentSlot = UI.Single.quickInventoryView.Selected;
-        // TO DO на один раз при старте
-        var slotCount = UI.Single.quickInventoryView.SlotCount;
+        var currentSlot = quickInventoryView.Selected;
+        // TO DO РЅР° РѕРґРёРЅ СЂР°Р· РїСЂРё СЃС‚Р°СЂС‚Рµ
+        var slotCount = quickInventoryView.SlotCount;
         var scrollValue = Mouse.current.scroll.y.ReadValue();
         if (scrollValue < 0f)
             currentSlot = (currentSlot + 1) % slotCount;
@@ -175,7 +179,7 @@ public class InputLogic : MonoBehaviour
 
     void OnSlotChanged(int value)
     {
-        UI.Single.quickInventoryView.SelectSlot(value);
+        quickInventoryView.SelectSlot(value);
     }
 
 
@@ -198,7 +202,7 @@ public class InputLogic : MonoBehaviour
         {
             LockPlayerDigging();
         }
-        print("----- Курсор Показан -----");
+        print("----- РљСѓСЂСЃРѕСЂ РџРѕРєР°Р·Р°РЅ -----");
     }
 
     public static void HideCursor()
@@ -215,7 +219,7 @@ public class InputLogic : MonoBehaviour
             Single.StartCoroutine(DelayedUnlockDigging());
         }
 
-        print("======= Курсор Скрыт ========");
+        print("======= РљСѓСЂСЃРѕСЂ РЎРєСЂС‹С‚ ========");
     }
 
     public void DelayedHideCursor()
@@ -256,13 +260,13 @@ public class InputLogic : MonoBehaviour
     public static void LockPlayerDigging()
     {
         Single.playerBehaviour.allowDigging = false;
-        print("=== заблокировал копат ===");
+        print("=== Р·Р°Р±Р»РѕРєРёСЂРѕРІР°Р» РєРѕРїР°С‚ ===");
     }
 
     public static void UnlockPlayerDigging()
     {
         Single.playerBehaviour.allowDigging = true;
-        print("+++ копат да +++");
+        print("+++ РєРѕРїР°С‚ РґР° +++");
     }
 
     public void SwitchShowHideCursor()
@@ -285,34 +289,34 @@ public class InputLogic : MonoBehaviour
 
     private void OnApplicationFocus(bool focus)
     {
-        //print($"фокус {focus}");
+        //print($"С„РѕРєСѓСЃ {focus}");
     }
 
     private void OnApplicationPause(bool pause)
     {
-        //print($"пауза {pause}");
+        //print($"РїР°СѓР·Р° {pause}");
     }
 
     /// <summary>
-    /// Вызывакается из Индекс.шатал
+    /// Р’С‹Р·С‹РІР°РєР°РµС‚СЃСЏ РёР· РРЅРґРµРєСЃ.С€Р°С‚Р°Р»
     /// </summary>
     public void OnEscapePressed()
     {
         ShowCursor();
     }
 
-    // Выключить звук
+    // Р’С‹РєР»СЋС‡РёС‚СЊ Р·РІСѓРє
     public void MuteSound()
     {
         AudioListener.pause = true;
-        print("звук вырубил !!!");
+        print("Р·РІСѓРє РІС‹СЂСѓР±РёР» !!!");
     }
 
-    // Включить звук
+    // Р’РєР»СЋС‡РёС‚СЊ Р·РІСѓРє
     public void UnmuteSound()
     {
         AudioListener.pause = false;
-        print("звук да !!!");
+        print("Р·РІСѓРє РґР° !!!");
     }
 
 

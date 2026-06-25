@@ -6,13 +6,13 @@ public class ItemsStorage : MonoBehaviour
 {
     [SerializeField] ItemData[] itemsData;
     [Space(18)]
-    [Header("ÇÄÅÑÜ ÂÑÅ ĞÅÖÅÏÒÛ ÊĞÀÔÒÎÂ")]
+    [Header("Ğ—Ğ”Ğ•Ğ¡Ğ¬ Ğ’Ğ¡Ğ• Ğ Ğ•Ğ¦Ğ•ĞŸĞ¢Ğ« ĞšĞ ĞĞ¤Ğ¢ĞĞ’")]
     [SerializeField] ItemCraftableData[] itemsCraftableData;
     [Space(18)]
     [SerializeField] TurnableBlockData[] turnableBlockData;
     [Space(18)]
     [SerializeField] ItemID[] interactableBlocks;
-    [Space(18)][Header("ÒÓÒ ÎÏÈÑÛÂÀÉ ÍÀ ÊÀÊÎÌ ÑÒÎËÅ, ×ÒÎ ÊĞÀÔÒÈÒÑß")]
+    [Space(18)][Header("Ğ¢Ğ£Ğ¢ ĞĞŸĞ˜Ğ¡Ğ«Ğ’ĞĞ™ ĞĞ ĞšĞĞšĞĞœ Ğ¡Ğ¢ĞĞ›Ğ•, Ğ§Ğ¢Ğ ĞšĞ ĞĞ¤Ğ¢Ğ˜Ğ¢Ğ¡Ğ¯")]
     [SerializeField] CraftingBundle[] craftingBundles;
 
     static ItemsStorage instance;
@@ -25,7 +25,7 @@ public class ItemsStorage : MonoBehaviour
                 var storage = Resources.Load<ItemsStorage>("Items Storage");
                 if (!storage)
                 {
-                    Debug.LogError($"ÍİÒ ÏĞİÔÀÁÀ Â ĞÅÑÀÕ, ¨ÏÒÀ");
+                    Debug.LogError($"ĞĞ­Ğ¢ ĞŸĞ Ğ­Ğ¤ĞĞ‘Ğ Ğ’ Ğ Ğ•Ğ¡ĞĞ¥, ĞĞŸĞ¢Ğ");
                 }
 
                 instance = Instantiate(storage);
@@ -64,7 +64,7 @@ public class ItemsStorage : MonoBehaviour
             WorldGenerator.Inst.AddTurnableBlock((byte)item.itemID, item.rotationAxis);
         }
 
-        //print("ÛÛÛÛ");
+        //print("Ğ«Ğ«Ğ«Ğ«");
     }
 
     private IEnumerator Start()
@@ -88,7 +88,7 @@ public class ItemsStorage : MonoBehaviour
             }
         }
 
-        Debug.LogError($"Ïğåäìåò ñ ID Òèïîì {itemTypeID} Íå íàéäåí !!!");
+        Debug.LogError($"ĞŸÑ€ĞµĞ´Ğ¼ĞµÑ‚ Ñ ID Ğ¢Ğ¸Ğ¿Ğ¾Ğ¼ {itemTypeID} ĞĞµ Ğ½Ğ°Ğ¹Ğ´ĞµĞ½ !!!");
 
         return default;
     }
@@ -105,7 +105,7 @@ public class ItemsStorage : MonoBehaviour
             }
         }
 
-        Debug.LogError($"Ïğåäìåò ñ ïğîñòî ID {itemID} Íå íàéäåí !!!");
+        Debug.LogError($"ĞŸÑ€ĞµĞ´Ğ¼ĞµÑ‚ Ñ Ğ¿Ñ€Ğ¾ÑÑ‚Ğ¾ ID {itemID} ĞĞµ Ğ½Ğ°Ğ¹Ğ´ĞµĞ½ !!!");
 
         return default;
     }
@@ -165,7 +165,7 @@ public class ItemsStorage : MonoBehaviour
             }
         }
 
-        Debug.LogError($"Íåò òóò òàêîãî ãîâíà, òû øî, ıïàíóò?");
+        Debug.LogError($"ĞĞµÑ‚ Ñ‚ÑƒÑ‚ Ñ‚Ğ°ĞºĞ¾Ğ³Ğ¾ Ğ³Ğ¾Ğ²Ğ½Ğ°, Ñ‚Ñ‹ ÑˆĞ¾, ÑĞ¿Ğ°Ğ½ÑƒÑ‚?");
 
         return default;
     }

@@ -22,10 +22,10 @@ namespace Ururasf
 
     public class NPCBuildAction : MonoBehaviour
     {
-        public float buildRange = 3.0f;       // Максимальное расстояние, на котором NPC может установить блок
-        public float approachDistance = 1.0f; // Допустимое расстояние при подходе к точке установки
-        public byte scaffoldingBlockID = 1;   // ID временного блока для опоры (scaffolding)
-        public int verticalGapThreshold = 5;  // Если зазор меньше или равен этому порогу, строим вертикальную колонну
+        public float buildRange = 3.0f;       // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ, РЅР° РєРѕС‚РѕСЂРѕРј NPC РјРѕР¶РµС‚ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р±Р»РѕРє
+        public float approachDistance = 1.0f; // Р”РѕРїСѓСЃС‚РёРјРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РїСЂРё РїРѕРґС…РѕРґРµ Рє С‚РѕС‡РєРµ СѓСЃС‚Р°РЅРѕРІРєРё
+        public byte scaffoldingBlockID = 1;   // ID РІСЂРµРјРµРЅРЅРѕРіРѕ Р±Р»РѕРєР° РґР»СЏ РѕРїРѕСЂС‹ (scaffolding)
+        public int verticalGapThreshold = 5;  // Р•СЃР»Рё Р·Р°Р·РѕСЂ РјРµРЅСЊС€Рµ РёР»Рё СЂР°РІРµРЅ СЌС‚РѕРјСѓ РїРѕСЂРѕРіСѓ, СЃС‚СЂРѕРёРј РІРµСЂС‚РёРєР°Р»СЊРЅСѓСЋ РєРѕР»РѕРЅРЅСѓ
 
         [SerializeField] TextAsset buildingData;
 
@@ -41,7 +41,7 @@ namespace Ururasf
             {
                 blueprint.Add(new BlockData() { blockID = item.blockId, localPosition = item.Pos });
             }
-            Debug.Log("Блоков в чертеже: " + blueprint.Count);
+            Debug.Log("Р‘Р»РѕРєРѕРІ РІ С‡РµСЂС‚РµР¶Рµ: " + blueprint.Count);
         }
 
         private void Update()
@@ -67,39 +67,39 @@ namespace Ururasf
             }
             if (Input.GetKeyDown(KeyCode.B))
             {
-                // Вычисляем точку, откуда начнём строительство (можно задать по логике игры)
+                // Р’С‹С‡РёСЃР»СЏРµРј С‚РѕС‡РєСѓ, РѕС‚РєСѓРґР° РЅР°С‡РЅС‘Рј СЃС‚СЂРѕРёС‚РµР»СЊСЃС‚РІРѕ (РјРѕР¶РЅРѕ Р·Р°РґР°С‚СЊ РїРѕ Р»РѕРіРёРєРµ РёРіСЂС‹)
                 var playerNearPos = player.transform.position + player.transform.forward + Vector3.up;
                 StartCoroutine(BuildHouse(playerNearPos, blueprint));
             }
         }
 
-        // Главный метод строительства дома по чертежу (blueprint)
+        // Р“Р»Р°РІРЅС‹Р№ РјРµС‚РѕРґ СЃС‚СЂРѕРёС‚РµР»СЊСЃС‚РІР° РґРѕРјР° РїРѕ С‡РµСЂС‚РµР¶Сѓ (blueprint)
         public IEnumerator BuildHouse(Vector3 basePosition, List<BlockData> blueprint)
         {
-            // Создаём набор позиций, где будут строиться блоки (глобальные координаты)
+            // РЎРѕР·РґР°С‘Рј РЅР°Р±РѕСЂ РїРѕР·РёС†РёР№, РіРґРµ Р±СѓРґСѓС‚ СЃС‚СЂРѕРёС‚СЊСЃСЏ Р±Р»РѕРєРё (РіР»РѕР±Р°Р»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹)
             HashSet<Vector3> blueprintPositions = new HashSet<Vector3>();
             foreach (BlockData block in blueprint)
             {
                 blueprintPositions.Add(basePosition + block.localPosition);
             }
 
-            // Сортируем блоки по высоте (фундамент, затем стены, крыша и т.д.)
+            // РЎРѕСЂС‚РёСЂСѓРµРј Р±Р»РѕРєРё РїРѕ РІС‹СЃРѕС‚Рµ (С„СѓРЅРґР°РјРµРЅС‚, Р·Р°С‚РµРј СЃС‚РµРЅС‹, РєСЂС‹С€Р° Рё С‚.Рґ.)
             List<BlockData> orderedBlueprint = OrderBlueprint(blueprint);
 
             foreach (BlockData block in orderedBlueprint)
             {
                 Vector3 globalPos = basePosition + block.localPosition;
 
-                // 1. Если на месте уже есть блок, не соответствующий чертеже, очищаем место
+                // 1. Р•СЃР»Рё РЅР° РјРµСЃС‚Рµ СѓР¶Рµ РµСЃС‚СЊ Р±Р»РѕРє, РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ С‡РµСЂС‚РµР¶Рµ, РѕС‡РёС‰Р°РµРј РјРµСЃС‚Рѕ
                 yield return StartCoroutine(ClearObstructionsAt(globalPos, block));
 
-                //// 2. Если блок не пустой и под ним нет опоры, обеспечиваем доступ
+                //// 2. Р•СЃР»Рё Р±Р»РѕРє РЅРµ РїСѓСЃС‚РѕР№ Рё РїРѕРґ РЅРёРј РЅРµС‚ РѕРїРѕСЂС‹, РѕР±РµСЃРїРµС‡РёРІР°РµРј РґРѕСЃС‚СѓРї
                 //if (block.blockID != 0 && !IsSupported(globalPos))
                 //{
                 //    yield return StartCoroutine(BuildSmartScaffolding(globalPos, blueprintPositions));
                 //}
 
-                // 3. Находим точку подхода через NavMesh и перемещаемся туда
+                // 3. РќР°С…РѕРґРёРј С‚РѕС‡РєСѓ РїРѕРґС…РѕРґР° С‡РµСЂРµР· NavMesh Рё РїРµСЂРµРјРµС‰Р°РµРјСЃСЏ С‚СѓРґР°
                 Vector3 approachPos = FindApproachPosition(globalPos);
                 //if (approachPos == globalPos)
                 //{
@@ -109,7 +109,7 @@ namespace Ururasf
                 //}
                 yield return StartCoroutine(MoveToPosition(approachPos));
 
-                // 4. Если NPC достаточно близко, устанавливаем блок
+                // 4. Р•СЃР»Рё NPC РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р±Р»РёР·РєРѕ, СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р±Р»РѕРє
                 if (Vector3.Distance(transform.position, globalPos) <= buildRange)
                 {
                     WorldGenerator.Inst.SetBlockAndUpdateChunck(globalPos, block.blockID);
@@ -117,25 +117,25 @@ namespace Ururasf
                 else
                 {
                     
-                    Debug.Log("NPC не смог подойти достаточно близко для установки блока: " + globalPos);
+                    Debug.Log("NPC РЅРµ СЃРјРѕРі РїРѕРґРѕР№С‚Рё РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р±Р»РёР·РєРѕ РґР»СЏ СѓСЃС‚Р°РЅРѕРІРєРё Р±Р»РѕРєР°: " + globalPos);
                 }
 
-                // Задержка для плавности строительства
+                // Р—Р°РґРµСЂР¶РєР° РґР»СЏ РїР»Р°РІРЅРѕСЃС‚Рё СЃС‚СЂРѕРёС‚РµР»СЊСЃС‚РІР°
                 yield return new WaitForSeconds(0.2f);
             }
 
 
-            // В конце метода BuildHouse, сразу после завершения установки всех блоков:
+            // Р’ РєРѕРЅС†Рµ РјРµС‚РѕРґР° BuildHouse, СЃСЂР°Р·Сѓ РїРѕСЃР»Рµ Р·Р°РІРµСЂС€РµРЅРёСЏ СѓСЃС‚Р°РЅРѕРІРєРё РІСЃРµС… Р±Р»РѕРєРѕРІ:
             //GetBuildingBounds(blueprint, basePosition, out Vector3 buildingCenter, out float buildingRadius);
             //Vector3 exitPos = FindExitPoint(buildingCenter, buildingRadius, 5f);
-            //Debug.Log("Найден выход за постройкой: " + exitPos);
-            //// Если NPC находится на крыше, то сначала построим лестницу для спуска:
+            //Debug.Log("РќР°Р№РґРµРЅ РІС‹С…РѕРґ Р·Р° РїРѕСЃС‚СЂРѕР№РєРѕР№: " + exitPos);
+            //// Р•СЃР»Рё NPC РЅР°С…РѕРґРёС‚СЃСЏ РЅР° РєСЂС‹С€Рµ, С‚Рѕ СЃРЅР°С‡Р°Р»Р° РїРѕСЃС‚СЂРѕРёРј Р»РµСЃС‚РЅРёС†Сѓ РґР»СЏ СЃРїСѓСЃРєР°:
             //yield return StartCoroutine(EnsureDescentLadder(exitPos));
-            //// Затем переместимся к найденной точке выхода:
+            //// Р—Р°С‚РµРј РїРµСЂРµРјРµСЃС‚РёРјСЃСЏ Рє РЅР°Р№РґРµРЅРЅРѕР№ С‚РѕС‡РєРµ РІС‹С…РѕРґР°:
             //yield return StartCoroutine(MoveToPosition(exitPos));
         }
 
-        // Если в целевой позиции уже есть блок, не входящий в чертеж, удаляем его
+        // Р•СЃР»Рё РІ С†РµР»РµРІРѕР№ РїРѕР·РёС†РёРё СѓР¶Рµ РµСЃС‚СЊ Р±Р»РѕРє, РЅРµ РІС…РѕРґСЏС‰РёР№ РІ С‡РµСЂС‚РµР¶, СѓРґР°Р»СЏРµРј РµРіРѕ
         private IEnumerator ClearObstructionsAt(Vector3 globalPos, BlockData targetBlock)
         {
             byte currentID = WorldGenerator.Inst.GetBlockID(globalPos);
@@ -146,7 +146,7 @@ namespace Ururasf
             }
         }
 
-        // Поиск точки подхода на NavMesh, в пределах buildRange от целевой позиции
+        // РџРѕРёСЃРє С‚РѕС‡РєРё РїРѕРґС…РѕРґР° РЅР° NavMesh, РІ РїСЂРµРґРµР»Р°С… buildRange РѕС‚ С†РµР»РµРІРѕР№ РїРѕР·РёС†РёРё
         private Vector3 FindApproachPosition(Vector3 targetPos)
         {
             NavMeshHit hit;
@@ -158,7 +158,7 @@ namespace Ururasf
             return targetPos;
         }
 
-        // Сортировка блоков по высоте (от низших к высшим)
+        // РЎРѕСЂС‚РёСЂРѕРІРєР° Р±Р»РѕРєРѕРІ РїРѕ РІС‹СЃРѕС‚Рµ (РѕС‚ РЅРёР·С€РёС… Рє РІС‹СЃС€РёРј)
         private List<BlockData> OrderBlueprint(List<BlockData> blueprint)
         {
             return blueprint.OrderBy(b => b.localPosition.y).ToList();
@@ -172,14 +172,14 @@ namespace Ururasf
             float timeout = 5f;
             float stuckTimer = 0f;
 
-            // Считаем, что движение началось
+            // РЎС‡РёС‚Р°РµРј, С‡С‚Рѕ РґРІРёР¶РµРЅРёРµ РЅР°С‡Р°Р»РѕСЃСЊ
             Vector3 lastPosition = agent.transform.position;
 
             while (agent.pathPending || agent.remainingDistance > approachDistance)
             {
-                // Проверяем, двигается ли агент
+                // РџСЂРѕРІРµСЂСЏРµРј, РґРІРёРіР°РµС‚СЃСЏ Р»Рё Р°РіРµРЅС‚
                 float distanceMoved = Vector3.Distance(agent.transform.position, lastPosition);
-                bool isMoving = distanceMoved > 0.01f; // Порог для определения "движения", можно настроить
+                bool isMoving = distanceMoved > 0.01f; // РџРѕСЂРѕРі РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ "РґРІРёР¶РµРЅРёСЏ", РјРѕР¶РЅРѕ РЅР°СЃС‚СЂРѕРёС‚СЊ
 
                 if (!isMoving)
                 {
@@ -187,14 +187,14 @@ namespace Ururasf
 
                     if (stuckTimer > timeout)
                     {
-                        Debug.Log("MoveToPosition: Агент застрял при попытке добраться до " + destination);
-                        // Здесь можно добавить логику по постройке лестницы или обхода препятствия
+                        Debug.Log("MoveToPosition: РђРіРµРЅС‚ Р·Р°СЃС‚СЂСЏР» РїСЂРё РїРѕРїС‹С‚РєРµ РґРѕР±СЂР°С‚СЊСЃСЏ РґРѕ " + destination);
+                        // Р—РґРµСЃСЊ РјРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ Р»РѕРіРёРєСѓ РїРѕ РїРѕСЃС‚СЂРѕР№РєРµ Р»РµСЃС‚РЅРёС†С‹ РёР»Рё РѕР±С…РѕРґР° РїСЂРµРїСЏС‚СЃС‚РІРёСЏ
                         break;
                     }
                 }
                 else
                 {
-                    stuckTimer = 0f; // Сброс таймера, если агент продолжает движение
+                    stuckTimer = 0f; // РЎР±СЂРѕСЃ С‚Р°Р№РјРµСЂР°, РµСЃР»Рё Р°РіРµРЅС‚ РїСЂРѕРґРѕР»Р¶Р°РµС‚ РґРІРёР¶РµРЅРёРµ
                 }
 
                 lastPosition = agent.transform.position;

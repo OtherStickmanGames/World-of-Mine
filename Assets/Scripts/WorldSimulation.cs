@@ -12,7 +12,7 @@ using System.IO;
 
 
 /// <summary>
-/// Этот скрипт сделан так, чтобы он мог работать и через сервер и локально для оффлайн режима
+/// Р­С‚РѕС‚ СЃРєСЂРёРїС‚ СЃРґРµР»Р°РЅ С‚Р°Рє, С‡С‚РѕР±С‹ РѕРЅ РјРѕРі СЂР°Р±РѕС‚Р°С‚СЊ Рё С‡РµСЂРµР· СЃРµСЂРІРµСЂ Рё Р»РѕРєР°Р»СЊРЅРѕ РґР»СЏ РѕС„С„Р»Р°Р№РЅ СЂРµР¶РёРјР°
 /// </summary>
 public class WorldSimulation : MonoBehaviour
 {
@@ -24,9 +24,26 @@ public class WorldSimulation : MonoBehaviour
     static string simulationDataDirectory = $"{Application.dataPath}/Data/Chuncks/Simulation/";
 
     public Dictionary<Vector3, SimulationChunkData> simulationsChunks = new();
+    private Queue<Vector3> cacheOrder = new Queue<Vector3>();
+    private const int MaxCacheSize = 300;
 
     HashSet<SimulationChunkData> queueToAddSimulationChunks = new();
     [ReadOnlyField] public SimulationConfig config;
+
+    private void AddToCache(Vector3 pos, SimulationChunkData data)
+    {
+        if (simulationsChunks.ContainsKey(pos))
+            return;
+
+        if (simulationsChunks.Count >= MaxCacheSize)
+        {
+            var oldestPos = cacheOrder.Dequeue();
+            simulationsChunks.Remove(oldestPos);
+        }
+
+        simulationsChunks.Add(pos, data);
+        cacheOrder.Enqueue(pos);
+    }
 
     private void Awake()
     {
@@ -44,8 +61,8 @@ public class WorldSimulation : MonoBehaviour
 
     public void PlaceBlock(ChunckComponent chunk, Vector3 worldBlockPos, byte blockID)
     {
-        // Сначала проверяем на Клиенте есть ли смысл передавать на сервер информацию
-        // о поставленном блоке для симуляции мира
+        // РЎРЅР°С‡Р°Р»Р° РїСЂРѕРІРµСЂСЏРµРј РЅР° РљР»РёРµРЅС‚Рµ РµСЃС‚СЊ Р»Рё СЃРјС‹СЃР» РїРµСЂРµРґР°РІР°С‚СЊ РЅР° СЃРµСЂРІРµСЂ РёРЅС„РѕСЂРјР°С†РёСЋ
+        // Рѕ РїРѕСЃС‚Р°РІР»РµРЅРЅРѕРј Р±Р»РѕРєРµ РґР»СЏ СЃРёРјСѓР»СЏС†РёРё РјРёСЂР°
         var topBlockPos = worldBlockPos + Vector3Int.up;
         var topBlockID = WorldGenerator.Inst.GetBlockID(topBlockPos);
         if (blockID == DIRT && topBlockID != DIRT && topBlockID != GRASS)
@@ -102,9 +119,9 @@ public class WorldSimulation : MonoBehaviour
         SimulationChunkData simulationChunkData;
         string json;
 
-        if (simulationsChunks.ContainsKey(chunkPos))
+        if (simulationsChunks.TryGetValue(chunkPos, out simulationChunkData))
         {
-            simulationChunkData = simulationsChunks[chunkPos];
+            // Cache hit
         }
         else
         {
@@ -117,7 +134,7 @@ public class WorldSimulation : MonoBehaviour
             {
                 simulationChunkData = new() { ChunkPos = chunkPos, simulatableBlocks = new() };
             }
-            queueToAddSimulationChunks.Add(simulationChunkData);
+            AddToCache(chunkPos, simulationChunkData);
         }
 
         
@@ -138,11 +155,13 @@ public class WorldSimulation : MonoBehaviour
         {
             if (simulationChunkData.simulatableBlocks.Remove(found))
             {
-                print("я хуй пойми как такая ситуация возможна, но я ремувнул");
+                print("СЏ С…СѓР№ РїРѕР№РјРё РєР°Рє С‚Р°РєР°СЏ СЃРёС‚СѓР°С†РёСЏ РІРѕР·РјРѕР¶РЅР°, РЅРѕ СЏ СЂРµРјСѓРІРЅСѓР»");
+                // "РЇ РІРѕРѕР±С‰Рµ РЅРµ РїРѕРЅРёРјР°СЋ, РєР°Рє С‚Р°РєР°СЏ СЃРёС‚СѓР°С†РёСЏ РІРѕР·РјРѕР¶РЅР°, РЅРѕ СЏ СѓРґР°Р»РёР»"
             }
             else
             {
-                print("бля, шо то вообще пошло не так 0_0");
+                print("Р±Р»СЏ, С€Рѕ С‚Рѕ РІРѕРѕР±С‰Рµ РїРѕС€Р»Рѕ РЅРµ С‚Р°Рє 0_0");
+                // "Р‘Р»РёРЅ, С‡С‚Рѕ-С‚Рѕ РІРѕРѕР±С‰Рµ РїРѕС€Р»Рѕ РЅРµ С‚Р°Рє 0_0"
             }
         }
 
@@ -162,9 +181,9 @@ public class WorldSimulation : MonoBehaviour
         SimulationChunkData simulationChunkData = null;
         string json;
 
-        if (simulationsChunks.ContainsKey(chunkPos))
+        if (simulationsChunks.TryGetValue(chunkPos, out simulationChunkData))
         {
-            simulationChunkData = simulationsChunks[chunkPos];
+            // Cache hit
         }
         else
         {
@@ -172,6 +191,7 @@ public class WorldSimulation : MonoBehaviour
             {
                 json = File.ReadAllText(path);
                 simulationChunkData = JsonConvert.DeserializeObject<SimulationChunkData>(json);
+                AddToCache(chunkPos, simulationChunkData);
             }
         }
 
@@ -208,7 +228,7 @@ public class WorldSimulation : MonoBehaviour
             foreach (var chunkPos in chunkPoses)
             {
                 var simulationData = simulationsChunks[chunkPos];
-                //print($"симулируем {chunkPos} === {simulationData.simulatableBlocks.Count}");
+                //print($"СЃРёРјСѓР»РёСЂСѓРµРј {chunkPos} === {simulationData.simulatableBlocks.Count}");
                 SimulationChunk(simulationData);
 
                 yield return null;
@@ -232,7 +252,7 @@ public class WorldSimulation : MonoBehaviour
             {
                 var elapsed = DateTime.UtcNow - blockData.changed;
                 var seconds = elapsed.TotalSeconds;
-                //print($"прошло времени {seconds} ### {blockConfig.time}");
+                //print($"РїСЂРѕС€Р»Рѕ РІСЂРµРјРµРЅРё {seconds} ### {blockConfig.time}");
                 if (seconds > blockConfig.time)
                 {
                     InvokeBlockSimulation(blockData, simulationChunkData.ChunkPos, out var removeSimulationData);
@@ -244,7 +264,7 @@ public class WorldSimulation : MonoBehaviour
             }
             else
             {
-                Debug.Log($"Э, хуйло добавь конфиг {blockData.blockID}");
+                Debug.Log($"Р­, С…СѓР№Р»Рѕ РґРѕР±Р°РІСЊ РєРѕРЅС„РёРі {blockData.blockID}");
             }
         }
 
@@ -289,7 +309,7 @@ public class WorldSimulation : MonoBehaviour
 
                 onBlockChanged?.Invoke(chunkPos, blockData.localBlockPos, GRASS);
 
-                //print($"Есть шо {changedBlock}");
+                //print($"Р•СЃС‚СЊ С€Рѕ {changedBlock}");
                 WorldData.SaveChunkData(chunckData, chunkPos);
                 removeSimulationData = true;
                 break;
@@ -421,7 +441,3 @@ public struct SimulatableBlockData : INetworkSerializable
         serializer.SerializeValue(ref changed);
     }
 }
-
-
-
-

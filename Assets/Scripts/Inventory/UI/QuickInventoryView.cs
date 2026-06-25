@@ -48,7 +48,7 @@ public class QuickInventoryView : MonoBehaviour
         if (foundItem == null)
         {
             inventory.AddItemToQuick(slot.Item);
-            //print("добавлено");
+            //print("РґРѕР±Р°РІР»РµРЅРѕ");
         }
 
         if (Selected == slot.transform.GetSiblingIndex())
@@ -69,7 +69,7 @@ public class QuickInventoryView : MonoBehaviour
         if (foundItem == null)
         {
             inventory.AddItemToQuick(slot.Item);
-            //print("добавлено");
+            //print("РґРѕР±Р°РІР»РµРЅРѕ");
         }
 
         if (Selected == slot.transform.GetSiblingIndex())

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
@@ -17,6 +18,7 @@ public class NetworkUserManager : NetworkBehaviour
 {
     public Dictionary<ulong, string> users = new Dictionary<ulong, string>();
     public Dictionary<ulong, string> playerIds = new Dictionary<ulong, string>();
+    private Dictionary<string, GlobalUserData> userDataCache = new Dictionary<string, GlobalUserData>();
 
     [field: SerializeField]
     public bool UserRegistred { get; private set; } = false;
@@ -37,6 +39,70 @@ public class NetworkUserManager : NetworkBehaviour
     {
         NetworkManager.OnClientConnectedCallback += Client_Connected;
         NetworkManager.OnClientDisconnectCallback += Client_Disconnected;
+
+        if (NetworkManager.IsServer)
+        {
+            _ = CleanupAllStaleSessionsAsync();
+        }
+    }
+
+    private async Task CleanupAllStaleSessionsAsync()
+    {
+#if !UNITY_WEBGL
+        if (!Directory.Exists(usersDataDirectory)) return;
+
+        Debug.Log("[NetworkUserManager] Starting post-crash session cleanup...");
+        string[] files = Directory.GetFiles(usersDataDirectory, "*.json");
+        int cleanedCount = 0;
+
+        foreach (var file in files)
+        {
+            try
+            {
+                string json = await Task.Run(() => File.ReadAllText(file));
+                var userData = JsonConvert.DeserializeObject<GlobalUserData>(json);
+                bool changed = false;
+
+                if (userData?.sessions == null) continue;
+
+                for (int i = 0; i < userData.sessions.Count; i++)
+                {
+                    var s = userData.sessions[i];
+                    if (s.isActive)
+                    {
+                        s.isActive = false;
+                        if (s.end.Year < 2000) s.end = DateTime.Now; // Use current time as best guess
+                        userData.sessions[i] = s;
+                        changed = true;
+                    }
+                }
+
+                if (changed)
+                {
+                    await SaveUserDataAsync(userData);
+                    cleanedCount++;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[NetworkUserManager] Failed cleanup for {file}: {e.Message}");
+            }
+        }
+        if (cleanedCount > 0) Debug.Log($"[NetworkUserManager] Cleaned up {cleanedCount} stale user files.");
+#endif
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (NetworkManager.IsServer)
+        {
+            // Sync-style cleanup for the last moment of application life
+            // Using Task.Wait() here is acceptable only during shutdown
+            foreach (var playerId in playerIds.Values)
+            {
+                EndUserSessionAsync(playerId).Wait(500);
+            }
+        }
     }
 
     private void Client_Disconnected(ulong clientId)
@@ -50,13 +116,13 @@ public class NetworkUserManager : NetworkBehaviour
 
                 if (playerIds.ContainsKey(clientId))
                 {
-                    EndUserSession(playerIds[clientId]);
+                    _ = EndUserSessionAsync(playerIds[clientId]);
                     playerIds.Remove(clientId);
                 }
             }
             else
             {
-                Debug.Log($"Надо поразбираться шо за шляпа с дисконектом без конекта: client id {clientId}");
+                Debug.Log($"Р­С‚РѕС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РІ СЃРїРёСЃРєРµ Рё РїРѕРґРєР»СЋС‡РёР»СЃСЏ РєР°Рє РіРѕСЃС‚СЊ: client id {clientId}");
             }
         }
     }
@@ -68,16 +134,18 @@ public class NetworkUserManager : NetworkBehaviour
             var userData = UserData.Owner;
             SendUserNameServerRpc(userData.userName);
 
+            DeviceType deviceType = GetDeviceType();
+
 #if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
-            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID);
-#endif
-
-#if UNITY_STANDALONE && !UNITY_SERVER
-            SendYGUserConnectedServerRpc(userData.userName, "878sdf78sd78f5");
-#endif
-
-#if UNITY_ANDROID
-            SendYGUserConnectedServerRpc(userData.userName, SystemInfo.deviceUniqueIdentifier);
+            // ygPlayerID is handled via external JS/Yandex logic usually, 
+            // but let's ensure we use what we have.
+            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID, deviceType);
+#elif UNITY_ANDROID
+            ygPlayerID = SystemInfo.deviceUniqueIdentifier;
+            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID, deviceType);
+#else
+            ygPlayerID = "878sdf78sd78f5"; // Dev/Standalone ID
+            SendYGUserConnectedServerRpc(userData.userName, ygPlayerID, deviceType);
 #endif
         }
     }
@@ -126,7 +194,7 @@ public class NetworkUserManager : NetworkBehaviour
         }
         else
         {
-            Debug.Log($"Нет юзера {ownerID}");
+            Debug.Log($"РќРµС‚ СЋР·РµСЂР° {ownerID}");
         }
     }
 
@@ -137,7 +205,12 @@ public class NetworkUserManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SendYGUserConnectedServerRpc(string nickname, string playerId, ServerRpcParams serverRpcParams = default)
+    private void SendYGUserConnectedServerRpc(string nickname, string playerId, DeviceType deviceType, ServerRpcParams serverRpcParams = default)
+    {
+        _ = SendYGUserConnectedAsync(nickname, playerId, deviceType, serverRpcParams.Receive.SenderClientId);
+    }
+
+    private async Task SendYGUserConnectedAsync(string nickname, string playerId, DeviceType deviceType, ulong senderClientId)
     {
 #if !UNITY_WEBGL
         if (!Directory.Exists(usersDataDirectory))
@@ -147,171 +220,191 @@ public class NetworkUserManager : NetworkBehaviour
 
         playerId = playerId.Replace("/", "_");
         
-        if(!playerIds.TryAdd(serverRpcParams.Receive.SenderClientId, playerId))
+        if(!playerIds.TryAdd(senderClientId, playerId))
         {
-            print($"Почему-то не добавился player ID {playerId}");
+            print($"РџРѕС‡РµРјСѓ-С‚Рѕ РЅРµ РґРѕР±Р°РІРёР»СЃСЏ player ID {playerId}");
         }
 
         var fileName = $"{playerId}.json";
         var path = $"{usersDataDirectory}{fileName}";
+        GlobalUserData userData;
+
         if (File.Exists(path))
         {
-            var json = File.ReadAllText(path);
-            var userData = JsonConvert.DeserializeObject<GlobalUserData>(json);
+            var json = await Task.Run(() => File.ReadAllText(path));
+            userData = JsonConvert.DeserializeObject<GlobalUserData>(json);
+            
+            // CRITICAL FIX: Ensure playerID is set from the filename/system ID
+            userData.playerID = playerId; 
+
+            // Clean up any stale active sessions
+            for (int i = 0; i < userData.sessions.Count; i++)
+            {
+                var s = userData.sessions[i];
+                if (s.isActive)
+                {
+                    s.isActive = false;
+                    // If end was not set, set it to start to avoid crazy durations
+                    if (s.end.Year < 2000) s.end = s.start; 
+                    userData.sessions[i] = s;
+                }
+            }
+
             var session = new SessionData()
             {
                 nickname = nickname,
                 start = DateTime.Now,
                 isActive = true,
-                clientID = serverRpcParams.Receive.SenderClientId,
+                clientID = senderClientId,
+                deviceType = deviceType,
             };
             userData.sessions.Add(session);
-
-            json = JsonConvert.SerializeObject(userData);
-            File.WriteAllText(path, json);
         }
         else
         {
-            var userData = new GlobalUserData() { playerID = playerId };
+            userData = new GlobalUserData() { playerID = playerId };
             var session = new SessionData()
             {
                 nickname = nickname,
                 start = DateTime.Now,
                 isActive = true,
-                clientID = serverRpcParams.Receive.SenderClientId,
+                clientID = senderClientId,
+                deviceType = deviceType,
             };
             userData.sessions = new();
             userData.sessions.Add(session);
 
-            var json = JsonConvert.SerializeObject(userData);
-            File.WriteAllText(path, json);
+            // Need to set playerID for new user
+            userData.playerID = playerId;
         }
+
+        userDataCache[playerId] = userData;
+        await SaveUserDataAsync(userData);
 #endif
     }
 
-    // TODO переделать, чтобы держать в оперативе все данные юзеров
+    // TODO РїРµСЂРµРґРµР»Р°С‚СЊ, С‡С‚РѕР±С‹ РґРµСЂР¶Р°С‚СЊ РІ РѕРїРµСЂР°С‚РёРІРµ РІСЃРµ РґР°РЅРЅС‹Рµ СЋР·РµСЂРѕРІ   
     public void AddMinedBlock(ulong clienID)
+    {
+        _ = AddMinedBlockAsync(clienID);
+    }
+
+    private async Task AddMinedBlockAsync(ulong clienID)
     {
 #if !UNITY_WEBGL
         if (!playerIds.ContainsKey(clienID))
             return;
 
         var playerId = playerIds[clienID];
-        var fileName = $"{playerId}.json";
-        var path = $"{usersDataDirectory}{fileName}";
-        if (File.Exists(path))
+        GlobalUserData userData = await GetUserDataAsync(playerId);
+
+        if (userData != null)
         {
-            var json = File.ReadAllText(path);
-            var userData = JsonConvert.DeserializeObject<GlobalUserData>(json);
             var idxLastSession = userData.sessions.Count - 1;
             var session = userData.sessions[idxLastSession];
 
             session.countMineBlock++;
             userData.sessions[idxLastSession] = session;
 
-            json = JsonConvert.SerializeObject(userData);
-            File.WriteAllText(path, json);
+            await SaveUserDataAsync(userData);
         }
 #endif
     }
 
-    // TODO переделать, чтобы держать в оперативе все данные юзеров
+    // TODO РїРµСЂРµРґРµР»Р°С‚СЊ, С‡С‚РѕР±С‹ РґРµСЂР¶Р°С‚СЊ РІ РѕРїРµСЂР°С‚РёРІРµ РІСЃРµ РґР°РЅРЅС‹Рµ СЋР·РµСЂРѕРІ
     public void AddPlacedBlock(ulong clienID)
     {
+        _ = AddPlacedBlockAsync(clienID);
+    }
+
+    private async Task AddPlacedBlockAsync(ulong clienID)
+    {
+#if UNITY_WEBGL
+        await Task.CompletedTask;
+#endif
 #if !UNITY_WEBGL
         if (!playerIds.ContainsKey(clienID))
             return;
 
         var playerId = playerIds[clienID];
-        var fileName = $"{playerId}.json";
-        var path = $"{usersDataDirectory}{fileName}";
-        if (File.Exists(path))
+        GlobalUserData userData = await GetUserDataAsync(playerId);
+
+        if (userData != null)
         {
-            var json = File.ReadAllText(path);
-            var userData = JsonConvert.DeserializeObject<GlobalUserData>(json);
             var idxLastSession = userData.sessions.Count - 1;
             var session = userData.sessions[idxLastSession];
 
             session.countPlacedBlock++;
             userData.sessions[idxLastSession] = session;
 
-            json = JsonConvert.SerializeObject(userData);
-            File.WriteAllText(path, json);
+            await SaveUserDataAsync(userData);
         }
 #endif
     }
 
-    private void EndUserSession(string playerId)
+    private async Task EndUserSessionAsync(string playerId)
     {
 #if !UNITY_WEBGL
         playerId = playerId.Replace("/", "_");
-        var fileName = $"{playerId}.json";
-        var path = $"{usersDataDirectory}{fileName}";
-        if (File.Exists(path))
+        GlobalUserData userData = await GetUserDataAsync(playerId);
+
+        if (userData != null)
         {
-            var json = File.ReadAllText(path);
-            var userData = JsonConvert.DeserializeObject<GlobalUserData>(json);
             var idxLastSession = userData.sessions.Count - 1;
             var session = userData.sessions[idxLastSession];
             session.end = DateTime.Now;
             session.isActive = false;
             userData.sessions[idxLastSession] = session;
 
-            json = JsonConvert.SerializeObject(userData);
-            File.WriteAllText(path, json);
+            await SaveUserDataAsync(userData);
+            userDataCache.Remove(playerId); // Optional: clear cache on disconnect
         }
         else
         {
-            print("чё за хуйня блять...");
+            print("С‡С‘ Р·Р° С…СѓР№РЅСЏ Р±Р»СЏС‚СЊ...");
         }
 #endif
     }
 
-    private GlobalUserData GetUserData(string playerId)
+    private async Task<GlobalUserData> GetUserDataAsync(string playerId)
     {
 #if !UNITY_WEBGL
+        if (userDataCache.TryGetValue(playerId, out var cachedData))
+        {
+            return cachedData;
+        }
+
         playerId = playerId.Replace("/", "_");
         var fileName = $"{playerId}.json";
         var path = $"{usersDataDirectory}{fileName}";
         if (File.Exists(path))
         {
-            var json = File.ReadAllText(path);
-            return JsonConvert.DeserializeObject<GlobalUserData>(json);
+            var json = await Task.Run(() => File.ReadAllText(path));
+            var userData = JsonConvert.DeserializeObject<GlobalUserData>(json);
+            userDataCache[playerId] = userData;
+            return userData;
         }
         else
         {
-            print($"чё за хуйня блять... нет данных юзера {playerId}");
-            
+            print($"С‡С‘ Р·Р° С…СѓР№РЅСЏ Р±Р»СЏС‚СЊ... РЅРµС‚ РґР°РЅРЅС‹С… СЋР·РµСЂР° {playerId}");
         }
 #endif
         return null;
     }
 
-    private SessionData GetLastSession(GlobalUserData userData)
-    {
-        var idxLastSession = userData.sessions.Count - 1;
-        return userData.sessions[idxLastSession];
-    }
-
-    private void SetLastSession(GlobalUserData userData, SessionData sessionData)
-    {
-        var idxLastSession = userData.sessions.Count - 1;
-        userData.sessions[idxLastSession] = sessionData;
-    }
-
-    private void SaveUserData(GlobalUserData userData)
+    private async Task SaveUserDataAsync(GlobalUserData userData)
     {
 #if !UNITY_WEBGL
         var fileName = $"{userData.playerID}.json";
         var path = $"{usersDataDirectory}{fileName}";
         var json = JsonConvert.SerializeObject(userData);
-        File.WriteAllText(path, json);
+        await Task.Run(() => File.WriteAllText(path, json));
 #endif
     }
 
 
-    [Header("Буфер последних значений FPS")]
-    [Tooltip("Сколько последних кадров учитывать при расчёте среднего")]
+    [Header("Р‘СѓС„РµСЂ РїРѕСЃР»РµРґРЅРёС… Р·РЅР°С‡РµРЅРёР№ FPS")]
+    [Tooltip("РЎРєРѕР»СЊРєРѕ РїРѕСЃР»РµРґРЅРёС… РєР°РґСЂРѕРІ СѓС‡РёС‚С‹РІР°С‚СЊ РїСЂРё СЂР°СЃС‡С‘С‚Рµ СЃСЂРµРґРЅРµРіРѕ")]
     [SerializeField] private int bufferSize = 100;
 
     private Queue<float> fpsBuffer = new Queue<float>();
@@ -320,30 +413,30 @@ public class NetworkUserManager : NetworkBehaviour
     private float sumMinFps = 0f;
     private float sendTimer;
     private float minFpsTimer;
-    private int minFps = 60;
+    private int minFps = int.MaxValue;
 
     void Update()
     {
-        if (NetworkManager.IsConnectedClient)
+        if (NetworkManager.IsConnectedClient && appFocus)
         {
-            // 1) Текущее значение FPS
-            float currentFps = 1f / Time.deltaTime;
+            // 1)   FPS (using unscaledDeltaTime for real performance)
+            float dt = Time.unscaledDeltaTime;
+            if (dt <= 0) dt = 0.016f; // Safety check
+            float currentFps = 1f / dt;
 
-            // 2) Добавляем в буфер и обновляем сумму
+            // 2) Р”РѕР±Р°РІР»СЏРµРј РІ Р±СѓС„РµСЂ Рё РѕР±РЅРѕРІР»СЏРµРј СЃСѓРјРјСѓ
             fpsBuffer.Enqueue(currentFps);
             sumFps += currentFps;
 
-            
-
-            // 3) Если превысили размер буфера — убираем самое старое
+            // 3) Р•СЃР»Рё РїСЂРµРІС‹СЃРёР»Рё СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° вЂ” СѓР±РёСЂР°РµРј СЃР°РјРѕРµ СЃС‚Р°СЂРѕРµ    
             if (fpsBuffer.Count > bufferSize)
                 sumFps -= fpsBuffer.Dequeue();
 
-            // 4) Считаем среднее по тому, что осталось в буфере
+            // 4) РЎС‡РёС‚Р°РµРј СЃСЂРµРґРЅРµРµ РїРѕ С‚РѕРјСѓ, С‡С‚Рѕ РѕСЃС‚Р°Р»РѕСЃСЊ РІ Р±СѓС„РµСЂРµ  
             float averageFps = sumFps / fpsBuffer.Count;
 
 
-            // 5) Вывод / отправка
+            // 5) Р’С‹РІРѕРґ / РѕС‚РїСЂР°РІРєР°
             sendTimer += Time.deltaTime;
             if (sendTimer > 10)
             {
@@ -352,7 +445,7 @@ public class NetworkUserManager : NetworkBehaviour
             }
 
             minFpsTimer += Time.deltaTime;
-            if (minFpsTimer > 3 && appFocus)
+            if (minFpsTimer > 3)
             {
                 fpsMinBuffer.Enqueue(currentFps);
                 sumMinFps += currentFps;
@@ -369,51 +462,52 @@ public class NetworkUserManager : NetworkBehaviour
 
                 }
             }
-            
-            
-
         }
-
     }
 
-    private void SendAverageFps(float avgFps, int minFps)
+    private DeviceType GetDeviceType()
     {
-        // Вставьте сюда ваш код отправки на сервер или в аналитику
-        //Debug.Log($"Скользящее среднее FPS (последние {fpsBuffer.Count} кадров): {avgFps:F1} min: {minFps}");
-#if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
         DeviceType deviceType = DeviceType.Desktopo;
+
+#if UNITY_WEBGL && YG_PLUGIN_YANDEX_GAME
         if (YandexGame.EnvironmentData.isMobile)
         {
             deviceType = DeviceType.Mobilo;
         }
-        else
-        if (YandexGame.EnvironmentData.isTablet)
+        else if (YandexGame.EnvironmentData.isTablet)
         {
             deviceType = DeviceType.Tableto;
         }
+#elif UNITY_ANDROID || UNITY_IOS
+        deviceType = DeviceType.Mobilo;
+#endif
+        return deviceType;
+    }
 
+    private void SendAverageFps(float avgFps, int minFps)
+    {
         SendAvgFpsServerRpc
         (
             ygPlayerID,
-            Mathf.RoundToInt(avgFps),
-            minFps,
-            deviceType
+            Mathf.FloorToInt(avgFps),
+            minFps
         );
-#endif
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SendAvgFpsServerRpc(string playerID, int fps, int minFps, DeviceType deviceType, ServerRpcParams serverRpcParams = default)
+    private void SendAvgFpsServerRpc(string playerID, int fps, int minFps, ServerRpcParams serverRpcParams = default)
     {
-        //print($"avg: {fps} min: {minFps} ### {deviceType} : {playerID} #");
-        var data = GetUserData(playerID);
-        // ЕСТЬ ЯВНАЯ ПРОБЛЕМОС !!!!!!
+        //print($"avg: {fps} min: {minFps} ### {playerID} #");
+        _ = SendAvgFpsAsync(playerID, fps, minFps);
+    }
+
+    private async Task SendAvgFpsAsync(string playerID, int fps, int minFps)
+    {
+        var data = await GetUserDataAsync(playerID);
         if (data != null)
         {
-            var session = GetLastSession(data);
-
-            // TO DO Отправлять девайс тип вместе со стартом сессии
-            session.deviceType = deviceType;
+            var idxLastSession = data.sessions.Count - 1;
+            var session = data.sessions[idxLastSession];
 
             var needSave = false;
             if (session.avgFps != fps)
@@ -424,13 +518,13 @@ public class NetworkUserManager : NetworkBehaviour
             if (session.minFps != minFps)
             {
                 needSave = true;
-                session.minFps = fps;
+                session.minFps = minFps;
             }
 
             if (needSave)
             {
-                SetLastSession(data, session);
-                SaveUserData(data);
+                data.sessions[idxLastSession] = session;
+                await SaveUserDataAsync(data);
             }
         }
     }
@@ -444,13 +538,16 @@ public class NetworkUserManager : NetworkBehaviour
         ygPlayerID = value;
     }
 
-    private bool appFocus;
+    private bool appFocus = true;
     private void OnApplicationFocus(bool focus)
     {
         appFocus = focus;
         minFpsTimer = 0.5f;
         fpsMinBuffer.Clear();
-        //print($"фокус {appFocus}");
+        fpsBuffer.Clear();
+        sumFps = 0;
+        sumMinFps = 0;
+        //print($" {appFocus}");
     }
 
     public enum DeviceType
@@ -465,7 +562,7 @@ public class NetworkUserManager : NetworkBehaviour
 public struct SessionData
 {
     public string nickname;
-    
+
     public DateTime start;
     public DateTime end;
     public int countPlacedBlock;
@@ -485,5 +582,3 @@ public class GlobalUserData
 
     public List<SessionData> sessions;
 }
-
-

@@ -7,59 +7,59 @@ using UnityEngine;
 
 public class RpcWithAckManager : NetworkBehaviour
 {
-    // Храним ожидания ack'ов: messageId -> TaskCompletionSource
+    // РҐСЂР°РЅРёРј РѕР¶РёРґР°РЅРёСЏ ack'РѕРІ: messageId -> TaskCompletionSource
     private static ConcurrentDictionary<long, TaskCompletionSource<bool>> s_pendingAcks = new();
 
-    // Сервер вызывает этот метод, чтобы отправить клиенту "важный" ClientRpc и ждать ack
+    // РЎРµСЂРІРµСЂ РІС‹Р·С‹РІР°РµС‚ СЌС‚РѕС‚ РјРµС‚РѕРґ, С‡С‚РѕР±С‹ РѕС‚РїСЂР°РІРёС‚СЊ РєР»РёРµРЅС‚Сѓ "РІР°Р¶РЅС‹Р№" ClientRpc Рё Р¶РґР°С‚СЊ ack
     public Task<bool> SendImportantClientRpcAndWaitForAck(ulong clientId, byte[] payload, float timeoutSeconds = 3f)
     {
         var id = GenerateId();
         var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         s_pendingAcks[id] = tcs;
 
-        // Отправляем RPC (reliable по умолчанию) с id и payload. ClientRpcMethod — ниже.
+        // РћС‚РїСЂР°РІР»СЏРµРј RPC (reliable РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ) СЃ id Рё payload. ClientRpcMethod вЂ” РЅРёР¶Рµ.
         MethodClientRpc(id, payload, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new[] { clientId } } });
 
-        // таймаут
+        // С‚Р°Р№РјР°СѓС‚
         var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
         cts.Token.Register(() =>
         {
             if (s_pendingAcks.TryRemove(id, out var pending))
-                pending.TrySetResult(false); // не получили ack
+                pending.TrySetResult(false); // РЅРµ РїРѕР»СѓС‡РёР»Рё ack
         });
 
         return tcs.Task;
     }
 
-    // Клиентская обработка входящего RPC
+    // РљР»РёРµРЅС‚СЃРєР°СЏ РѕР±СЂР°Р±РѕС‚РєР° РІС…РѕРґСЏС‰РµРіРѕ RPC
     [ClientRpc]
     private void MethodClientRpc(long messageId, byte[] payload, ClientRpcParams clientRpcParams = default)
     {
-        // распарсь payload и обработай
+        // СЂР°СЃРїР°СЂСЃСЊ payload Рё РѕР±СЂР°Р±РѕС‚Р°Р№
         ProcessPayload(payload);
 
-        // после успешной обработки шлём ack назад на сервер
-        // AckServerRpc отправляется клиентом к серверу
+        // РїРѕСЃР»Рµ СѓСЃРїРµС€РЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё С€Р»С‘Рј ack РЅР°Р·Р°Рґ РЅР° СЃРµСЂРІРµСЂ
+        // AckServerRpc РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ РєР»РёРµРЅС‚РѕРј Рє СЃРµСЂРІРµСЂСѓ
         AckServerRpc(messageId);
     }
 
-    // Клиент -> сервер: ack RPC
+    // РљР»РёРµРЅС‚ -> СЃРµСЂРІРµСЂ: ack RPC
     [ServerRpc(RequireOwnership = false)]
     private void AckServerRpc(long messageId, ServerRpcParams serverRpcParams = default)
     {
-        // Сервер получает ack — резолвим pending Task
+        // РЎРµСЂРІРµСЂ РїРѕР»СѓС‡Р°РµС‚ ack вЂ” СЂРµР·РѕР»РІРёРј pending Task
         if (s_pendingAcks.TryRemove(messageId, out var tcs))
         {
             tcs.TrySetResult(true);
         }
     }
 
-    // Гарантируем уникальность id
+    // Р“Р°СЂР°РЅС‚РёСЂСѓРµРј СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ id
     private static long s_lastId = 1;
     private static long GenerateId() => Interlocked.Increment(ref s_lastId);
 
     private void ProcessPayload(byte[] payload)
     {
-        // код обработки данных
+        // РєРѕРґ РѕР±СЂР°Р±РѕС‚РєРё РґР°РЅРЅС‹С…
     }
 }

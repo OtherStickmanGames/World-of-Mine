@@ -35,7 +35,9 @@ public class ChatView : NetworkBehaviour
     {
         if (IsClient)
         {
+            Clear();
             SendUsernameServerRpc(username);
+            Show();
         }
 
         if (inited)
@@ -43,18 +45,15 @@ public class ChatView : NetworkBehaviour
 
         inited = true;
 
-        Clear();
-
         if (IsServer)
         {
+            Clear();
             usernames = new Dictionary<ulong, string>();
             history = new List<ChatMessage>();
             NetworkManager.OnClientDisconnectCallback += Client_Disconnected;
         }
         else
         {
-            Show();
-
             messageInput.onSubmit.AddListener(Message_Submited);
             messageInput.onValueChanged.AddListener(InputValue_Changed);
             messageInput.onSelect.AddListener(Input_Selected);

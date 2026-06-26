@@ -178,7 +178,7 @@ public class ChatView : NetworkBehaviour
         var clientID = serverRpcParams.Receive.SenderClientId;
         var username = "Житель мира";
         
-        if (NetworkUserManager.Instance && NetworkUserManager.Instance.users.ContainsKey(clientID))
+        if (NetworkUserManager.Instance.users.ContainsKey(clientID))
         {
             username = NetworkUserManager.Instance.users[clientID];
         }

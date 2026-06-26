@@ -38,18 +38,12 @@ public class UserView : MonoBehaviour
 
     private void Input_Selected(string text)
     {
-        if (InputLogic.Single != null)
-        {
-            InputLogic.Single.BlockPlayerControl = true;
-        }
+        InputLogic.Single.BlockPlayerControl = true;
     }
 
     private void Input_Deselected(string text)
     {
-        if (InputLogic.Single != null)
-        {
-            InputLogic.Single.BlockPlayerControl = false;
-        }
+        InputLogic.Single.BlockPlayerControl = false;
 
         if (NetworkManager.Singleton && NetworkManager.Singleton.IsClient)
         {

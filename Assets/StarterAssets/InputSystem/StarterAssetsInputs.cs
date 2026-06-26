@@ -85,7 +85,7 @@ namespace StarterAssets
 
 		private void Update()
 		{
-			if (InputLogic.Single != null && InputLogic.Single.BlockPlayerControl)
+			if (InputLogic.Single.BlockPlayerControl)
 			{
 				move = Vector2.zero;
 				jump = false;

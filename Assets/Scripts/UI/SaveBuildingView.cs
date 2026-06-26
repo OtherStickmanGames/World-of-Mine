@@ -103,12 +103,12 @@ public class SaveBuildingView : MonoBehaviour
 
     private void Input_Selected(string value)
     {
-        if (InputLogic.Single != null) InputLogic.Single.BlockPlayerControl = true;
+        InputLogic.Single.BlockPlayerControl = true;
     }
 
     private void Input_Deselected(string value)
     {
-        if (InputLogic.Single != null) InputLogic.Single.BlockPlayerControl = false;
+        InputLogic.Single.BlockPlayerControl = false;
     }
 
     public void SavedOk_Clicked()

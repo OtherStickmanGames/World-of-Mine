@@ -29,7 +29,7 @@ public class UserView : MonoBehaviour
 
     private void Submited(string text)
     {
-        if (NetworkManager.Singleton && NetworkManager.Singleton.IsClient)
+        if (NetworkManager.Singleton.IsClient)
         {
             NetworkUserManager.Instance.UpdateUserNameServerRpc(text);
         }
@@ -45,7 +45,7 @@ public class UserView : MonoBehaviour
     {
         InputLogic.Single.BlockPlayerControl = false;
 
-        if (NetworkManager.Singleton && NetworkManager.Singleton.IsClient)
+        if (NetworkManager.Singleton.IsClient)
         {
             NetworkUserManager.Instance.UpdateUserNameServerRpc(text);
         }
@@ -161,9 +161,6 @@ public class UserView : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (NetworkManager.Singleton)
-        {
-            NetworkManager.Singleton.OnClientStarted -= Client_Started;
-        }
+        NetworkManager.Singleton.OnClientStarted -= Client_Started;
     }
 }

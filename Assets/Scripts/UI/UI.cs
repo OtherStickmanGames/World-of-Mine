@@ -727,10 +727,7 @@ public class UI : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (NetworkManager.Singleton)
-        {
-            NetworkManager.Singleton.OnConnectionEvent -= ConnectionEvent_Invoked;
-        }
+        NetworkManager.Singleton.OnConnectionEvent -= ConnectionEvent_Invoked;
     }
 
     void DisableByDeviceType()

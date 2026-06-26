@@ -105,18 +105,12 @@ public class ChatView : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (NetworkUserManager.Instance)
-        {
-            NetworkUserManager.OnUserNameChanged += NetworkUserManager_OnUserNameChanged;
-        }
+        NetworkUserManager.OnUserNameChanged += NetworkUserManager_OnUserNameChanged;
     }
 
     public override void OnNetworkDespawn()
     {
-        if (NetworkUserManager.Instance)
-        {
-            NetworkUserManager.OnUserNameChanged -= NetworkUserManager_OnUserNameChanged;
-        }
+        NetworkUserManager.OnUserNameChanged -= NetworkUserManager_OnUserNameChanged;
     }
 
     private void NetworkUserManager_OnUserNameChanged(ulong clientId, string newName)

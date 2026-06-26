@@ -22,10 +22,7 @@ public class NicknamesView : MonoBehaviour
         Character.onSpawn.AddListener(AnyCharacter_Spawned);
         Character.onAnyDestroy.AddListener(AnyCharacter_Disabled);
         PlayerBehaviour.onMineSpawn.AddListener(MinePlayer_Spawned);
-        if (NetworkUserManager.Instance)
-        {
-            NetworkUserManager.OnUserNameChanged += NetworkUserManager_OnUserNameChanged;
-        }
+        NetworkUserManager.OnUserNameChanged += NetworkUserManager_OnUserNameChanged;
     }
 
     private void NetworkUserManager_OnUserNameChanged(ulong clientId, string newName)

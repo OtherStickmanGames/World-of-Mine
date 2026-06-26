@@ -81,6 +81,13 @@ public class SaveBuildingView : MonoBehaviour
         btnAccept.onClick.AddListener(Accept_Clicked);
         btnSavedOk.onClick.AddListener(SavedOk_Clicked);
 
+        var nav = nameInput.navigation;
+        nav.mode = UnityEngine.UI.Navigation.Mode.None;
+        nameInput.navigation = nav;
+
+        nameInput.onSelect.AddListener(Input_Selected);
+        nameInput.onDeselect.AddListener(Input_Deselected);
+
         cropHandleLeftTop.onPointerUp.AddListener(CropHandle_Uped);
         cropHandleRightBottom.onPointerUp.AddListener(CropHandle_Uped);
 
@@ -92,6 +99,16 @@ public class SaveBuildingView : MonoBehaviour
     private void Cancel_Clicked()
     {
         CloseSaveBuilding();
+    }
+
+    private void Input_Selected(string value)
+    {
+        InputLogic.Single.BlockPlayerControl = true;
+    }
+
+    private void Input_Deselected(string value)
+    {
+        InputLogic.Single.BlockPlayerControl = false;
     }
 
     public void SavedOk_Clicked()

@@ -85,6 +85,14 @@ namespace StarterAssets
 
 		private void Update()
 		{
+			if (InputLogic.Single.BlockPlayerControl)
+			{
+				move = Vector2.zero;
+				jump = false;
+				sprint = false;
+				return;
+			}
+
 			if (Input.GetKeyDown(KeyCode.F))
 			{
                 switch (Cursor.lockState)

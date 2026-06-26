@@ -39,6 +39,7 @@ public class UserView : MonoBehaviour
     private void Input_Selected(string text)
     {
         InputLogic.Single.BlockPlayerControl = true;
+        InputLogic.ShowCursor();
     }
 
     private void Input_Deselected(string text)

@@ -54,6 +54,10 @@ public class ChatView : NetworkBehaviour
         }
         else
         {
+            var nav = messageInput.navigation;
+            nav.mode = UnityEngine.UI.Navigation.Mode.None;
+            messageInput.navigation = nav;
+
             messageInput.onSubmit.AddListener(Message_Submited);
             messageInput.onValueChanged.AddListener(InputValue_Changed);
             messageInput.onSelect.AddListener(Input_Selected);
@@ -173,7 +177,12 @@ public class ChatView : NetworkBehaviour
         print($"сообщение чат {message}");
         var clientID = serverRpcParams.Receive.SenderClientId;
         var username = "Житель мира";
-        if (usernames.ContainsKey(clientID))
+        
+        if (NetworkUserManager.Instance && NetworkUserManager.Instance.users.ContainsKey(clientID))
+        {
+            username = NetworkUserManager.Instance.users[clientID];
+        }
+        else if (usernames.ContainsKey(clientID))
         {
             username = usernames[clientID];
         }

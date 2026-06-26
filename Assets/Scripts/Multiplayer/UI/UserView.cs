@@ -13,8 +13,14 @@ public class UserView : MonoBehaviour
 
     public void Init()
     {
+        var nav = inputUserName.navigation;
+        nav.mode = Navigation.Mode.None;
+        inputUserName.navigation = nav;
+
         inputUserName.onValueChanged.AddListener(Name_Changed);
         inputUserName.onSubmit.AddListener(Submited);
+        inputUserName.onSelect.AddListener(Input_Selected);
+        inputUserName.onDeselect.AddListener(Input_Deselected);
 
         NetworkManager.Singleton.OnClientStarted += Client_Started;
 
@@ -28,6 +34,27 @@ public class UserView : MonoBehaviour
             NetworkUserManager.Instance.UpdateUserNameServerRpc(text);
         }
         DelayShowCursor();
+    }
+
+    private void Input_Selected(string text)
+    {
+        if (InputLogic.Single != null)
+        {
+            InputLogic.Single.BlockPlayerControl = true;
+        }
+    }
+
+    private void Input_Deselected(string text)
+    {
+        if (InputLogic.Single != null)
+        {
+            InputLogic.Single.BlockPlayerControl = false;
+        }
+
+        if (NetworkManager.Singleton && NetworkManager.Singleton.IsClient)
+        {
+            NetworkUserManager.Instance.UpdateUserNameServerRpc(text);
+        }
     }
 
     private void Client_Started()

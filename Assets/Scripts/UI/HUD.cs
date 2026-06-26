@@ -22,7 +22,23 @@ public class HUD : MonoBehaviour
 
         equipmentView.gameObject.SetActive(false);
 
+        var nav = inputField.navigation;
+        nav.mode = UnityEngine.UI.Navigation.Mode.None;
+        inputField.navigation = nav;
+
         inputField.onSubmit.AddListener(Input_Submited);
+        inputField.onSelect.AddListener(Input_Selected);
+        inputField.onDeselect.AddListener(Input_Deselected);
+    }
+
+    private void Input_Selected(string value)
+    {
+        if (InputLogic.Single != null) InputLogic.Single.BlockPlayerControl = true;
+    }
+
+    private void Input_Deselected(string value)
+    {
+        if (InputLogic.Single != null) InputLogic.Single.BlockPlayerControl = false;
     }
 
     private void Input_Submited(string value)

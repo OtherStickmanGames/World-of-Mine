@@ -85,6 +85,7 @@ public class ChatView : NetworkBehaviour
     {
         InputLogic.Single.BlockPlayerControl = true;
         InputLogic.LockPlayerDigging();
+        InputLogic.ShowCursor();
     }
 
     private void InputValue_Changed(string value)

@@ -68,7 +68,7 @@ MonoBehaviour:
   sensitivityMouseY: 1.5
   CameraAngleOverrideX: -18
   CameraAngleOverrideY: 30
-  rotateSensitibity: 15
+  rotateSensitibity: 1
   onLikeClick:
     m_PersistentCalls:
       m_Calls: []
@@ -1141,7 +1141,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -2.5}
-  m_SizeDelta: {x: -216, y: -175}
+  m_SizeDelta: {x: -276, y: -175}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &259617164156419428
 CanvasRenderer:
@@ -1167,6 +1167,7 @@ MonoBehaviour:
   ebatos: {fileID: 0}
   touch1: {fileID: 0}
   touch2: {fileID: 0}
+  lerpSmooth: 18
   TouchDist: {x: 0, y: 0}
   PointerOld: {x: 0, y: 0}
   Pressed: 0
@@ -1213,7 +1214,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04ae00c90a6394142bc85f9fdcd27a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rectTransform: {fileID: 0}
   Pressed: 0
   touchTime: 0
   onPointerUp:

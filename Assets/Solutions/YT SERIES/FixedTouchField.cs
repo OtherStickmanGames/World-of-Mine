@@ -8,7 +8,11 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     [SerializeField] TMP_Text ebatos;
     [SerializeField] RectTransform touch1;
     [SerializeField] RectTransform touch2;
-    
+
+    [Space]
+    [Tooltip("Только для WebGL")]
+    [SerializeField] float lerpSmooth = 25f;
+
     [Space]
 
     [ReadOnlyField]
@@ -54,16 +58,31 @@ public class FixedTouchField : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             Vector2 rawDelta = currentPos - PointerOld;
             PointerOld = currentPos;
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Отсекаем неадекватные скачки (например, при смене пальца), 
+            // которые могут давать огромную дельту за один кадр в браузере.
+            if (rawDelta.magnitude > 250f) 
+            {
+                rawDelta = Vector2.zero;
+            }
+#endif
+
             // Масштабируем по высоте (аналог Canvas Scaler -> Match Height)
             float scaleFactor = 1080f / Screen.height;
 
-            TouchDist.x = rawDelta.x * scaleFactor;
-            TouchDist.y = rawDelta.y * scaleFactor;
+            Vector2 targetDist = new Vector2(rawDelta.x * scaleFactor, rawDelta.y * scaleFactor);
 
             if (invertY)
             {
-                TouchDist.y *= -1;
+                targetDist.y *= -1;
             }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Сглаживаем дерганый инпут браузера (WebGL часто шлет пачки эвентов рывками).
+            TouchDist = Vector2.Lerp(TouchDist, targetDist, Time.deltaTime * lerpSmooth);
+#else
+            TouchDist = targetDist;
+#endif
         }
         else
         {

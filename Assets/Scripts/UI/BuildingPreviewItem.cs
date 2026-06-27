@@ -74,6 +74,7 @@ public class BuildingPreviewItem : MonoBehaviour
     private void OnProgressChanged(string guid, float progress)
     {
         if (Guid != guid) return;
+
         loadingPercent.SetText($"Загружено {Mathf.RoundToInt(progress * 100)}%");
     }
 
@@ -88,7 +89,7 @@ public class BuildingPreviewItem : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (BuildingManager.Singleton != null && BuildingManager.Singleton.onBuildingLoadProgress != null)
+        if (BuildingManager.Singleton.onBuildingLoadProgress != null)
         {
             BuildingManager.Singleton.onBuildingLoadProgress.RemoveListener(OnProgressChanged);
         }
@@ -183,10 +184,8 @@ public class BuildingPreviewItem : MonoBehaviour
 
         if (lookDirection.sqrMagnitude >= 0.01f)
         {
-            float deltaTimeMultiplier = 1.0f;
-
-            _cinemachineTargetYaw += lookDirection.x * deltaTimeMultiplier;
-            _cinemachineTargetPitch += lookDirection.y * deltaTimeMultiplier * sensitivityMouseY;
+            _cinemachineTargetYaw += lookDirection.x;
+            _cinemachineTargetPitch += lookDirection.y * sensitivityMouseY;
         }
 
         _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);

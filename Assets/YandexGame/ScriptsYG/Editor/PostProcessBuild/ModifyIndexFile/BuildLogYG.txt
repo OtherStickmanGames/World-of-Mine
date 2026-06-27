@@ -1,2 +1,2 @@
 Build path: D:/Noob Online/Build/WGL
-Build number: 3
+Build number: 6

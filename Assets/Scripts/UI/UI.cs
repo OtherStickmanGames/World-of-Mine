@@ -40,6 +40,7 @@ public class UI : MonoBehaviour
     [SerializeField] TMP_Text positionInfo;
     [SerializeField] public ControlSettingsView controlSettingsView;
     [SerializeField] TMP_Text lblWaitForPlay;
+    public float sensitivity = 3f;
 
     [Space]
 
@@ -276,7 +277,7 @@ public class UI : MonoBehaviour
         UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
         transport.UseWebSockets = true;
         transport.UseEncryption = false;
-        transport.SetConnectionData("127.0.0.1", 7777); // Имя хоста и порт
+        transport.SetConnectionData("0.0.0.0", 7777); // 0.0.0.0 позволяет принимать подключения и от Nginx, и напрямую (для Unity Editor)
 
         StartCoroutine(ASYNC_START());
 
@@ -326,7 +327,7 @@ public class UI : MonoBehaviour
         CameraStack.Instance.SwitchCamera();
     }
 
-    public float sensitivity = 3f;
+    
 
     private void Update()
     {
@@ -424,35 +425,25 @@ public class UI : MonoBehaviour
 
         transport.UseEncryption = true;
         var hostname = "worldofmine.online";
+        var address = GameManager.Inst.serverAdress;
+
         if (GameManager.Inst.useDevServer)
         {
-            transport.SetConnectionData(GameManager.Inst.devServerAdress, 443);
-
             hostname = "devworldofmine.online";
+            address = GameManager.Inst.devServerAdress;
         }
-#if UNITY_WEBGL && !UNITY_EDITOR
+
+#if UNITY_EDITOR
+        transport.UseEncryption = false; // Отключаем багованный TLSLayer в редакторе
+        transport.SetConnectionData(address, 7777); // Стучимся напрямую на открытый порт сервера
+#elif UNITY_WEBGL
         if (Application.absoluteURL.IndexOf("draft=true") > 0)
         {
             hostname = "devworldofmine.online";
         }
-#endif
-#if UNITY_WEBGL
-        if (GameManager.Inst.useDevServer)
-        {
-            transport.SetConnectionData(GameManager.Inst.devServerAdress, 443);
-
-            hostname = "devworldofmine.online";
-        }
-        else
-        {
-            transport.SetConnectionData(GameManager.Inst.serverAdress, 443);
-        }
-#endif
-
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-        transport.UseEncryption = true; // Для HTTPS соединений
-        transport.SetConnectionData(hostname, 443); // Имя хоста и порт
+        transport.SetConnectionData(hostname, 443);
+#else
+        transport.SetConnectionData(address, 443);
 #endif
 
         transport.SetClientSecrets(hostname);
@@ -468,7 +459,14 @@ public class UI : MonoBehaviour
         UnityTransport transport = (UnityTransport)networkManager.NetworkConfig.NetworkTransport;
         var hostname = "devworldofmine.online";
         transport.SetClientSecrets(hostname);
+#if UNITY_EDITOR
+        transport.UseEncryption = false;
+        transport.SetConnectionData(GameManager.Inst.devServerAdress, 7777);
+#elif UNITY_WEBGL
+        transport.SetConnectionData(hostname, 443);
+#else
         transport.SetConnectionData(GameManager.Inst.devServerAdress, 443);
+#endif
 
         netcodeStatusView.HideBtnConnect();
         netcodeStatusView.ShowStatus("Пробую подключиться к резервному сервер О_о");

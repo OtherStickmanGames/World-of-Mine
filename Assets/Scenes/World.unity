@@ -811,8 +811,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FragmentSize: 1024
-  AckTimeoutSeconds: 5
-  MaxRetries: 3
+  AckTimeoutSeconds: 1.8
+  MaxRetries: 8
   receiver: {fileID: 207042243}
 --- !u!1 &210172971
 GameObject:
@@ -898,7 +898,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16.9
+  m_fontSize: 18
   m_fontSizeBase: 8
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1374,7 +1374,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16.9
+  m_fontSize: 18
   m_fontSizeBase: 8
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3145,7 +3145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useDevServer: 1
-  isLocalhost: 1
+  isLocalhost: 0
   serverAdress: 176.123.167.245
   devServerAdress: 176.123.165.242
   hostName: devworldofmine.online
@@ -3499,67 +3499,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f55b66a6b228b0f4399aea697fd0913f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &553318835
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 2211564899198745197, guid: caf9732433f4dc044845763962493607,
-    type: 3}
-  m_PrefabInstance: {fileID: 1184639306}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 553318838}
-  - component: {fileID: 553318837}
-  - component: {fileID: 553318836}
-  m_Layer: 0
-  m_Name: YandexGame
-  m_TagString: Untagged
-  m_Icon: {fileID: 2800000, guid: 75e2137d812e0484ca28df46b6bbc6f2, type: 3}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &553318836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 3157483472541429372, guid: caf9732433f4dc044845763962493607,
-    type: 3}
-  m_PrefabInstance: {fileID: 1184639306}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 553318835}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a5b227a20855044e9f75626696e0719, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &553318837
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 2211564899198745196, guid: caf9732433f4dc044845763962493607,
-    type: 3}
-  m_PrefabInstance: {fileID: 1184639306}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 553318835}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 404d6214ebdd58d43a94c7ed650dc2f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &553318838
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 2211564899198745199, guid: caf9732433f4dc044845763962493607,
-    type: 3}
-  m_PrefabInstance: {fileID: 1184639306}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 553318835}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &555652447
 GameObject:
   m_ObjectHideFlags: 0
@@ -4541,7 +4480,7 @@ PrefabInstance:
     - target: {fileID: 4795892551876565928, guid: 3f89f95edf2d1004a8213b9f9999a968,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000030517578
+      value: 0.000011444092
       objectReference: {fileID: 0}
     - target: {fileID: 5070144687136410380, guid: 3f89f95edf2d1004a8213b9f9999a968,
         type: 3}
@@ -5614,8 +5553,8 @@ MonoBehaviour:
   m_UseEncryption: 0
   m_MaxPacketQueueSize: 1024
   m_MaxPayloadSize: 18432
-  m_HeartbeatTimeoutMS: 500
-  m_ConnectTimeoutMS: 1000
+  m_HeartbeatTimeoutMS: 8000
+  m_ConnectTimeoutMS: 8000
   m_MaxConnectAttempts: 60
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
@@ -6123,6 +6062,7 @@ MonoBehaviour:
   positionInfo: {fileID: 918127953}
   controlSettingsView: {fileID: 393587966}
   lblWaitForPlay: {fileID: 301037849}
+  sensitivity: 3
   InventoryParent: {fileID: 471371736}
   ReleaseNotesParent: {fileID: 12176362}
   hideShowCursorInfo: {fileID: 796727984}
@@ -6135,7 +6075,6 @@ MonoBehaviour:
   desktopDisable:
   - {fileID: 672783500}
   btnDisableAll: {fileID: 56887742}
-  sensitivity: 11
 --- !u!224 &690583769
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10996,7 +10935,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16.9
+  m_fontSize: 18
   m_fontSizeBase: 8
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -16062,6 +16001,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5194906060456052166, guid: bb8eabb4f8a774f4483ad5e2ffb346c2,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 6888447220552621292, guid: bb8eabb4f8a774f4483ad5e2ffb346c2,
         type: 3}

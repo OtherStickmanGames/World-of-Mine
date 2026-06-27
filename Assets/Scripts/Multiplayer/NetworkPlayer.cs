@@ -46,7 +46,7 @@ public class NetworkPlayer : NetworkBehaviour
             yield return null;
 
 #if !UNITY_SERVER
-            Debug.Log($"Сервер инициализирует {player} ### {UserData.Owner}");
+            //Debug.Log($"Сервер инициализирует {player} ### {UserData.Owner}");
 
             // Safe spawn for new players
             if (UserData.Owner.position == Vector3.zero && !GameManager.IsTutorialScene())

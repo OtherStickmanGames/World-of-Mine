@@ -19,6 +19,7 @@ public class IdGenerator
 public class FragmentedSender : NetworkBehaviour
 {
     [SerializeField] private int FragmentSize = 1024;
+    [SerializeField] private int BatchSize = 10;
     [SerializeField] private float AckTimeoutSeconds = 5f;
     [SerializeField] private int MaxRetries = 3;
 
@@ -50,43 +51,49 @@ public class FragmentedSender : NetworkBehaviour
         int totalFragments = (data.Length + FragmentSize - 1) / FragmentSize;
         Debug.Log($"[FragmentedSender] Начинаем передачу {transferId} клиенту {clientId}. Всего фрагментов: {totalFragments}");
         
-        for (int i = 0; i < totalFragments; i++)
+        for (int batchStart = 0; batchStart < totalFragments; batchStart += BatchSize)
         {
-            int offset = i * FragmentSize;
-            int length = Math.Min(FragmentSize, data.Length - offset);
-            byte[] fragmentData = new byte[length];
-            Array.Copy(data, offset, fragmentData, 0, length);
-
-            bool fragmentAcked = false;
+            int batchEnd = Math.Min(batchStart + BatchSize, totalFragments) - 1;
+            bool batchAcked = false;
             int retryCount = 0;
 
-            while (!fragmentAcked && retryCount < MaxRetries)
+            while (!batchAcked && retryCount < MaxRetries)
             {
-                var rpcParams = new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new[] { clientId } } };
-                receiver.ReceiveFragmentClientRpc(transferId, i, totalFragments, fragmentData, rpcParams);
+                for (int i = batchStart; i <= batchEnd; i++)
+                {
+                    int offset = i * FragmentSize;
+                    int length = Math.Min(FragmentSize, data.Length - offset);
+                    byte[] fragmentData = new byte[length];
+                    Array.Copy(data, offset, fragmentData, 0, length);
+
+                    var rpcParams = new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new[] { clientId } } };
+                    receiver.ReceiveFragmentClientRpc(transferId, i, totalFragments, fragmentData, rpcParams);
+                    
+                    yield return null;
+                }
 
                 float timer = 0f;
                 while (timer < AckTimeoutSeconds)
                 {
-                    if (_acknowledgedFragments[transferId] == i)
+                    if (_acknowledgedFragments[transferId] >= batchEnd)
                     {
-                        fragmentAcked = true;
+                        batchAcked = true;
                         break;
                     }
                     timer += Time.deltaTime;
                     yield return null;
                 }
 
-                if (!fragmentAcked)
+                if (!batchAcked)
                 {
                     retryCount++;
-                    Debug.Log($"[FragmentedSender] Таймаут ожидания подтверждения передачи {transferId}, фрагмент {i}. Попытка {retryCount} из {MaxRetries}");
+                    Debug.Log($"[FragmentedSender] Таймаут ожидания пачки {batchStart}-{batchEnd} передачи {transferId}. Попытка {retryCount} из {MaxRetries}");
                 }
             }
 
-            if (!fragmentAcked)
+            if (!batchAcked)
             {
-                Debug.LogError($"[FragmentedSender] Не удалось отправить фрагмент {i} передачи {transferId} клиенту {clientId} после {MaxRetries} попыток. Передача прервана.");
+                Debug.LogError($"[FragmentedSender] Не удалось отправить пачку {batchStart}-{batchEnd} передачи {transferId} клиенту {clientId} после {MaxRetries} попыток. Передача прервана.");
                 _acknowledgedFragments.Remove(transferId);
                 yield break;
             }

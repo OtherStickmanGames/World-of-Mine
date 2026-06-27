@@ -3144,7 +3144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cbb70b30b293a749a7cb9a8f8afebc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useDevServer: 1
+  useDevServer: 0
   isLocalhost: 0
   serverAdress: 176.123.167.245
   devServerAdress: 176.123.165.242
@@ -5551,7 +5551,7 @@ MonoBehaviour:
   m_ProtocolType: 0
   m_UseWebSockets: 1
   m_UseEncryption: 0
-  m_MaxPacketQueueSize: 1024
+  m_MaxPacketQueueSize: 4096
   m_MaxPayloadSize: 18432
   m_HeartbeatTimeoutMS: 8000
   m_ConnectTimeoutMS: 8000
@@ -5690,6 +5690,7 @@ MonoBehaviour:
   ebatos: {fileID: 1974414733}
   touch1: {fileID: 1169108241}
   touch2: {fileID: 1169108241}
+  lerpSmooth: 23
   TouchDist: {x: 0, y: 0}
   PointerOld: {x: 0, y: 0}
   Pressed: 0

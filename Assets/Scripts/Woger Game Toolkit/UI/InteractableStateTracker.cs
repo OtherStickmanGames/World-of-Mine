@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 public class InteractableStateTracker : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler, IDragHandler
 {
-    public RectTransform rectTransform;
+    RectTransform rectTransform;
     public bool Pressed;
     public float touchTime;
 

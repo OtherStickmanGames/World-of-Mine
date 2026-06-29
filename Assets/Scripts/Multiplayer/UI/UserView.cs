@@ -45,6 +45,12 @@ public class UserView : MonoBehaviour
     private void Input_Deselected(string text)
     {
         InputLogic.Single.BlockPlayerControl = false;
+        
+        if (Application.isMobilePlatform)
+        {
+            InputLogic.HideCursor();
+            InputLogic.LockPlayerDigging();
+        }
 
         if (NetworkManager.Singleton.IsClient)
         {

@@ -443,7 +443,8 @@ public class UI : MonoBehaviour
         }
         transport.SetConnectionData(hostname, 443);
 #else
-        transport.SetConnectionData(address, 443);
+        transport.UseEncryption = false;
+        transport.SetConnectionData(address, 7777);
 #endif
 
         transport.SetClientSecrets(hostname);
